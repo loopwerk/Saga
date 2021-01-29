@@ -12,6 +12,24 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
+extension Page {
+  var isPublicArticle: Bool {
+    guard let metadata = metadata as? ArticleMetadata else {
+      return false
+    }
+    return metadata.isPublic
+  }
+  var isApp: Bool {
+    return metadata is AppMetadata
+  }
+  var tags: [String] {
+    if let tagMetadata = metadata as? ArticleMetadata {
+      return tagMetadata.tags
+    }
+    return []
+  }
+}
+
 try Saga(input: "content", output: "deploy")
   .read(
     folder: "articles",
@@ -31,15 +49,18 @@ try Saga(input: "content", output: "deploy")
     templates: "templates",
     writers: [
       // Articles
-      .section(folder: "articles", filter: { $0.isArticle }, writers: [
+      .section(prefix: "articles", filter: { $0.isPublicArticle }, writers: [
         .pageWriter(template: "article.html"),
         .listWriter(template: "articles.html"),
         .tagWriter(template: "tag.html", tags: { $0.tags }),
         .yearWriter(template: "year.html"),
       ]),
+      
+      // Apps
+      .listWriter(template: "apps.html", output: "apps/index.html", filter: { $0.isApp }),
 
       // Other pages
-      .pageWriter(template: "page.html"),
+      .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
     ]
   )
   .staticFiles()

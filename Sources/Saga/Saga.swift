@@ -84,7 +84,7 @@ public extension Saga {
     for writer in writers {
       try writer.write(fileStorage.compactMap(\.page), { template, context, destination in
         try render(environment: environment, template: template, context: context, destination: destination)
-      }, outputPath, "", { _ in true })
+      }, outputPath, "")
     }
 
     return self
