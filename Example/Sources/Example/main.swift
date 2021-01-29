@@ -104,7 +104,7 @@ try Saga(input: "content", output: "deploy")
 
       // Other pages
       // We specifically filter on EmptyMetadata here, otherwise it might process articles or apps that were not written by the writers above.
-      // For example, where is one article that is not public, so wouldn't have been written by that first pageWriter. That means all of a
+      // For example, there is one article that is not public, so wouldn't have been written by that first pageWriter. That means all of a
       // sudden this "less specific" pageWriter would now still write that article to disk, which is not what we want.
       .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
     ]
