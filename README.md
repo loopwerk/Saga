@@ -98,6 +98,7 @@ Please check out the Example folder. Simply open `Package.swift`, wait for the d
 - Remove the page title from the page body - right now it's not possible to add content between the title and the body of an article, something that I do need for my own website.
 - Add paginating support for list/tag/year writers.
 - Replace the Ink and Splash dependencies (see known limitations, below).
+- Research a way to auto-run on changes, maybe even with reloading the browser as well.
 - Docs and tests.
 
 ## Known limitations
@@ -106,3 +107,14 @@ Please check out the Example folder. Simply open `Package.swift`, wait for the d
 - Stencil's template inheritance doesn't support overriding blocks through multiple levels (https://github.com/stencilproject/Stencil/issues/275)
 - Ink, the Markdown parser, is buggy and is missing features (https://github.com/JohnSundell/Ink/pull/49, https://github.com/JohnSundell/Ink/pull/63). Pull requests don't seem to get merged anymore?
 - Splash, the syntax highlighter, only has support for Swift grammar. If you write articles with, let's say, JavaScript code blocks, they won't get properly highlighted.
+
+## Thanks
+
+Inspiration for the API of Saga is very much owed to my favorite (but sadly long unmaintained) static site generator: [liquidluck](https://github.com/avelino/liquidluck). Its system of multiple readers and writers is really good and I wanted something similar.
+
+Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder code, which was copied over shamelessly.
+
+## Faq
+
+Q: Is this ready for production?  
+A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
