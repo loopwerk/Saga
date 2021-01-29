@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ page.title }}</h1>
+<h2>{{ page.date | date:"dd-MM" }}-<a href="/articles/{{ page.date | date:"yyyy" }}/">{{ page.date | date:"yyyy" }}</a></h2>
+<ul>
+  {% for tag in page.metadata.tags %}
+  <li><a href="/articles/{{ tag }}/">{{ tag }}</a></li>
+  {% endfor %}
+</ul>
+{{ page.body }}
+{% endblock %}
