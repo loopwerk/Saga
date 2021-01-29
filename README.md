@@ -69,8 +69,8 @@ try Saga(input: "content", output: "deploy")
       .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
     ]
   )
-  // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
-  // are copied as-is to the output folder.
+  // All the remaining files that were not parsed to markdown, so for example images,
+  // raw html files and css, are copied as-is to the output folder.
   .staticFiles()
 ```
 
