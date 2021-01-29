@@ -17,24 +17,19 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
+// Add some helper methods to the Page type that Saga provides
 extension Page {
   var isArticle: Bool {
     return metadata is ArticleMetadata
   }
   var isPublicArticle: Bool {
-    guard let metadata = metadata as? ArticleMetadata else {
-      return false
-    }
-    return metadata.isPublic
+    return (metadata as? ArticleMetadata)?.isPublic ?? false
   }
   var isApp: Bool {
     return metadata is AppMetadata
   }
   var tags: [String] {
-    if let tagMetadata = metadata as? ArticleMetadata {
-      return tagMetadata.tags
-    }
-    return []
+    return (metadata as? ArticleMetadata)?.tags ?? []
   }
 }
 
@@ -42,6 +37,8 @@ let pageProcessorDateFormatter = DateFormatter()
 pageProcessorDateFormatter.dateFormat = "yyyy-MM-dd"
 pageProcessorDateFormatter.timeZone = .current
 
+// An example of a simple page processor that takes files such as "2021-01-27-post-with-date-in-filename"
+// and uses the date within the filename as the publication date.
 func pageProcessor(page: Page) {
   // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
   let first10 = String(page.relativeSource.lastComponentWithoutExtension.prefix(10))
@@ -60,20 +57,28 @@ func pageProcessor(page: Page) {
 }
 
 try Saga(input: "content", output: "deploy")
+  // All markdown files within the "articles" subfolder will be parsed to html,
+  // using ArticleMetadata as the Page's metadata type.
   .read(
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.markdownReader(pageProcessor: pageProcessor)]
   )
+  // All markdown files within the "apps" subfolder will be parsed to html,
+  // using AppMetadata as the Page's metadata type.
   .read(
     folder: "apps",
     metadata: AppMetadata.self,
     readers: [.markdownReader()]
   )
+  // All the remaining markdown files will be parsed to html,
+  // using the default EmptyMetadata as the Page's metadata type.
   .read(
     metadata: EmptyMetadata.self,
     readers: [.markdownReader()]
   )
+  // Now that we have read all the markdown pages, we're going to write
+  // them all to disk using a variety of writers.
   .write(
     templates: "templates",
     writers: [
@@ -104,4 +109,6 @@ try Saga(input: "content", output: "deploy")
       .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
     ]
   )
+  // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
+  // are copied as-is to the output folder.
   .staticFiles()
