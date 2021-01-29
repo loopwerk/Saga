@@ -3,13 +3,13 @@
 import PackageDescription
 
 let package = Package(
-  name: "Examples",
+  name: "Example",
   dependencies: [
     .package(path: "../"),
   ],
   targets: [
     .target(
-      name: "Examples",
+      name: "Example",
       dependencies: ["Saga"]),
   ]
 )
