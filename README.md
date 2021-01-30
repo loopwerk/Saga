@@ -202,3 +202,6 @@ Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another s
 
 Q: Is this ready for production?  
 A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
+
+Q: How do I view the generated website?  
+A: Personally I use the `serve` tool, installed via Homebrew. `brew install serve`, and then run `serve deploy`.
