@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for page in pages %}
+  <url>
+    <loc>https://www.example.com{{ page | url }}</loc>
+    <lastmod>{{ page.lastModified }}</lastmod>
+  </url>
+  {% endfor %}
+  <url>
+    <loc>https://www.example.com/articles/</loc>
+  </url>
+  <url>
+    <loc>https://www.example.com/apps/</loc>
+  </url>
+</urlset>
+

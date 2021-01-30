@@ -28,6 +28,7 @@ public extension Reader {
         rawContent: contents,
         body: markdown.html,
         date: date,
+        lastModified: path.modificationDate ?? Date(),
         metadata: metadata
       )
 

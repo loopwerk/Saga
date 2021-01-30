@@ -100,14 +100,20 @@ try Saga(input: "content", output: "deploy")
       //
       // So it basically prefixes the `output` and pre-filters the pages so you don't have to do it for every writer.
 
-      // Apps
+      // Apps don't get their own individual webpage, instead they are only written using the listWriter
       .listWriter(template: "apps.html", output: "apps/index.html", filter: { $0.isApp }),
 
       // Other pages
       // We specifically filter on EmptyMetadata here, otherwise it might process articles or apps that were not written by the writers above.
-      // For example, there is one article that is not public, so wouldn't have been written by that first pageWriter. That means all of a
+      // For example, there is one article that is not public, so it wouldn't have been written by that first pageWriter. That means all of a
       // sudden this "less specific" pageWriter would now still write that article to disk, which is not what we want.
+      // Same for the apps: we don't want to write those as individual pages, so if we don't exclude those, we'd still get them written
+      // to disk after all.
       .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
+
+      // All pages to the sitemap
+      // We need to exclude the apps, since those are not "real" pages, see comments above.
+      .listWriter(template: "sitemap.xml", output: "sitemap.xml", filter: { !$0.isApp }),
     ]
   )
   // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,

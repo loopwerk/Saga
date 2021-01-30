@@ -12,16 +12,18 @@ public class Page {
   public var rawContent: String
   public var body: String
   public var date: Date
+  public var lastModified: Date
   public var metadata: Metadata
   internal var written = false
 
-  internal init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, metadata: Metadata, written: Bool = false) {
+  internal init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: Metadata, written: Bool = false) {
     self.relativeSource = relativeSource
     self.relativeDestination = relativeDestination
     self.title = title
     self.rawContent = rawContent
     self.body = body
     self.date = date
+    self.lastModified = lastModified
     self.metadata = metadata
     self.written = written
   }
