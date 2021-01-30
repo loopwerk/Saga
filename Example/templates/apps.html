@@ -3,5 +3,17 @@
 {% block title %}Apps{% endblock %}
 
 {% block content %}
-Here will be a list of apps
+  <h1>Apps</h1>
+  {% for page in pages %}
+    <p>
+      <h2>{{ page.title }}</h2>
+      {% for image in page.metadata.images %}
+        <img src="{{ image }}" />
+      {% endfor %}
+
+      {% if page.metadata.url %}
+        <p><a href="{{ page.metadata.url }}">App Store</a></p>
+      {% endif %}
+    </p>
+  {% endfor %}
 {% endblock %}

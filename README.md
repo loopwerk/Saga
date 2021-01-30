@@ -92,6 +92,17 @@ At the moment the template library [Stencil](https://github.com/stencilproject/S
 
 Please check out the Example folder. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`.
 
+Your Markdown files can be extended with metadata using the YAML front matter style:
+
+```
+---
+tags: article, news
+summary: This is the summary
+---
+# Hello world
+Hello there.
+```
+
 ## Extending Saga
 
 It's very easy to add your own step to Saga where you can modify the pages however you wish.
@@ -150,7 +161,7 @@ import PackageDescription
 let package = Package(
   name: "MyWebsite",
   dependencies: [
-    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.1.0"),
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.2.0"),
   ],
   targets: [
     .target(
@@ -163,7 +174,7 @@ let package = Package(
 )
 ```
 
-Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. The input, output and template folders are relative to the root folder where `Package.swift` is located.
+Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. The input, output and template folders are relative to the root folder where Package.swift is located.
 
 
 ## TODO

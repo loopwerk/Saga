@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Articles{% endblock %}
+{% block title %}{% block childtitle %}Articles{% endblock %}{% endblock %}
 
 {% block content %}
   <h1>Articles</h1>
   {% for page in pages %}
-    <a href="{{ page | url }}">{{ page.title }}</a><br/>
-    {{ page.summary }}
+    <p>
+      <a href="{{ page | url }}">{{ page.title }}</a><br/>
+      {{ page.metadata.summary }}
+    </p>
   {% endfor %}
 {% endblock %}

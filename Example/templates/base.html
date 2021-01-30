@@ -4,6 +4,12 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body>
-    {% block content %}{% endblock %}
+    <nav>
+    <a href="/">Home</a> <a href="/articles/">Articles</a> <a href="/apps/">Apps</a>
+    </nav>
+
+    <div id="content">
+      {% block content %}{% endblock %}
+    </div>
   </body>
 </html>
