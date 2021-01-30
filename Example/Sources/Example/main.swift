@@ -79,6 +79,7 @@ try Saga(input: "content", output: "deploy")
   )
   // Now that we have read all the markdown pages, we're going to write
   // them all to disk using a variety of writers.
+  .modifyPages()
   .write(
     templates: "templates",
     writers: [
@@ -112,3 +113,15 @@ try Saga(input: "content", output: "deploy")
   // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
   // are copied as-is to the output folder.
   .staticFiles()
+
+
+extension Saga {
+  func modifyPages() -> Self {
+    let pages = fileStorage.compactMap(\.page)
+    for page in pages {
+      page.title.append("!")
+    }
+
+    return self
+  }
+}

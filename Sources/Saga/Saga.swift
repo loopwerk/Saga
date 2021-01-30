@@ -6,7 +6,8 @@ public struct Saga {
   private let rootPath: Path
   private let inputPath: Path
   private let outputPath: Path
-  private var fileStorage = [FileContainer]()
+
+  public var fileStorage = [FileContainer]()
 
   public init(input: Path, output: Path, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")

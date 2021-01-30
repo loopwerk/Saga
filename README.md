@@ -92,13 +92,86 @@ At the moment the template library [Stencil](https://github.com/stencilproject/S
 
 Please check out the Example folder. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`.
 
+## Extending Saga
+
+It's very easy to add your own step to Saga where you can modify the pages however you wish.
+
+``` swift
+extension Saga {
+  func modifyPages() -> Self {
+    let pages = fileStorage.compactMap(\.page)
+    for page in pages {
+      page.title.append("!")
+    }
+
+    return self
+  }
+}
+
+try Saga(input: "content", output: "deploy")
+  .read(
+    metadata: EmptyMetadata.self,
+    readers: [.markdownReader()]
+  )
+  .modifyPages()
+  .write(
+    templates: "templates",
+    writers: [
+      // ...
+    ]
+  )
+```
+
+You can also use `markdownReader`'s `pageProcessor` parameter.
+
+``` swift
+func pageProcessor(page: Page) {
+  // Do whatever you want with the Page
+  page.title.append("!")
+}
+
+try Saga(input: "content", output: "deploy")
+  .read(
+    folder: "articles",
+    metadata: ArticleMetadata.self,
+    readers: [.markdownReader(pageProcessor: pageProcessor)]
+  )
+```
+
+## Getting started
+
+Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, so that it looks something like this:
+
+``` swift
+// swift-tools-version:5.3
+
+import PackageDescription
+
+let package = Package(
+  name: "MyWebsite",
+  dependencies: [
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.1.0"),
+  ],
+  targets: [
+    .target(
+      name: "MyWebsite",
+      dependencies: ["Saga"]),
+    .testTarget(
+      name: "MyWebsiteTests",
+      dependencies: ["MyWebsite"]),
+  ]
+)
+```
+
+Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. The input, output and template folders are relative to the root folder where `Package.swift` is located.
+
 
 ## TODO
 
 - Remove the page title from the page body - right now it's not possible to add content between the title and the body of an article, something that I do need for my own website.
 - Add paginating support for list/tag/year writers.
 - Replace the Ink and Splash dependencies (see known limitations, below).
-- Research a way to auto-run on changes, maybe even with reloading the browser as well.
+- Research a way to auto-run on changes, maybe even reloading the browser as well.
 - Docs and tests.
 
 ## Known limitations
@@ -114,7 +187,7 @@ Inspiration for the API of Saga is very much owed to my favorite (but sadly long
 
 Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder code, which was copied over shamelessly.
 
-## Faq
+## FAQ
 
 Q: Is this ready for production?  
 A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
