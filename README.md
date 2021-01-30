@@ -85,7 +85,7 @@ At the moment the template library [Stencil](https://github.com/stencilproject/S
   <h1>Articles</h1>
   {% for page in pages %}
     <a href="{{ page | url }}">{{ page.title }}</a><br/>
-    {{ page.summary }}
+    {{ page.metadata.summary }}
   {% endfor %}
 {% endblock %}
 ```
