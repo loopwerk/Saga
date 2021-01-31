@@ -57,15 +57,15 @@ try Saga(input: "content", output: "deploy")
     templates: "templates",
     writers: [
       // Articles
-      .section(prefix: "articles", filter: { $0.isPublicArticle }, writers: [
+      .section(prefix: "articles", filter: \.isPublicArticle, writers: [
         .pageWriter(template: "article.html"),
         .listWriter(template: "articles.html"),
-        .tagWriter(template: "tag.html", tags: { $0.tags }),
+        .tagWriter(template: "tag.html", tags: \.tags),
         .yearWriter(template: "year.html"),
       ]),
       
       // Apps
-      .listWriter(template: "apps.html", output: "apps/index.html", filter: { $0.isApp }),
+      .listWriter(template: "apps.html", output: "apps/index.html", filter: \.isApp),
 
       // Other pages
       .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
@@ -163,7 +163,7 @@ import PackageDescription
 let package = Package(
   name: "MyWebsite",
   dependencies: [
-    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.2.0"),
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.4.0"),
   ],
   targets: [
     .target(

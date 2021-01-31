@@ -1,6 +1,7 @@
 import Foundation
 import Saga
 import PathKit
+import ShellOut
 
 struct ArticleMetadata: Metadata {
   let tags: [String]
@@ -84,10 +85,10 @@ try Saga(input: "content", output: "deploy")
     templates: "templates",
     writers: [
       // Articles
-      .section(prefix: "articles", filter: { $0.isPublicArticle }, writers: [
+      .section(prefix: "articles", filter: \.isPublicArticle, writers: [
         .pageWriter(template: "article.html"),
         .listWriter(template: "articles.html"),
-        .tagWriter(template: "tag.html", tags: { $0.tags }),
+        .tagWriter(template: "tag.html", tags: \.tags),
         .yearWriter(template: "year.html"),
       ]),
 
@@ -101,7 +102,7 @@ try Saga(input: "content", output: "deploy")
       // So it basically prefixes the `output` and pre-filters the pages so you don't have to do it for every writer.
 
       // Apps don't get their own individual webpage, instead they are only written using the listWriter
-      .listWriter(template: "apps.html", output: "apps/index.html", filter: { $0.isApp }),
+      .listWriter(template: "apps.html", output: "apps/index.html", filter: \.isApp),
 
       // Other pages
       // We specifically filter on EmptyMetadata here, otherwise it might process articles or apps that were not written by the writers above.
@@ -119,13 +120,28 @@ try Saga(input: "content", output: "deploy")
   // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
   // are copied as-is to the output folder.
   .staticFiles()
+  // Create Twitter preview images for all articles. This only works if you have Python installed with the Pillow dependency.
+  .createArticleImages()
 
 
 extension Saga {
+  @discardableResult
   func modifyPages() -> Self {
     let pages = fileStorage.compactMap(\.page)
     for page in pages {
       page.title.append("!")
+    }
+
+    return self
+  }
+
+  @discardableResult
+  func createArticleImages() -> Self {
+    let articles = fileStorage.compactMap(\.page).filter(\.isArticle)
+
+    for article in articles {
+      let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
+      _ = try? shellOut(to: "python image.py", arguments: ["\"\(article.title)\"", destination], at: (self.rootPath + "ImageGenerator").string)
     }
 
     return self

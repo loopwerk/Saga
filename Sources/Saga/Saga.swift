@@ -3,9 +3,9 @@ import PathKit
 import Stencil
 
 public struct Saga {
-  private let rootPath: Path
-  private let inputPath: Path
-  private let outputPath: Path
+  public let rootPath: Path
+  public let inputPath: Path
+  public let outputPath: Path
 
   public var fileStorage = [FileContainer]()
 
