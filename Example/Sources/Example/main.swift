@@ -75,7 +75,6 @@ try Saga(input: "content", output: "deploy")
   // All the remaining markdown files will be parsed to html,
   // using the default EmptyMetadata as the Page's metadata type.
   .read(
-    metadata: EmptyMetadata.self,
     readers: [.markdownReader()]
   )
   // Now that we have read all the markdown pages, we're going to write

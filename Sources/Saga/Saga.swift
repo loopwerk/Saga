@@ -35,7 +35,7 @@ public struct Saga {
 // The default read function
 public extension Saga {
   @discardableResult
-  func read(folder: Path? = nil, metadata: Metadata.Type, readers: [Reader]) throws -> Self {
+  func read(folder: Path? = nil, metadata: Metadata.Type = EmptyMetadata.self, readers: [Reader]) throws -> Self {
     var pages = [Page]()
 
     let unhandledFileWrappers = fileStorage.filter { $0.handled == false }
