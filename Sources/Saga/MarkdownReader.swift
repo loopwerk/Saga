@@ -6,7 +6,7 @@ import PathKit
 import Slugify
 
 public extension Reader {
-  static func markdownReader(pageProcessor: ((Page<M>) -> Void)? = nil) -> Self {
+  static func markdownReader(pageProcessor: ((AnyPage) -> Void)? = nil) -> Self {
     Reader(supportedExtensions: ["md", "markdown"], convert: { path, relativePath in
       let contents: String = try path.read()
 
