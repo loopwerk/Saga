@@ -23,7 +23,7 @@ extension Page where M == ArticleMetadata {
 
 extension AnyPage {
   var isArticle: Bool {
-    return self as? Page<ArticleMetadata> != nil
+    return self is Page<ArticleMetadata>
   }
   var isPublicArticle: Bool {
     return (self as? Page<ArticleMetadata>)?.public ?? false
