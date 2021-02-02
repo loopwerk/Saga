@@ -35,8 +35,8 @@ public struct Saga {
 // The default read function
 public extension Saga {
   @discardableResult
-  func read(folder: Path? = nil, metadata: Metadata.Type = EmptyMetadata.self, readers: [Reader]) throws -> Self {
-    var pages = [Page]()
+  func read<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>]) throws -> Self {
+    var pages = [Page<M>]()
 
     let unhandledFileWrappers = fileStorage.filter { $0.handled == false }
 
@@ -55,7 +55,7 @@ public extension Saga {
 
       do {
         // Turn the file into a Page
-        let page = try reader.convert(fileWrapper.path, metadata, relativePath)
+        let page = try reader.convert(fileWrapper.path, relativePath)
 
         // Store the generated Page
         fileWrapper.page = page
@@ -131,7 +131,7 @@ private extension Saga {
     }
 
     ext.registerFilter("url") { (value: Any) in
-      guard let page = value as? Page else {
+      guard let page = value as? AnyPage else {
         return value
       }
       var url = "/" + page.relativeDestination.string

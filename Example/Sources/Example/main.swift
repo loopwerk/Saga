@@ -7,10 +7,6 @@ struct ArticleMetadata: Metadata {
   let tags: [String]
   let summary: String?
   let `public`: Bool?
-
-  var isPublic: Bool {
-    return `public` ?? true
-  }
 }
 
 struct AppMetadata: Metadata {
@@ -19,18 +15,36 @@ struct AppMetadata: Metadata {
 }
 
 // Add some helper methods to the Page type that Saga provides
-extension Page {
+extension Page where M == ArticleMetadata {
+  var isPublic: Bool {
+    return metadata.public ?? true
+  }
+}
+
+extension AnyPage {
   var isArticle: Bool {
-    return metadata is ArticleMetadata
+    return self as? Page<ArticleMetadata> != nil
   }
   var isPublicArticle: Bool {
-    return (metadata as? ArticleMetadata)?.isPublic ?? false
+    if let page = self as? Page<ArticleMetadata> {
+      return page.isPublic
+    }
+    return false
   }
   var isApp: Bool {
-    return metadata is AppMetadata
+    return self as? Page<AppMetadata> != nil
   }
   var tags: [String] {
-    return (metadata as? ArticleMetadata)?.tags ?? []
+    if let page = self as? Page<ArticleMetadata> {
+      return page.metadata.tags
+    }
+    return []
+  }
+}
+
+extension Page where M == ArticleMetadata {
+  var tags: [String] {
+    return metadata.tags
   }
 }
 
@@ -40,7 +54,7 @@ pageProcessorDateFormatter.timeZone = .current
 
 // An example of a simple page processor that takes files such as "2021-01-27-post-with-date-in-filename"
 // and uses the date within the filename as the publication date.
-func pageProcessor(page: Page) {
+func pageProcessor<M: Metadata>(page: Page<M>) {
   // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
   let first10 = String(page.relativeSource.lastComponentWithoutExtension.prefix(10))
   guard first10.count == 10, let date = pageProcessorDateFormatter.date(from: first10) else {
@@ -75,11 +89,12 @@ try Saga(input: "content", output: "deploy")
   // All the remaining markdown files will be parsed to html,
   // using the default EmptyMetadata as the Page's metadata type.
   .read(
+    metadata: EmptyMetadata.self,
     readers: [.markdownReader()]
   )
   // Now that we have read all the markdown pages, we're going to write
   // them all to disk using a variety of writers.
-  .modifyPages()
+//  .modifyPages()
   .write(
     templates: "templates",
     writers: [
@@ -109,7 +124,7 @@ try Saga(input: "content", output: "deploy")
       // sudden this "less specific" pageWriter would now still write that article to disk, which is not what we want.
       // Same for the apps: we don't want to write those as individual pages, so if we don't exclude those, we'd still get them written
       // to disk after all.
-      .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
+      .pageWriter(template: "page.html", filter: { $0 is Page<EmptyMetadata> }),
 
       // All pages to the sitemap
       // We need to exclude the apps, since those are not "real" pages, see comments above.
@@ -136,7 +151,7 @@ extension Saga {
 
   @discardableResult
   func createArticleImages() -> Self {
-    let articles = fileStorage.compactMap(\.page).filter(\.isArticle)
+    let articles = fileStorage.compactMap { $0.page as? Page<ArticleMetadata> }
 
     for article in articles {
       let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"

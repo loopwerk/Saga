@@ -6,8 +6,8 @@ import PathKit
 import Slugify
 
 public extension Reader {
-  static func markdownReader(pageProcessor: ((Page) -> Void)? = nil) -> Self {
-    Reader(supportedExtensions: ["md", "markdown"], convert: { path, metadata, relativePath in
+  static func markdownReader(pageProcessor: ((Page<M>) -> Void)? = nil) -> Self {
+    Reader(supportedExtensions: ["md", "markdown"], convert: { path, relativePath in
       let contents: String = try path.read()
 
       // First we parse the markdown file, and use the Splash syntax highlighter
@@ -18,7 +18,8 @@ public extension Reader {
       // Then we try to decode the embedded metadata within the markdown (which otherwise is just a [String: String] dict)
       let decoder = makeMetadataDecoder(for: markdown)
       let date = try resolvePublishingDate(from: path, decoder: decoder)
-      let metadata = try metadata.init(from: decoder)
+      let metadata = try M.init(from: decoder)
+      let template = try decoder.decodeIfPresent("template", as: String.self)
 
       // Create the Page
       let page = Page(
@@ -29,7 +30,8 @@ public extension Reader {
         body: markdown.html,
         date: date,
         lastModified: path.modificationDate ?? Date(),
-        metadata: metadata
+        metadata: metadata,
+        template: template != nil ? Path(template!) : nil
       )
 
       // Run the processor, if any, to modify the Page
