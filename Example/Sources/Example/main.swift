@@ -15,19 +15,13 @@ struct AppMetadata: Metadata {
 }
 
 // Add some helper methods to the Page type that Saga provides
-extension Page where M == ArticleMetadata {
-  var isPublic: Bool {
-    return metadata.public ?? true
-  }
-}
-
 extension AnyPage {
   var isArticle: Bool {
     return self as? Page<ArticleMetadata> != nil
   }
   var isPublicArticle: Bool {
     if let page = self as? Page<ArticleMetadata> {
-      return page.isPublic
+      return page.metadata.public ?? true
     }
     return false
   }
@@ -39,12 +33,6 @@ extension AnyPage {
       return page.metadata.tags
     }
     return []
-  }
-}
-
-extension Page where M == ArticleMetadata {
-  var tags: [String] {
-    return metadata.tags
   }
 }
 
