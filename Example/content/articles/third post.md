@@ -2,5 +2,4 @@
 tags: article
 ---
 # Third post
-Hello.
-
+No custom date.
