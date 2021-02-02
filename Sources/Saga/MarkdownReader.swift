@@ -19,6 +19,7 @@ public extension Reader {
       let decoder = makeMetadataDecoder(for: markdown)
       let date = try resolvePublishingDate(from: path, decoder: decoder)
       let metadata = try metadata.init(from: decoder)
+      let template = try decoder.decodeIfPresent("template", as: String.self)
 
       // Create the Page
       let page = Page(
@@ -29,7 +30,8 @@ public extension Reader {
         body: markdown.html,
         date: date,
         lastModified: path.modificationDate ?? Date(),
-        metadata: metadata
+        metadata: metadata,
+        template: template != nil ? Path(template!) : nil
       )
 
       // Run the processor, if any, to modify the Page

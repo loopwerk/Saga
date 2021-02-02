@@ -26,7 +26,7 @@ public extension Writer {
         ] as [String : Any]
 
         // Call out to the render function
-        try render(template, context, outputRoot + page.relativeDestination)
+        try render(page.template ?? template, context, outputRoot + page.relativeDestination)
 
         // Mark the pages as written so that a different (less specifically constrained)
         // pageWriter isn't going to handle it again

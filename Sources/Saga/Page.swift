@@ -14,9 +14,10 @@ public class Page {
   public var date: Date
   public var lastModified: Date
   public var metadata: Metadata
+  public var template: Path?
   internal var written = false
 
-  internal init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: Metadata, written: Bool = false) {
+  internal init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: Metadata, template: Path? = nil) {
     self.relativeSource = relativeSource
     self.relativeDestination = relativeDestination
     self.title = title
@@ -25,6 +26,6 @@ public class Page {
     self.date = date
     self.lastModified = lastModified
     self.metadata = metadata
-    self.written = written
+    self.template = template
   }
 }

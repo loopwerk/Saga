@@ -1,3 +1,6 @@
+---
+template: home.html
+---
 #  Home
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer rutrum augue urna, a finibus eros hendrerit sed. Morbi semper commodo orci, et fringilla odio lacinia nec. Duis id augue quis leo tincidunt tincidunt eget a quam. Ut molestie mi blandit felis accumsan efficitur. Aliquam mauris erat, fermentum vitae nulla in, dapibus malesuada nibh. Ut vulputate libero quis ligula suscipit sodales. Donec nisi tortor, pretium sit amet nulla eu, hendrerit semper elit. Nunc turpis dui, dignissim vel urna et, commodo suscipit turpis. Mauris malesuada tortor at leo dictum suscipit. Nunc volutpat dignissim viverra. Fusce non nisl eu nisl ultrices bibendum vel eu libero.
 
