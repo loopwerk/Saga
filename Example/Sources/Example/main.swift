@@ -29,7 +29,7 @@ extension AnyPage {
     return (self as? Page<ArticleMetadata>)?.public ?? false
   }
   var isApp: Bool {
-    return self as? Page<AppMetadata> != nil
+    return self is Page<AppMetadata>
   }
   var tags: [String] {
     return (self as? Page<ArticleMetadata>)?.metadata.tags ?? []
