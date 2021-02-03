@@ -14,65 +14,40 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-// Add some helper methods to the Page type that Saga provides
-extension Page {
-  var isArticle: Bool {
-    return metadata is ArticleMetadata
-  }
-  var isPublicArticle: Bool {
-    return (metadata as? ArticleMetadata)?.isPublic ?? false
-  }
-  var isApp: Bool {
-    return metadata is AppMetadata
-  }
-  var tags: [String] {
-    return (metadata as? ArticleMetadata)?.tags ?? []
-  }
-}
-
-try Saga(input: "content", output: "deploy")
+try Saga(input: "content", output: "deploy", templates: "templates")
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
-  .read(
+  // Furthermore we are only interested in public articles.
+  .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
-    readers: [.markdownReader()]
+    readers: [.markdownReader()],
+    writers: [
+      .pageWriter(template: "article.html"),
+      .listWriter(template: "articles.html"),
+      .tagWriter(template: "tag.html", tags: \.metadata.tags),
+      .yearWriter(template: "year.html"),
+    ]
   )
   // All markdown files within the "apps" subfolder will be parsed to html,
   // using AppMetadata as the Page's metadata type.
-  .read(
+  .register(
     folder: "apps",
     metadata: AppMetadata.self,
-    readers: [.markdownReader()]
+    readers: [.markdownReader()],
+    writers: [.listWriter(template: "apps.html")]
   )
   // All the remaining markdown files will be parsed to html,
   // using the default EmptyMetadata as the Page's metadata type.
-  .read(
+  .register(
     metadata: EmptyMetadata.self,
-    readers: [.markdownReader()]
+    readers: [.markdownReader()],
+    writers: [.pageWriter(template: "page.html")]
   )
-  // Now that we have read all the markdown pages, we're going to write
-  // them all to disk using a variety of writers.
-  .write(
-    templates: "templates",
-    writers: [
-      // Articles
-      .section(prefix: "articles", filter: \.isPublicArticle, writers: [
-        .pageWriter(template: "article.html"),
-        .listWriter(template: "articles.html"),
-        .tagWriter(template: "tag.html", tags: \.tags),
-        .yearWriter(template: "year.html"),
-      ]),
-      
-      // Apps
-      .listWriter(template: "apps.html", output: "apps/index.html", filter: \.isApp),
-
-      // Other pages
-      .pageWriter(template: "page.html", filter: { $0.metadata is EmptyMetadata }),
-    ]
-  )
-  // All the remaining files that were not parsed to markdown, so for example images,
-  // raw html files and css, are copied as-is to the output folder.
+  // Run the steps we registered above
+  .run()
+  // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
+  // are copied as-is to the output folder.
   .staticFiles()
 ```
 
@@ -107,14 +82,17 @@ Hello there.
 
 ## Extending Saga
 
-It's very easy to add your own step to Saga where you can modify the pages however you wish.
+It's very easy to add your own step to Saga where you can access the pages and run your own code:
 
 ``` swift
 extension Saga {
-  func modifyPages() -> Self {
-    let pages = fileStorage.compactMap(\.page)
-    for page in pages {
-      page.title.append("!")
+  @discardableResult
+  func createArticleImages() -> Self {
+    let articles = fileStorage.compactMap { $0.page as? Page<ArticleMetadata> }
+
+    for article in articles {
+      let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
+      _ = try? shellOut(to: "python image.py", arguments: ["\"\(article.title)\"", destination], at: (self.rootPath + "ImageGenerator").string)
     }
 
     return self
@@ -122,32 +100,23 @@ extension Saga {
 }
 
 try Saga(input: "content", output: "deploy")
-  .read(
-    metadata: EmptyMetadata.self,
-    readers: [.markdownReader()]
-  )
-  .modifyPages()
-  .write(
-    templates: "templates",
-    writers: [
-      // ...
-    ]
-  )
+ // ...register and run steps...
+ .createArticleImages()
 ```
 
-You can also use `markdownReader`'s `pageProcessor` parameter.
+But probably more common and useful is to use `markdownReader`'s `pageProcessor` parameter.
 
 ``` swift
-func pageProcessor(page: Page) {
+func pageProcessor(page: Page<EmptyMetadata>) {
   // Do whatever you want with the Page
   page.title.append("!")
 }
 
 try Saga(input: "content", output: "deploy")
-  .read(
-    folder: "articles",
-    metadata: ArticleMetadata.self,
-    readers: [.markdownReader(pageProcessor: pageProcessor)]
+  .register(
+    metadata: EmptyMetadata.self,
+    readers: [.markdownReader(pageProcessor: pageProcessor)],
+    writers: [.pageWriter(template: "page.html")]
   )
 ```
 
@@ -163,7 +132,7 @@ import PackageDescription
 let package = Package(
   name: "MyWebsite",
   dependencies: [
-    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.4.0"),
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.7.0"),
   ],
   targets: [
     .target(
@@ -203,7 +172,7 @@ Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another s
 ## FAQ
 
 Q: Is this ready for production?  
-A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
+A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough. The API is also not set in stone and may completely change, as it has a few times already.
 
 Q: How do I view the generated website?  
-A: Personally I use the `serve` tool, installed via Homebrew. `brew install serve`, and then run `serve deploy`.
+A: Personally I use the `serve` tool, installed via Homebrew or NPM, simply run `serve deploy` from within the Example folder.

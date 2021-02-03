@@ -1,45 +1,34 @@
 import PathKit
 import Foundation
 
-public struct Writer {
-  var write: ([Page], (Path, [String : Any], Path) throws -> Void, Path, Path) throws -> Void
+public struct Writer<M: Metadata> {
+  var write: ([Page<M>], [AnyPage], (Path, [String : Any], Path) throws -> Void, Path, Path) throws -> Void
 }
 
 public extension Writer {
-  static func section(prefix: Path, filter: @escaping ((Page) -> Bool) = { _ in true }, writers: [Writer]) -> Self {
-    return Self { pages, environment, output, _ in
-      for writer in writers {
-        try writer.write(pages.filter(filter), environment, output, prefix)
-      }
-    }
-  }
-
   // Write a single Page to disk, using Page.destination as the destination path
-  static func pageWriter(template: Path, filter: @escaping ((Page) -> Bool) = { _ in true }) -> Self {
-    return Self { allPages, render, outputRoot, outputPrefix in
-      let pages = allPages.filter(filter).filter { $0.written == false }
+  static func pageWriter(template: Path, filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
+    return Self { pages, allPages, render, outputRoot, outputPrefix in
+      let pages = pages.filter(filter)
 
       for page in pages {
         let context = [
           "page": page,
+          "pages": pages,
           "allPages": allPages,
         ] as [String : Any]
 
         // Call out to the render function
         try render(page.template ?? template, context, outputRoot + page.relativeDestination)
-
-        // Mark the pages as written so that a different (less specifically constrained)
-        // pageWriter isn't going to handle it again
-        page.written = true
       }
     }
   }
 
   // Writes an array of Pages into a single output file.
   // As such, it needs an output path, for example "articles/index.html".
-  static func listWriter(template: Path, output: Path = "index.html", filter: @escaping ((Page) -> Bool) = { _ in true }) -> Self {
-    return Self { allPages, render, outputRoot, outputPrefix in
-      let pages = allPages.filter(filter)
+  static func listWriter(template: Path, output: Path = "index.html", filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
+    return Self { pages, allPages, render, outputRoot, outputPrefix in
+      let pages = pages.filter(filter)
 
       let context = [
         "pages": pages,
@@ -54,12 +43,12 @@ public extension Writer {
   // Writes an array of pages into multiple output files.
   // The output path is a template where [year] will be replaced with the year of the Page.
   // Example: "articles/[year]/index.html"
-  static func yearWriter(template: Path, output: Path = "[year]/index.html", filter: @escaping ((Page) -> Bool) = { _ in true }) -> Self {
-    return Self { allPages, render, outputRoot, outputPrefix in
-      let pages = allPages.filter(filter)
+  static func yearWriter(template: Path, output: Path = "[year]/index.html", filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
+    return Self { pages, allPages, render, outputRoot, outputPrefix in
+      let pages = pages.filter(filter)
 
       // Find all the years and their pages
-      var pagesPerYear = [Int: [Page]]()
+      var pagesPerYear = [Int: [AnyPage]]()
 
       for page in pages {
         let year = page.date.year
@@ -87,13 +76,13 @@ public extension Writer {
 
   // Writes an array of pages into multiple output files.
   // The output path is a template where [tag] will be replaced with the slugified tag.
-  // Example: "articles/[tag]/index.html"
-  static func tagWriter(template: Path, output: Path = "[tag]/index.html", tags: @escaping (Page) -> [String], filter: @escaping ((Page) -> Bool) = { _ in true }) -> Self {
-    return Self { allPages, render, outputRoot, outputPrefix in
-      let pages = allPages.filter(filter)
+  // Example: "articles/tag/[tag]/index.html"
+  static func tagWriter(template: Path, output: Path = "tag/[tag]/index.html", tags: @escaping (Page<M>) -> [String], filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
+    return Self { pages, allPages, render, outputRoot, outputPrefix in
+      let pages = pages.filter(filter)
 
       // Find all the tags and their pages
-      var pagesPerTag = [String: [Page]]()
+      var pagesPerTag = [String: [AnyPage]]()
 
       for page in pages {
         for tag in tags(page) {

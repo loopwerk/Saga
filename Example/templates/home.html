@@ -3,6 +3,15 @@
 {% block title %}{{ page.title }}{% endblock %}
 
 {% block content %}
-<h1>Hello custom home template!</h1>
 {{ page.body }}
+
+<h1>Articles</h1>
+{% for page in allPages where page.metadataType == "ArticleMetadata" %}
+  <p>{{ page.title }}</p>
+{% endfor %}
+
+<h1>Apps</h1>
+{% for page in allPages where page.metadataType == "AppMetadata" %}
+  <p>{{ page.title }}</p>
+{% endfor %}
 {% endblock %}

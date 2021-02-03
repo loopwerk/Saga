@@ -1,6 +1,6 @@
 import PathKit
 
-public struct Reader {
+public struct Reader<M: Metadata> {
   var supportedExtensions: [String]
-  var convert: (Path, Metadata.Type, Path) throws -> Page
+  var convert: (Path, Path) throws -> Page<M>
 }
