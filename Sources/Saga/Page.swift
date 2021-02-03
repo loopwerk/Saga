@@ -16,7 +16,7 @@ public protocol AnyPage: class {
   var template: Path? { get set }
 }
 
-protocol WritablePage: class {
+protocol WritablePage: AnyObject {
   var written: Bool { get set }
 }
 
