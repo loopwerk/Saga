@@ -42,7 +42,7 @@ pageProcessorDateFormatter.timeZone = .current
 
 // An example of a simple page processor that takes files such as "2021-01-27-post-with-date-in-filename"
 // and uses the date within the filename as the publication date.
-func pageProcessor(page: AnyPage) {
+func pageProcessor(page: Page<ArticleMetadata>) {
   // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
   let first10 = String(page.relativeSource.lastComponentWithoutExtension.prefix(10))
   guard first10.count == 10, let date = pageProcessorDateFormatter.date(from: first10) else {
