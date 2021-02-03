@@ -7,6 +7,7 @@ Saga is quite flexible: for example you can have one set of metadata for the art
 ``` swift
 struct ArticleMetadata: Metadata {
   let tags: [String]
+  let summary: String?
 }
 
 struct AppMetadata: Metadata {
