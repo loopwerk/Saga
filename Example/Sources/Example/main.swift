@@ -45,6 +45,9 @@ func pageProcessor(page: Page<ArticleMetadata>) {
 }
 
 try Saga(input: "content", output: "deploy", templates: "templates")
+  // All markdown files within the "articles" subfolder will be parsed to html,
+  // using ArticleMetadata as the Page's metadata type.
+  // Furthermore we are only interested in public articles.
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
@@ -57,19 +60,27 @@ try Saga(input: "content", output: "deploy", templates: "templates")
       .yearWriter(template: "year.html"),
     ]
   )
+  // All markdown files within the "apps" subfolder will be parsed to html,
+  // using AppMetadata as the Page's metadata type.
   .register(
     folder: "apps",
     metadata: AppMetadata.self,
     readers: [.markdownReader()],
     writers: [.listWriter(template: "apps.html")]
   )
+  // All the remaining markdown files will be parsed to html,
+  // using the default EmptyMetadata as the Page's metadata type.
   .register(
     metadata: EmptyMetadata.self,
     readers: [.markdownReader()],
     writers: [.pageWriter(template: "page.html")]
   )
+  // Run the steps we registered above
   .run()
+  // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
+  // are copied as-is to the output folder.
   .staticFiles()
+  // Create Twitter preview images for all articles. This only works if you have Python installed with the Pillow dependency.
   .createArticleImages()
 
 
