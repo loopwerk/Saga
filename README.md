@@ -1,6 +1,6 @@
 # Saga
 
-A static site generator, written in Swift, allowing you to supply your own metadata type for your pages. Read [this series of articles](https://www.loopwerk.io/articles/2021/saga-1-inspiration/) discussing the inspiration behind the API, the current state of the project and future plans.
+A static site generator, written in Swift, allowing you to supply your own metadata type for your pages. Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
 
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure:
 
