@@ -2,7 +2,7 @@ import PathKit
 
 public class FileContainer {
   public let path: Path
-  public var page: AnyPage?
+  public internal(set) var page: AnyPage?
   public var handled: Bool
 
   internal init(path: Path) {

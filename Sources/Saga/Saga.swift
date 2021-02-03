@@ -2,18 +2,21 @@ import Foundation
 import PathKit
 import Stencil
 
-public struct Saga {
+public class Saga {
   public let rootPath: Path
   public let inputPath: Path
   public let outputPath: Path
+  public let templates: Path
 
-  public var fileStorage = [FileContainer]()
+  public let fileStorage: [FileContainer]
+  internal var processSteps = [AnyProcessStep]()
 
-  public init(input: Path, output: Path, originFilePath: StaticString = #file) throws {
+  public init(input: Path, output: Path, templates: Path, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
     rootPath = try originFile.resolveSwiftPackageFolder()
     inputPath = rootPath + input
     outputPath = rootPath + output
+    self.templates = templates
 
     // 1. Find all files in the source folder
     let files = try inputPath.recursiveChildren().filter(\.isFile)
@@ -30,62 +33,30 @@ public struct Saga {
       try outputPath.delete()
     }
   }
-}
 
-// The default read function
-public extension Saga {
   @discardableResult
-  func read<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>]) throws -> Self {
-    var pages = [Page<M>]()
-
-    let unhandledFileWrappers = fileStorage.filter { $0.handled == false }
-
-    for fileWrapper in unhandledFileWrappers {
-      let relativePath = try fileWrapper.path.relativePath(from: inputPath)
-
-      // Only work on files that match the folder (if any)
-      if let folder = folder, !relativePath.string.starts(with: folder.string) {
-        continue
-      }
-
-      // Pick the first reader that is able to work on this file, based on file extension
-      guard let reader = readers.first(where: { $0.supportedExtensions.contains(relativePath.extension ?? "") }) else {
-        continue
-      }
-
-      do {
-        // Turn the file into a Page
-        let page = try reader.convert(fileWrapper.path, relativePath)
-
-        // Store the generated Page
-        fileWrapper.page = page
-        fileWrapper.handled = true
-        pages.append(page)
-      } catch {
-        // Couldn't convert the file into a Page, probably because of missing metadata
-        // We still mark it has handled, otherwise another, less specific, read step might
-        // pick it up with an EmptyMetadata, turning a broken page suddenly into a working page,
-        // which is probably not what you want.
-        fileWrapper.handled = true
-        print("❕File \(relativePath) failed conversion to Page<\(metadata.self)>, error: ", error)
-        continue
-      }
-    }
-
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>], filter: @escaping ((Page<M>) -> Bool) = { _ in true }, writers: [Writer<M>]) throws -> Self {
+    let step = ProcessStep(folder: folder, readers: readers, filter: filter, writers: writers)
+    self.processSteps.append(
+      .init(
+        step: step,
+        fileStorage: fileStorage,
+        inputPath: inputPath,
+        outputPath: outputPath,
+        environment: getEnvironment()
+      ))
     return self
   }
-}
 
-public extension Saga {
-  // The default write function
   @discardableResult
-  func write(templates: Path, writers: [Writer]) throws -> Self {
-    let environment = getEnvironment(templatePath: rootPath + templates)
+  public func run() throws -> Self {
+    // First we run all the readers for all the steps, so that ALL the pages are available for all the writers.
+    for step in processSteps {
+      try step.runReaders()
+    }
 
-    for writer in writers {
-      try writer.write(fileStorage.compactMap(\.page), { template, context, destination in
-        try render(environment: environment, template: template, context: context, destination: destination)
-      }, outputPath, "")
+    for step in processSteps {
+      try step.runWriters()
     }
 
     return self
@@ -93,7 +64,7 @@ public extension Saga {
 
   // Copies all unhandled files as-is to the output folder.
   @discardableResult
-  func staticFiles() throws -> Self {
+  public func staticFiles() throws -> Self {
     let unhandledPaths = fileStorage
       .filter { $0.handled == false }
       .map(\.path)
@@ -110,14 +81,9 @@ public extension Saga {
   }
 }
 
+// The default read function
 private extension Saga {
-  func render(environment: Environment, template: Path, context: [String : Any], destination: Path) throws {
-    let rendered = try environment.renderTemplate(name: template.string, context: context)
-    try destination.parent().mkpath()
-    try destination.write(rendered)
-  }
-
-  func getEnvironment(templatePath: Path) -> Environment {
+  func getEnvironment() -> Environment {
     let ext = Extension()
 
     ext.registerFilter("date") { (value: Any?, arguments: [Any?]) in
@@ -141,6 +107,7 @@ private extension Saga {
       return url
     }
 
+    let templatePath = rootPath + templates
     return Environment(loader: FileSystemLoader(paths: [templatePath]), extensions: [ext])
   }
 }

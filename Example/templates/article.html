@@ -7,7 +7,7 @@
 <h2>{{ page.date | date:"dd-MM" }}-<a href="/articles/{{ page.date | date:"yyyy" }}/">{{ page.date | date:"yyyy" }}</a></h2>
 <ul>
   {% for tag in page.metadata.tags %}
-  <li><a href="/articles/{{ tag }}/">{{ tag }}</a></li>
+  <li><a href="/articles/tag/{{ tag }}/">{{ tag }}</a></li>
   {% endfor %}
 </ul>
 {{ page.body }}
