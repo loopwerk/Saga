@@ -11,7 +11,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(name: "SwiftMarkdown2", url: "https://github.com/loopwerk/SwiftMarkdown2", .branch("main")),
+    .package(name: "SwiftMarkdown2", url: "https://github.com/loopwerk/SwiftMarkdown2", from: "0.2.0"),
     .package(name: "Codextended", url: "https://github.com/johnsundell/codextended.git", from: "0.1.0"),
     .package(name: "Stencil", url: "https://github.com/stencilproject/Stencil.git", from: "0.14.0"),
     .package(name: "Slugify", url: "https://github.com/nodes-vapor/slugify", from: "2.0.0"),
