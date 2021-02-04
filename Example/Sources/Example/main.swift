@@ -1,7 +1,6 @@
 import Foundation
 import Saga
 import PathKit
-import ShellOut
 
 struct ArticleMetadata: Metadata {
   let tags: [String]
@@ -85,13 +84,24 @@ try Saga(input: "content", output: "deploy", templates: "templates")
 
 
 extension Saga {
+  private func run(_ cmd: String) -> String? {
+    let pipe = Pipe()
+    let process = Process()
+    process.launchPath = "/bin/sh"
+    process.arguments = ["-c", String(format:"%@", cmd)]
+    process.standardOutput = pipe
+    let fileHandle = pipe.fileHandleForReading
+    process.launch()
+    return String(data: fileHandle.readDataToEndOfFile(), encoding: .utf8)
+  }
+
   @discardableResult
   func createArticleImages() -> Self {
     let articles = fileStorage.compactMap { $0.page as? Page<ArticleMetadata> }
 
     for article in articles {
       let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
-      _ = try? shellOut(to: "python image.py", arguments: ["\"\(article.title)\"", destination], at: (self.rootPath + "ImageGenerator").string)
+      _ = run("cd \((self.rootPath + "ImageGenerator").string) && python image.py \"\(article.title)\" \(destination)")
     }
 
     return self

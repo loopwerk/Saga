@@ -23,3 +23,28 @@ struct ArticleMetadata: Metadata {
   }
 }
 ```
+
+``` python
+from django.db.models.signals import post_save
+from staticgenerator import recursive_delete
+
+def delete_cache(sender, **kwargs):
+    recursive_delete('/')
+
+post_save.connect(delete_cache)
+```
+
+``` javascript
+function subscibe(priceId) {
+  createStripeSession(priceId).then(result => {
+    const sessionId = result.data;
+
+    const stripe = Stripe("pk_live_XXX");
+    stripe.redirectToCheckout({
+      sessionId: sessionId,
+    }).then(function (result) {
+      console.log(result.error.message);
+    });
+  });
+}
+```
