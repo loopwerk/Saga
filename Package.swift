@@ -11,8 +11,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(name: "Ink", url: "https://github.com/johnsundell/ink.git", from: "0.2.0"),
-    .package(name: "Splash", url: "https://github.com/JohnSundell/Splash", from: "0.1.0"),
+    .package(name: "SwiftMarkdown2", url: "https://github.com/loopwerk/SwiftMarkdown2", .branch("main")),
     .package(name: "Codextended", url: "https://github.com/johnsundell/codextended.git", from: "0.1.0"),
     .package(name: "Stencil", url: "https://github.com/stencilproject/Stencil.git", from: "0.14.0"),
     .package(name: "Slugify", url: "https://github.com/nodes-vapor/slugify", from: "2.0.0"),
@@ -21,8 +20,7 @@ let package = Package(
     .target(
       name: "Saga",
       dependencies: [
-        "Ink",
-        "Splash",
+        "SwiftMarkdown2",
         "Codextended",
         "Stencil",
         "Slugify",

@@ -1,6 +1,5 @@
 import Foundation
-import Ink
-import Splash
+import SwiftMarkdown2
 import Codextended
 import PathKit
 import Slugify
@@ -10,10 +9,8 @@ public extension Reader {
     Reader(supportedExtensions: ["md", "markdown"], convert: { path, relativePath in
       let contents: String = try path.read()
 
-      // First we parse the markdown file, and use the Splash syntax highlighter
-      var markdownParser = MarkdownParser()
-      markdownParser.addModifier(.splashCodeBlocks())
-      let markdown = markdownParser.parse(contents)
+      // First we parse the markdown file
+      let markdown = try SwiftMarkdown2.markdown(contents, extras: [.breakOnNewline, .cuddledLists, .fencedCodeBlocks, .metadata, .strike, .smartyPants])
 
       // Then we try to decode the embedded metadata within the markdown (which otherwise is just a [String: String] dict)
       let decoder = makeMetadataDecoder(for: markdown)
@@ -25,7 +22,7 @@ public extension Reader {
       let page = Page(
         relativeSource: relativePath,
         relativeDestination: relativePath.makeOutputPath(),
-        title: markdown.title ?? path.lastComponentWithoutExtension,
+        title: path.lastComponentWithoutExtension,
         rawContent: contents,
         body: markdown.html,
         date: date,
@@ -58,27 +55,5 @@ private extension Reader {
 
   static func resolvePublishingDate(from path: Path, decoder: MetadataDecoder) throws -> Date {
     return try decoder.decodeIfPresent("date", as: Date.self) ?? path.modificationDate ?? Date()
-  }
-}
-
-public extension Modifier {
-  static func splashCodeBlocks(withFormat format: HTMLOutputFormat = .init()) -> Self {
-    let highlighter = SyntaxHighlighter(format: format)
-
-    return Modifier(target: .codeBlocks) { html, markdown in
-      var markdown = markdown.dropFirst("```".count)
-
-      guard !markdown.hasPrefix("no-highlight") else {
-        return html
-      }
-
-      markdown = markdown
-        .drop(while: { !$0.isNewline })
-        .dropFirst()
-        .dropLast("\n```".count)
-
-      let highlighted = highlighter.highlight(String(markdown))
-      return "<pre><code>" + highlighted + "\n</code></pre>"
-    }
   }
 }
