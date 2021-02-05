@@ -151,9 +151,7 @@ Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. 
 
 ## TODO
 
-- Remove the page title from the page body - right now it's not possible to add content between the title and the body of an article, something that I do need for my own website.
 - Add paginating support for list/tag/year writers.
-- Replace the Ink and Splash dependencies (see known limitations, below).
 - Research a way to auto-run on changes, maybe even reloading the browser as well.
 - Docs and tests.
 
@@ -161,8 +159,6 @@ Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. 
 
 - Stencil, the template language, doesn't support rendering computed properties (https://github.com/stencilproject/Stencil/issues/219). So if you extend `Page` with computed properties, you sadly won't be able to render them in your templates.
 - Stencil's template inheritance doesn't support overriding blocks through multiple levels (https://github.com/stencilproject/Stencil/issues/275)
-- Ink, the Markdown parser, is buggy and is missing features (https://github.com/JohnSundell/Ink/pull/49, https://github.com/JohnSundell/Ink/pull/63). Pull requests don't seem to get merged anymore?
-- Splash, the syntax highlighter, only has support for Swift grammar. If you write articles with, let's say, JavaScript code blocks, they won't get properly highlighted.
 
 ## Thanks
 
@@ -173,7 +169,7 @@ Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another s
 ## FAQ
 
 Q: Is this ready for production?  
-A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough. The API is also not set in stone and may completely change, as it has a few times already.
+A: Almost, but not quite. This is still in early development, and the API is very much subject to change until Saga reaches 1.0.0. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
 
 Q: How do I view the generated website?  
 A: Personally I use the `serve` tool, installed via Homebrew or NPM, simply run `serve deploy` from within the Example folder.

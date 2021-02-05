@@ -1,5 +1,5 @@
 import Foundation
-import SwiftMarkdown2
+import SwiftMarkdown
 import Codextended
 import PathKit
 import Slugify
@@ -10,7 +10,11 @@ public extension Reader {
       let contents: String = try path.read()
 
       // First we parse the markdown file
-      let markdown = try SwiftMarkdown2.markdown(contents, extras: [.breakOnNewline, .cuddledLists, .fencedCodeBlocks, .metadata, .strike, .smartyPants])
+      let config = [
+        "codehilite": ["css_class": "highlight"]
+      ]
+
+      let markdown = try SwiftMarkdown.markdown(contents, extensions: [.nl2br, .fencedCode, .codehilite, .strikethrough, .smarty, .title, .meta, .saneLists], extensionConfig: config)
 
       // Then we try to decode the embedded metadata within the markdown (which otherwise is just a [String: String] dict)
       let decoder = makeMetadataDecoder(for: markdown)
@@ -22,7 +26,7 @@ public extension Reader {
       let page = Page(
         relativeSource: relativePath,
         relativeDestination: relativePath.makeOutputPath(),
-        title: path.lastComponentWithoutExtension,
+        title: markdown.title ?? path.lastComponentWithoutExtension,
         rawContent: contents,
         body: markdown.html,
         date: date,

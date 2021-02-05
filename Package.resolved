@@ -56,12 +56,12 @@
         }
       },
       {
-        "package": "SwiftMarkdown2",
-        "repositoryURL": "https://github.com/loopwerk/SwiftMarkdown2",
+        "package": "SwiftMarkdown",
+        "repositoryURL": "https://github.com/loopwerk/SwiftMarkdown",
         "state": {
           "branch": null,
-          "revision": "aa6aae2cd513919c156473c18f8e66d64057b8e8",
-          "version": "0.2.0"
+          "revision": "d4e31602745e922357a4916cfd296b9b2487bd26",
+          "version": "0.1.0"
         }
       }
     ]
