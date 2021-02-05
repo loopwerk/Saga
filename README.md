@@ -28,7 +28,20 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-try Saga(input: "content", output: "deploy", templates: "templates")
+// SiteMetadata is given to every template.
+// You can put whatever you want in here, as long as it confirms to the Metadata protocol.
+// If you have no need for custom site metadata, just pass EmptyMetadata() to Saga, below.
+struct SiteMetadata: Metadata {
+  let url: URL
+  let name: String
+}
+
+let siteMetadata = SiteMetadata(
+  url: URL(string: "http://www.example.com")!,
+  name: "Example website"
+)
+
+try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
   // Furthermore we are only interested in public articles.

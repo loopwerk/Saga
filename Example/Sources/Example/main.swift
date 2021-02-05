@@ -13,6 +13,18 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
+// SiteMetadata is given to every template.
+// You can put whatever you want in here, as long as it's Decodable.
+struct SiteMetadata: Metadata {
+  let url: URL
+  let name: String
+}
+
+let siteMetadata = SiteMetadata(
+  url: URL(string: "http://www.example.com")!,
+  name: "Example website"
+)
+
 // An easy way to only get public articles, since ArticleMetadata.public is optional
 extension Page where M == ArticleMetadata {
   var `public`: Bool {
@@ -43,7 +55,7 @@ func pageProcessor(page: Page<ArticleMetadata>) {
   ).makeOutputPath()
 }
 
-try Saga(input: "content", output: "deploy", templates: "templates")
+try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
   // Furthermore we are only interested in public articles.
