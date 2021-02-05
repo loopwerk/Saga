@@ -1,5 +1,8 @@
+# 0.8.0 - not released yet
+- Switched out Ink and Stencil for SwiftMarkdown
+
 # 0.7.0 - 2021-02-03
-- Complete API redesign, see #1
+- Complete API redesign, see https://github.com/loopwerk/Saga/pull/1
 
 # 0.6.0 - 2021-02-02
 - Pages can set their own custom template
