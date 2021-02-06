@@ -110,7 +110,38 @@ private extension Saga {
       return url
     }
 
+    ext.registerFilter("striptags") { (value: Any) in
+      guard let text = value as? String else {
+        return value
+      }
+      return text.withoutHtmlTags
+    }
+
+    ext.registerFilter("wordcount") { (value: Any) in
+      guard let text = value as? String else {
+        return value
+      }
+      return text.numberOfWords
+    }
+
     let templatePath = rootPath + templates
     return Environment(loader: FileSystemLoader(paths: [templatePath]), extensions: [ext])
+  }
+}
+
+private extension String {
+  var numberOfWords: Int {
+    var count = 0
+    let range = startIndex..<endIndex
+    enumerateSubstrings(in: range, options: [.byWords, .substringNotRequired, .localized], { _, _, _, _ -> () in
+      count += 1
+    })
+    return count
+  }
+
+  // This is a sloppy implementation but sadly `NSAttributedString(data:options:documentAttributes:)`
+  // is not available in CoreFoundation.
+  var withoutHtmlTags: String {
+    return self.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
   }
 }
