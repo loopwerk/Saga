@@ -4,17 +4,23 @@ import Codextended
 import PathKit
 import Slugify
 
+let config = [
+  "codehilite": [
+    "css_class": "highlight"
+  ]
+]
+let parser = try! SwiftMarkdown(
+  extensions: [.nl2br, .fencedCode, .codehilite, .strikethrough, .smarty, .title, .meta, .saneLists],
+  extensionConfig: config
+)
+
 public extension Reader {
   static func markdownReader(pageProcessor: ((Page<M>) -> Void)? = nil) -> Self {
     Reader(supportedExtensions: ["md", "markdown"], convert: { path, relativePath in
       let contents: String = try path.read()
 
       // First we parse the markdown file
-      let config = [
-        "codehilite": ["css_class": "highlight"]
-      ]
-
-      let markdown = try SwiftMarkdown.markdown(contents, extensions: [.nl2br, .fencedCode, .codehilite, .strikethrough, .smarty, .title, .meta, .saneLists], extensionConfig: config)
+      let markdown = parser.markdown(contents)
 
       // Then we try to decode the embedded metadata within the markdown (which otherwise is just a [String: String] dict)
       let decoder = makeMetadataDecoder(for: markdown)
