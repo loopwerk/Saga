@@ -52,7 +52,7 @@ func pageProcessor(page: Page<ArticleMetadata>) {
   let first11 = String(page.relativeSource.lastComponentWithoutExtension.prefix(11))
   page.relativeDestination = Path(
     page.relativeSource.string.replacingOccurrences(of: first11, with: "")
-  ).makeOutputPath()
+  ).makeOutputPath(keepExactPath: false)
 }
 
 try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)

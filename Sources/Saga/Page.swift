@@ -6,8 +6,9 @@ public protocol Metadata: Decodable {}
 public struct EmptyMetadata: Metadata {}
 
 public protocol AnyPage: class {
-  var relativeSource: Path { get set }
-  var relativeDestination: Path { get set }
+  var relativeSource: Path { get }
+  var filenameWithoutExtension: String { get }
+  var relativeDestination: Path { get set } /// if empty, it'll be calculated by the pageWriter
   var title: String { get set }
   var rawContent: String { get set }
   var body: String { get set }
@@ -22,7 +23,8 @@ public protocol AnyPage: class {
 }
 
 public class Page<M: Metadata>: AnyPage {
-  public var relativeSource: Path
+  public let relativeSource: Path
+  public let filenameWithoutExtension: String
   public var relativeDestination: Path
   public var title: String
   public var rawContent: String
@@ -33,8 +35,9 @@ public class Page<M: Metadata>: AnyPage {
   public var metadataType: String // Remove once Stencil has been replaced
   public var template: Path?
 
-  internal init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M, template: Path? = nil) {
+  internal init(relativeSource: Path, relativeDestination: Path = "", title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M, template: Path? = nil) {
     self.relativeSource = relativeSource
+    self.filenameWithoutExtension = relativeSource.lastComponentWithoutExtension
     self.relativeDestination = relativeDestination
     self.title = title
     self.rawContent = rawContent

@@ -63,11 +63,13 @@ internal class AnyProcessStep {
         }
       }
 
-      step.pages = pages
+      step.pages = pages.sorted(by: { left, right in left.date > right.date })
     }
 
     runWriters = {
-      let allPages = fileStorage.compactMap(\.page)
+      let allPages = fileStorage
+        .compactMap(\.page)
+        .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
         try writer.write(step.pages, allPages, siteMetadata, { template, context, destination in

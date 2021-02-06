@@ -124,6 +124,32 @@ private extension Saga {
       return text.numberOfWords
     }
 
+    ext.registerFilter("slugify") { (value: Any) in
+      guard let text = value as? String else {
+        return value
+      }
+      return text.slugify()
+    }
+
+    ext.registerFilter("escape") { (value: Any) in
+      guard let text = value as? String else {
+        return value
+      }
+      return text
+        .replacingOccurrences(of: "<", with: "&lt;")
+        .replacingOccurrences(of: ">", with: "&gt;")
+        .replacingOccurrences(of: "\"", with: "&quot;")
+        .replacingOccurrences(of: "&", with: "&amp;")
+    }
+
+    ext.registerFilter("truncate") { (value: Any, arguments: [Any?]) in
+      guard let text = value as? String else {
+        return value
+      }
+      let length = arguments.first as? Int ?? 255
+      return text.prefix(length)
+    }
+
     let templatePath = rootPath + templates
     return Environment(loader: FileSystemLoader(paths: [templatePath]), extensions: [ext])
   }
@@ -143,7 +169,7 @@ private extension String {
   // is not available in CoreFoundation.
   var withoutHtmlTags: String {
     return self
-      .replacingOccurrences(of: "(?m)<pre><span></span><code>[\\s\\S]+</code></pre>", with: "", options: .regularExpression, range: nil)
+      .replacingOccurrences(of: "(?m)<pre><span></span><code>[\\s\\S]+?</code></pre>", with: "", options: .regularExpression, range: nil)
       .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
   }
 }

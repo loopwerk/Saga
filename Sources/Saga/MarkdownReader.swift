@@ -25,7 +25,6 @@ public extension Reader {
       // Create the Page
       let page = Page(
         relativeSource: relativePath,
-        relativeDestination: relativePath.makeOutputPath(),
         title: markdown.title ?? path.lastComponentWithoutExtension,
         rawContent: contents,
         body: markdown.html,
