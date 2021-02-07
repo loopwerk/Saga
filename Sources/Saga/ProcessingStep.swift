@@ -22,7 +22,7 @@ internal class AnyProcessStep {
   let runReaders: () throws -> ()
   let runWriters: () throws -> ()
 
-  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, environment: Environment, siteMetadata: SiteMetadata) {
+  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, pageWriteMode: PageWriteMode, environment: Environment, siteMetadata: SiteMetadata) {
     runReaders = {
       var pages = [Page<M>]()
 
@@ -46,7 +46,7 @@ internal class AnyProcessStep {
 
         do {
           // Turn the file into a Page
-          let page = try reader.convert(unhandledFileContainer.path, relativePath)
+          let page = try reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(pageWriteMode: pageWriteMode))
 
           // Store the generated Page
           if step.filter(page) {

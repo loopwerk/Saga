@@ -2,13 +2,12 @@ import PathKit
 import Foundation
 
 public extension Path {
-  /// keepExactPath=true means that a file such as content/404.md will be written as deploy/404.html
-  /// keepExactPath=false will instead write it to deploy/404/index.html
-  func makeOutputPath(keepExactPath: Bool) -> Path {
-    if keepExactPath {
-      return self.parent() + (self.lastComponentWithoutExtension.slugify() + ".html")
-    } else {
-      return self.parent() + self.lastComponentWithoutExtension.slugify() + "index.html"
+  func makeOutputPath(pageWriteMode: PageWriteMode) -> Path {
+    switch pageWriteMode {
+      case .keepAsFile:
+        return self.parent() + (self.lastComponentWithoutExtension.slugify() + ".html")
+      case .moveToSubfolder:
+        return self.parent() + self.lastComponentWithoutExtension.slugify() + "index.html"
     }
   }
 

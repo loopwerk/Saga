@@ -37,7 +37,7 @@ public class Saga<SiteMetadata: Metadata> {
   }
 
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>], filter: @escaping ((Page<M>) -> Bool) = { _ in true }, writers: [Writer<M, SiteMetadata>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>], pageWriteMode: PageWriteMode = .moveToSubfolder, filter: @escaping ((Page<M>) -> Bool) = { _ in true }, writers: [Writer<M, SiteMetadata>]) throws -> Self {
     let step = ProcessStep(folder: folder, readers: readers, filter: filter, writers: writers)
     self.processSteps.append(
       .init(
@@ -45,6 +45,7 @@ public class Saga<SiteMetadata: Metadata> {
         fileStorage: fileStorage,
         inputPath: inputPath,
         outputPath: outputPath,
+        pageWriteMode: pageWriteMode,
         environment: getEnvironment(),
         siteMetadata: siteMetadata
       ))

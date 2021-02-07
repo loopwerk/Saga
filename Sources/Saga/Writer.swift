@@ -25,7 +25,7 @@ public struct Writer<M: Metadata, SiteMetadata: Metadata> {
 
 public extension Writer {
   // Write a single Page to disk, using Page.destination as the destination path
-  static func pageWriter(template: Path, keepExactPath: Bool = false, filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
+  static func pageWriter(template: Path, filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
     return Self { pages, allPages, siteMetadata, render, outputRoot, outputPrefix in
       let pages = pages.filter(filter)
 
@@ -37,15 +37,7 @@ public extension Writer {
           "site": siteMetadata,
         ] as [String : Any]
 
-        // Call out to the render function
-        var destination: Path
-        if page.relativeDestination.string.isEmpty {
-          destination = page.relativeSource.makeOutputPath(keepExactPath: keepExactPath)
-        } else {
-          destination = page.relativeDestination
-        }
-
-        try render(page.template ?? template, context, outputRoot + destination)
+        try render(page.template ?? template, context, outputRoot + page.relativeDestination)
       }
     }
   }

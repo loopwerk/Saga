@@ -52,7 +52,7 @@ func pageProcessor(page: Page<ArticleMetadata>) {
   let first11 = String(page.relativeSource.lastComponentWithoutExtension.prefix(11))
   page.relativeDestination = Path(
     page.relativeSource.string.replacingOccurrences(of: first11, with: "")
-  ).makeOutputPath(keepExactPath: false)
+  ).makeOutputPath(pageWriteMode: .moveToSubfolder)
 }
 
 try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
@@ -84,7 +84,8 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
   .register(
     metadata: EmptyMetadata.self,
     readers: [.markdownReader()],
-    writers: [.pageWriter(template: "page.html", keepExactPath: true)]
+    pageWriteMode: .keepAsFile,
+    writers: [.pageWriter(template: "page.html")]
   )
   // Run the steps we registered above
   .run()
