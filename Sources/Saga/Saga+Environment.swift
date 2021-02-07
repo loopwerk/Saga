@@ -19,9 +19,8 @@ internal extension Saga {
 
     ext.registerFilter("url") { (value: Any) in
       guard let page = value as? AnyPage else {
-        return value
+        return "NOPE!"
       }
-      print("page.relativeDestination: \(page.relativeDestination)")
       var url = "/" + page.relativeDestination.string
       if url.hasSuffix("/index.html") {
         url.removeLast(10)
