@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/loopwerk/SwiftMarkdown",
         "state": {
           "branch": null,
-          "revision": "360a3c9965b184ca488bcc983a1daaddac93f335",
-          "version": "0.2.0"
+          "revision": "3e9b02ff5ba995c4469ab12395be97c0953e2fdf",
+          "version": "0.3.0"
         }
       }
     ]
