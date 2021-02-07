@@ -18,9 +18,8 @@ internal extension Saga {
     }
 
     ext.registerFilter("url") { (value: Any?) in
-      return "type: \(String(describing: value))"
       guard let page = value as? AnyPage else {
-        return "NOPE!"
+        return ""
       }
       var url = "/" + page.relativeDestination.string
       if url.hasSuffix("/index.html") {
