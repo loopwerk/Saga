@@ -17,7 +17,8 @@ internal extension Saga {
       return formatter.string(from: date)
     }
 
-    ext.registerFilter("url") { (value: Any) in
+    ext.registerFilter("url") { (value: Any?) in
+      return "type: \(String(describing: value))"
       guard let page = value as? AnyPage else {
         return "NOPE!"
       }
@@ -28,28 +29,28 @@ internal extension Saga {
       return url
     }
 
-    ext.registerFilter("striptags") { (value: Any) in
+    ext.registerFilter("striptags") { (value: Any?) in
       guard let text = value as? String else {
         return value
       }
       return text.withoutHtmlTags
     }
 
-    ext.registerFilter("wordcount") { (value: Any) in
+    ext.registerFilter("wordcount") { (value: Any?) in
       guard let text = value as? String else {
         return value
       }
       return text.numberOfWords
     }
 
-    ext.registerFilter("slugify") { (value: Any) in
+    ext.registerFilter("slugify") { (value: Any?) in
       guard let text = value as? String else {
         return value
       }
       return text.slugify()
     }
 
-    ext.registerFilter("escape") { (value: Any) in
+    ext.registerFilter("escape") { (value: Any?) in
       guard let text = value as? String else {
         return value
       }
@@ -60,7 +61,7 @@ internal extension Saga {
         .replacingOccurrences(of: "&", with: "&amp;")
     }
 
-    ext.registerFilter("truncate") { (value: Any, arguments: [Any?]) in
+    ext.registerFilter("truncate") { (value: Any?, arguments: [Any?]) in
       guard let text = value as? String else {
         return value
       }
