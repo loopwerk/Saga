@@ -9,7 +9,7 @@ let config = [
   ]
 ]
 let parser = try! SwiftMarkdown(
-  extensions: [.nl2br, .fencedCode, .codehilite, .strikethrough, .title, .meta, .saneLists],
+  extensions: [.nl2br, .fencedCode, .codehilite, .strikethrough, .title, .meta, .saneLists, .urlize],
   extensionConfig: config
 )
 
