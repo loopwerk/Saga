@@ -23,7 +23,7 @@ public extension Reader {
       let markdown = parser.markdown(contents)
 
       // Then we try to decode the embedded metadata within the markdown (which otherwise is just a [String: String] dict)
-      let decoder = makeMetadataDecoder(for: markdown)
+      let decoder = makeMetadataDecoder(for: markdown.metadata)
       let date = try resolvePublishingDate(from: path, decoder: decoder)
       let metadata = try M.init(from: decoder)
       let template = try decoder.decodeIfPresent("template", as: String.self)
@@ -50,14 +50,14 @@ public extension Reader {
   }
 }
 
-private extension Reader {
-  static func makeMetadataDecoder(for markdown: Markdown) -> MetadataDecoder {
+public extension Reader {
+  static func makeMetadataDecoder(for metadata: [String: String]) -> MetadataDecoder {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd"
     dateFormatter.timeZone = .current
 
     return MetadataDecoder(
-      metadata: markdown.metadata,
+      metadata: metadata,
       dateFormatter: dateFormatter
     )
   }
