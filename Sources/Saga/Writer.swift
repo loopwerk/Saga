@@ -2,7 +2,24 @@ import PathKit
 import Foundation
 
 public struct Writer<M: Metadata, SiteMetadata: Metadata> {
-  var write: ([Page<M>], [AnyPage], SiteMetadata, (Path, [String : Any], Path) throws -> Void, Path, Path) throws -> Void
+  public var write: (
+    _ pages: [Page<M>],
+    _ allPages: [AnyPage],
+    _ siteMetadata: SiteMetadata,
+    _ render: (Path, [String : Any], Path) throws -> Void,
+    _ outputPath: Path,
+    _ outputPrefix: Path) throws -> Void
+
+  /// Parameters
+  /// pages: [Page<M>]
+  /// allPages: [AnyPage]
+  /// siteMetadata: SiteMetadata
+  /// render: (Path, [String : Any], Path) throws -> Void
+  /// outputPath: Path
+  /// outputPrefix: Path
+  public init(write: @escaping ([Page<M>], [AnyPage], SiteMetadata, (Path, [String : Any], Path) throws -> Void, Path, Path) throws -> Void) {
+    self.write = write
+  }
 }
 
 public extension Writer {
