@@ -1,5 +1,6 @@
 import PathKit
 import Foundation
+import Slugify
 
 public struct Writer<M: Metadata, SiteMetadata: Metadata> {
   public var write: (

@@ -11,6 +11,7 @@ let package = Package(
     ),
   ],
   dependencies: [
+    .package(name: "PathKit", url: "https://github.com/kylef/PathKit.git", from: "1.0.0"),
     .package(name: "SwiftMarkdown", url: "https://github.com/loopwerk/SwiftMarkdown", from: "0.2.0"),
     .package(name: "Codextended", url: "https://github.com/johnsundell/codextended.git", from: "0.1.0"),
     .package(name: "Stencil", url: "https://github.com/stencilproject/Stencil.git", from: "0.14.0"),
@@ -20,6 +21,7 @@ let package = Package(
     .target(
       name: "Saga",
       dependencies: [
+        "PathKit",
         "SwiftMarkdown",
         "Codextended",
         "Stencil",
