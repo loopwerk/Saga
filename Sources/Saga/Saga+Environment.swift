@@ -21,6 +21,7 @@ internal extension Saga {
       guard let page = value as? AnyPage else {
         return value
       }
+      print("page.relativeDestination: \(page.relativeDestination)")
       var url = "/" + page.relativeDestination.string
       if url.hasSuffix("/index.html") {
         url.removeLast(10)
