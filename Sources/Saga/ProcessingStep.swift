@@ -2,14 +2,14 @@ import Foundation
 import PathKit
 import Stencil
 
-internal class ProcessStep<M: Metadata> {
+internal class ProcessStep<M: Metadata, SiteMetadata: Metadata> {
   let folder: Path?
   let readers: [Reader<M>]
   let filter: (Page<M>) -> Bool
-  let writers: [Writer<M>]
+  let writers: [Writer<M, SiteMetadata>]
   var pages: [Page<M>]
 
-  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Page<M>) -> Bool, writers: [Writer<M>]) {
+  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Page<M>) -> Bool, writers: [Writer<M, SiteMetadata>]) {
     self.folder = folder
     self.readers = readers
     self.filter = filter
@@ -19,13 +19,10 @@ internal class ProcessStep<M: Metadata> {
 }
 
 internal class AnyProcessStep {
-  let step: Any
   let runReaders: () throws -> ()
   let runWriters: () throws -> ()
 
-  init<M: Metadata>(step: ProcessStep<M>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, environment: Environment) {
-    self.step = step
-
+  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, environment: Environment, siteMetadata: SiteMetadata) {
     runReaders = {
       var pages = [Page<M>]()
 
@@ -66,14 +63,16 @@ internal class AnyProcessStep {
         }
       }
 
-      step.pages = pages
+      step.pages = pages.sorted(by: { left, right in left.date > right.date })
     }
 
     runWriters = {
-      let allPages = fileStorage.compactMap(\.page)
+      let allPages = fileStorage
+        .compactMap(\.page)
+        .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
-        try writer.write(step.pages, allPages, { template, context, destination in
+        try writer.write(step.pages, allPages, siteMetadata, { template, context, destination in
           let rendered = try environment.renderTemplate(name: template.string, context: context)
           try destination.parent().mkpath()
           try destination.write(rendered)

@@ -2,6 +2,19 @@
 
 A static site generator, written in Swift, allowing you to supply your own metadata type for your pages. Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
 
+
+## Requirements
+
+- Swift 5
+- Python
+- [Python-Markdown](https://github.com/Python-Markdown/markdown)
+- [Pygments](https://github.com/pygments/pygments) (optional, for syntax highlighting of your code blocks)
+
+If you want to build your website from within Xcode, you'll probably need to install Python-Markdown and Pygments globally.
+
+
+## Usage
+
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure:
 
 ``` swift
@@ -15,7 +28,20 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-try Saga(input: "content", output: "deploy", templates: "templates")
+// SiteMetadata is given to every template.
+// You can put whatever you want in here, as long as it confirms to the Metadata protocol.
+// If you have no need for custom site metadata, just pass EmptyMetadata() to Saga, below.
+struct SiteMetadata: Metadata {
+  let url: URL
+  let name: String
+}
+
+let siteMetadata = SiteMetadata(
+  url: URL(string: "http://www.example.com")!,
+  name: "Example website"
+)
+
+try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
   // Furthermore we are only interested in public articles.
@@ -151,18 +177,16 @@ Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. 
 
 ## TODO
 
-- Remove the page title from the page body - right now it's not possible to add content between the title and the body of an article, something that I do need for my own website.
 - Add paginating support for list/tag/year writers.
-- Replace the Ink and Splash dependencies (see known limitations, below).
 - Research a way to auto-run on changes, maybe even reloading the browser as well.
 - Docs and tests.
+
 
 ## Known limitations
 
 - Stencil, the template language, doesn't support rendering computed properties (https://github.com/stencilproject/Stencil/issues/219). So if you extend `Page` with computed properties, you sadly won't be able to render them in your templates.
 - Stencil's template inheritance doesn't support overriding blocks through multiple levels (https://github.com/stencilproject/Stencil/issues/275)
-- Ink, the Markdown parser, is buggy and is missing features (https://github.com/JohnSundell/Ink/pull/49, https://github.com/JohnSundell/Ink/pull/63). Pull requests don't seem to get merged anymore?
-- Splash, the syntax highlighter, only has support for Swift grammar. If you write articles with, let's say, JavaScript code blocks, they won't get properly highlighted.
+
 
 ## Thanks
 
@@ -170,10 +194,11 @@ Inspiration for the API of Saga is very much owed to my favorite (but sadly long
 
 Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder, which was copied over shamelessly.
 
+
 ## FAQ
 
 Q: Is this ready for production?  
-A: No. This is in very early stages of development, mostly as an exercise. I have no clue if and when I'll finish it or to what degree. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough. The API is also not set in stone and may completely change, as it has a few times already.
+A: Almost, but not quite. This is still in early development, and the API is very much subject to change until Saga reaches 1.0.0. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
 
 Q: How do I view the generated website?  
 A: Personally I use the `serve` tool, installed via Homebrew or NPM, simply run `serve deploy` from within the Example folder.

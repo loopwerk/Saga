@@ -1,14 +1,32 @@
 import PathKit
 import Foundation
+import Slugify
 
-public struct Writer<M: Metadata> {
-  var write: ([Page<M>], [AnyPage], (Path, [String : Any], Path) throws -> Void, Path, Path) throws -> Void
+public struct Writer<M: Metadata, SiteMetadata: Metadata> {
+  public var write: (
+    _ pages: [Page<M>],
+    _ allPages: [AnyPage],
+    _ siteMetadata: SiteMetadata,
+    _ render: (Path, [String : Any], Path) throws -> Void,
+    _ outputPath: Path,
+    _ outputPrefix: Path) throws -> Void
+
+  /// Parameters
+  /// pages: [Page<M>]
+  /// allPages: [AnyPage]
+  /// siteMetadata: SiteMetadata
+  /// render: (Path, [String : Any], Path) throws -> Void
+  /// outputPath: Path
+  /// outputPrefix: Path
+  public init(write: @escaping ([Page<M>], [AnyPage], SiteMetadata, (Path, [String : Any], Path) throws -> Void, Path, Path) throws -> Void) {
+    self.write = write
+  }
 }
 
 public extension Writer {
   // Write a single Page to disk, using Page.destination as the destination path
-  static func pageWriter(template: Path, filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
-    return Self { pages, allPages, render, outputRoot, outputPrefix in
+  static func pageWriter(template: Path, keepExactPath: Bool = false, filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
+    return Self { pages, allPages, siteMetadata, render, outputRoot, outputPrefix in
       let pages = pages.filter(filter)
 
       for page in pages {
@@ -16,10 +34,18 @@ public extension Writer {
           "page": page,
           "pages": pages,
           "allPages": allPages,
+          "site": siteMetadata,
         ] as [String : Any]
 
         // Call out to the render function
-        try render(page.template ?? template, context, outputRoot + page.relativeDestination)
+        var destination: Path
+        if page.relativeDestination.string.isEmpty {
+          destination = page.relativeSource.makeOutputPath(keepExactPath: keepExactPath)
+        } else {
+          destination = page.relativeDestination
+        }
+
+        try render(page.template ?? template, context, outputRoot + destination)
       }
     }
   }
@@ -27,12 +53,13 @@ public extension Writer {
   // Writes an array of Pages into a single output file.
   // As such, it needs an output path, for example "articles/index.html".
   static func listWriter(template: Path, output: Path = "index.html", filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
-    return Self { pages, allPages, render, outputRoot, outputPrefix in
+    return Self { pages, allPages, siteMetadata, render, outputRoot, outputPrefix in
       let pages = pages.filter(filter)
 
       let context = [
         "pages": pages,
         "allPages": allPages,
+        "site": siteMetadata,
       ] as [String : Any]
 
       // Call out to the render function
@@ -44,7 +71,7 @@ public extension Writer {
   // The output path is a template where [year] will be replaced with the year of the Page.
   // Example: "articles/[year]/index.html"
   static func yearWriter(template: Path, output: Path = "[year]/index.html", filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
-    return Self { pages, allPages, render, outputRoot, outputPrefix in
+    return Self { pages, allPages, siteMetadata, render, outputRoot, outputPrefix in
       let pages = pages.filter(filter)
 
       // Find all the years and their pages
@@ -65,6 +92,7 @@ public extension Writer {
           "year": year,
           "pages": pagesInYear,
           "allPages": allPages,
+          "site": siteMetadata,
         ] as [String : Any]
 
         // Call out to the render function
@@ -78,7 +106,7 @@ public extension Writer {
   // The output path is a template where [tag] will be replaced with the slugified tag.
   // Example: "articles/tag/[tag]/index.html"
   static func tagWriter(template: Path, output: Path = "tag/[tag]/index.html", tags: @escaping (Page<M>) -> [String], filter: @escaping ((Page<M>) -> Bool) = { _ in true }) -> Self {
-    return Self { pages, allPages, render, outputRoot, outputPrefix in
+    return Self { pages, allPages, siteMetadata, render, outputRoot, outputPrefix in
       let pages = pages.filter(filter)
 
       // Find all the tags and their pages
@@ -100,10 +128,11 @@ public extension Writer {
           "tag": tag,
           "pages": pagesInTag,
           "allPages": allPages,
+          "site": siteMetadata,
         ] as [String : Any]
 
         // Call out to the render function
-        let yearOutput = output.string.replacingOccurrences(of: "[tag]", with: tag)
+        let yearOutput = output.string.replacingOccurrences(of: "[tag]", with: tag.slugify())
         try render(template, context, outputRoot + outputPrefix + yearOutput)
       }
     }
