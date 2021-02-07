@@ -147,6 +147,8 @@ try Saga(input: "content", output: "deploy")
   )
 ```
 
+It's also easy to add your own readers and writers, search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash instead of the default SwiftMarkdown dependency.
+
 ## Getting started
 
 Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, so that it looks something like this:
@@ -159,7 +161,7 @@ import PackageDescription
 let package = Package(
   name: "MyWebsite",
   dependencies: [
-    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.7.0"),
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.9.0"),
   ],
   targets: [
     .target(
