@@ -35,7 +35,7 @@ public class Page<M: Metadata>: AnyPage {
   public var metadataType: String // Remove once Stencil has been replaced
   public var template: Path?
 
-  internal init(relativeSource: Path, relativeDestination: Path = "", title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M, template: Path? = nil) {
+  public init(relativeSource: Path, relativeDestination: Path = "", title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M, template: Path? = nil) {
     self.relativeSource = relativeSource
     self.filenameWithoutExtension = relativeSource.lastComponentWithoutExtension
     self.relativeDestination = relativeDestination
