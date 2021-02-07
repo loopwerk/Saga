@@ -84,7 +84,7 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
   .register(
     metadata: EmptyMetadata.self,
     readers: [.markdownReader()],
-    writers: [.pageWriter(template: "page.html")]
+    writers: [.pageWriter(template: "page.html", keepExactPath: true)]
   )
   // Run the steps we registered above
   .run()
@@ -112,8 +112,8 @@ extension Saga {
     let articles = fileStorage.compactMap { $0.page as? Page<ArticleMetadata> }
 
     for article in articles {
-      let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
-      _ = run("cd \((self.rootPath + "ImageGenerator").string) && python image.py \"\(article.title)\" \(destination)")
+      let destination = self.outputPath + "static" + (article.filenameWithoutExtension + ".png")
+      _ = run("cd \((self.rootPath + "ImageGenerator").string) && python image.py \"\(article.title)\" \"\(destination)\"")
     }
 
     return self
