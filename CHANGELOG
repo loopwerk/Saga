@@ -1,3 +1,6 @@
+# 0.11.0 - 2021-02-07
+- Fixed Stencil filters when compiling your site under Linux
+
 # 0.10.0 - 2021-02-07
 - Refactored the `keepExactPath` parameter of the writer into a better better
   documented `PageWriteMode` enum that's part of the `register` function.
