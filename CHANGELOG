@@ -5,10 +5,10 @@
 - Fixed Stencil filters when compiling your site under Linux
 
 # 0.10.0 - 2021-02-07
-- Refactored the `keepExactPath` parameter of the writer into a better better
+- Refactored the `keepExactPath` parameter of the writer into a better
   documented `PageWriteMode` enum that's part of the `register` function.
-  This is because we need those destination paths for all pages before the first
-  writer even starts its thing.
+  This is because we need those destination paths for all pages before the
+  first writer even starts its thing.
 
 # 0.9.0 - 2021-02-07
 - Changed the numberOfWords, the old version didn't work on Linux
