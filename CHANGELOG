@@ -1,3 +1,8 @@
+# 0.13.0 - 2021-02-09
+- Switched away from SwiftMarkdown to Parsley, which is a LOT faster, see https://github.com/loopwerk/Saga/pull/5.
+  Sadly it doesn't do syntax highlighting, so a client side solution such as prism.js is very handy.
+  If you want to keep using SwiftMarkdown, check out https://github.com/loopwerk/SagaPythonMarkdownReader.
+
 # 0.12.0 - 2021-02-07
 - Updated to latest version of SwiftMarkdown and now using its urlize extension
 
@@ -15,7 +20,8 @@
   (`error: 'byWords' is unavailable: Enumeration by words isn't supported in swift-corelibs-foundation`)
 
 # 0.8.0 - 2021-02-07
-- Replaced Ink and Stencil with SwiftMarkdown, see https://github.com/loopwerk/Saga/pull/3
+- Replaced Ink and Stencil with SwiftMarkdown, see https://github.com/loopwerk/Saga/pull/3.
+  If you want to keep using Ink and Stencil, check out https://github.com/loopwerk/SagaInkMarkdownReader.
 - Added a way to supply custom `SiteMetadata`, which will be given to every template
 - Added `striptags`, `wordcount`, `slugify`, `escape` and `truncate` filters for Stencil
 - Made some previously `internal` things `public`

@@ -3,16 +3,6 @@
 A static site generator, written in Swift, allowing you to supply your own metadata type for your pages. Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
 
 
-## Requirements
-
-- Swift 5
-- Python
-- [Python-Markdown](https://github.com/Python-Markdown/markdown)
-- [Pygments](https://github.com/pygments/pygments) (optional, for syntax highlighting of your code blocks)
-
-If you want to build your website from within Xcode, you'll probably need to install Python-Markdown and Pygments globally.
-
-
 ## Usage
 
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure:
@@ -147,7 +137,7 @@ try Saga(input: "content", output: "deploy")
   )
 ```
 
-It's also easy to add your own readers and writers, search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash instead of the default SwiftMarkdown dependency.
+It's also easy to add your own readers and writers, search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash instead of the default Markdown reader.
 
 ## Getting started
 
@@ -160,8 +150,11 @@ import PackageDescription
 
 let package = Package(
   name: "MyWebsite",
+  platforms: [
+    .macOS(.v10_15)
+  ],
   dependencies: [
-    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.9.0"),
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.13.0"),
   ],
   targets: [
     .target(
