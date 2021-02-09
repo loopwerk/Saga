@@ -169,7 +169,7 @@ let package = Package(
 )
 ```
 
-Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it. The input, output and template folders are relative to the root folder where Package.swift is located.
+Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it.
 
 
 ## TODO
