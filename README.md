@@ -68,7 +68,18 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
   .staticFiles()
 ```
 
-At the moment the template library [Stencil](https://github.com/stencilproject/Stencil) is used, but I may replace it with (or add next to it) a statically typed version such as https://github.com/JohnSundell/Plot or https://github.com/pointfreeco/swift-html.
+Your Markdown files can be extended with metadata using the YAML front matter style:
+
+```
+---
+tags: article, news
+summary: This is the summary
+---
+# Hello world
+Hello there.
+```
+
+At the moment the template library [Stencil](https://github.com/stencilproject/Stencil) is used to render your website:
 
 ``` html
 {% extends "base.html" %}
@@ -84,18 +95,9 @@ At the moment the template library [Stencil](https://github.com/stencilproject/S
 {% endblock %}
 ```
 
-Please check out the Example folder. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`.
+For more examples please check out the [Example folder](https://github.com/loopwerk/Saga/blob/main/Example/Sources/Example/main.swift). Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`.
 
-Your Markdown files can be extended with metadata using the YAML front matter style:
-
-```
----
-tags: article, news
-summary: This is the summary
----
-# Hello world
-Hello there.
-```
+You can also check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which is completely built with Saga.
 
 ## Extending Saga
 
@@ -144,7 +146,7 @@ It's also easy to add your own readers and writers, search for [saga-plugin](htt
 Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, so that it looks something like this:
 
 ``` swift
-// swift-tools-version:5.3
+// swift-tools-version:5.2
 
 import PackageDescription
 
@@ -193,7 +195,12 @@ Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another s
 ## FAQ
 
 Q: Is this ready for production?  
-A: Almost, but not quite. This is still in early development, and the API is very much subject to change until Saga reaches 1.0.0. I still use [liquidluck](https://github.com/avelino/liquidluck) for my own static sites, which should tell you enough.
+A: Yes, but right now the API is still very much subject to change at any moment without any regard for backwards compatibility. It won't have a stable public API until Saga reaches 1.0.0.
 
 Q: How do I view the generated website?  
-A: Personally I use the `serve` tool, installed via Homebrew or NPM, simply run `serve deploy` from within the Example folder.
+A: Personally I use the `serve` tool, installed via Homebrew or NPM. Simply run `serve deploy` from within the Example folder.
+
+
+## Websites using Saga
+
+- https://github.com/loopwerk/loopwerk.io
