@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "cmark",
+        "repositoryURL": "https://github.com/brokenhandsio/cmark-gfm.git",
+        "state": {
+          "branch": null,
+          "revision": "c25ea288d0eb50c5c1150e7fdda675d5e9b1b6bb",
+          "version": "2.0.0"
+        }
+      },
+      {
         "package": "Codextended",
         "repositoryURL": "https://github.com/johnsundell/codextended.git",
         "state": {
@@ -11,21 +20,21 @@
         }
       },
       {
+        "package": "Parsley",
+        "repositoryURL": "https://github.com/loopwerk/Parsley",
+        "state": {
+          "branch": null,
+          "revision": "af271fe39bad4d99139bae232cfd5f685f30733e",
+          "version": "0.1.0"
+        }
+      },
+      {
         "package": "PathKit",
         "repositoryURL": "https://github.com/loopwerk/PathKit",
         "state": {
           "branch": null,
           "revision": "1b98c31130de6c070b21fc1e84b62d77ebfe7d69",
           "version": "1.1.0"
-        }
-      },
-      {
-        "package": "PythonKit",
-        "repositoryURL": "https://github.com/pvieito/PythonKit.git",
-        "state": {
-          "branch": null,
-          "revision": "074622c6893188bbb7926eee2f7eece8a5124c47",
-          "version": "0.1.0"
         }
       },
       {
@@ -53,15 +62,6 @@
           "branch": null,
           "revision": "94197b3adbbf926348ad8765476a158aa4e54f8a",
           "version": "0.14.0"
-        }
-      },
-      {
-        "package": "SwiftMarkdown",
-        "repositoryURL": "https://github.com/loopwerk/SwiftMarkdown",
-        "state": {
-          "branch": null,
-          "revision": "6c3f4cd38c24d88016367f8775112b2c7af287d3",
-          "version": "0.4.0"
         }
       }
     ]

@@ -1,17 +1,7 @@
 import Foundation
-import SwiftMarkdown
+import Parsley
 import Codextended
 import PathKit
-
-let config = [
-  "codehilite": [
-    "css_class": "highlight"
-  ]
-]
-let parser = try! SwiftMarkdown(
-  extensions: [.nl2br, .fencedCode, .codehilite, .strikethrough, .title, .meta, .saneLists, .urlize],
-  extensionConfig: config
-)
 
 public extension Reader {
   static func markdownReader(pageProcessor: ((Page<M>) -> Void)? = nil) -> Self {
@@ -19,7 +9,7 @@ public extension Reader {
       let contents: String = try absoluteSource.read()
 
       // First we parse the markdown file
-      let markdown = parser.markdown(contents)
+      let markdown = try Parsley.parse(contents, options: [.safe, .hardBreaks, .smartQuotes])
 
       // Then we try to decode the embedded metadata within the markdown (which otherwise is just a [String: String] dict)
       let decoder = makeMetadataDecoder(for: markdown.metadata)
@@ -33,7 +23,7 @@ public extension Reader {
         relativeDestination: relativeDestination,
         title: markdown.title ?? absoluteSource.lastComponentWithoutExtension,
         rawContent: contents,
-        body: markdown.html,
+        body: markdown.body,
         date: date,
         lastModified: absoluteSource.modificationDate ?? Date(),
         metadata: metadata,

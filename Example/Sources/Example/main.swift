@@ -71,6 +71,7 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
       .yearWriter(template: "year.html"),
     ]
   )
+
   // All markdown files within the "apps" subfolder will be parsed to html,
   // using AppMetadata as the Page's metadata type.
   .register(
@@ -79,6 +80,7 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     readers: [.markdownReader()],
     writers: [.listWriter(template: "apps.html")]
   )
+
   // All the remaining markdown files will be parsed to html,
   // using the default EmptyMetadata as the Page's metadata type.
   .register(
@@ -87,36 +89,10 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     pageWriteMode: .keepAsFile,
     writers: [.pageWriter(template: "page.html")]
   )
+
   // Run the steps we registered above
   .run()
+
   // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
   // are copied as-is to the output folder.
   .staticFiles()
-  // Create Twitter preview images for all articles. This only works if you have Python installed with the Pillow dependency.
-  .createArticleImages()
-
-
-extension Saga {
-  private func run(_ cmd: String) -> String? {
-    let pipe = Pipe()
-    let process = Process()
-    process.launchPath = "/bin/sh"
-    process.arguments = ["-c", String(format:"%@", cmd)]
-    process.standardOutput = pipe
-    let fileHandle = pipe.fileHandleForReading
-    process.launch()
-    return String(data: fileHandle.readDataToEndOfFile(), encoding: .utf8)
-  }
-
-  @discardableResult
-  func createArticleImages() -> Self {
-    let articles = fileStorage.compactMap { $0.page as? Page<ArticleMetadata> }
-
-    for article in articles {
-      let destination = self.outputPath + "static" + (article.filenameWithoutExtension + ".png")
-      _ = run("cd \((self.rootPath + "ImageGenerator").string) && python image.py \"\(article.title)\" \"\(destination)\"")
-    }
-
-    return self
-  }
-}
