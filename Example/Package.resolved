@@ -38,6 +38,15 @@
         }
       },
       {
+        "package": "SagaSwimRenderer",
+        "repositoryURL": "https://github.com/loopwerk/SagaSwimRenderer",
+        "state": {
+          "branch": null,
+          "revision": "7e3319c8a12c7a3d443b9b63fd9f89bdc4ee94ab",
+          "version": "0.1.0"
+        }
+      },
+      {
         "package": "Slugify",
         "repositoryURL": "https://github.com/nodes-vapor/slugify",
         "state": {

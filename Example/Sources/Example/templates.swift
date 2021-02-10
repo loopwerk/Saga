@@ -4,27 +4,23 @@ import Foundation
 
 func baseHtml(siteMetadata: SiteMetadata, title pageTitle: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
   html(lang: "en-US") {
-    html {
-      head {
-        title {
-          siteMetadata.name+": "+pageTitle
-        }
-        link(href: "/static/style.css", rel: "stylesheet")
-        link(href: "/static/prism.css", rel: "stylesheet")
+    head {
+      title { siteMetadata.name+": "+pageTitle }
+      link(href: "/static/style.css", rel: "stylesheet")
+      link(href: "/static/prism.css", rel: "stylesheet")
+    }
+    body {
+      nav {
+        a(href: "/") { "Home" }
+        a(href: "/articles/") { "Articles" }
+        a(href: "/apps/") { "Apps" }
+        a(href: "/about.html") { "About" }
       }
-      body {
-        nav {
-          a(href: "/") { "Home" }
-          a(href: "/articles/") { "Articles" }
-          a(href: "/apps/") { "Apps" }
-          a(href: "/about.html") { "About" }
-        }
-        div(id: "content") {
-          children()
-        }
-        script(src: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js")
-        script(src: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js")
+      div(id: "content") {
+        children()
       }
+      script(src: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js")
+      script(src: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js")
     }
   }
 }
@@ -40,9 +36,7 @@ extension Date {
 func renderArticle(context: PageRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
   return baseHtml(siteMetadata: context.siteMetadata, title: context.page.title) {
     div(id: "article") {
-      h1 {
-        context.page.title
-      }
+      h1 { context.page.title }
       h2 {
         context.page.date.formatted("dd MMMM")+", "
         a(href: "/articles/\(context.page.date.formatted("yyyy"))/") { context.page.date.formatted("yyyy") }
@@ -50,9 +44,7 @@ func renderArticle(context: PageRenderingContext<ArticleMetadata, SiteMetadata>)
       ul {
         context.page.metadata.tags.map { tag in
           li {
-            a(href: "/articles/tag/\(tag.slugify())/") {
-              tag
-            }
+            a(href: "/articles/tag/\(tag.slugify())/") { tag }
           }
         }
       }
@@ -65,12 +57,12 @@ func articleInList(_ article: Page<ArticleMetadata>) -> Node {
   div(class: "article") {
     a(href: article.url) { article.title }
 
-    if let summary = article.metadata.summary {
-      p {
+    p {
+      if let summary = article.metadata.summary {
         summary
+      } else {
+        String(article.body.withoutHtmlTags.prefix(2))
       }
-    } else {
-      String(article.body.toString().prefix(255))
     }
   }
 }
@@ -83,9 +75,7 @@ func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata
 
     h1 { "Apps" }
     context.allPages.compactMap { $0 as? Page<AppMetadata> }.map { app in
-      p {
-        app.title
-      }
+      p { app.title }
     }
   }
 }
@@ -107,9 +97,7 @@ func renderYear(context: YearRenderingContext<ArticleMetadata, SiteMetadata>) ->
 func renderPage(context: PageRenderingContext<EmptyMetadata, SiteMetadata>) -> Node {
   baseHtml(siteMetadata: context.siteMetadata, title: context.page.title) {
     div(id: "page") {
-      h1 {
-        context.page.title
-      }
+      h1 { context.page.title }
       context.page.body
     }
   }

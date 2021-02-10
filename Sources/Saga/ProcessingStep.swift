@@ -1,6 +1,5 @@
 import Foundation
 import PathKit
-import Stencil
 
 internal class ProcessStep<M: Metadata, SiteMetadata: Metadata> {
   let folder: Path?

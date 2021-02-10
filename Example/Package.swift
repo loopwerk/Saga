@@ -9,10 +9,15 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../"),
+    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.1.0")
   ],
   targets: [
     .target(
       name: "Example",
-      dependencies: ["Saga"]),
+      dependencies: [
+        "Saga",
+        "SagaSwimRenderer"
+      ]
+    ),
   ]
 )

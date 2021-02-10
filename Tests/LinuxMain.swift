@@ -1,7 +1,7 @@
 import XCTest
 
-import RagnarTests
+import SagaTests
 
 var tests = [XCTestCaseEntry]()
-tests += RagnarTests.allTests()
+tests += SagaTests.allTests()
 XCTMain(tests)

@@ -1,6 +1,7 @@
 import Foundation
 import Saga
 import PathKit
+import SagaSwimRenderer
 
 struct ArticleMetadata: Metadata {
   let tags: [String]

@@ -1,6 +1,5 @@
 import Foundation
 import PathKit
-import Stencil
 
 public class Saga<SiteMetadata: Metadata> {
   public let rootPath: Path

@@ -22,7 +22,7 @@ public extension Reader {
         relativeDestination: relativeDestination,
         title: markdown.title ?? absoluteSource.lastComponentWithoutExtension,
         rawContent: contents,
-        body: markdown.body.asNode(),
+        body: markdown.body,
         date: date,
         lastModified: absoluteSource.modificationDate ?? Date(),
         metadata: metadata
