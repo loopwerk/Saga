@@ -1,6 +1,6 @@
 ---
 tags: article, news
-summary: First!
+summary: This is the summary of the first article
 date: 2020-01-01
 ---
 # Hello world

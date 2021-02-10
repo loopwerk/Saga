@@ -38,6 +38,24 @@
         }
       },
       {
+        "package": "SagaParsleyMarkdownReader",
+        "repositoryURL": "https://github.com/loopwerk/SagaParsleyMarkdownReader",
+        "state": {
+          "branch": null,
+          "revision": "2b1c69e09c6bddca995cbaddc0c98baab41ac0f8",
+          "version": "0.1.0"
+        }
+      },
+      {
+        "package": "SagaSwimRenderer",
+        "repositoryURL": "https://github.com/loopwerk/SagaSwimRenderer",
+        "state": {
+          "branch": null,
+          "revision": "7e3319c8a12c7a3d443b9b63fd9f89bdc4ee94ab",
+          "version": "0.1.0"
+        }
+      },
+      {
         "package": "Slugify",
         "repositoryURL": "https://github.com/nodes-vapor/slugify",
         "state": {
@@ -56,12 +74,12 @@
         }
       },
       {
-        "package": "Stencil",
-        "repositoryURL": "https://github.com/stencilproject/Stencil.git",
+        "package": "HTML",
+        "repositoryURL": "https://github.com/robb/Swim",
         "state": {
           "branch": null,
-          "revision": "94197b3adbbf926348ad8765476a158aa4e54f8a",
-          "version": "0.14.0"
+          "revision": "a17c57dbd3148889b667604cc084417b13f9788f",
+          "version": "0.1.1"
         }
       }
     ]

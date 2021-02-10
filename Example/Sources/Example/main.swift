@@ -1,6 +1,8 @@
 import Foundation
 import Saga
 import PathKit
+import SagaParsleyMarkdownReader
+import SagaSwimRenderer
 
 struct ArticleMetadata: Metadata {
   let tags: [String]
@@ -55,20 +57,20 @@ func pageProcessor(page: Page<ArticleMetadata>) {
   ).makeOutputPath(pageWriteMode: .moveToSubfolder)
 }
 
-try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
+try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
   // Furthermore we are only interested in public articles.
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
-    readers: [.markdownReader(pageProcessor: pageProcessor)],
+    readers: [.parsleyMarkdownReader(pageProcessor: pageProcessor)],
     filter: \.public,
     writers: [
-      .pageWriter(template: "article.html"),
-      .listWriter(template: "articles.html"),
-      .tagWriter(template: "tag.html", tags: \.metadata.tags),
-      .yearWriter(template: "year.html"),
+      .pageWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles)),
+      .tagWriter(swim(renderTag), tags: \.metadata.tags),
+      .yearWriter(swim(renderYear)),
     ]
   )
 
@@ -77,17 +79,19 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
   .register(
     folder: "apps",
     metadata: AppMetadata.self,
-    readers: [.markdownReader()],
-    writers: [.listWriter(template: "apps.html")]
+    readers: [.parsleyMarkdownReader()],
+    writers: [.listWriter(swim(renderApps))]
   )
 
   // All the remaining markdown files will be parsed to html,
   // using the default EmptyMetadata as the Page's metadata type.
   .register(
     metadata: EmptyMetadata.self,
-    readers: [.markdownReader()],
+    readers: [.parsleyMarkdownReader()],
     pageWriteMode: .keepAsFile,
-    writers: [.pageWriter(template: "page.html")]
+    writers: [
+      .pageWriter(swim(renderPage))
+    ]
   )
 
   // Run the steps we registered above

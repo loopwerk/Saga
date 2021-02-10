@@ -2,30 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "cmark",
-        "repositoryURL": "https://github.com/brokenhandsio/cmark-gfm.git",
-        "state": {
-          "branch": null,
-          "revision": "c25ea288d0eb50c5c1150e7fdda675d5e9b1b6bb",
-          "version": "2.0.0"
-        }
-      },
-      {
         "package": "Codextended",
         "repositoryURL": "https://github.com/johnsundell/codextended.git",
         "state": {
           "branch": null,
           "revision": "8d7c46dfc9c55240870cf5561d6cefa41e3d7105",
           "version": "0.3.0"
-        }
-      },
-      {
-        "package": "Parsley",
-        "repositoryURL": "https://github.com/loopwerk/Parsley",
-        "state": {
-          "branch": null,
-          "revision": "af271fe39bad4d99139bae232cfd5f685f30733e",
-          "version": "0.1.0"
         }
       },
       {
@@ -53,15 +35,6 @@
           "branch": null,
           "revision": "f79d4ecbf8bc4e1579fbd86c3e1d652fb6876c53",
           "version": "0.9.2"
-        }
-      },
-      {
-        "package": "Stencil",
-        "repositoryURL": "https://github.com/stencilproject/Stencil.git",
-        "state": {
-          "branch": null,
-          "revision": "94197b3adbbf926348ad8765476a158aa4e54f8a",
-          "version": "0.14.0"
         }
       }
     ]
