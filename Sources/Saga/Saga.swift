@@ -6,18 +6,16 @@ public class Saga<SiteMetadata: Metadata> {
   public let rootPath: Path
   public let inputPath: Path
   public let outputPath: Path
-  public let templates: Path
   public let siteMetadata: SiteMetadata
 
   public let fileStorage: [FileContainer]
   internal var processSteps = [AnyProcessStep]()
 
-  public init(input: Path, output: Path, templates: Path, siteMetadata: SiteMetadata, originFilePath: StaticString = #file) throws {
+  public init(input: Path, output: Path, siteMetadata: SiteMetadata, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
     rootPath = try originFile.resolveSwiftPackageFolder()
     inputPath = rootPath + input
     outputPath = rootPath + output
-    self.templates = templates
     self.siteMetadata = siteMetadata
 
     // 1. Find all files in the source folder
@@ -46,7 +44,6 @@ public class Saga<SiteMetadata: Metadata> {
         inputPath: inputPath,
         outputPath: outputPath,
         pageWriteMode: pageWriteMode,
-        environment: getEnvironment(),
         siteMetadata: siteMetadata
       ))
     return self

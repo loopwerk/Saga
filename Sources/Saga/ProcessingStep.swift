@@ -22,7 +22,7 @@ internal class AnyProcessStep {
   let runReaders: () throws -> ()
   let runWriters: () throws -> ()
 
-  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, pageWriteMode: PageWriteMode, environment: Environment, siteMetadata: SiteMetadata) {
+  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, pageWriteMode: PageWriteMode, siteMetadata: SiteMetadata) {
     runReaders = {
       var pages = [Page<M>]()
 
@@ -72,11 +72,7 @@ internal class AnyProcessStep {
         .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
-        try writer.write(step.pages, allPages, siteMetadata, { template, context, destination in
-          let rendered = try environment.renderTemplate(name: template.string, context: context)
-          try destination.parent().mkpath()
-          try destination.write(rendered)
-        }, outputPath, step.folder ?? "")
+        try writer.run(step.pages, allPages, siteMetadata, outputPath, step.folder ?? "")
       }
     }
   }

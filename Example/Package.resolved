@@ -54,15 +54,6 @@
           "revision": "f79d4ecbf8bc4e1579fbd86c3e1d652fb6876c53",
           "version": "0.9.2"
         }
-      },
-      {
-        "package": "Stencil",
-        "repositoryURL": "https://github.com/stencilproject/Stencil.git",
-        "state": {
-          "branch": null,
-          "revision": "94197b3adbbf926348ad8765476a158aa4e54f8a",
-          "version": "0.14.0"
-        }
       }
     ]
   },

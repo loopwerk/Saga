@@ -55,7 +55,7 @@ func pageProcessor(page: Page<ArticleMetadata>) {
   ).makeOutputPath(pageWriteMode: .moveToSubfolder)
 }
 
-try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
+try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
   // Furthermore we are only interested in public articles.
@@ -65,10 +65,10 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     readers: [.markdownReader(pageProcessor: pageProcessor)],
     filter: \.public,
     writers: [
-      .pageWriter(template: "article.html"),
-      .listWriter(template: "articles.html"),
-      .tagWriter(template: "tag.html", tags: \.metadata.tags),
-      .yearWriter(template: "year.html"),
+      .pageWriter(renderArticle),
+      .listWriter(renderArticles),
+      .tagWriter(renderTag, tags: \.metadata.tags),
+      .yearWriter(renderYear),
     ]
   )
 
@@ -78,7 +78,7 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     folder: "apps",
     metadata: AppMetadata.self,
     readers: [.markdownReader()],
-    writers: [.listWriter(template: "apps.html")]
+    writers: [.listWriter(renderApps)]
   )
 
   // All the remaining markdown files will be parsed to html,
@@ -87,7 +87,9 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     metadata: EmptyMetadata.self,
     readers: [.markdownReader()],
     pageWriteMode: .keepAsFile,
-    writers: [.pageWriter(template: "page.html")]
+    writers: [
+      .pageWriter(renderPage)
+    ]
   )
 
   // Run the steps we registered above

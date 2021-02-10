@@ -15,11 +15,7 @@ public protocol AnyPage: class {
   var date: Date { get set }
   var lastModified: Date { get set }
   var template: Path? { get set }
-
-  // This is only used in the templates, to be able to do this:
-  // {% for page in allPages where page.metadataType == "ArticleMetadata" %}
-  // This should definitely be removed once Stencil has been replaced with a strongly typed HTML DSL library.
-  var metadataType: String { get }
+  var url: String { get }
 }
 
 public class Page<M: Metadata>: AnyPage {
@@ -32,7 +28,6 @@ public class Page<M: Metadata>: AnyPage {
   public var date: Date
   public var lastModified: Date
   public var metadata: M
-  public var metadataType: String // Remove once Stencil has been replaced
   public var template: Path?
 
   public init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M, template: Path? = nil) {
@@ -46,7 +41,14 @@ public class Page<M: Metadata>: AnyPage {
     self.date = date
     self.lastModified = lastModified
     self.metadata = metadata
-    self.metadataType = String(String(describing: metadata).split(separator: "(").first!)
     self.template = template
+  }
+
+  public var url: String {
+    var url = "/" + relativeDestination.string
+    if url.hasSuffix("/index.html") {
+      url.removeLast(10)
+    }
+    return url
   }
 }
