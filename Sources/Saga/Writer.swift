@@ -2,6 +2,7 @@ import PathKit
 import Foundation
 import Slugify
 import HTML
+import Stencil
 
 public struct PageRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let page: Page<M>
@@ -36,30 +37,30 @@ public struct Writer<M: Metadata, SiteMetadata: Metadata> {
 
 public extension Writer {
   // Write a single Page to disk, using Page.destination as the destination path
-  static func pageWriter(_ convert: @escaping (PageRenderingContext<M, SiteMetadata>) -> Node) -> Self {
+  static func pageWriter(_ convert: @escaping (PageRenderingContext<M, SiteMetadata>) -> String) -> Self {
     Writer { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       for page in pages {
         let context = PageRenderingContext(page: page, pages: pages, allPages: allPages, siteMetadata: siteMetadata)
         let node = convert(context)
-        try Writer.write(to: outputRoot + page.relativeDestination, content: nodeToHtml(node))
+        try Writer.write(to: outputRoot + page.relativeDestination, content: node)
       }
     }
   }
 
   // Writes an array of Pages into a single output file.
   // As such, it needs an output path, for example "articles/index.html".
-  static func listWriter(_ convert: @escaping (PagesRenderingContext<M, SiteMetadata>) -> Node, output: Path = "index.html") -> Self {
+  static func listWriter(_ convert: @escaping (PagesRenderingContext<M, SiteMetadata>) -> String, output: Path = "index.html") -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       let context = PagesRenderingContext(pages: pages, allPages: allPages, siteMetadata: siteMetadata)
       let node = convert(context)
-      try Writer.write(to: outputRoot + outputPrefix + output, content: nodeToHtml(node))
+      try Writer.write(to: outputRoot + outputPrefix + output, content: node)
     }
   }
 
   // Writes an array of pages into multiple output files.
   // The output path is a template where [year] will be replaced with the year of the Page.
   // Example: "articles/[year]/index.html"
-  static func yearWriter(_ convert: @escaping (YearRenderingContext<M, SiteMetadata>) -> Node, output: Path = "[year]/index.html") -> Self {
+  static func yearWriter(_ convert: @escaping (YearRenderingContext<M, SiteMetadata>) -> String, output: Path = "[year]/index.html") -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       // Find all the years and their pages
       var pagesPerYear = [Int: [Page<M>]]()
@@ -78,7 +79,7 @@ public extension Writer {
         let yearOutput = output.string.replacingOccurrences(of: "[year]", with: "\(year)")
         let context = YearRenderingContext(year: year, pages: pagesInYear, allPages: allPages, siteMetadata: siteMetadata)
         let node = convert(context)
-        try Writer.write(to: outputRoot + outputPrefix + yearOutput, content: nodeToHtml(node))
+        try Writer.write(to: outputRoot + outputPrefix + yearOutput, content: node)
       }
     }
   }
@@ -86,7 +87,7 @@ public extension Writer {
   // Writes an array of pages into multiple output files.
   // The output path is a template where [tag] will be replaced with the slugified tag.
   // Example: "articles/tag/[tag]/index.html"
-  static func tagWriter(_ convert: @escaping (TagRenderingContext<M, SiteMetadata>) -> Node, output: Path = "tag/[tag]/index.html", tags: @escaping (Page<M>) -> [String]) -> Self {
+  static func tagWriter(_ convert: @escaping (TagRenderingContext<M, SiteMetadata>) -> String, output: Path = "tag/[tag]/index.html", tags: @escaping (Page<M>) -> [String]) -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       // Find all the tags and their pages
       var pagesPerTag = [String: [Page<M>]]()
@@ -107,19 +108,28 @@ public extension Writer {
         let tagOutput = output.string.replacingOccurrences(of: "[tag]", with: tag.slugify())
         let context = TagRenderingContext(tag: tag, pages: pagesInTag, allPages: allPages, siteMetadata: siteMetadata)
         let node = convert(context)
-        try Writer.write(to: outputRoot + outputPrefix + tagOutput, content: nodeToHtml(node))
+        try Writer.write(to: outputRoot + outputPrefix + tagOutput, content: node)
       }
     }
   }
 }
 
-private extension Writer {
-  static func nodeToHtml(_ node: Node) -> String {
+public func swim<Context>(_ templateFunction: @escaping (Context) -> Node) -> ((Context) -> String) {
+  return { context in
+    let node = templateFunction(context)
+    return node.toString()
+  }
+}
+
+public extension Node {
+  func toString() -> String {
     var result = ""
-    node.write(to: &result)
+    self.write(to: &result)
     return result
   }
+}
 
+private extension Writer {
   static func write(to destination: Path, content: String) throws {
     try destination.parent().mkpath()
     try destination.write(content)

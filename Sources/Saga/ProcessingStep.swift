@@ -69,7 +69,7 @@ internal class AnyProcessStep {
     runWriters = {
       let allPages = fileStorage
         .compactMap(\.page)
-        .sorted(by: { left, right in left.date > right.date })
+//        .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
         try writer.run(step.pages, allPages, siteMetadata, outputPath, step.folder ?? "")

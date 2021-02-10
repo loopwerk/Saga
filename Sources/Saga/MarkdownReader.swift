@@ -15,7 +15,6 @@ public extension Reader {
       let decoder = makeMetadataDecoder(for: markdown.metadata)
       let date = try resolvePublishingDate(from: absoluteSource, decoder: decoder)
       let metadata = try M.init(from: decoder)
-      let template = try decoder.decodeIfPresent("template", as: Path.self)
 
       // Create the Page
       let page = Page(
@@ -23,11 +22,10 @@ public extension Reader {
         relativeDestination: relativeDestination,
         title: markdown.title ?? absoluteSource.lastComponentWithoutExtension,
         rawContent: contents,
-        body: markdown.body,
+        body: markdown.body.asNode(),
         date: date,
         lastModified: absoluteSource.modificationDate ?? Date(),
-        metadata: metadata,
-        template: template
+        metadata: metadata
       )
 
       // Run the processor, if any, to modify the Page

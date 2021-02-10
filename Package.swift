@@ -17,7 +17,7 @@ let package = Package(
     .package(name: "PathKit", url: "https://github.com/loopwerk/PathKit", from: "1.1.0"),
     .package(name: "Parsley", url: "https://github.com/loopwerk/Parsley", from: "0.1.0"),
     .package(name: "Codextended", url: "https://github.com/johnsundell/codextended.git", from: "0.1.0"),
-    .package(name: "HTML", path: "../Swim"),
+    .package(name: "HTML", url: "https://github.com/robb/Swim", from: "0.1.1"),
     .package(name: "Slugify", url: "https://github.com/nodes-vapor/slugify", from: "2.0.0"),
   ],
   targets: [

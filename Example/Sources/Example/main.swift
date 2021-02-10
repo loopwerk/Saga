@@ -65,10 +65,10 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
     readers: [.markdownReader(pageProcessor: pageProcessor)],
     filter: \.public,
     writers: [
-      .pageWriter(renderArticle),
-      .listWriter(renderArticles),
-      .tagWriter(renderTag, tags: \.metadata.tags),
-      .yearWriter(renderYear),
+      .pageWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles)),
+      .tagWriter(swim(renderTag), tags: \.metadata.tags),
+      .yearWriter(swim(renderYear)),
     ]
   )
 
@@ -78,7 +78,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
     folder: "apps",
     metadata: AppMetadata.self,
     readers: [.markdownReader()],
-    writers: [.listWriter(renderApps)]
+    writers: [.listWriter(swim(renderApps))]
   )
 
   // All the remaining markdown files will be parsed to html,
@@ -88,7 +88,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
     readers: [.markdownReader()],
     pageWriteMode: .keepAsFile,
     writers: [
-      .pageWriter(renderPage)
+      .pageWriter(swim(renderPage))
     ]
   )
 

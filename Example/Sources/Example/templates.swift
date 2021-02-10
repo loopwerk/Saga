@@ -70,7 +70,7 @@ func articleInList(_ article: Page<ArticleMetadata>) -> Node {
         summary
       }
     } else {
-      String(article.body.prefix(255))
+      String(article.body.toString().prefix(255))
     }
   }
 }
