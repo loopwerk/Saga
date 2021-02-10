@@ -6,6 +6,10 @@ A static site generator, written in Swift, allowing you to supply your own metad
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure:
 
 ``` swift
+import Saga
+import SagaParsleyMarkdownReader
+import SagaSwimRenderer
+
 struct ArticleMetadata: Metadata {
   let tags: [String]
   let summary: String?
@@ -16,7 +20,7 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-// SiteMetadata is given to every template.
+// SiteMetadata is given to every RenderingContext.
 // You can put whatever you want in here, as long as it confirms to the Metadata protocol.
 // If you have no need for custom site metadata, just pass EmptyMetadata() to Saga, below.
 struct SiteMetadata: Metadata {
@@ -104,12 +108,12 @@ func pageProcessor(page: Page<EmptyMetadata>) {
 try Saga(input: "content", output: "deploy")
   .register(
     metadata: EmptyMetadata.self,
-    readers: [.markdownReader(pageProcessor: pageProcessor)],
-    writers: [.pageWriter(template: "page.html")]
+    readers: [.parsleyMarkdownReader(pageProcessor: pageProcessor)],
+    writers: [.pageWriter(swim(renderPage))]
   )
 ```
 
-It's also easy to add your own readers and writers, search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash instead of the default Markdown reader.
+It's also easy to add your own readers, writers, and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
 
 ## Getting started
 Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see Architecture below), so that it looks something like this:
@@ -152,8 +156,8 @@ Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it.
 Saga does its work in multiple stages.
 
 1. First, it finds all the files within the `input` folder
-2. Then, for every registered step, it passes those files to matching readers. Readers are responsible for turning for example Markdown or RestructuredText files, into Page instances. Such readers are not bundled with Saga itself, instead you'll have to install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
-3. Finally Saga runs all the registered steps again, now executing the writers. These writers expect to be given a function that can turn a `RenderingContext` (which hold the Page among other things) into a String, which it'll then write to disk. To turn a Page into a HTML string, you'll want to use a template language or a HTML DSL for example, such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer).
+2. Then, for every registered step, it passes those files to matching readers (matching based on the extensions the reader declares it supports). Readers are responsible for turning for example Markdown or RestructuredText files, into `Page` instances. Such readers are not bundled with Saga itself, instead you'll have to install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
+3. Finally Saga runs all the registered steps again, now executing the writers. These writers expect to be given a function that can turn a `RenderingContext` (which hold the `Page` among other things) into a `String`, which it'll then write to disk, to the `output` folder. To turn a `Page` into a HTML `String`, you'll want to use a template language or a HTML DSL, such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer).
 
 Readers are expected to support the parsing of metadata contained within a document, such as this example for Markdown files:
 
@@ -168,7 +172,7 @@ Hello there.
 
 The three officially supported Markdown readers all do support the parsing of metadata.
 
-The official recommendation is to use [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader) for reading Markdown files and [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to render them using Swim, which offers a great HTML DSL using Swift's function builders. 
+The official recommendation is to use [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader) for reading Markdown files and [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to render them using [Swim](https://github.com/robb/Swim), which offers a great HTML DSL using Swift's function builders. 
 
 
 ## TODO
