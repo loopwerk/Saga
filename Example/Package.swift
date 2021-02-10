@@ -4,6 +4,9 @@ import PackageDescription
 
 let package = Package(
   name: "Example",
+  platforms: [
+    .macOS(.v10_15)
+  ],
   dependencies: [
     .package(path: "../"),
     .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.1.0"),
