@@ -1,3 +1,14 @@
+# 0.14.0 - 2021-02-10
+- Saga no longer comes bundled with a default markdown reader - you install one yourself:
+  - https://github.com/loopwerk/SagaParsleyMarkdownReader
+  - https://github.com/loopwerk/SagaPythonMarkdownReader
+  - https://github.com/loopwerk/SagaInkMarkdownReader
+- The writers now have a different function signature. They no longer simply take a templatePath,
+  Instead they expect a function that is given a RenderingContext and must return a String.
+  This should make it possible to use any kind of renderer you want, where you want to use swift-html,
+  Plot, Swim or Stencil. As long as you can turn a RenderingContext into a String, it'll work.
+  One renderer that is available is https://github.com/loopwerk/SagaSwimRenderer.
+
 # 0.13.0 - 2021-02-09
 - Switched away from SwiftMarkdown to Parsley, which is a LOT faster, see https://github.com/loopwerk/Saga/pull/5.
   Sadly it doesn't do syntax highlighting, so a client side solution such as prism.js is very handy.

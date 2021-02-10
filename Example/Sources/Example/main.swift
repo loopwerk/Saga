@@ -1,6 +1,7 @@
 import Foundation
 import Saga
 import PathKit
+import SagaParsleyMarkdownReader
 import SagaSwimRenderer
 
 struct ArticleMetadata: Metadata {
@@ -63,7 +64,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
-    readers: [.markdownReader(pageProcessor: pageProcessor)],
+    readers: [.parsleyMarkdownReader(pageProcessor: pageProcessor)],
     filter: \.public,
     writers: [
       .pageWriter(swim(renderArticle)),
@@ -78,7 +79,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   .register(
     folder: "apps",
     metadata: AppMetadata.self,
-    readers: [.markdownReader()],
+    readers: [.parsleyMarkdownReader()],
     writers: [.listWriter(swim(renderApps))]
   )
 
@@ -86,7 +87,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   // using the default EmptyMetadata as the Page's metadata type.
   .register(
     metadata: EmptyMetadata.self,
-    readers: [.markdownReader()],
+    readers: [.parsleyMarkdownReader()],
     pageWriteMode: .keepAsFile,
     writers: [
       .pageWriter(swim(renderPage))
