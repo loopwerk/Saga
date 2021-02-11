@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/loopwerk/Parsley",
         "state": {
           "branch": null,
-          "revision": "af271fe39bad4d99139bae232cfd5f685f30733e",
-          "version": "0.1.0"
+          "revision": "8141e0b985632e33300262ca0b7793c19f1cff70",
+          "version": "0.3.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaParsleyMarkdownReader",
         "state": {
           "branch": null,
-          "revision": "2b1c69e09c6bddca995cbaddc0c98baab41ac0f8",
-          "version": "0.1.0"
+          "revision": "22c8199c296d846dd0b9e2897c475faf504aa006",
+          "version": "0.3.0"
         }
       },
       {
@@ -51,17 +51,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaSwimRenderer",
         "state": {
           "branch": null,
-          "revision": "7e3319c8a12c7a3d443b9b63fd9f89bdc4ee94ab",
-          "version": "0.1.0"
-        }
-      },
-      {
-        "package": "Slugify",
-        "repositoryURL": "https://github.com/nodes-vapor/slugify",
-        "state": {
-          "branch": null,
-          "revision": "2231b5cff8e08693e4036a03b7220e93340fcae0",
-          "version": "2.0.0"
+          "revision": "1f7c178aeebd3ce9c2f715ccd5420d9f9819bf08",
+          "version": "0.3.3"
         }
       },
       {
