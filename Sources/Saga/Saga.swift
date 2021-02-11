@@ -50,14 +50,25 @@ public class Saga<SiteMetadata: Metadata> {
 
   @discardableResult
   public func run() throws -> Self {
-    // First we run all the readers for all the steps, so that ALL the pages are available for all the writers.
+    print("\(Date()) | Starting run")
+
+    let readStart = DispatchTime.now()
     for step in processSteps {
       try step.runReaders()
     }
+    let readEnd = DispatchTime.now()
 
+    let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
+    print("\(Date()) | Finished readers in \(Double(readTime) / 1_000_000_000)s")
+
+    let writeStart = DispatchTime.now()
     for step in processSteps {
       try step.runWriters()
     }
+    let writeEnd = DispatchTime.now()
+
+    let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
+    print("\(Date()) | Finished writers \(Double(writeTime) / 1_000_000_000)s")
 
     return self
   }

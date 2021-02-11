@@ -1,6 +1,5 @@
 import PathKit
 import Foundation
-import Slugify
 
 public struct PageRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let page: Page<M>
@@ -103,7 +102,7 @@ public extension Writer {
 
       for (tag, pagesInTag) in pagesPerTag {
         // Call out to the render function
-        let tagOutput = output.string.replacingOccurrences(of: "[tag]", with: tag.slugify())
+        let tagOutput = output.string.replacingOccurrences(of: "[tag]", with: tag.slugified)
         let context = TagRenderingContext(tag: tag, pages: pagesInTag, allPages: allPages, siteMetadata: siteMetadata)
         let node = renderer(context)
         try Writer.write(to: outputRoot + outputPrefix + tagOutput, content: node)

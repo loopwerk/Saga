@@ -5,9 +5,9 @@ public extension Path {
   func makeOutputPath(pageWriteMode: PageWriteMode) -> Path {
     switch pageWriteMode {
       case .keepAsFile:
-        return self.parent() + (self.lastComponentWithoutExtension.slugify() + ".html")
+        return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
       case .moveToSubfolder:
-        return self.parent() + self.lastComponentWithoutExtension.slugify() + "index.html"
+        return self.parent() + self.lastComponentWithoutExtension.slugified + "index.html"
     }
   }
 

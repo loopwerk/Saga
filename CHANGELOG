@@ -1,3 +1,7 @@
+# 0.15.0 - 2021-02-11
+- The Slugify dependency has been removed and replaced with my own very basic slugified 
+  computed property on String. This makes quite a big speed difference!
+
 # 0.14.0 - 2021-02-10
 - Saga no longer comes bundled with a default markdown reader - you install one yourself:
   - https://github.com/loopwerk/SagaParsleyMarkdownReader

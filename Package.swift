@@ -13,7 +13,6 @@ let package = Package(
   dependencies: [
     .package(name: "PathKit", url: "https://github.com/loopwerk/PathKit", from: "1.1.0"),
     .package(name: "Codextended", url: "https://github.com/johnsundell/codextended.git", from: "0.1.0"),
-    .package(name: "Slugify", url: "https://github.com/nodes-vapor/slugify", from: "2.0.0"),
   ],
   targets: [
     .target(
@@ -21,7 +20,6 @@ let package = Package(
       dependencies: [
         "PathKit",
         "Codextended",
-        "Slugify",
       ]
     ),
     .testTarget(

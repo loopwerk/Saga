@@ -20,15 +20,6 @@
         }
       },
       {
-        "package": "Slugify",
-        "repositoryURL": "https://github.com/nodes-vapor/slugify",
-        "state": {
-          "branch": null,
-          "revision": "2231b5cff8e08693e4036a03b7220e93340fcae0",
-          "version": "2.0.0"
-        }
-      },
-      {
         "package": "Spectre",
         "repositoryURL": "https://github.com/kylef/Spectre.git",
         "state": {
