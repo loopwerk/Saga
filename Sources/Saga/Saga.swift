@@ -56,8 +56,8 @@ public class Saga<SiteMetadata: Metadata> {
     for step in processSteps {
       try step.runReaders()
     }
-    let readEnd = DispatchTime.now()
 
+    let readEnd = DispatchTime.now()
     let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
     print("\(Date()) | Finished readers in \(Double(readTime) / 1_000_000_000)s")
 
@@ -65,8 +65,8 @@ public class Saga<SiteMetadata: Metadata> {
     for step in processSteps {
       try step.runWriters()
     }
-    let writeEnd = DispatchTime.now()
 
+    let writeEnd = DispatchTime.now()
     let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
     print("\(Date()) | Finished writers \(Double(writeTime) / 1_000_000_000)s")
 
@@ -76,6 +76,8 @@ public class Saga<SiteMetadata: Metadata> {
   // Copies all unhandled files as-is to the output folder.
   @discardableResult
   public func staticFiles() throws -> Self {
+    let start = DispatchTime.now()
+
     let unhandledPaths = fileStorage
       .filter { $0.handled == false }
       .map(\.path)
@@ -87,6 +89,10 @@ public class Saga<SiteMetadata: Metadata> {
       try output.parent().mkpath()
       try input.copy(output)
     }
+
+    let end = DispatchTime.now()
+    let time = end.uptimeNanoseconds - start.uptimeNanoseconds
+    print("\(Date()) | Finished copying static files in \(Double(time) / 1_000_000_000)s")
 
     return self
   }
