@@ -96,7 +96,7 @@ try Saga(input: "content", output: "deploy")
  .createArticleImages()
 ```
 
-But probably more common and useful is to use `markdownReader`'s `pageProcessor` parameter.
+But probably more common and useful is to use `pageProcessor` parameter of the readers:
 
 ``` swift
 func pageProcessor(page: Page<EmptyMetadata>) {
