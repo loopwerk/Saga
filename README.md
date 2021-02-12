@@ -36,7 +36,6 @@ let siteMetadata = SiteMetadata(
 try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
-  // Furthermore we are only interested in public articles.
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
