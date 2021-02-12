@@ -9,8 +9,8 @@ let package = Package(
     .executable(name: "watch", targets: ["SagaCLI"])
   ],
   dependencies: [
-    .package(name: "PathKit", url: "https://github.com/loopwerk/PathKit", from: "1.1.0"),
-    .package(name: "Codextended", url: "https://github.com/johnsundell/codextended.git", from: "0.1.0"),
+    .package(url: "https://github.com/loopwerk/PathKit", from: "1.1.0"),
+    .package(url: "https://github.com/JohnSundell/Codextended.git", from: "0.1.0"),
   ],
   targets: [
     .target(

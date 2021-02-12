@@ -3,7 +3,7 @@
     "pins": [
       {
         "package": "Codextended",
-        "repositoryURL": "https://github.com/johnsundell/codextended.git",
+        "repositoryURL": "https://github.com/JohnSundell/Codextended.git",
         "state": {
           "branch": null,
           "revision": "8d7c46dfc9c55240870cf5561d6cefa41e3d7105",

@@ -22,7 +22,6 @@ class FolderMonitor {
   }
 
   deinit {
-    print("deinit")
     for folderMonitorSource in folderMonitorSources.values {
       folderMonitorSource.cancel()
     }
@@ -76,7 +75,7 @@ class Watcher {
     // Start monitoring!
     print("Monitoring for changes!")
     folderMonitor = FolderMonitor(urls: allUrls) {
-      print("Detected change, rebuilding website")
+      print("Detected change, rebuilding website...")
       _ = runCommand("swift run")
     }
 
@@ -108,4 +107,4 @@ class Watcher {
   }
 }
 
-let watcher = try Watcher()
+_ = try Watcher()

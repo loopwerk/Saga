@@ -155,10 +155,10 @@ Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it.
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
 ```
-swift run watch input output
+swift run watch [input-folder] [output-folder]
 ```
 
-Where `input` and `output` are the names of the folders you also gave to Saga.
+Use the same relative input- and output folders as you gave to Saga.
 
 This functionality does depend on a globally installed [lite-server](https://github.com/johnpapa/lite-server).
 

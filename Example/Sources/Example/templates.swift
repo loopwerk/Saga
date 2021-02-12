@@ -44,7 +44,7 @@ func renderArticle(context: PageRenderingContext<ArticleMetadata, SiteMetadata>)
       ul {
         context.page.metadata.tags.map { tag in
           li {
-            a(href: "/articles/tag/\(tag.slugify())/") { tag }
+            a(href: "/articles/tag/\(tag.slugified)/") { tag }
           }
         }
       }
