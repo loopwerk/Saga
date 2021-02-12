@@ -96,7 +96,7 @@ try Saga(input: "content", output: "deploy")
  .createArticleImages()
 ```
 
-But probably more common and useful is to use `pageProcessor` parameter of the readers:
+But probably more common and useful is to use the `pageProcessor` parameter of the readers:
 
 ``` swift
 func pageProcessor(page: Page<EmptyMetadata>) {
@@ -198,14 +198,6 @@ The official recommendation is to use [SagaParsleyMarkdownReader](https://github
 Inspiration for the API of Saga is very much owed to my favorite (but sadly long unmaintained) static site generator: [liquidluck](https://github.com/avelino/liquidluck). Its system of multiple readers and writers is really good and I wanted something similar.
 
 Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder, which was copied over shamelessly.
-
-
-## FAQ
-Q: Is this ready for production?  
-A: Yes, but right now the API is still very much subject to change at any moment without any regard for backwards compatibility. It won't have a stable public API until Saga reaches 1.0.0.
-
-Q: How do I view the generated website?  
-A: Personally I use the `serve` tool, installed via Homebrew or NPM. Simply run `serve deploy` from within the Example folder.
 
 
 ## Websites using Saga
