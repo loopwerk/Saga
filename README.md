@@ -151,6 +151,21 @@ let package = Package(
 
 Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it.
 
+### Development server
+From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
+
+```
+swift run watch input output
+```
+
+Where `input` and `output` are the names of the folders you also gave to Saga.
+
+This functionality does depend on a globally installed [lite-server](https://github.com/johnpapa/lite-server).
+
+```
+npm install --global lite-server
+```
+
 
 ## Architecture
 Saga does its work in multiple stages.
@@ -177,7 +192,6 @@ The official recommendation is to use [SagaParsleyMarkdownReader](https://github
 
 ## TODO
 - Add paginating support for list/tag/year writers.
-- Research a way to auto-run on changes, maybe even reloading the browser as well.
 - Docs and tests.
 
 

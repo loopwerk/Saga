@@ -5,10 +5,8 @@ import PackageDescription
 let package = Package(
   name: "Saga",
   products: [
-    .library(
-      name: "Saga",
-      targets: ["Saga"]
-    ),
+    .library(name: "Saga", targets: ["Saga"]),
+    .executable(name: "watch", targets: ["SagaCLI"])
   ],
   dependencies: [
     .package(name: "PathKit", url: "https://github.com/loopwerk/PathKit", from: "1.1.0"),
@@ -22,11 +20,13 @@ let package = Package(
         "Codextended",
       ]
     ),
+    .target(
+      name: "SagaCLI",
+      dependencies: ["PathKit"]
+    ),
     .testTarget(
       name: "SagaTests",
-      dependencies: [
-        "Saga",
-      ]
+      dependencies: ["Saga"]
     ),
   ]
 )
