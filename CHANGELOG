@@ -1,3 +1,7 @@
+# 0.17.0 - 2021-02-12
+- tagWriter and yearWriter are now generalized into a partitionedWriter.
+  (They are still available as convenience functions that use partitionedWriter under the hood).
+
 # 0.16.0 - 2021-02-12
 - Added a watch mode that rebuilds your website and reloads the browser as well.
   This functionality does depend on a globally installed lite-server,

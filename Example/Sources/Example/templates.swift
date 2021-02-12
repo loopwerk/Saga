@@ -80,16 +80,9 @@ func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata
   }
 }
 
-func renderTag(context: TagRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.tag)") {
-    h1 { "Articles in \(context.tag)" }
-    context.pages.map(articleInList)
-  }
-}
-
-func renderYear(context: YearRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.year)") {
-    h1 { "Articles in \(context.year)" }
+func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata, SiteMetadata>) -> Node {
+  baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.key)") {
+    h1 { "Articles in \(context.key)" }
     context.pages.map(articleInList)
   }
 }

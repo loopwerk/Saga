@@ -14,15 +14,8 @@ public struct PagesRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let siteMetadata: SiteMetadata
 }
 
-public struct TagRenderingContext<M: Metadata, SiteMetadata: Metadata> {
-  public let tag: String
-  public let pages: [Page<M>]
-  public let allPages: [AnyPage]
-  public let siteMetadata: SiteMetadata
-}
-
-public struct YearRenderingContext<M: Metadata, SiteMetadata: Metadata> {
-  public let year: Int
+public struct PartitionedRenderingContext<T, M: Metadata, SiteMetadata: Metadata> {
+  public let key: T
   public let pages: [Page<M>]
   public let allPages: [AnyPage]
   public let siteMetadata: SiteMetadata
@@ -33,7 +26,7 @@ public struct Writer<M: Metadata, SiteMetadata: Metadata> {
 }
 
 public extension Writer {
-  // Write a single Page to disk, using Page.destination as the destination path
+  /// Write a single Page to disk, using Page.destination as the destination path
   static func pageWriter(_ renderer: @escaping (PageRenderingContext<M, SiteMetadata>) -> String) -> Self {
     Writer { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       for page in pages {
@@ -44,8 +37,8 @@ public extension Writer {
     }
   }
 
-  // Writes an array of Pages into a single output file.
-  // As such, it needs an output path, for example "articles/index.html".
+  /// Writes an array of Pages into a single output file.
+  /// As such, it needs an output path, for example "articles/index.html".
   static func listWriter(_ renderer: @escaping (PagesRenderingContext<M, SiteMetadata>) -> String, output: Path = "index.html") -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       let context = PagesRenderingContext(pages: pages, allPages: allPages, siteMetadata: siteMetadata)
@@ -54,12 +47,26 @@ public extension Writer {
     }
   }
 
-  // Writes an array of pages into multiple output files.
-  // The output path is a template where [year] will be replaced with the year of the Page.
-  // Example: "articles/[year]/index.html"
-  static func yearWriter(_ renderer: @escaping (YearRenderingContext<M, SiteMetadata>) -> String, output: Path = "[year]/index.html") -> Self {
+  /// Writes an array of pages into multiple output files.
+  /// Use this to partition an array of pages into a dictionary of pages, with a custom key.
+  /// The output path is a template where [key] will be replaced with the key uses for the partition.
+  /// Example: "articles/[key]/index.html"
+  static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) -> String, output: Path = "[key]/index.html", partitioner: @escaping ([Page<M>]) -> [T: [Page<M>]]) -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
-      // Find all the years and their pages
+      let partitions = partitioner(pages)
+
+      for (key, pagesInPartition) in partitions {
+        let finishedOutput = output.string.replacingOccurrences(of: "[key]", with: "\(key)")
+        let context = PartitionedRenderingContext(key: key, pages: pagesInPartition, allPages: allPages, siteMetadata: siteMetadata)
+        let node = renderer(context)
+        try Writer.write(to: outputRoot + outputPrefix + finishedOutput, content: node)
+      }
+    }
+  }
+
+  /// A convenience version of partitionedWriter that splits pages based on year
+  static func yearWriter(_ renderer: @escaping (PartitionedRenderingContext<Int, M, SiteMetadata>) -> String, output: Path = "[key]/index.html") -> Self {
+    let partitioner: ([Page<M>]) -> [Int: [Page<M>]] = { pages in
       var pagesPerYear = [Int: [Page<M>]]()
 
       for page in pages {
@@ -72,21 +79,16 @@ public extension Writer {
         }
       }
 
-      for (year, pagesInYear) in pagesPerYear {
-        let yearOutput = output.string.replacingOccurrences(of: "[year]", with: "\(year)")
-        let context = YearRenderingContext(year: year, pages: pagesInYear, allPages: allPages, siteMetadata: siteMetadata)
-        let node = renderer(context)
-        try Writer.write(to: outputRoot + outputPrefix + yearOutput, content: node)
-      }
+      return pagesPerYear
     }
+
+    return Self.partitionedWriter(renderer, output: output, partitioner: partitioner)
   }
 
-  // Writes an array of pages into multiple output files.
-  // The output path is a template where [tag] will be replaced with the slugified tag.
-  // Example: "articles/tag/[tag]/index.html"
-  static func tagWriter(_ renderer: @escaping (TagRenderingContext<M, SiteMetadata>) -> String, output: Path = "tag/[tag]/index.html", tags: @escaping (Page<M>) -> [String]) -> Self {
-    return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
-      // Find all the tags and their pages
+  /// A convenience version of partitionedWriter that splits pages based on tags
+  /// (tags can be any [String] array)
+  static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M, SiteMetadata>) -> String, output: Path = "tag/[key]/index.html", tags: @escaping (Page<M>) -> [String]) -> Self {
+    let partitioner: ([Page<M>]) -> [String: [Page<M>]] = { pages in
       var pagesPerTag = [String: [Page<M>]]()
 
       for page in pages {
@@ -100,14 +102,10 @@ public extension Writer {
         }
       }
 
-      for (tag, pagesInTag) in pagesPerTag {
-        // Call out to the render function
-        let tagOutput = output.string.replacingOccurrences(of: "[tag]", with: tag.slugified)
-        let context = TagRenderingContext(tag: tag, pages: pagesInTag, allPages: allPages, siteMetadata: siteMetadata)
-        let node = renderer(context)
-        try Writer.write(to: outputRoot + outputPrefix + tagOutput, content: node)
-      }
+      return pagesPerTag
     }
+
+    return Self.partitionedWriter(renderer, output: output, partitioner: partitioner)
   }
 }
 
