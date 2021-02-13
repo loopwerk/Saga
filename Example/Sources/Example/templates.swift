@@ -33,27 +33,27 @@ extension Date {
   }
 }
 
-func renderArticle(context: PageRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
-  return baseHtml(siteMetadata: context.siteMetadata, title: context.page.title) {
+func renderArticle(context: ItemRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
+  return baseHtml(siteMetadata: context.siteMetadata, title: context.item.title) {
     div(id: "article") {
-      h1 { context.page.title }
+      h1 { context.item.title }
       h2 {
-        context.page.date.formatted("dd MMMM")+", "
-        a(href: "/articles/\(context.page.date.formatted("yyyy"))/") { context.page.date.formatted("yyyy") }
+        context.item.date.formatted("dd MMMM")+", "
+        a(href: "/articles/\(context.item.date.formatted("yyyy"))/") { context.item.date.formatted("yyyy") }
       }
       ul {
-        context.page.metadata.tags.map { tag in
+        context.item.metadata.tags.map { tag in
           li {
             a(href: "/articles/tag/\(tag.slugified)/") { tag }
           }
         }
       }
-      context.page.body
+      context.item.body
     }
   }
 }
 
-func articleInList(_ article: Page<ArticleMetadata>) -> Node {
+func articleInList(_ article: Item<ArticleMetadata>) -> Node {
   div(class: "article") {
     a(href: article.url) { article.title }
 
@@ -84,10 +84,10 @@ func renderPagination(_ paginator: Paginator?) -> Node {
   }
 }
 
-func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
+func renderArticles(context: ItemsRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
   baseHtml(siteMetadata: context.siteMetadata, title: "Articles") {
     h1 { "Articles" }
-    context.pages.map(articleInList)
+    context.items.map(articleInList)
     renderPagination(context.paginator)
   }
 }
@@ -95,20 +95,20 @@ func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata
 func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata, SiteMetadata>) -> Node {
   baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.key)") {
     h1 { "Articles in \(context.key)" }
-    context.pages.map(articleInList)
+    context.items.map(articleInList)
     renderPagination(context.paginator)
   }
 }
 
-func renderPage(context: PageRenderingContext<EmptyMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: context.page.title) {
+func renderPage(context: ItemRenderingContext<EmptyMetadata, SiteMetadata>) -> Node {
+  baseHtml(siteMetadata: context.siteMetadata, title: context.item.title) {
     div(id: "page") {
-      h1 { context.page.title }
-      context.page.body
+      h1 { context.item.title }
+      context.item.body
 
-      if context.page.relativeDestination == "about.html" {
+      if context.item.relativeDestination == "about.html" {
         h1 { "Apps I've built" }
-        context.allPages.compactMap { $0 as? Page<AppMetadata> }.map { app in
+        context.allItems.compactMap { $0 as? Item<AppMetadata> }.map { app in
           p { app.title }
         }
       }
@@ -116,10 +116,10 @@ func renderPage(context: PageRenderingContext<EmptyMetadata, SiteMetadata>) -> N
   }
 }
 
-func renderApps(context: PagesRenderingContext<AppMetadata, SiteMetadata>) -> Node {
+func renderApps(context: ItemsRenderingContext<AppMetadata, SiteMetadata>) -> Node {
   baseHtml(siteMetadata: context.siteMetadata, title: "Apps") {
     h1 { "Apps" }
-    context.pages.map { app in
+    context.items.map { app in
       div(class: "app") {
         h2 { app.title }
 

@@ -1,5 +1,7 @@
 # 0.18.0 - 2021-02-13
 - Added paginator support
+- Renamed Page to Item, pageWriter to itemWriter, and all other Page related things to Item.
+  This so that the Paginator's itemsPerPage and numberOfPages don't cause confusion.
 
 # 0.17.0 - 2021-02-12
 - tagWriter and yearWriter are now generalized into a partitionedWriter.

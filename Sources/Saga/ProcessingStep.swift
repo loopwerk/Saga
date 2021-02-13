@@ -4,16 +4,16 @@ import PathKit
 internal class ProcessStep<M: Metadata, SiteMetadata: Metadata> {
   let folder: Path?
   let readers: [Reader<M>]
-  let filter: (Page<M>) -> Bool
+  let filter: (Item<M>) -> Bool
   let writers: [Writer<M, SiteMetadata>]
-  var pages: [Page<M>]
+  var items: [Item<M>]
 
-  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Page<M>) -> Bool, writers: [Writer<M, SiteMetadata>]) {
+  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Item<M>) -> Bool, writers: [Writer<M, SiteMetadata>]) {
     self.folder = folder
     self.readers = readers
     self.filter = filter
     self.writers = writers
-    self.pages = []
+    self.items = []
   }
 }
 
@@ -21,9 +21,9 @@ internal class AnyProcessStep {
   let runReaders: () throws -> ()
   let runWriters: () throws -> ()
 
-  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, pageWriteMode: PageWriteMode, siteMetadata: SiteMetadata) {
+  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, siteMetadata: SiteMetadata) {
     runReaders = {
-      var pages = [Page<M>]()
+      var items = [Item<M>]()
 
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
 
@@ -44,34 +44,34 @@ internal class AnyProcessStep {
         unhandledFileContainer.handled = true
 
         do {
-          // Turn the file into a Page
-          let page = try reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(pageWriteMode: pageWriteMode))
+          // Turn the file into an Item
+          let item = try reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
 
-          // Store the generated Page
-          if step.filter(page) {
-            unhandledFileContainer.page = page
-            pages.append(page)
+          // Store the generated Item
+          if step.filter(item) {
+            unhandledFileContainer.item = item
+            items.append(item)
           }
         } catch {
-          // Couldn't convert the file into a Page, probably because of missing metadata
+          // Couldn't convert the file into an Item, probably because of missing metadata
           // We still mark it has handled, otherwise another, less specific, read step might
-          // pick it up with an EmptyMetadata, turning a broken page suddenly into a working page,
+          // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
           // which is probably not what you want.
-          print("❕File \(relativePath) failed conversion to Page<\(M.self)>, error: ", error)
+          print("❕File \(relativePath) failed conversion to Item<\(M.self)>, error: ", error)
           continue
         }
       }
 
-      step.pages = pages.sorted(by: { left, right in left.date > right.date })
+      step.items = items.sorted(by: { left, right in left.date > right.date })
     }
 
     runWriters = {
-      let allPages = fileStorage
-        .compactMap(\.page)
+      let allItems = fileStorage
+        .compactMap(\.item)
         .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
-        try writer.run(step.pages, allPages, siteMetadata, outputPath, step.folder ?? "")
+        try writer.run(step.items, allItems, siteMetadata, outputPath, step.folder ?? "")
       }
     }
   }

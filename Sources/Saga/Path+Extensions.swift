@@ -2,8 +2,8 @@ import PathKit
 import Foundation
 
 public extension Path {
-  func makeOutputPath(pageWriteMode: PageWriteMode) -> Path {
-    switch pageWriteMode {
+  func makeOutputPath(itemWriteMode: ItemWriteMode) -> Path {
+    switch itemWriteMode {
       case .keepAsFile:
         return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
       case .moveToSubfolder:

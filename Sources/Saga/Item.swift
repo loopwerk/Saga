@@ -5,7 +5,7 @@ public protocol Metadata: Codable {}
 
 public struct EmptyMetadata: Metadata {}
 
-public protocol AnyPage: class {
+public protocol AnyItem: class {
   var relativeSource: Path { get }
   var filenameWithoutExtension: String { get }
   var relativeDestination: Path { get set }
@@ -17,7 +17,7 @@ public protocol AnyPage: class {
   var url: String { get }
 }
 
-public class Page<M: Metadata>: AnyPage {
+public class Item<M: Metadata>: AnyItem {
   public let relativeSource: Path
   public var relativeDestination: Path
   public var title: String
