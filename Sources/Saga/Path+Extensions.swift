@@ -26,6 +26,14 @@ public extension Path {
   var modificationDate: Date? {
     return self.attributes[.modificationDate] as? Date
   }
+
+  var url: String {
+    var url = "/" + self.string
+    if url.hasSuffix("/index.html") {
+      url.removeLast(10)
+    }
+    return url
+  }
 }
 
 internal extension Path {

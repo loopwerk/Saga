@@ -46,13 +46,3 @@ public class Page<M: Metadata>: AnyPage {
     relativeDestination.url
   }
 }
-
-public extension Path {
-  var url: String {
-    var url = "/" + self.string
-    if url.hasSuffix("/index.html") {
-      url.removeLast(10)
-    }
-    return url
-  }
-}

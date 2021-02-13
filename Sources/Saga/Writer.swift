@@ -8,14 +8,6 @@ public struct PageRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let siteMetadata: SiteMetadata
 }
 
-public struct Paginator {
-  public let page: Int
-  public let perPage: Int
-  public let numberOfPages: Int
-  public let previousPage: Path?
-  public let nextPage: Path?
-}
-
 public struct PagesRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let pages: [Page<M>]
   public let allPages: [AnyPage]
@@ -33,16 +25,6 @@ public struct PartitionedRenderingContext<T, M: Metadata, SiteMetadata: Metadata
 
 public struct Writer<M: Metadata, SiteMetadata: Metadata> {
   let run: ([Page<M>], [AnyPage], SiteMetadata, Path, Path) throws -> Void
-}
-
-public struct PaginatorConfig {
-  let perPage: Int
-  let output: Path
-
-  public init(perPage: Int, output: Path = "page/[page]/index.html") {
-    self.perPage = perPage
-    self.output = output
-  }
 }
 
 private extension Array {
@@ -77,11 +59,11 @@ public extension Writer {
           let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(pageWriteMode: .keepAsFile)
 
           let paginator = Paginator(
-            page: 1,
+            index: 1,
             perPage: paginate.perPage,
             numberOfPages: numberOfPages,
-            previousPage: nil,
-            nextPage: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
+            previous: nil,
+            next: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
           )
 
           let context = PagesRenderingContext(pages: firstPages, allPages: allPages, siteMetadata: siteMetadata, paginator: paginator)
@@ -95,11 +77,11 @@ public extension Writer {
           let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
 
           let paginator = Paginator(
-            page: index + 1,
+            index: index + 1,
             perPage: paginate.perPage,
             numberOfPages: numberOfPages,
-            previousPage: currentPage == 1 ? nil : (outputPrefix + previousPage),
-            nextPage: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
+            previous: currentPage == 1 ? nil : (outputPrefix + previousPage),
+            next: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
           )
 
           let finishedOutput = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "\(index + 1)"))
@@ -132,11 +114,11 @@ public extension Writer {
             let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(pageWriteMode: .keepAsFile)
 
             let paginator = Paginator(
-              page: 1,
+              index: 1,
               perPage: paginate.perPage,
               numberOfPages: numberOfPages,
-              previousPage: nil,
-              nextPage: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
+              previous: nil,
+              next: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
             )
 
             let finishedOutput = output.string.replacingOccurrences(of: "[key]", with: "\(key)")
@@ -151,11 +133,11 @@ public extension Writer {
             let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
 
             let paginator = Paginator(
-              page: index + 1,
+              index: index + 1,
               perPage: paginate.perPage,
               numberOfPages: numberOfPages,
-              previousPage: currentPage == 1 ? nil : (outputPrefix + previousPage),
-              nextPage: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
+              previous: currentPage == 1 ? nil : (outputPrefix + previousPage),
+              next: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
             )
 
             let finishedOutput = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(index + 1)"))

@@ -70,13 +70,13 @@ func articleInList(_ article: Page<ArticleMetadata>) -> Node {
 func renderPagination(_ paginator: Paginator) -> Node {
   div {
     p {
-      "Page \(paginator.page) out of \(paginator.numberOfPages)"
+      "Page \(paginator.index) out of \(paginator.numberOfPages)"
     }
-    if let previousPage = paginator.previousPage {
-      a(href: previousPage.url) { "Previous page" }
+    if let previous = paginator.previous {
+      a(href: previous.url) { "Previous page" }
     }
-    if let nextPage = paginator.nextPage {
-      a(href: nextPage.url) { "Next page" }
+    if let next = paginator.next {
+      a(href: next.url) { "Next page" }
     }
   }
 }
