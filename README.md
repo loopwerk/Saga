@@ -1,5 +1,7 @@
 # Saga
-A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
+A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly-typed HTML templates.
+
+Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
 
 
 ## Usage
@@ -21,8 +23,7 @@ struct AppMetadata: Metadata {
 }
 
 // SiteMetadata is given to every RenderingContext.
-// You can put whatever you want in here, as long as it confirms to the Metadata protocol.
-// If you have no need for custom site metadata, just pass EmptyMetadata() to Saga, below.
+// You can put whatever you want in here.
 struct SiteMetadata: Metadata {
   let url: URL
   let name: String
@@ -42,9 +43,13 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     readers: [.parsleyMarkdownReader()],
     writers: [
       .itemWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles)),
+      .listWriter(swim(renderArticles), paginate: 20),
       .tagWriter(swim(renderTag), tags: \.metadata.tags),
       .yearWriter(swim(renderYear)),
+      
+      // Atom feed for all articles, and a feed per tag
+      .listWriter(swim(renderFeed), output: "feed.xml"),
+      .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
     ]
   )
   // All markdown files within the "apps" subfolder will be parsed to html,
@@ -128,9 +133,9 @@ let package = Package(
     .macOS(.v10_15)
   ],
   dependencies: [
-    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.14.0"),
-    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.2.0"),
-    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.1.0"),
+    .package(name: "Saga", url: "https://github.com/loopwerk/Saga.git", from: "0.18.0"),
+    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.4.0"),
+    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.4.0"),
   ],
   targets: [
     .target(
