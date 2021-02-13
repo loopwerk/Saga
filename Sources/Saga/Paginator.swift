@@ -8,13 +8,3 @@ public struct Paginator {
   public let previous: Path?
   public let next: Path?
 }
-
-public struct PaginatorConfig {
-  let perPage: Int
-  let output: Path
-
-  public init(perPage: Int, output: Path = "page/[page]/index.html") {
-    self.perPage = perPage
-    self.output = output
-  }
-}

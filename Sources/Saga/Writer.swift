@@ -49,18 +49,18 @@ public extension Writer {
 
   /// Writes an array of Pages into a single output file.
   /// As such, it needs an output path, for example "articles/index.html".
-  static func listWriter(_ renderer: @escaping (PagesRenderingContext<M, SiteMetadata>) -> String, output: Path = "index.html", paginate: PaginatorConfig? = nil) -> Self {
+  static func listWriter(_ renderer: @escaping (PagesRenderingContext<M, SiteMetadata>) -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
-      if let paginate = paginate {
-        let ranges = pages.chunked(into: paginate.perPage)
+      if let perPage = paginate {
+        let ranges = pages.chunked(into: perPage)
         let numberOfPages = ranges.count
 
         if let firstPages = ranges.first {
-          let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(pageWriteMode: .keepAsFile)
+          let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(pageWriteMode: .keepAsFile)
 
           let paginator = Paginator(
             index: 1,
-            perPage: paginate.perPage,
+            perPage: perPage,
             numberOfPages: numberOfPages,
             previous: nil,
             next: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
@@ -73,18 +73,18 @@ public extension Writer {
 
         for (index, pages) in ranges.enumerated() {
           let currentPage = index + 1
-          let previousPage = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "\(currentPage - 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
-          let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
+          let previousPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage - 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
+          let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
 
           let paginator = Paginator(
             index: index + 1,
-            perPage: paginate.perPage,
+            perPage: perPage,
             numberOfPages: numberOfPages,
             previous: currentPage == 1 ? nil : (outputPrefix + previousPage),
             next: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
           )
 
-          let finishedOutput = Path(paginate.output.string.replacingOccurrences(of: "[page]", with: "\(index + 1)"))
+          let finishedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(index + 1)"))
           let context = PagesRenderingContext(pages: pages, allPages: allPages, siteMetadata: siteMetadata, paginator: paginator)
           let node = renderer(context)
           try Writer.write(to: outputRoot + outputPrefix + finishedOutput, content: node)
@@ -101,21 +101,21 @@ public extension Writer {
   /// Use this to partition an array of pages into a dictionary of pages, with a custom key.
   /// The output path is a template where [key] will be replaced with the key uses for the partition.
   /// Example: "articles/[key]/index.html"
-  static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) -> String, output: Path = "[key]/index.html", paginate: PaginatorConfig? = nil, partitioner: @escaping ([Page<M>]) -> [T: [Page<M>]]) -> Self {
+  static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Page<M>]) -> [T: [Page<M>]]) -> Self {
     return Self { pages, allPages, siteMetadata, outputRoot, outputPrefix in
       let partitions = partitioner(pages)
 
       for (key, pagesInPartition) in partitions {
-        if let paginate = paginate {
-          let ranges = pagesInPartition.chunked(into: paginate.perPage)
+        if let perPage = paginate {
+          let ranges = pagesInPartition.chunked(into: perPage)
           let numberOfPages = ranges.count
 
           if let firstPages = ranges.first {
-            let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(pageWriteMode: .keepAsFile)
+            let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(pageWriteMode: .keepAsFile)
 
             let paginator = Paginator(
               index: 1,
-              perPage: paginate.perPage,
+              perPage: perPage,
               numberOfPages: numberOfPages,
               previous: nil,
               next: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
@@ -129,18 +129,18 @@ public extension Writer {
 
           for (index, pages) in ranges.enumerated() {
             let currentPage = index + 1
-            let previousPage = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(currentPage - 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
-            let nextPage = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
+            let previousPage = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(currentPage - 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
+            let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(pageWriteMode: .keepAsFile)
 
             let paginator = Paginator(
               index: index + 1,
-              perPage: paginate.perPage,
+              perPage: perPage,
               numberOfPages: numberOfPages,
               previous: currentPage == 1 ? nil : (outputPrefix + previousPage),
               next: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
             )
 
-            let finishedOutput = Path(paginate.output.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(index + 1)"))
+            let finishedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key)").replacingOccurrences(of: "[page]", with: "\(index + 1)"))
             let context = PartitionedRenderingContext(key: key, pages: pages, allPages: allPages, siteMetadata: siteMetadata, paginator: paginator)
             let node = renderer(context)
             try Writer.write(to: outputRoot + outputPrefix + finishedOutput, content: node)
@@ -156,7 +156,7 @@ public extension Writer {
   }
 
   /// A convenience version of partitionedWriter that splits pages based on year.
-  static func yearWriter(_ renderer: @escaping (PartitionedRenderingContext<Int, M, SiteMetadata>) -> String, output: Path = "[key]/index.html", paginate: PaginatorConfig? = nil) -> Self {
+  static func yearWriter(_ renderer: @escaping (PartitionedRenderingContext<Int, M, SiteMetadata>) -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html") -> Self {
     let partitioner: ([Page<M>]) -> [Int: [Page<M>]] = { pages in
       var pagesPerYear = [Int: [Page<M>]]()
 
@@ -173,12 +173,12 @@ public extension Writer {
       return pagesPerYear
     }
 
-    return Self.partitionedWriter(renderer, output: output, paginate: paginate, partitioner: partitioner)
+    return Self.partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: partitioner)
   }
 
   /// A convenience version of partitionedWriter that splits pages based on tags.
   /// (tags can be any [String] array)
-  static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M, SiteMetadata>) -> String, output: Path = "tag/[key]/index.html", paginate: PaginatorConfig? = nil, tags: @escaping (Page<M>) -> [String]) -> Self {
+  static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M, SiteMetadata>) -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @escaping (Page<M>) -> [String]) -> Self {
     let partitioner: ([Page<M>]) -> [String: [Page<M>]] = { pages in
       var pagesPerTag = [String: [Page<M>]]()
 
@@ -196,7 +196,7 @@ public extension Writer {
       return pagesPerTag
     }
 
-    return Self.partitionedWriter(renderer, output: output, paginate: paginate, partitioner: partitioner)
+    return Self.partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: partitioner)
   }
 }
 
