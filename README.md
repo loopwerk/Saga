@@ -1,5 +1,5 @@
 # Saga
-A static site generator, written in Swift, allowing you to supply your own metadata type for your pages. Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
+A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
 
 
 ## Usage
@@ -35,20 +35,20 @@ let siteMetadata = SiteMetadata(
 
 try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
-  // using ArticleMetadata as the Page's metadata type.
+  // using ArticleMetadata as the Item's metadata type.
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader()],
     writers: [
-      .pageWriter(swim(renderArticle)),
+      .itemWriter(swim(renderArticle)),
       .listWriter(swim(renderArticles)),
       .tagWriter(swim(renderTag), tags: \.metadata.tags),
       .yearWriter(swim(renderYear)),
     ]
   )
   // All markdown files within the "apps" subfolder will be parsed to html,
-  // using AppMetadata as the Page's metadata type.
+  // using AppMetadata as the Item's metadata type.
   .register(
     folder: "apps",
     metadata: AppMetadata.self,
@@ -56,11 +56,11 @@ try Saga(input: "content", output: "deploy", templates: "templates", siteMetadat
     writers: [.listWriter(swim(renderApps))]
   )
   // All the remaining markdown files will be parsed to html,
-  // using the default EmptyMetadata as the Page's metadata type.
+  // using the default EmptyMetadata as the Item's metadata type.
   .register(
     metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader()],
-    writers: [.pageWriter(swim(renderPage))]
+    writers: [.itemWriter(swim(renderItem))]
   )
   // Run the steps we registered above
   .run()
@@ -74,13 +74,13 @@ For more examples please check out the [Example folder](https://github.com/loopw
 You can also check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which is completely built with Saga.
 
 ## Extending Saga
-It's very easy to add your own step to Saga where you can access the pages and run your own code:
+It's very easy to add your own step to Saga where you can access the items and run your own code:
 
 ``` swift
 extension Saga {
   @discardableResult
   func createArticleImages() -> Self {
-    let articles = fileStorage.compactMap { $0.page as? Page<ArticleMetadata> }
+    let articles = fileStorage.compactMap { $0.item as? Item<ArticleMetadata> }
 
     for article in articles {
       let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
@@ -96,19 +96,19 @@ try Saga(input: "content", output: "deploy")
  .createArticleImages()
 ```
 
-But probably more common and useful is to use the `pageProcessor` parameter of the readers:
+But probably more common and useful is to use the `itemProcessor` parameter of the readers:
 
 ``` swift
-func pageProcessor(page: Page<EmptyMetadata>) {
-  // Do whatever you want with the Page
-  page.title.append("!")
+func itemProcessor(item: Item<EmptyMetadata>) {
+  // Do whatever you want with the Item
+  item.title.append("!")
 }
 
 try Saga(input: "content", output: "deploy")
   .register(
     metadata: EmptyMetadata.self,
-    readers: [.parsleyMarkdownReader(pageProcessor: pageProcessor)],
-    writers: [.pageWriter(swim(renderPage))]
+    readers: [.parsleyMarkdownReader(itemProcessor: itemProcessor)],
+    writers: [.itemWriter(swim(renderItem))]
   )
 ```
 
@@ -170,8 +170,8 @@ npm install --global lite-server
 Saga does its work in multiple stages.
 
 1. First, it finds all the files within the `input` folder
-2. Then, for every registered step, it passes those files to matching readers (matching based on the extensions the reader declares it supports). Readers are responsible for turning for example Markdown or RestructuredText files, into `Page` instances. Such readers are not bundled with Saga itself, instead you'll have to install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
-3. Finally Saga runs all the registered steps again, now executing the writers. These writers expect to be given a function that can turn a `RenderingContext` (which hold the `Page` among other things) into a `String`, which it'll then write to disk, to the `output` folder. To turn a `Page` into a HTML `String`, you'll want to use a template language or a HTML DSL, such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer).
+2. Then, for every registered step, it passes those files to matching readers (matching based on the extensions the reader declares it supports). Readers are responsible for turning for example Markdown or RestructuredText files, into `Item` instances. Such readers are not bundled with Saga itself, instead you'll have to install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
+3. Finally Saga runs all the registered steps again, now executing the writers. These writers expect to be given a function that can turn a `RenderingContext` (which hold the `Item` among other things) into a `String`, which it'll then write to disk, to the `output` folder. To turn an `Item` into a HTML `String`, you'll want to use a template language or a HTML DSL, such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer).
 
 Readers are expected to support the parsing of metadata contained within a document, such as this example for Markdown files:
 
@@ -187,11 +187,6 @@ Hello there.
 The three officially supported Markdown readers all do support the parsing of metadata.
 
 The official recommendation is to use [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader) for reading Markdown files and [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to render them using [Swim](https://github.com/robb/Swim), which offers a great HTML DSL using Swift's function builders. 
-
-
-## TODO
-- Add paginating support for list/tag/year writers.
-- Docs and tests.
 
 
 ## Thanks

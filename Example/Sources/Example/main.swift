@@ -28,7 +28,7 @@ let siteMetadata = SiteMetadata(
 )
 
 // An easy way to only get public articles, since ArticleMetadata.public is optional
-extension Page where M == ArticleMetadata {
+extension Item where M == ArticleMetadata {
   var `public`: Bool {
     return metadata.public ?? true
   }
@@ -40,21 +40,21 @@ pageProcessorDateFormatter.timeZone = .current
 
 // An example of a simple page processor that takes files such as "2021-01-27-post-with-date-in-filename"
 // and uses the date within the filename as the publication date.
-func pageProcessor(page: Page<ArticleMetadata>) {
+func itemProcessor(item: Item<ArticleMetadata>) {
   // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
-  let first10 = String(page.relativeSource.lastComponentWithoutExtension.prefix(10))
+  let first10 = String(item.relativeSource.lastComponentWithoutExtension.prefix(10))
   guard first10.count == 10, let date = pageProcessorDateFormatter.date(from: first10) else {
     return
   }
 
   // Set the date
-  page.date = date
+  item.date = date
 
   // And remove the first 11 characters from the filename
-  let first11 = String(page.relativeSource.lastComponentWithoutExtension.prefix(11))
-  page.relativeDestination = Path(
-    page.relativeSource.string.replacingOccurrences(of: first11, with: "")
-  ).makeOutputPath(pageWriteMode: .moveToSubfolder)
+  let first11 = String(item.relativeSource.lastComponentWithoutExtension.prefix(11))
+  item.relativeDestination = Path(
+    item.relativeSource.string.replacingOccurrences(of: first11, with: "")
+  ).makeOutputPath(itemWriteMode: .moveToSubfolder)
 }
 
 try Saga(input: "content", siteMetadata: siteMetadata)
@@ -64,12 +64,12 @@ try Saga(input: "content", siteMetadata: siteMetadata)
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,
-    readers: [.parsleyMarkdownReader(pageProcessor: pageProcessor)],
+    readers: [.parsleyMarkdownReader(itemProcessor: itemProcessor)],
     filter: \.public,
     writers: [
-      .pageWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles)),
-      .tagWriter(swim(renderPartition), tags: \.metadata.tags),
+      .itemWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles), paginate: 5),
+      .tagWriter(swim(renderPartition), paginate: 5, tags: \.metadata.tags),
       .yearWriter(swim(renderPartition)),
     ]
   )
@@ -80,7 +80,9 @@ try Saga(input: "content", siteMetadata: siteMetadata)
     folder: "apps",
     metadata: AppMetadata.self,
     readers: [.parsleyMarkdownReader()],
-    writers: [.listWriter(swim(renderApps))]
+    writers: [
+      .listWriter(swim(renderApps))
+    ]
   )
 
   // All the remaining markdown files will be parsed to html,
@@ -88,9 +90,9 @@ try Saga(input: "content", siteMetadata: siteMetadata)
   .register(
     metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader()],
-    pageWriteMode: .keepAsFile,
+    itemWriteMode: .keepAsFile,
     writers: [
-      .pageWriter(swim(renderPage))
+      .itemWriter(swim(renderPage))
     ]
   )
 
