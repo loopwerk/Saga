@@ -67,16 +67,19 @@ func articleInList(_ article: Page<ArticleMetadata>) -> Node {
   }
 }
 
-func renderPagination(_ paginator: Paginator) -> Node {
-  div {
-    p {
-      "Page \(paginator.index) out of \(paginator.numberOfPages)"
-    }
-    if let previous = paginator.previous {
-      a(href: previous.url) { "Previous page" }
-    }
-    if let next = paginator.next {
-      a(href: next.url) { "Next page" }
+@NodeBuilder
+func renderPagination(_ paginator: Paginator?) -> Node {
+  if let paginator = paginator, paginator.numberOfPages > 1 {
+    div(class: "pagination") {
+      p {
+        "Page \(paginator.index) out of \(paginator.numberOfPages)"
+      }
+      if let previous = paginator.previous {
+        a(href: previous.url) { "Previous page" }
+      }
+      if let next = paginator.next {
+        a(href: next.url) { "Next page" }
+      }
     }
   }
 }
@@ -85,15 +88,7 @@ func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata
   baseHtml(siteMetadata: context.siteMetadata, title: "Articles") {
     h1 { "Articles" }
     context.pages.map(articleInList)
-
-    h1 { "Apps" }
-    context.allPages.compactMap { $0 as? Page<AppMetadata> }.map { app in
-      p { app.title }
-    }
-
-    if let paginator = context.paginator {
-      renderPagination(paginator)
-    }
+    renderPagination(context.paginator)
   }
 }
 
@@ -101,10 +96,7 @@ func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata,
   baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.key)") {
     h1 { "Articles in \(context.key)" }
     context.pages.map(articleInList)
-
-    if let paginator = context.paginator {
-      renderPagination(paginator)
-    }
+    renderPagination(context.paginator)
   }
 }
 
@@ -113,6 +105,13 @@ func renderPage(context: PageRenderingContext<EmptyMetadata, SiteMetadata>) -> N
     div(id: "page") {
       h1 { context.page.title }
       context.page.body
+
+      if context.page.relativeDestination == "about.html" {
+        h1 { "Apps I've built" }
+        context.allPages.compactMap { $0 as? Page<AppMetadata> }.map { app in
+          p { app.title }
+        }
+      }
     }
   }
 }

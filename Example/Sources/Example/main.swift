@@ -68,9 +68,9 @@ try Saga(input: "content", siteMetadata: siteMetadata)
     filter: \.public,
     writers: [
       .pageWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles), paginate: 1),
-      .tagWriter(swim(renderPartition), paginate: 1, tags: \.metadata.tags),
-      .yearWriter(swim(renderPartition), paginate: 1),
+      .listWriter(swim(renderArticles), paginate: 5),
+      .tagWriter(swim(renderPartition), tags: \.metadata.tags),
+      .yearWriter(swim(renderPartition)),
     ]
   )
 
