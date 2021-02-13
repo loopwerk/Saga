@@ -61,12 +61,25 @@ func articleInList(_ article: Page<ArticleMetadata>) -> Node {
       if let summary = article.metadata.summary {
         summary
       } else {
-        String(article.body.withoutHtmlTags.prefix(2))
+        String(article.body.withoutHtmlTags.prefix(255))
       }
     }
   }
 }
 
+func renderPagination(_ paginator: Paginator) -> Node {
+  div {
+    p {
+      "Page \(paginator.page) out of \(paginator.numberOfPages)"
+    }
+    if let previousPage = paginator.previousPage {
+      a(href: previousPage.url) { "Previous page" }
+    }
+    if let nextPage = paginator.nextPage {
+      a(href: nextPage.url) { "Next page" }
+    }
+  }
+}
 
 func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
   baseHtml(siteMetadata: context.siteMetadata, title: "Articles") {
@@ -77,6 +90,10 @@ func renderArticles(context: PagesRenderingContext<ArticleMetadata, SiteMetadata
     context.allPages.compactMap { $0 as? Page<AppMetadata> }.map { app in
       p { app.title }
     }
+
+    if let paginator = context.paginator {
+      renderPagination(paginator)
+    }
   }
 }
 
@@ -84,6 +101,10 @@ func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata,
   baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.key)") {
     h1 { "Articles in \(context.key)" }
     context.pages.map(articleInList)
+
+    if let paginator = context.paginator {
+      renderPagination(paginator)
+    }
   }
 }
 

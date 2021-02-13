@@ -30,7 +30,6 @@ public class Page<M: Metadata>: AnyPage {
   public init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M) {
     self.relativeSource = relativeSource
     self.relativeDestination = relativeDestination
-    self.relativeDestination = relativeDestination
     self.title = title
     self.rawContent = rawContent
     self.body = body
@@ -44,7 +43,13 @@ public class Page<M: Metadata>: AnyPage {
   }
 
   public var url: String {
-    var url = "/" + relativeDestination.string
+    relativeDestination.url
+  }
+}
+
+public extension Path {
+  var url: String {
+    var url = "/" + self.string
     if url.hasSuffix("/index.html") {
       url.removeLast(10)
     }
