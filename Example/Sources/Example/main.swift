@@ -69,7 +69,7 @@ try Saga(input: "content", siteMetadata: siteMetadata)
     writers: [
       .pageWriter(swim(renderArticle)),
       .listWriter(swim(renderArticles), paginate: 5),
-      .tagWriter(swim(renderPartition), tags: \.metadata.tags),
+      .tagWriter(swim(renderPartition), paginate: 5, tags: \.metadata.tags),
       .yearWriter(swim(renderPartition)),
     ]
   )
@@ -80,7 +80,9 @@ try Saga(input: "content", siteMetadata: siteMetadata)
     folder: "apps",
     metadata: AppMetadata.self,
     readers: [.parsleyMarkdownReader()],
-    writers: [.listWriter(swim(renderApps))]
+    writers: [
+      .listWriter(swim(renderApps))
+    ]
   )
 
   // All the remaining markdown files will be parsed to html,

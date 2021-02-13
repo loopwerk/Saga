@@ -1,3 +1,6 @@
+# 0.18.0 - 2021-02-13
+- Added paginator support
+
 # 0.17.0 - 2021-02-12
 - tagWriter and yearWriter are now generalized into a partitionedWriter.
   (They are still available as convenience functions that use partitionedWriter under the hood).
