@@ -11,7 +11,9 @@ extension FileIO {
     resolveSwiftPackageFolder: { _ in "root" },
     findFiles: { _ in ["test.md", "test2.md", "style.css"] },
     deletePath: { _ in },
-    write: { _, _ in }
+    write: { _, _ in },
+    mkpath: { _ in },
+    copy: { _, _ in }
   )
 }
 
@@ -179,6 +181,29 @@ final class SagaTests: XCTestCase {
       WrittenPage(destination: "root/output/tag/one/index.html", content: "<p>test2.md</p><p>test.md</p>"),
       WrittenPage(destination: "root/output/tag/with-space/index.html", content: "<p>test2.md</p><p>test.md</p>"),
     ])
+  }
+
+  func testStaticFiles() throws {
+    var writtenFiles: [Path] = []
+
+    var mock = FileIO.mock
+    mock.copy = { origin, destination in
+      writtenFiles.append(destination)
+    }
+
+    try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+      .register(
+        metadata: TaggedMetadata.self,
+        readers: [
+          .mock(metadata: TaggedMetadata(tags: ["one", "with space"]))
+        ],
+        writers: [
+        ]
+      )
+      .run()
+      .staticFiles()
+
+    XCTAssertEqual(writtenFiles, ["root/output/style.css"])
   }
 
   static var allTests = [

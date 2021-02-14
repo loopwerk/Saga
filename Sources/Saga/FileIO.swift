@@ -5,6 +5,8 @@ public struct FileIO {
   var findFiles: (Path) throws -> [Path]
   var deletePath: (Path) throws -> Void
   var write: (Path, String) throws -> Void
+  var mkpath: (Path) throws -> Void
+  var copy: (Path, Path) throws -> Void
 }
 
 public extension FileIO {
@@ -19,6 +21,12 @@ public extension FileIO {
     write: { destination, content in
       try destination.parent().mkpath()
       try destination.write(content)
+    },
+    mkpath: { path in
+      try path.mkpath()
+    },
+    copy: { origin, destination in
+      try origin.copy(destination)
     }
   )
 }

@@ -87,8 +87,8 @@ public class Saga<SiteMetadata: Metadata> {
       let relativePath = try path.relativePath(from: inputPath)
       let input = path
       let output = outputPath + relativePath
-      try output.parent().mkpath()
-      try input.copy(output)
+      try fileIO.mkpath(output.parent())
+      try fileIO.copy(input, output)
     }
 
     let end = DispatchTime.now()
