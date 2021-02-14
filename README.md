@@ -1,7 +1,9 @@
 # Saga
-A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly-typed HTML templates.
+![Build result](https://github.com/loopwerk/Saga/workflows/Swift/badge.svg?branch=main)
 
-Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
+A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly typed HTML templates.
+
+Saga requires at least Swift 5.2, and runs on both Mac and Linux.
 
 
 ## Usage
@@ -78,6 +80,7 @@ For more examples please check out the [Example folder](https://github.com/loopw
 
 You can also check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which is completely built with Saga.
 
+
 ## Extending Saga
 It's very easy to add your own step to Saga where you can access the items and run your own code:
 
@@ -118,6 +121,7 @@ try Saga(input: "content", output: "deploy")
 ```
 
 It's also easy to add your own readers, writers, and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
+
 
 ## Getting started
 Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see Architecture below), so that it looks something like this:
@@ -198,6 +202,8 @@ The official recommendation is to use [SagaParsleyMarkdownReader](https://github
 Inspiration for the API of Saga is very much owed to my favorite (but sadly long unmaintained) static site generator: [liquidluck](https://github.com/avelino/liquidluck). Its system of multiple readers and writers is really good and I wanted something similar.
 
 Thanks also goes to [Publish](https://github.com/JohnSundell/Publish), another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder, which was copied over shamelessly.
+
+You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API.
 
 
 ## Websites using Saga
