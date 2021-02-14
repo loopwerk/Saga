@@ -18,18 +18,36 @@ extension FileIO {
 extension Reader {
   static func mock(metadata: M) -> Self {
     return Self(supportedExtensions: ["md"]) { absoluteSource, relativeSource, relativeDestination in
-      return Item(
-        relativeSource: relativeSource,
-        relativeDestination: relativeDestination,
-        title: "Test",
-        rawContent: "test",
-        body: "<p>\(relativeSource)</p>",
-        date: Date(),
-        lastModified: Date(),
-        metadata: metadata
-      )
+      if relativeSource == "test.md" {
+        return Item(
+          relativeSource: relativeSource,
+          relativeDestination: relativeDestination,
+          title: "Test",
+          rawContent: "test",
+          body: "<p>\(relativeSource)</p>",
+          date: Date(timeIntervalSince1970: 1580598000),
+          lastModified: Date(timeIntervalSince1970: 1580598000),
+          metadata: metadata
+        )
+      } else {
+        return Item(
+          relativeSource: relativeSource,
+          relativeDestination: relativeDestination,
+          title: "Test",
+          rawContent: "test",
+          body: "<p>\(relativeSource)</p>",
+          date: Date(timeIntervalSince1970: 1612220400),
+          lastModified: Date(timeIntervalSince1970: 1612220400),
+          metadata: metadata
+        )
+      }
     }
   }
+}
+
+struct WrittenPage: Equatable {
+  let destination: Path
+  let content: String
 }
 
 final class SagaTests: XCTestCase {
@@ -65,12 +83,7 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(saga.processSteps.count, 1)
   }
 
-  func testItemWriterRun() throws {
-    struct WrittenPage: Equatable {
-      let destination: Path
-      let content: String
-    }
-
+  func testReaderAndItemWriterAndListWriter() throws {
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
@@ -110,9 +123,37 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(writtenPages[2].content, "<p>test2.md</p><p>test.md</p>")
   }
 
+  func testYearWriter() throws {
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPages.append(.init(destination: destination, content: content))
+    }
+
+    try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          .mock(metadata: EmptyMetadata())
+        ],
+        writers: [
+          .yearWriter({ context in context.items.map(\.body).joined(separator: "") })
+        ]
+      )
+      .run()
+
+    XCTAssertEqual(writtenPages.count, 2)
+    XCTAssertEqual(writtenPages, [
+      WrittenPage(destination: "root/output/2021/index.html", content: "<p>test2.md</p>"),
+      WrittenPage(destination: "root/output/2020/index.html", content: "<p>test.md</p>")
+    ])
+  }
+
   static var allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
-    ("testItemWriterRun", testItemWriterRun),
+    ("testReaderAndItemWriterAndListWriter", testReaderAndItemWriterAndListWriter),
+    ("testYearWriter", testYearWriter),
   ]
 }

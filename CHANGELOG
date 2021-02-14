@@ -1,3 +1,7 @@
+# 0.18.1 - 2021-02-14
+- Added first unit tests
+- Fixed slugification of tagWriter's [key], if you have tags with spaces
+
 # 0.18.0 - 2021-02-13
 - Added paginator support
 - Renamed Page to Item, pageWriter to itemWriter, and all other Page related things to Item.
