@@ -11,7 +11,7 @@ public class Saga<SiteMetadata: Metadata> {
   internal var processSteps = [AnyProcessStep]()
   internal let fileIO: FileIO
 
-  public init(input: Path, output: Path = "deploy", siteMetadata: SiteMetadata, originFilePath: StaticString = #file, fileIO: FileIO = .live) throws {
+  public init(input: Path, output: Path = "deploy", siteMetadata: SiteMetadata, fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
     rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
     inputPath = rootPath + input
