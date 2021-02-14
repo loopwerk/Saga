@@ -15,7 +15,7 @@ public struct ItemsRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let paginator: Paginator?
 }
 
-public struct PartitionedRenderingContext<T, M: Metadata, SiteMetadata: Metadata> {
+public struct PartitionedRenderingContext<T: CustomStringConvertible, M: Metadata, SiteMetadata: Metadata> {
   public let key: T
   public let items: [Item<M>]
   public let allItems: [AnyItem]
@@ -24,7 +24,7 @@ public struct PartitionedRenderingContext<T, M: Metadata, SiteMetadata: Metadata
 }
 
 public struct Writer<M: Metadata, SiteMetadata: Metadata> {
-  let run: ([Item<M>], [AnyItem], SiteMetadata, Path, Path) throws -> Void
+  let run: ([Item<M>], [AnyItem], SiteMetadata, Path, Path, FileIO) throws -> Void
 }
 
 private extension Array {
@@ -38,11 +38,11 @@ private extension Array {
 public extension Writer {
   /// Writes a single Item to a single output file, using Item.destination as the destination path
   static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M, SiteMetadata>) -> String) -> Self {
-    Writer { items, allItems, siteMetadata, outputRoot, outputPrefix in
+    Writer { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
       for item in items {
         let context = ItemRenderingContext(item: item, items: items, allItems: allItems, siteMetadata: siteMetadata)
         let node = renderer(context)
-        try Writer.write(to: outputRoot + item.relativeDestination, content: node)
+        try fileIO.write(outputRoot + item.relativeDestination, node)
       }
     }
   }
@@ -50,8 +50,8 @@ public extension Writer {
   /// Writes an array of Items into a single output file.
   /// As such, it needs an output path, for example "articles/index.html".
   static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M, SiteMetadata>) -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
-    return Self { items, allItems, siteMetadata, outputRoot, outputPrefix in
-      try writePages(renderer: renderer, items: items, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput) {
+    return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
+      try writePages(renderer: renderer, items: items, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
         return ItemsRenderingContext(items: $0, allItems: $1, siteMetadata: $2, paginator: $3)
       }
     }
@@ -62,13 +62,13 @@ public extension Writer {
   /// The output path is a template where [key] will be replaced with the key uses for the partition.
   /// Example: "articles/[key]/index.html"
   static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
-    return Self { items, allItems, siteMetadata, outputRoot, outputPrefix in
+    return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
       let partitions = partitioner(items)
 
       for (key, itemsInPartition) in partitions {
-        let finishedOutput = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key)"))
-        let finishedPaginatedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key)"))
-        try writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutput, paginate: paginate, paginatedOutput: finishedPaginatedOutput) {
+        let finishedOutput = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
+        let finishedPaginatedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
+        try writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutput, paginate: paginate, paginatedOutput: finishedPaginatedOutput, fileIO: fileIO) {
           return PartitionedRenderingContext(key: key, items: $0, allItems: $1, siteMetadata: $2, paginator: $3)
         }
       }
@@ -121,7 +121,7 @@ public extension Writer {
 }
 
 private extension Writer {
-  static func writePages<Context>(renderer: @escaping (Context) -> String, items: [Item<M>], allItems: [AnyItem], siteMetadata: SiteMetadata, outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, getContext: ([Item<M>], [AnyItem], SiteMetadata, Paginator?) -> Context) throws {
+  static func writePages<Context>(renderer: @escaping (Context) -> String, items: [Item<M>], allItems: [AnyItem], siteMetadata: SiteMetadata, outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, fileIO: FileIO, getContext: ([Item<M>], [AnyItem], SiteMetadata, Paginator?) -> Context) throws {
     if let perPage = paginate {
       let ranges = items.chunked(into: perPage)
       let numberOfPages = ranges.count
@@ -139,7 +139,7 @@ private extension Writer {
 
         let context = getContext(firstItems, allItems, siteMetadata, paginator)
         let node = renderer(context)
-        try Writer.write(to: outputRoot + outputPrefix + output, content: node)
+        try fileIO.write(outputRoot + outputPrefix + output, node)
       }
 
       for (index, items) in ranges.enumerated() {
@@ -158,18 +158,13 @@ private extension Writer {
         let finishedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
         let context = getContext(items, allItems, siteMetadata, paginator)
         let node = renderer(context)
-        try Writer.write(to: outputRoot + outputPrefix + finishedOutput, content: node)
+        try fileIO.write(outputRoot + outputPrefix + finishedOutput, node)
       }
     } else {
       let context = getContext(items, allItems, siteMetadata, nil)
       let node = renderer(context)
-      try Writer.write(to: outputRoot + outputPrefix + output, content: node)
+      try fileIO.write(outputRoot + outputPrefix + output, node)
     }
-  }
-
-  static func write(to destination: Path, content: String) throws {
-    try destination.parent().mkpath()
-    try destination.write(content)
   }
 }
 

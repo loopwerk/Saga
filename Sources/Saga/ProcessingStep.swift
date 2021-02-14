@@ -21,7 +21,7 @@ internal class AnyProcessStep {
   let runReaders: () throws -> ()
   let runWriters: () throws -> ()
 
-  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, siteMetadata: SiteMetadata) {
+  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, siteMetadata: SiteMetadata, fileIO: FileIO) {
     runReaders = {
       var items = [Item<M>]()
 
@@ -71,7 +71,7 @@ internal class AnyProcessStep {
         .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
-        try writer.run(step.items, allItems, siteMetadata, outputPath, step.folder ?? "")
+        try writer.run(step.items, allItems, siteMetadata, outputPath, step.folder ?? "", fileIO)
       }
     }
   }

@@ -1,7 +1,7 @@
 import Foundation
 
-public extension String {
+public extension CustomStringConvertible {
   var slugified: String {
-    return self.replacingOccurrences(of: " ", with: "-")
+    return self.description.replacingOccurrences(of: " ", with: "-")
   }
 }
