@@ -45,6 +45,10 @@ extension Reader {
   }
 }
 
+struct TaggedMetadata: Metadata {
+  let tags: [String]
+}
+
 struct WrittenPage: Equatable {
   let destination: Path
   let content: String
@@ -145,8 +149,35 @@ final class SagaTests: XCTestCase {
 
     XCTAssertEqual(writtenPages.count, 2)
     XCTAssertEqual(writtenPages, [
+      WrittenPage(destination: "root/output/2020/index.html", content: "<p>test.md</p>"),
       WrittenPage(destination: "root/output/2021/index.html", content: "<p>test2.md</p>"),
-      WrittenPage(destination: "root/output/2020/index.html", content: "<p>test.md</p>")
+    ])
+  }
+
+  func testTagWriter() throws {
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPages.append(.init(destination: destination, content: content))
+    }
+
+    try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+      .register(
+        metadata: TaggedMetadata.self,
+        readers: [
+          .mock(metadata: TaggedMetadata(tags: ["one", "with space"]))
+        ],
+        writers: [
+          .tagWriter({ context in context.items.map(\.body).joined(separator: "") }, tags: \.metadata.tags)
+        ]
+      )
+      .run()
+
+    XCTAssertEqual(writtenPages.count, 2)
+    XCTAssertEqual(writtenPages, [
+      WrittenPage(destination: "root/output/tag/one/index.html", content: "<p>test2.md</p><p>test.md</p>"),
+      WrittenPage(destination: "root/output/tag/with-space/index.html", content: "<p>test2.md</p><p>test.md</p>"),
     ])
   }
 
@@ -155,5 +186,6 @@ final class SagaTests: XCTestCase {
     ("testRegister", testRegister),
     ("testReaderAndItemWriterAndListWriter", testReaderAndItemWriterAndListWriter),
     ("testYearWriter", testYearWriter),
+    ("testTagWriter", testTagWriter),
   ]
 }

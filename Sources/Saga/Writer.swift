@@ -15,7 +15,8 @@ public struct ItemsRenderingContext<M: Metadata, SiteMetadata: Metadata> {
   public let paginator: Paginator?
 }
 
-public struct PartitionedRenderingContext<T: CustomStringConvertible, M: Metadata, SiteMetadata: Metadata> {
+public typealias ContextKey = CustomStringConvertible & Comparable
+public struct PartitionedRenderingContext<T: ContextKey, M: Metadata, SiteMetadata: Metadata> {
   public let key: T
   public let items: [Item<M>]
   public let allItems: [AnyItem]
@@ -65,7 +66,7 @@ public extension Writer {
     return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
       let partitions = partitioner(items)
 
-      for (key, itemsInPartition) in partitions {
+      for (key, itemsInPartition) in Array(partitions).sorted(by: {$0.0 < $1.0}) {
         let finishedOutput = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
         let finishedPaginatedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
         try writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutput, paginate: paginate, paginatedOutput: finishedPaginatedOutput, fileIO: fileIO) {
