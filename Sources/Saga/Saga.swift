@@ -9,16 +9,18 @@ public class Saga<SiteMetadata: Metadata> {
 
   public let fileStorage: [FileContainer]
   internal var processSteps = [AnyProcessStep]()
+  internal let fileIO: FileIO
 
-  public init(input: Path, output: Path = "deploy", siteMetadata: SiteMetadata, originFilePath: StaticString = #file) throws {
+  public init(input: Path, output: Path = "deploy", siteMetadata: SiteMetadata, originFilePath: StaticString = #file, fileIO: FileIO = .live) throws {
     let originFile = Path("\(originFilePath)")
-    rootPath = try originFile.resolveSwiftPackageFolder()
+    rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
     inputPath = rootPath + input
     outputPath = rootPath + output
     self.siteMetadata = siteMetadata
+    self.fileIO = fileIO
 
     // 1. Find all files in the source folder
-    let files = try inputPath.recursiveChildren().filter(\.isFile)
+    let files = try fileIO.findFiles(inputPath)
 
     // 2. Turn the files into FileContainers so we can keep track if they're handled or not
     self.fileStorage = files.map { path in
@@ -28,9 +30,7 @@ public class Saga<SiteMetadata: Metadata> {
     }
 
     // 3. Clean the output folder
-    if outputPath.exists {
-      try outputPath.delete()
-    }
+    try fileIO.deletePath(outputPath)
   }
 
   @discardableResult
@@ -43,7 +43,8 @@ public class Saga<SiteMetadata: Metadata> {
         inputPath: inputPath,
         outputPath: outputPath,
         itemWriteMode: itemWriteMode,
-        siteMetadata: siteMetadata
+        siteMetadata: siteMetadata,
+        fileIO: fileIO
       ))
     return self
   }
