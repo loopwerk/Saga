@@ -1,4 +1,6 @@
 # Saga
+![Build result](https://github.com/loopwerk/Saga/workflows/Swift/badge.svg?branch=main) ![Swift 5.2](https://img.shields.io/badge/Swift-5.2-orange.svg) ![Swift Package Manager](https://img.shields.io/badge/swiftpm-compatible-brightgreen.svg?style=flat) ![Mac + Linux](https://img.shields.io/badge/platforms-mac+linux-brightgreen.svg?style=flat)
+
 A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly-typed HTML templates.
 
 Read [this series of articles](https://www.loopwerk.io/articles/tag/saga/) discussing the inspiration behind the API, the current state of the project and future plans.
