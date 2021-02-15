@@ -1,7 +1,10 @@
-# 0.18.2 - 2021-02-15
+# 0.18.3 - 2021-02-15
 - Added more unit tests
 - The watch server executable is now only available on macOS,
   as it doesn't compile on Linux.
+
+# 0.18.2 - 2021-02-14
+- Made sure files are written in a fixed order, so unit tests don't randomly fail.
 
 # 0.18.1 - 2021-02-14
 - Added first unit tests
