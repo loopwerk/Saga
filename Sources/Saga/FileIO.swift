@@ -12,7 +12,7 @@ public struct FileIO {
 public extension FileIO {
   static var diskAccess = Self(
     resolveSwiftPackageFolder: { path in try path.resolveSwiftPackageFolder() },
-    findFiles: { try $0.recursiveChildren().filter(\.isFile) },
+    findFiles: { try $0.recursiveChildren().filter { $0.isFile }},
     deletePath: { path in
       if path.exists {
         try path.delete()

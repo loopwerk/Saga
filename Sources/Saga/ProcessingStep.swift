@@ -67,7 +67,7 @@ internal class AnyProcessStep {
 
     runWriters = {
       let allItems = fileStorage
-        .compactMap(\.item)
+        .compactMap { $0.item }
         .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
