@@ -9,7 +9,7 @@ on:
       - '*'
 
 jobs:
-  test-macos:
+  test-xcode:
     runs-on: macos-latest
     strategy:
       matrix:
@@ -26,7 +26,7 @@ jobs:
       - name: Run tests
         run: swift test -v
 
-  test-ubuntu:
+  test-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

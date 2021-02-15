@@ -69,7 +69,7 @@ public class Saga<SiteMetadata: Metadata> {
 
     let writeEnd = DispatchTime.now()
     let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
-    print("\(Date()) | Finished writers in \(Double(writeTime) / 1_000_000_000)s")
+    print("\(Date()) | Finished writers \(Double(writeTime) / 1_000_000_000)s")
 
     return self
   }
@@ -81,7 +81,7 @@ public class Saga<SiteMetadata: Metadata> {
 
     let unhandledPaths = fileStorage
       .filter { $0.handled == false }
-      .map { $0.path }
+      .map(\.path)
 
     for path in unhandledPaths {
       let relativePath = try path.relativePath(from: inputPath)

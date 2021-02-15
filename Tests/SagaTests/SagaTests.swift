@@ -105,7 +105,7 @@ final class SagaTests: XCTestCase {
         ],
         writers: [
           .itemWriter { context in context.item.body },
-          .listWriter({ context in context.items.map { $0.body }.joined(separator: "") }, output: "list.html")
+          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "list.html")
         ]
       )
       .run()
@@ -144,7 +144,7 @@ final class SagaTests: XCTestCase {
           .mock(metadata: EmptyMetadata())
         ],
         writers: [
-          .yearWriter({ context in context.items.map { $0.body }.joined(separator: "") })
+          .yearWriter({ context in context.items.map(\.body).joined(separator: "") })
         ]
       )
       .run()
@@ -171,7 +171,7 @@ final class SagaTests: XCTestCase {
           .mock(metadata: TaggedMetadata(tags: ["one", "with space"]))
         ],
         writers: [
-          .tagWriter({ context in context.items.map { $0.body }.joined(separator: "") }, tags: \.metadata.tags)
+          .tagWriter({ context in context.items.map(\.body).joined(separator: "") }, tags: \.metadata.tags)
         ]
       )
       .run()
