@@ -168,7 +168,7 @@ swift run watch [input-folder] [output-folder]
 
 Use the same relative input- and output folders as you gave to Saga.
 
-This functionality does depend on a globally installed [lite-server](https://github.com/johnpapa/lite-server).
+This functionality does depend on a globally installed [lite-server](https://github.com/johnpapa/lite-server), and only works on macOS, not Linux.
 
 ```
 npm install --global lite-server

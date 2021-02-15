@@ -1,3 +1,8 @@
+# 0.18.2 - 2021-02-15
+- Added more unit tests
+- The watch server executable is now only available on macOS,
+  as it doesn't compile on Linux.
+
 # 0.18.1 - 2021-02-14
 - Added first unit tests
 - Fixed slugification of tagWriter's [key], if you have tags with spaces

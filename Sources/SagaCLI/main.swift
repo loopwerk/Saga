@@ -1,6 +1,7 @@
 import PathKit
 import Foundation
 
+#if os(macOS)
 class FolderMonitor {
   private let folderMonitorQueue = DispatchQueue(label: "FolderMonitorQueue", attributes: .concurrent)
   private var folderMonitorSources: [URL: DispatchSourceFileSystemObject] = [:]
@@ -108,3 +109,4 @@ class Watcher {
 }
 
 _ = try Watcher()
+#endif
