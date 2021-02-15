@@ -206,11 +206,63 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(writtenFiles, ["root/output/style.css"])
   }
 
+  func testWriteMode() throws {
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPages.append(.init(destination: destination, content: content))
+    }
+
+    let saga = try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          .mock(metadata: EmptyMetadata())
+        ],
+        itemWriteMode: .keepAsFile,
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    XCTAssertEqual(saga.fileStorage[0].item?.relativeDestination, "test.html")
+    XCTAssertEqual(saga.fileStorage[1].item?.relativeDestination, "test2.html")
+    XCTAssertEqual(writtenPages[0].destination, "root/output/test2.html")
+    XCTAssertEqual(writtenPages[1].destination, "root/output/test.html")
+  }
+
+  func testMetadataDecoder() throws {
+    struct TestMetadata: Metadata {
+      let tags: [String]
+      let date: Date
+      let url: URL
+    }
+
+    let metadataDict: [String: String] = [
+      "tags": "one, two",
+      "date": "2021-02-02",
+      "url": "https://www.example.com"
+    ]
+
+    let decoder = Reader<TestMetadata>.makeMetadataDecoder(for: metadataDict)
+    let decoded = try TestMetadata(from: decoder)
+
+    XCTAssertEqual(decoded.tags, ["one", "two"])
+    XCTAssertEqual(decoded.date.timeIntervalSince1970, 1612220400)
+    XCTAssertEqual(decoded.url, URL(string: "https://www.example.com")!)
+
+    let date = try Reader<TestMetadata>.resolvePublishingDate(from: "", decoder: decoder)
+    XCTAssertEqual(date.timeIntervalSince1970, 1612220400)
+  }
+
   static var allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
     ("testReaderAndItemWriterAndListWriter", testReaderAndItemWriterAndListWriter),
     ("testYearWriter", testYearWriter),
     ("testTagWriter", testTagWriter),
+    ("testWriteMode", testWriteMode),
   ]
 }
