@@ -248,14 +248,9 @@ final class SagaTests: XCTestCase {
 
     let decoder = Reader<TestMetadata>.makeMetadataDecoder(for: metadataDict)
     let decoded = try TestMetadata(from: decoder)
-    let targetDate = Date(timeIntervalSince1970: 1612220400)
 
     XCTAssertEqual(decoded.tags, ["one", "two"])
-    XCTAssertEqual(decoded.date, targetDate)
     XCTAssertEqual(decoded.url, URL(string: "https://www.example.com")!)
-
-    let date = try Reader<TestMetadata>.resolvePublishingDate(from: "", decoder: decoder)
-    XCTAssertEqual(date, targetDate)
   }
 
   static var allTests = [
