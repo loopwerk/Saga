@@ -253,6 +253,12 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(decoded.url, URL(string: "https://www.example.com")!)
   }
 
+  func testSlugified() throws {
+    XCTAssertEqual("one two".slugified, "one-two")
+    XCTAssertEqual("One Two".slugified, "one-two")
+    XCTAssertEqual("One! .Two@".slugified, "one-two")
+  }
+
   static var allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
@@ -260,5 +266,6 @@ final class SagaTests: XCTestCase {
     ("testYearWriter", testYearWriter),
     ("testTagWriter", testTagWriter),
     ("testWriteMode", testWriteMode),
+    ("testSlugified", testSlugified),
   ]
 }

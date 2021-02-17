@@ -1,3 +1,6 @@
+# 0.18.4 - 2021-02-17
+- Greatly improved slugified function on String, now also with unit tests
+
 # 0.18.3 - 2021-02-15
 - Added more unit tests
 - The watch server executable is now only available on macOS,
