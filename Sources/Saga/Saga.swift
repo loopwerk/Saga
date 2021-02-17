@@ -28,9 +28,6 @@ public class Saga<SiteMetadata: Metadata> {
         path: path
       )
     }
-
-    // 3. Clean the output folder
-    try fileIO.deletePath(outputPath)
   }
 
   @discardableResult
@@ -53,6 +50,8 @@ public class Saga<SiteMetadata: Metadata> {
   public func run() throws -> Self {
     print("\(Date()) | Starting run")
 
+    // Run all the readers for all the steps, which turns raw content into
+    // Items, and stores them within the step.
     let readStart = DispatchTime.now()
     for step in processSteps {
       try step.runReaders()
@@ -62,6 +61,10 @@ public class Saga<SiteMetadata: Metadata> {
     let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
     print("\(Date()) | Finished readers in \(Double(readTime) / 1_000_000_000)s")
 
+    // Clean the output folder
+    try fileIO.deletePath(outputPath)
+
+    // And run all the writers for all the steps, using those stored Items.
     let writeStart = DispatchTime.now()
     for step in processSteps {
       try step.runWriters()

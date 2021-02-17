@@ -1,3 +1,7 @@
+# 0.18.5 - 2021-02-17
+- Clear output folder right before writing the new files, this
+  greatly improves the development/watch server.
+
 # 0.18.4 - 2021-02-17
 - Greatly improved slugified function on String, now also with unit tests
 

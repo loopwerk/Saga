@@ -78,7 +78,7 @@ final class SagaTests: XCTestCase {
     XCTAssertNil(saga.fileStorage[1].item)
     XCTAssertEqual(saga.fileStorage[2].path, "style.css")
     XCTAssertNil(saga.fileStorage[2].item)
-    XCTAssertEqual(deletePathCalled, true)
+    XCTAssertEqual(deletePathCalled, false)
   }
 
   func testRegister() throws {
@@ -91,10 +91,14 @@ final class SagaTests: XCTestCase {
 
   func testReaderAndItemWriterAndListWriter() throws {
     var writtenPages: [WrittenPage] = []
+    var deletePathCalled = false
 
     var mock = FileIO.mock
     mock.write = { destination, content in
       writtenPages.append(.init(destination: destination, content: content))
+    }
+    mock.deletePath = { _ in
+      deletePathCalled = true
     }
 
     let saga = try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
@@ -118,6 +122,8 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(saga.fileStorage[1].item?.body, "<p>test2.md</p>")
     XCTAssertEqual(saga.fileStorage[2].path, "style.css")
     XCTAssertNil(saga.fileStorage[2].item)
+
+    XCTAssertEqual(deletePathCalled, true)
 
     // And when the writer runs, the Items get written to disk
     XCTAssertEqual(writtenPages.count, 3)
