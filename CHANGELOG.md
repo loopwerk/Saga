@@ -1,14 +1,15 @@
+# 0.19.0 - 2021-02-18
+- Switched the dev server from [lite-server](https://github.com/johnpapa/lite-server) to [browser-sync](https://browsersync.io)
+
 # 0.18.5 - 2021-02-17
-- Clear output folder right before writing the new files, this
-  greatly improves the development/watch server.
+- Clear output folder right before writing the new files, this greatly improves the dev server reload reliability
 
 # 0.18.4 - 2021-02-17
 - Greatly improved slugified function on String, now also with unit tests
 
 # 0.18.3 - 2021-02-15
 - Added more unit tests
-- The watch server executable is now only available on macOS,
-  as it doesn't compile on Linux.
+- The watch server executable is now only available on macOS, as it doesn't compile on Linux.
 
 # 0.18.2 - 2021-02-14
 - Made sure files are written in a fixed order, so unit tests don't randomly fail.

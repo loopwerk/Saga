@@ -95,8 +95,7 @@ class Watcher {
 
     // Start web server, using lite-server (we just assume it's globally installed!)
     serverQueue.async {
-      let config = Path(#file).parent() + "bs-config.js"
-      _ = runCommand("lite-server -c \"\(config)\" --baseDir=\"\(output)\"", process: serverProcess)
+      _ = runCommand("browser-sync \"\(output)\" -w --no-notify", process: serverProcess)
       serverProcess.terminate()
       exit(1)
     }
