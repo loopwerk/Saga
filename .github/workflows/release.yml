@@ -15,11 +15,11 @@ jobs:
 
       - name: Create changelog text
         id: changelog
-        uses: loopwerk/conventional-changelog-action
+        uses: loopwerk/tag-changelog
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          exclude: other,perf
-          
+          exclude: other,perf,chore
+
       - name: Create release
         uses: actions/create-release@latest
         env:
