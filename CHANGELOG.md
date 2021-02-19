@@ -19,7 +19,7 @@
 - Fixed slugification of tagWriter's [key], if you have tags with spaces
 
 # 0.18.0 - 2021-02-13
-- Added paginator support
+- Added paginator support (#8)
 - Renamed Page to Item, pageWriter to itemWriter, and all other Page related things to Item.
   This so that the Paginator's itemsPerPage and numberOfPages don't cause confusion.
 
