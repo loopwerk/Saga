@@ -32,13 +32,11 @@ jobs:
       - name: Read CHANGELOG.md
         id: package
         uses: juliangruber/read-file-action@v1
-        if: ${{ !env.ACT }}
         with:
           path: ./CHANGELOG.md
 
       - name: Write to CHANGELOG.md
         uses: DamianReeves/write-file-action@master
-        if: ${{ !env.ACT }}
         with:
           path: ./CHANGELOG.md
           contents: ${{ steps.changelog.outputs.changelog }}${{ steps.package.outputs.content }}
@@ -46,7 +44,6 @@ jobs:
 
       - name: Commit and push CHANGELOG.md
         uses: EndBug/add-and-commit@v7
-        if: ${{ !env.ACT }}
         with:
           add: CHANGELOG.md
           message: "chore: Update CHANGELOG.md"
