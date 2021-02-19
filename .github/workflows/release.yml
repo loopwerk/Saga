@@ -15,7 +15,7 @@ jobs:
 
       - name: Create changelog text
         id: changelog
-        uses: loopwerk/tag-changelog
+        uses: loopwerk/tag-changelog@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           exclude: other,perf,chore
@@ -28,3 +28,26 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changes }}
+
+      - name: Read CHANGELOG.md
+        id: package
+        uses: juliangruber/read-file-action@v1
+        if: ${{ !env.ACT }}
+        with:
+          path: ./CHANGELOG.md
+
+      - name: Write to CHANGELOG.md
+        uses: DamianReeves/write-file-action@master
+        if: ${{ !env.ACT }}
+        with:
+          path: ./CHANGELOG.md
+          contents: ${{ steps.changelog.outputs.changelog }}${{ steps.package.outputs.content }}
+          write-mode: overwrite
+
+      - name: Commit and push CHANGELOG.md
+        uses: EndBug/add-and-commit@v7
+        if: ${{ !env.ACT }}
+        with:
+          add: CHANGELOG.md
+          message: "chore: Update CHANGELOG.md"
+          branch: main
