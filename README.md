@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="logo.png" width="400" alt="tag-changelog" />
+  <img src="logo.png" width="200" alt="tag-changelog" />
 </p>
 
 <p align="center">
-	<img src="https://github.com/loopwerk/Saga/workflows/Swift/badge.svg?branch=main" alt="Build result" />
+  <img src="https://github.com/loopwerk/Saga/workflows/Swift/badge.svg?branch=main" alt="Build result" />
 </p>
 
 # Saga
