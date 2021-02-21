@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.jpg" width="400" alt="tag-changelog" />
+  <img src="logo.png" width="400" alt="tag-changelog" />
 </p>
 
 <p align="center">
