@@ -3,7 +3,7 @@
 </p>
 
 # Saga
-![Build result](https://github.com/loopwerk/Saga/workflows/Swift/badge.svg?branch=main)
+![Build result](https://github.com/loopwerk/Saga/actions/workflows/test.yml/badge.svg)
 
 A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly typed HTML templates.
 
