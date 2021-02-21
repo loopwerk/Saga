@@ -15,7 +15,7 @@ jobs:
 
       - name: Create changelog text
         id: changelog
-        uses: loopwerk/tag-changelog@main
+        uses: loopwerk/tag-changelog@latest
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           exclude: other,doc,chore
