@@ -18,7 +18,7 @@ jobs:
         uses: loopwerk/tag-changelog@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          exclude: other,perf,chore
+          exclude: other,doc,chore
 
       - name: Create release
         uses: actions/create-release@latest
