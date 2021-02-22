@@ -15,10 +15,10 @@ jobs:
 
       - name: Create changelog text
         id: changelog
-        uses: loopwerk/tag-changelog@latest
+        uses: loopwerk/tag-changelog@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          exclude: other,doc,chore
+          exclude_types: other,doc,chore,build
 
       - name: Create release
         uses: actions/create-release@latest
