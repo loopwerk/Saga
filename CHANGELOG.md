@@ -5,7 +5,7 @@
 - Clear output folder right before writing the new files, this greatly improves the dev server reload reliability
 
 # 0.18.4 - 2021-02-17
-- Greatly improved slugified function on String, now also with unit tests
+- Greatly improved the slugified function on String, which now also comes with unit tests
 
 # 0.18.3 - 2021-02-15
 - Added more unit tests
@@ -16,25 +16,20 @@
 
 # 0.18.1 - 2021-02-14
 - Added first unit tests
-- Fixed slugification of tagWriter's [key], if you have tags with spaces
+- Fixed slugification of tagWriter's `[key]`, if you have tags with spaces
 
 # 0.18.0 - 2021-02-13
 - Added paginator support (#8)
-- Renamed Page to Item, pageWriter to itemWriter, and all other Page related things to Item.
-  This so that the Paginator's itemsPerPage and numberOfPages don't cause confusion.
+- Renamed Page to Item, pageWriter to itemWriter, and all other Page related things to Item. This so that the Paginator's `itemsPerPage` and numberOfPages` don't cause confusion.
 
 # 0.17.0 - 2021-02-12
-- tagWriter and yearWriter are now generalized into a partitionedWriter.
-  (They are still available as convenience functions that use partitionedWriter under the hood).
+- tagWriter and yearWriter are now generalized into a partitionedWriter. (They are still available as convenience functions that use partitionedWriter under the hood).
 
 # 0.16.0 - 2021-02-12
-- Added a watch mode that rebuilds your website and reloads the browser as well.
-  This functionality does depend on a globally installed lite-server,
-  https://github.com/johnpapa/lite-server.
+- Added a watch mode that rebuilds your website and reloads the browser as well. This functionality does depend on a globally installed lite-server, https://github.com/johnpapa/lite-server.
 
 # 0.15.0 - 2021-02-11
-- The Slugify dependency has been removed and replaced with my own very basic slugified 
-  computed property on String. This makes quite a big speed difference!
+- The Slugify dependency has been removed and replaced with my own very basic slugified computed property on String. This makes quite a big speed difference!
 
 # 0.14.0 - 2021-02-10
 - Saga no longer comes bundled with a default markdown reader - you install one yourself:
@@ -43,29 +38,25 @@
   - https://github.com/loopwerk/SagaInkMarkdownReader
 - The writers now have a different function signature. They no longer simply take a templatePath,
   Instead they expect a function that is given a RenderingContext and must return a String.
-  This should make it possible to use any kind of renderer you want, where you want to use swift-html,
+  This should make it possible to use any kind of renderer you want, whether you want to use swift-html,
   Plot, Swim or Stencil. As long as you can turn a RenderingContext into a String, it'll work.
   One renderer that is available is https://github.com/loopwerk/SagaSwimRenderer.
 
 # 0.13.0 - 2021-02-09
-- Switched away from SwiftMarkdown to Parsley, which is a LOT faster, see https://github.com/loopwerk/Saga/pull/5.
-  Sadly it doesn't do syntax highlighting, so a client side solution such as prism.js is very handy.
+- Switched away from SwiftMarkdown to Parsley, which is a LOT faster, see https://github.com/loopwerk/Saga/pull/5. Sadly it doesn't do syntax highlighting, so a client side solution such as prism.js is very handy.
   If you want to keep using SwiftMarkdown, check out https://github.com/loopwerk/SagaPythonMarkdownReader.
 
 # 0.12.0 - 2021-02-07
-- Updated to latest version of SwiftMarkdown and now using its urlize extension
+- Updated to latest version of SwiftMarkdown and now using its `urlize` extension
 
 # 0.11.0 - 2021-02-07
 - Fixed Stencil filters when compiling your site under Linux
 
 # 0.10.0 - 2021-02-07
-- Refactored the `keepExactPath` parameter of the writer into a better
-  documented `PageWriteMode` enum that's part of the `register` function.
-  This is because we need those destination paths for all pages before the
-  first writer even starts its thing.
+- Refactored the `keepExactPath` parameter of the writer into a better documented `PageWriteMode` enum that's part of the `register` function. This is because we need those destination paths for all pages before the first writer even starts its thing.
 
 # 0.9.0 - 2021-02-07
-- Changed the numberOfWords, the old version didn't work on Linux
+- Changed the `numberOfWords` filter, the old version didn't work on Linux
   (`error: 'byWords' is unavailable: Enumeration by words isn't supported in swift-corelibs-foundation`)
 
 # 0.8.0 - 2021-02-07
