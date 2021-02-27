@@ -3,7 +3,9 @@ import PathKit
 
 public protocol Metadata: Codable {}
 
-public struct EmptyMetadata: Metadata {}
+public struct EmptyMetadata: Metadata {
+  public init() {}
+}
 
 public protocol AnyItem: class {
   var relativeSource: Path { get }
