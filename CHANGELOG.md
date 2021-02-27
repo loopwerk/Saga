@@ -1,3 +1,8 @@
+# 0.21.0 - 2021-02-27
+
+## New Features
+- support throwing renderers
+
 # 0.20.0 - 2021-02-27
 ## New Features
 - added a public initializer to EmptyMetadata
