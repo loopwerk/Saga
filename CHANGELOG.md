@@ -1,3 +1,7 @@
+# 0.20.0 - 2021-02-27
+## New Features
+- added a public initializer to EmptyMetadata
+
 # 0.19.0 - 2021-02-18
 - Switched the dev server from [lite-server](https://github.com/johnpapa/lite-server) to [browser-sync](https://browsersync.io)
 
