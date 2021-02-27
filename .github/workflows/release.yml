@@ -46,5 +46,5 @@ jobs:
         uses: EndBug/add-and-commit@v7
         with:
           add: CHANGELOG.md
-          message: "chore: Update CHANGELOG.md"
+          message: "chore: Update CHANGELOG.md [skip ci]"
           branch: main
