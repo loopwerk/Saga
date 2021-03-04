@@ -127,6 +127,7 @@ private extension Writer {
       let ranges = items.chunked(into: perPage)
       let numberOfPages = ranges.count
 
+      // First we write the first page to the "main" destination, for example /articles/index.html
       if let firstItems = ranges.first {
         let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(itemWriteMode: .keepAsFile)
 
@@ -143,6 +144,7 @@ private extension Writer {
         try fileIO.write(outputRoot + outputPrefix + output, node)
       }
 
+      // Then we write all the pages to their paginated paths, for example /articles/page/[page]/index.html
       for (index, items) in ranges.enumerated() {
         let currentPage = index + 1
         let previousPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage - 1)")).makeOutputPath(itemWriteMode: .keepAsFile)
