@@ -60,7 +60,7 @@ public extension Writer {
 
   /// Writes an array of Items into multiple output files.
   /// Use this to partition an array of Items into a dictionary of Items, with a custom key.
-  /// The output path is a template where [key] will be replaced with the key uses for the partition.
+  /// The output path is a template where [key] will be replaced with the key used for the partition.
   /// Example: "articles/[key]/index.html"
   static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
     return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
@@ -169,10 +169,14 @@ private extension Writer {
   }
 }
 
+private let yearFormatter: DateFormatter = {
+  let formatter = DateFormatter()
+  formatter.dateFormat = "yyyy"
+  return formatter
+}()
+
 private extension Date {
   var year: Int {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy"
-    return Int(formatter.string(from: self))!
+    return Int(yearFormatter.string(from: self))!
   }
 }
