@@ -37,7 +37,7 @@ let siteMetadata = SiteMetadata(
   name: "Example website"
 )
 
-try Saga(input: "content", output: "deploy", templates: "templates", siteMetadata: siteMetadata)
+try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Item's metadata type.
   .register(

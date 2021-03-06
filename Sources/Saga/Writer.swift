@@ -94,7 +94,7 @@ public extension Writer {
       return itemsPerYear
     }
 
-    return Self.partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: partitioner)
+    return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: partitioner)
   }
 
   /// A convenience version of partitionedWriter that splits Items based on tags.
@@ -117,7 +117,7 @@ public extension Writer {
       return itemsPerTag
     }
 
-    return Self.partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: partitioner)
+    return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: partitioner)
   }
 }
 

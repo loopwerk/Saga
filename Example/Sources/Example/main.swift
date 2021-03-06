@@ -57,7 +57,7 @@ func itemProcessor(item: Item<ArticleMetadata>) {
   ).makeOutputPath(itemWriteMode: .moveToSubfolder)
 }
 
-try Saga(input: "content", siteMetadata: siteMetadata)
+try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
   // All markdown files within the "articles" subfolder will be parsed to html,
   // using ArticleMetadata as the Page's metadata type.
   // Furthermore we are only interested in public articles.
