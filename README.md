@@ -2,7 +2,7 @@
   <img src="logo.png" width="200" alt="tag-changelog" />
 </p>
 
-A static site generator, written in Swift, allowing you to supply your own metadata type for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly typed HTML templates.
+A static site generator, written in Swift, allowing you to supply your own metadata types for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly typed HTML templates.
 
 Saga requires at least Swift 5.2, and runs on both Mac and Linux.
 
