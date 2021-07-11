@@ -7,7 +7,7 @@ public struct EmptyMetadata: Metadata {
   public init() {}
 }
 
-public protocol AnyItem: class {
+public protocol AnyItem: AnyObject {
   var relativeSource: Path { get }
   var filenameWithoutExtension: String { get }
   var relativeDestination: Path { get set }
