@@ -1,3 +1,11 @@
+# 0.21.1 - 2021-07-11
+
+## Bugfixes
+- the AnyItem protocol is now correctly using AnyObject instead of class
+
+## Performance Improvements
+- reuse the year date formatter instead of creating one for each article
+
 # 0.21.0 - 2021-02-27
 
 ## New Features
