@@ -49,7 +49,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata, SiteMetadata>)
           }
         }
       }
-      context.item.body
+      Node.raw(context.item.body)
     }
   }
 }
@@ -105,7 +105,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata, SiteMetadata>) -> N
   baseHtml(siteMetadata: context.siteMetadata, title: context.item.title) {
     div(id: "page") {
       h1 { context.item.title }
-      context.item.body
+      Node.raw(context.item.body)
 
       if context.item.relativeDestination == "about.html" {
         h1 { "Apps I've built" }
@@ -130,7 +130,7 @@ func renderApps(context: ItemsRenderingContext<AppMetadata, SiteMetadata>) -> No
           }
         }
 
-        app.body
+        Node.raw(app.body)
 
         if let url = app.metadata.url {
           p {

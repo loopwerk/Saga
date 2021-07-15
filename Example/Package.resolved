@@ -2,7 +2,7 @@
   "object": {
     "pins": [
       {
-        "package": "cmark",
+        "package": "cmark-gfm",
         "repositoryURL": "https://github.com/brokenhandsio/cmark-gfm.git",
         "state": {
           "branch": null,
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaSwimRenderer",
         "state": {
           "branch": null,
-          "revision": "83a39c0532b05469c38219e357a5810e204dd743",
-          "version": "0.4.0"
+          "revision": "fc2f0f27225daccfbd028b496fb4f84ab381f5d2",
+          "version": "0.5.0"
         }
       },
       {
@@ -65,12 +65,12 @@
         }
       },
       {
-        "package": "HTML",
+        "package": "Swim",
         "repositoryURL": "https://github.com/robb/Swim",
         "state": {
           "branch": null,
-          "revision": "a17c57dbd3148889b667604cc084417b13f9788f",
-          "version": "0.1.1"
+          "revision": "58bf32d8dcac4649d7a4f68a13beb136d6a86dd6",
+          "version": "0.2.0"
         }
       }
     ]
