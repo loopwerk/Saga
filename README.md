@@ -2,13 +2,38 @@
   <img src="logo.png" width="200" alt="tag-changelog" />
 </p>
 
-A static site generator, written in Swift, allowing you to supply your own metadata types for your items. Saga uses a system of extensible readers, writers and renderers supporting things like Atom feeds, paginating and strongly typed HTML templates.
+A static site generator, written in Swift, allowing you to supply your own metadata types for your items. Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, paginating, and strongly typed HTML templates.
 
 Saga requires at least Swift 5.2, and runs on both Mac and Linux.
 
 
 ## Usage
-Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure:
+Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure.
+
+Example Markdown article, `/content/articles/first-article.md`:
+
+``` markdown
+---
+tags: article, news
+summary: This is the summary of the first article
+date: 2020-01-01
+---
+# Hello world
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+```
+
+Example app for the portfolio, `/content/apps/lastfm.md`:
+
+``` markdown
+---
+url: https://itunes.apple.com/us/app/last-fm-scrobbler/id1188681944?ls=1&mt=8)
+images: lastfm_1.jpg, lastfm_2.jpg
+---
+#  Last.fm Scrobbler
+"Get the official Last.fm Scrobbler App to keep track of what you're listening to on Apple Music. Check out your top artist, album and song charts from all-time to last week, and watch videos of your favourite tracks."
+```
+
+Saga configuration:
 
 ``` swift
 import Saga
@@ -26,7 +51,7 @@ struct AppMetadata: Metadata {
 }
 
 // SiteMetadata is given to every RenderingContext.
-// You can put whatever you want in here.
+// You can put whatever properties you want in here.
 struct SiteMetadata: Metadata {
   let url: URL
   let name: String
@@ -55,6 +80,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
       .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
     ]
   )
+
   // All markdown files within the "apps" subfolder will be parsed to html,
   // using AppMetadata as the Item's metadata type.
   .register(
@@ -63,6 +89,7 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
     readers: [.parsleyMarkdownReader()],
     writers: [.listWriter(swim(renderApps))]
   )
+ 
   // All the remaining markdown files will be parsed to html,
   // using the default EmptyMetadata as the Item's metadata type.
   .register(
@@ -70,14 +97,16 @@ try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
     readers: [.parsleyMarkdownReader()],
     writers: [.itemWriter(swim(renderItem))]
   )
+  
   // Run the steps we registered above
   .run()
+  
   // All the remaining files that were not parsed to markdown, so for example images,
   // raw html files and css, are copied as-is to the output folder.
   .staticFiles()
 ```
 
-For more examples please check out the [Example folder](https://github.com/loopwerk/Saga/blob/main/Example/Sources/Example/main.swift). Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`.
+Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
 
 You can also check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which is completely built with Saga.
 
@@ -93,7 +122,7 @@ extension Saga {
 
     for article in articles {
       let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
-      _ = try? shellOut(to: "python image.py", arguments: ["\"\(article.title)\"", destination], at: (self.rootPath + "ImageGenerator").string)
+      // generate an image and write it to `destination`
     }
 
     return self
@@ -128,7 +157,7 @@ It's also easy to add your own readers, writers, and renderers; search for [saga
 Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see Architecture below), so that it looks something like this:
 
 ``` swift
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 
 import PackageDescription
 
@@ -138,22 +167,19 @@ let package = Package(
     .macOS(.v10_15)
   ],
   dependencies: [
-    .package(url: "https://github.com/loopwerk/Saga", from: "0.19.0"),
+    .package(url: "https://github.com/loopwerk/Saga", from: "0.22.0"),
     .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.4.0"),
     .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.4.0"),
   ],
   targets: [
-    .target(
+    .executableTarget(
       name: "MyWebsite",
       dependencies: [
         "Saga", 
         "SagaParsleyMarkdownReader", 
         "SagaSwimRenderer"
       ]
-    ),
-    .testTarget(
-      name: "MyWebsiteTests",
-      dependencies: ["MyWebsite"]),
+    )
   ]
 )
 ```
@@ -164,10 +190,10 @@ Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it.
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
 ```
-swift run watch [input-folder] [output-folder]
+swift run watch [input-folders, separated by a space] [output-folder]
 ```
 
-Use the same relative input- and output folders as you gave to Saga.
+Use the same relative input- and output folders as you gave to Saga. Example: `swift run watch content Sources deploy` to rebuild whenever you change your content or your Swift code.
 
 This functionality does depend on a globally installed [browser-sync](https://browsersync.io), and only works on macOS, not Linux.
 
@@ -181,7 +207,7 @@ Saga does its work in multiple stages.
 
 1. First, it finds all the files within the `input` folder
 2. Then, for every registered step, it passes those files to matching readers (matching based on the extensions the reader declares it supports). Readers are responsible for turning for example Markdown or RestructuredText files, into `Item` instances. Such readers are not bundled with Saga itself, instead you'll have to install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
-3. Finally Saga runs all the registered steps again, now executing the writers. These writers expect to be given a function that can turn a `RenderingContext` (which hold the `Item` among other things) into a `String`, which it'll then write to disk, to the `output` folder. To turn an `Item` into a HTML `String`, you'll want to use a template language or a HTML DSL, such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
+3. Finally Saga runs all the registered steps again, now executing the writers. These writers expect to be given a function that can turn a `RenderingContext` (which holds the `Item` among other things) into a `String`, which it'll then write to disk, to the `output` folder. To turn an `Item` into a HTML `String`, you'll want to use a template language or a HTML DSL, such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 
 Readers are expected to support the parsing of metadata contained within a document, such as this example for Markdown files:
 
