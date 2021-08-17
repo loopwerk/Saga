@@ -263,6 +263,9 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual("one two".slugified, "one-two")
     XCTAssertEqual("One Two".slugified, "one-two")
     XCTAssertEqual("One! .Two@".slugified, "one-two")
+    XCTAssertEqual("one-two".slugified, "one-two")
+    XCTAssertEqual("one_two".slugified, "one_two")
+    XCTAssertEqual("ONE-TWO".slugified, "one-two")
   }
 
   static var allTests = [

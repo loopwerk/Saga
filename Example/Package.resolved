@@ -2,7 +2,7 @@
   "object": {
     "pins": [
       {
-        "package": "cmark-gfm",
+        "package": "cmark",
         "repositoryURL": "https://github.com/brokenhandsio/cmark-gfm.git",
         "state": {
           "branch": null,
@@ -65,7 +65,7 @@
         }
       },
       {
-        "package": "Swim",
+        "package": "HTML",
         "repositoryURL": "https://github.com/robb/Swim",
         "state": {
           "branch": null,
