@@ -1,3 +1,8 @@
+# 0.22.0 - 2021-08-18
+
+## Bugfixes
+- the slugify function got fixed so it doesn't remove dashes anymore, closes #14
+
 # 0.21.1 - 2021-07-11
 
 ## Bugfixes
