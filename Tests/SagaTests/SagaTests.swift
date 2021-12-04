@@ -89,7 +89,7 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(saga.processSteps.count, 1)
   }
 
-  func testReaderAndItemWriterAndListWriter() throws {
+  func testReaderAndItemWriterAndListWriter() async throws {
     var writtenPages: [WrittenPage] = []
     var deletePathCalled = false
 
@@ -101,7 +101,7 @@ final class SagaTests: XCTestCase {
       deletePathCalled = true
     }
 
-    let saga = try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    let saga = try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
         readers: [
@@ -135,7 +135,7 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(writtenPages[2].content, "<p>test2.md</p><p>test.md</p>")
   }
 
-  func testYearWriter() throws {
+  func testYearWriter() async throws {
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
@@ -143,7 +143,7 @@ final class SagaTests: XCTestCase {
       writtenPages.append(.init(destination: destination, content: content))
     }
 
-    try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
         readers: [
@@ -162,7 +162,7 @@ final class SagaTests: XCTestCase {
     ])
   }
 
-  func testTagWriter() throws {
+  func testTagWriter() async throws {
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
@@ -170,7 +170,7 @@ final class SagaTests: XCTestCase {
       writtenPages.append(.init(destination: destination, content: content))
     }
 
-    try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
       .register(
         metadata: TaggedMetadata.self,
         readers: [
@@ -189,7 +189,7 @@ final class SagaTests: XCTestCase {
     ])
   }
 
-  func testStaticFiles() throws {
+  func testStaticFiles() async throws {
     var writtenFiles: [Path] = []
 
     var mock = FileIO.mock
@@ -197,7 +197,7 @@ final class SagaTests: XCTestCase {
       writtenFiles.append(destination)
     }
 
-    try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
       .register(
         metadata: TaggedMetadata.self,
         readers: [
@@ -212,7 +212,7 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(writtenFiles, ["root/output/style.css"])
   }
 
-  func testWriteMode() throws {
+  func testWriteMode() async throws {
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
@@ -220,7 +220,7 @@ final class SagaTests: XCTestCase {
       writtenPages.append(.init(destination: destination, content: content))
     }
 
-    let saga = try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    let saga = try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
         readers: [
