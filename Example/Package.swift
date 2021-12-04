@@ -9,8 +9,8 @@ let package = Package(
   ],
   dependencies: [
     .package(path: "../"),
-    .package(path: "../../SagaParsleyMarkdownReader"),
-    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.6.0"),
+    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.5.0"),
+    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.6.1"),
   ],
   targets: [
     .executableTarget(
