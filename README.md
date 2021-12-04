@@ -62,48 +62,53 @@ let siteMetadata = SiteMetadata(
   name: "Example website"
 )
 
-try Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
-  // All markdown files within the "articles" subfolder will be parsed to html,
-  // using ArticleMetadata as the Item's metadata type.
-  .register(
-    folder: "articles",
-    metadata: ArticleMetadata.self,
-    readers: [.parsleyMarkdownReader()],
-    writers: [
-      .itemWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles), paginate: 20),
-      .tagWriter(swim(renderTag), tags: \.metadata.tags),
-      .yearWriter(swim(renderYear)),
-      
-      // Atom feed for all articles, and a feed per tag
-      .listWriter(swim(renderFeed), output: "feed.xml"),
-      .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
-    ]
-  )
+@main
+struct Run {
+  static func main() async throws {
+    try await Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
+      // All markdown files within the "articles" subfolder will be parsed to html,
+      // using ArticleMetadata as the Item's metadata type.
+      .register(
+        folder: "articles",
+        metadata: ArticleMetadata.self,
+        readers: [.parsleyMarkdownReader()],
+        writers: [
+          .itemWriter(swim(renderArticle)),
+          .listWriter(swim(renderArticles), paginate: 20),
+          .tagWriter(swim(renderTag), tags: \.metadata.tags),
+          .yearWriter(swim(renderYear)),
+          
+          // Atom feed for all articles, and a feed per tag
+          .listWriter(swim(renderFeed), output: "feed.xml"),
+          .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
+        ]
+      )
 
-  // All markdown files within the "apps" subfolder will be parsed to html,
-  // using AppMetadata as the Item's metadata type.
-  .register(
-    folder: "apps",
-    metadata: AppMetadata.self,
-    readers: [.parsleyMarkdownReader()],
-    writers: [.listWriter(swim(renderApps))]
-  )
- 
-  // All the remaining markdown files will be parsed to html,
-  // using the default EmptyMetadata as the Item's metadata type.
-  .register(
-    metadata: EmptyMetadata.self,
-    readers: [.parsleyMarkdownReader()],
-    writers: [.itemWriter(swim(renderItem))]
-  )
-  
-  // Run the steps we registered above
-  .run()
-  
-  // All the remaining files that were not parsed to markdown, so for example images,
-  // raw html files and css, are copied as-is to the output folder.
-  .staticFiles()
+      // All markdown files within the "apps" subfolder will be parsed to html,
+      // using AppMetadata as the Item's metadata type.
+      .register(
+        folder: "apps",
+        metadata: AppMetadata.self,
+        readers: [.parsleyMarkdownReader()],
+        writers: [.listWriter(swim(renderApps))]
+      )
+     
+      // All the remaining markdown files will be parsed to html,
+      // using the default EmptyMetadata as the Item's metadata type.
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.parsleyMarkdownReader()],
+        writers: [.itemWriter(swim(renderItem))]
+      )
+      
+      // Run the steps we registered above
+      .run()
+      
+      // All the remaining files that were not parsed to markdown, so for example images,
+      // raw html files and css, are copied as-is to the output folder.
+      .staticFiles()
+  }
+}
 ```
 
 Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
@@ -129,7 +134,7 @@ extension Saga {
   }
 }
 
-try Saga(input: "content", output: "deploy")
+try await Saga(input: "content", output: "deploy")
  // ...register and run steps...
  .createArticleImages()
 ```
@@ -137,17 +142,22 @@ try Saga(input: "content", output: "deploy")
 But probably more common and useful is to use the `itemProcessor` parameter of the readers:
 
 ``` swift
-func itemProcessor(item: Item<EmptyMetadata>) {
-  // Do whatever you want with the Item
+func itemProcessor(item: Item<EmptyMetadata>) async {
+  // Do whatever you want with the Item - you can even use async functions and await them!
   item.title.append("!")
 }
 
-try Saga(input: "content", output: "deploy")
-  .register(
-    metadata: EmptyMetadata.self,
-    readers: [.parsleyMarkdownReader(itemProcessor: itemProcessor)],
-    writers: [.itemWriter(swim(renderItem))]
-  )
+@main
+struct Run {
+  static func main() async throws {
+    try await Saga(input: "content", output: "deploy")
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.parsleyMarkdownReader(itemProcessor: itemProcessor)],
+        writers: [.itemWriter(swim(renderItem))]
+      )
+  }
+}
 ```
 
 It's also easy to add your own readers, writers, and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
@@ -157,19 +167,19 @@ It's also easy to add your own readers, writers, and renderers; search for [saga
 Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see Architecture below), so that it looks something like this:
 
 ``` swift
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 
 import PackageDescription
 
 let package = Package(
   name: "MyWebsite",
   platforms: [
-    .macOS(.v10_15)
+    .macOS(.v12)
   ],
   dependencies: [
-    .package(url: "https://github.com/loopwerk/Saga", from: "0.22.0"),
-    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.4.0"),
-    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.4.0"),
+    .package(url: "https://github.com/loopwerk/Saga", from: "1.0.0"),
+    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.5.0"),
+    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.6.0"),
   ],
   targets: [
     .executableTarget(
@@ -184,7 +194,7 @@ let package = Package(
 )
 ```
 
-Now, inside of `Sources/MyWebsite/main.swift` you can `import Saga` and use it.
+Now you can `import Saga` and use it.
 
 ### Development server
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.

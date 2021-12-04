@@ -18,7 +18,7 @@ internal class ProcessStep<M: Metadata, SiteMetadata: Metadata> {
 }
 
 internal class AnyProcessStep {
-  let runReaders: () throws -> ()
+  let runReaders: () async throws -> ()
   let runWriters: () throws -> ()
 
   init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, siteMetadata: SiteMetadata, fileIO: FileIO) {
@@ -45,7 +45,7 @@ internal class AnyProcessStep {
 
         do {
           // Turn the file into an Item
-          let item = try reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
+          let item = try await reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
 
           // Store the generated Item
           if step.filter(item) {

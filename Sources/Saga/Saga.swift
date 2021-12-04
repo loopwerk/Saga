@@ -47,14 +47,14 @@ public class Saga<SiteMetadata: Metadata> {
   }
 
   @discardableResult
-  public func run() throws -> Self {
+  public func run() async throws -> Self {
     print("\(Date()) | Starting run")
 
     // Run all the readers for all the steps, which turns raw content into
     // Items, and stores them within the step.
     let readStart = DispatchTime.now()
     for step in processSteps {
-      try step.runReaders()
+      try await step.runReaders()
     }
 
     let readEnd = DispatchTime.now()

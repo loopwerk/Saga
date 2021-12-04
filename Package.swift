@@ -1,9 +1,12 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.5
 
 import PackageDescription
 
 let package = Package(
   name: "Saga",
+  platforms: [
+    .macOS(.v12)
+  ],
   products: [
     .library(name: "Saga", targets: ["Saga"]),
     .executable(name: "watch", targets: ["SagaCLI"])
@@ -20,7 +23,7 @@ let package = Package(
         "Codextended",
       ]
     ),
-    .target(
+    .executableTarget(
       name: "SagaCLI",
       dependencies: ["PathKit"]
     ),
