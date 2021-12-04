@@ -1,3 +1,13 @@
+# 1.0.0 - 2021-12-04
+
+## New Features
+- Saga now supports asynchronous readers
+
+## BREAKING CHANGES
+- due to [297e38](https://github.com/loopwerk/Saga/commit/297e3814e165bae19907c1e762f08718826bcd73): Saga now supports asynchronous readers
+
+this now requires Saga to be executed from an async scope. See the example app in the Saga repo for an example (run.swift).
+
 # 0.22.0 - 2021-08-18
 
 ## Bugfixes
