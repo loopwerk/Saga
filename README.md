@@ -295,4 +295,5 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 
 
 ## Websites using Saga
-- https://github.com/loopwerk/loopwerk.io
+- https://loopwerk.io ([source](https://github.com/loopwerk/loopwerk.io))
+- https://david.dev
