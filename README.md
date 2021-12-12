@@ -10,7 +10,53 @@ Saga uses async/await and as such requires at least Swift 5.5, and runs on both 
 ## Usage
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure.
 
-Example Markdown article, `/content/articles/first-article.md`:
+Let's start with the most basic example: rendering all Markdown files to HTML.
+
+```swift
+import Saga
+import SagaParsleyMarkdownReader
+import SagaSwimRenderer
+import HTML
+
+func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {
+  html(lang: "en-US") {
+    body {
+      div(id: "content") {
+        h1 { context.item.title }
+        Node.raw(context.item.body)
+      }
+    }
+  }
+}
+
+@main
+struct Run {
+  static func main() async throws {
+    try await Saga(input: "content", output: "deploy", siteMetadata: EmptyMetadata())
+      // All files will be parsed to html.
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.parsleyMarkdownReader()],
+        writers: [
+          .itemWriter(swim(renderPage))
+        ]
+      )
+
+      // Run the step we registered above
+      .run()
+
+      // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
+      // are copied as-is to the output folder.
+      .staticFiles()
+  }
+}
+```
+
+That example uses the [Swim](https://github.com/robb/Swim) library to create type-safe HTML.
+
+Of course Saga can do much more than just render a folder of Markdown files as-is. It can also deal with custom metadata contained within Markdown files - even multiple types of metadata for different kinds of pages.
+
+Let's look at an example Markdown article, `/content/articles/first-article.md`:
 
 ``` markdown
 ---
@@ -22,7 +68,7 @@ date: 2020-01-01
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ```
 
-Example app for the portfolio, `/content/apps/lastfm.md`:
+And an example app for a portfolio, `/content/apps/lastfm.md`:
 
 ``` markdown
 ---
@@ -33,9 +79,12 @@ images: lastfm_1.jpg, lastfm_2.jpg
 "Get the official Last.fm Scrobbler App to keep track of what you're listening to on Apple Music. Check out your top artist, album and song charts from all-time to last week, and watch videos of your favourite tracks."
 ```
 
-Saga configuration:
+As you can see, they both use different metadata: the article has `tags`, a `summary` and a `date`, while the app has a `url` and `images`.
+
+Let's configure Saga to render these files, while also adding a `SiteMetadata` type that will be given to each template.
 
 ``` swift
+import Foundation
 import Saga
 import SagaParsleyMarkdownReader
 import SagaSwimRenderer
@@ -110,6 +159,8 @@ struct Run {
   }
 }
 ```
+
+While that might look a bit overwhelming, it should be easy to follow what each `register` step does, each operating on a set of files in a subfolder and processing them in different ways.
 
 Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
 
