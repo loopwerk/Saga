@@ -4,7 +4,7 @@
 
 A static site generator, written in Swift, allowing you to supply your own metadata types for your items. Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, paginating, and strongly typed HTML templates.
 
-Saga requires at least Swift 5.2, and runs on both Mac and Linux.
+Saga uses async/await and as such requires at least Swift 5.5, and runs on both Mac (macOS 12) and Linux. Version 0.22.0 can be used on macOS 11 with Swift 5.2.
 
 
 ## Usage
