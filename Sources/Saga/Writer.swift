@@ -98,7 +98,7 @@ public extension Writer {
   }
 
   /// A convenience version of partitionedWriter that splits Items based on tags.
-  /// (tags can be any [String] array)
+  /// (Tags can be any `[String]` array.)
   static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M, SiteMetadata>) throws -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @escaping (Item<M>) -> [String]) -> Self {
     let partitioner: ([Item<M>]) -> [String: [Item<M>]] = { items in
       var itemsPerTag = [String: [Item<M>]]()
