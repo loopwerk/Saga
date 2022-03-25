@@ -6,7 +6,7 @@ A static site generator, written in Swift, allowing you to supply your own metad
 
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure.
 
-> Saga uses async/await and as such requires at least Swift 5.5, and runs on both Mac (macOS 12) and Linux. Version 0.22.0 can be used on macOS 11 with Swift 5.2.
+> Note: Saga uses async/await and as such requires at least Swift 5.5 and macOS 12 (or Linux). Version 0.22.0 can be used on macOS 11 with Swift 5.2.
 
 
 ## Syntax
@@ -57,7 +57,9 @@ Of course Saga can do much more than just render a folder of Markdown files as-i
 
 
 ## Documentation
-Please refer to the documentation for installation instructions, system requirements, basic getting started information and tutorials, and how-to's for more advanced things.
+Please refer to the documentation for [installation instructions](https://github.com/loopwerk/Saga/blob/feature/docc/Sources/Saga/Saga.docc/Installation.md), system requirements, basic [getting started](https://github.com/loopwerk/Saga/blob/feature/docc/Sources/Saga/Saga.docc/GettingStarted.md) information and tutorials, and how-to's for more advanced things.
+
+The documentation is available from within Xcode (Product > Build Documentation) or by browsing the [Saga.docc folder](https://github.com/loopwerk/Saga/tree/feature/docc/Sources/Saga/Saga.docc).
 
 
 ## Websites using Saga
