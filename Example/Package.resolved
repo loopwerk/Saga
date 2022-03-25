@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "cmark",
-        "repositoryURL": "https://github.com/brokenhandsio/cmark-gfm.git",
-        "state": {
-          "branch": null,
-          "revision": "e97450a77a40f12b4f88f95891621c3b5d8669de",
-          "version": "2.1.0"
-        }
-      },
-      {
         "package": "Codextended",
         "repositoryURL": "https://github.com/JohnSundell/Codextended.git",
         "state": {
@@ -24,8 +15,8 @@
         "repositoryURL": "https://github.com/loopwerk/Parsley",
         "state": {
           "branch": null,
-          "revision": "2fcb269465fb598a82eef26d65ca37f670ac2619",
-          "version": "0.6.0"
+          "revision": "10da1efa3ea278a4828b8c87fd430bdfa326ffbc",
+          "version": "0.8.0"
         }
       },
       {
@@ -65,12 +56,21 @@
         }
       },
       {
+        "package": "swift-cmark-gfm",
+        "repositoryURL": "https://github.com/stackotter/swift-cmark-gfm",
+        "state": {
+          "branch": null,
+          "revision": "7ec44e7384793e507cf046336aef68586719a24e",
+          "version": "1.0.2"
+        }
+      },
+      {
         "package": "HTML",
         "repositoryURL": "https://github.com/robb/Swim",
         "state": {
           "branch": null,
-          "revision": "e9f4c9975cc834e712e6b39f7bf57ef8e9cd80cd",
-          "version": "0.3.0"
+          "revision": "a0943e6f3cb5751ee7b69ed43a33613ea67d0c6a",
+          "version": "0.4.0"
         }
       }
     ]
