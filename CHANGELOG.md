@@ -1,3 +1,11 @@
+# 1.1.0 - 2022-03-26
+
+## New Features
+- Saga now has developer documentation within Xcode using DocC ([#17](https://github.com/loopwerk/Saga/pull/17) by [kevinrenskers](https://github.com/kevinrenskers))
+
+## Bugfixes
+- fix example app for other users (don't rely on locally installed packages at a certain path)
+
 # 1.0.0 - 2021-12-04
 
 ## New Features
