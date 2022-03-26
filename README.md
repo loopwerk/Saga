@@ -12,11 +12,6 @@ Saga is quite flexible: for example you can have one set of metadata for the art
 ## Syntax
 
 ```swift
-import Saga
-import SagaParsleyMarkdownReader
-import SagaSwimRenderer
-import HTML
-
 func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {
   html(lang: "en-US") {
     body {
@@ -51,13 +46,13 @@ struct Run {
 }
 ```
 
-That example uses the [Swim](https://github.com/robb/Swim) library to create type-safe HTML.
+That example uses [Swim](https://github.com/robb/Swim) to create type-safe HTML.
 
 Of course Saga can do much more than just render a folder of Markdown files as-is. It can also deal with custom metadata contained within Markdown files - even multiple types of metadata for different kinds of pages.
 
 
 ## Documentation
-Please refer to the documentation for [installation instructions](https://github.com/loopwerk/Saga/blob/main/Sources/Saga/Saga.docc/Installation.md), system requirements, basic [getting started](https://github.com/loopwerk/Saga/blob/main/Sources/Saga/Saga.docc/GettingStarted.md) information and tutorials, and how-to's for more advanced things.
+Please refer to the documentation for [installation instructions](https://github.com/loopwerk/Saga/blob/main/Sources/Saga/Saga.docc/Installation.md), system requirements, basic [getting started](https://github.com/loopwerk/Saga/blob/main/Sources/Saga/Saga.docc/GettingStarted.md) information, and how-to's for more advanced things.
 
 The documentation is available from within Xcode (Product > Build Documentation) or by browsing the [Saga.docc folder](https://github.com/loopwerk/Saga/tree/main/Sources/Saga/Saga.docc).
 
