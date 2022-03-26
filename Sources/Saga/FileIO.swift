@@ -1,5 +1,6 @@
 import PathKit
 
+/// A wrapper around file operations used by Saga, to abstract away the PathKit dependency.
 public struct FileIO {
   var resolveSwiftPackageFolder: (Path) throws -> Path
   var findFiles: (Path) throws -> [Path]
@@ -10,6 +11,7 @@ public struct FileIO {
 }
 
 public extension FileIO {
+  /// The default version of `FileIO`, which uses PathKit.
   static var diskAccess = Self(
     resolveSwiftPackageFolder: { path in try path.resolveSwiftPackageFolder() },
     findFiles: { try $0.recursiveChildren().filter(\.isFile) },
