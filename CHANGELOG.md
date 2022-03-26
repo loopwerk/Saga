@@ -4,7 +4,7 @@
 - Saga now has developer documentation within Xcode using DocC ([#17](https://github.com/loopwerk/Saga/pull/17) by [kevinrenskers](https://github.com/kevinrenskers))
 
 ## Bugfixes
-- fix example app for other users (don't rely on locally installed packages at a certain path)
+- Fixed the example app for other users (don't rely on locally installed packages at a certain path)
 
 # 1.0.0 - 2021-12-04
 
@@ -19,24 +19,24 @@ This now requires Saga to be executed from an async scope. See the example app i
 # 0.22.0 - 2021-08-18
 
 ## Bugfixes
-- the slugify function got fixed so it doesn't remove dashes anymore, closes #14
+- The slugify function got fixed so it doesn't remove dashes anymore, closes #14
 
 # 0.21.1 - 2021-07-11
 
 ## Bugfixes
-- the AnyItem protocol is now correctly using AnyObject instead of class
+- The `AnyItem` protocol is now correctly using `AnyObject` instead of class
 
 ## Performance Improvements
-- reuse the year date formatter instead of creating one for each article
+- Reuse the year date formatter instead of creating one for each article
 
 # 0.21.0 - 2021-02-27
 
 ## New Features
-- support throwing renderers
+- Support throwing renderers
 
 # 0.20.0 - 2021-02-27
 ## New Features
-- added a public initializer to EmptyMetadata
+- Added a public initializer to `EmptyMetadata`
 
 # 0.19.0 - 2021-02-18
 - Switched the dev server from [lite-server](https://github.com/johnpapa/lite-server) to [browser-sync](https://browsersync.io)
@@ -60,24 +60,23 @@ This now requires Saga to be executed from an async scope. See the example app i
 
 # 0.18.0 - 2021-02-13
 - Added paginator support (#8)
-- Renamed Page to Item, pageWriter to itemWriter, and all other Page related things to Item. This so that the Paginator's `itemsPerPage` and numberOfPages` don't cause confusion.
+- Renamed `Page` to `Item`, `pageWriter` to `itemWriter`, and all other `Page` related things to `Item`. This so that the Paginator's `itemsPerPage` and `numberOfPages` don't cause confusion.
 
 # 0.17.0 - 2021-02-12
-- tagWriter and yearWriter are now generalized into a partitionedWriter. (They are still available as convenience functions that use partitionedWriter under the hood).
+- `tagWriter` and `yearWriter` are now generalized into a `partitionedWriter`. (They are still available as convenience functions that use `partitionedWriter` under the hood).
 
 # 0.16.0 - 2021-02-12
 - Added a watch mode that rebuilds your website and reloads the browser as well. This functionality does depend on a globally installed lite-server, https://github.com/johnpapa/lite-server.
 
 # 0.15.0 - 2021-02-11
-- The Slugify dependency has been removed and replaced with my own very basic slugified computed property on String. This makes quite a big speed difference!
+- The Slugify dependency has been removed and replaced with my own very basic `slugified` computed property on String. This makes quite a big speed difference!
 
 # 0.14.0 - 2021-02-10
 - Saga no longer comes bundled with a default markdown reader - you install one yourself:
   - https://github.com/loopwerk/SagaParsleyMarkdownReader
   - https://github.com/loopwerk/SagaPythonMarkdownReader
   - https://github.com/loopwerk/SagaInkMarkdownReader
-- The writers now have a different function signature. They no longer simply take a templatePath,
-  Instead they expect a function that is given a RenderingContext and must return a String.
+- The writers now have a different function signature. They no longer simply take a templatePath, instead they expect a function that is given a RenderingContext and must return a String.
   This should make it possible to use any kind of renderer you want, whether you want to use swift-html,
   Plot, Swim or Stencil. As long as you can turn a RenderingContext into a String, it'll work.
   One renderer that is available is https://github.com/loopwerk/SagaSwimRenderer.
