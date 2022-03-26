@@ -19,7 +19,7 @@ private extension Array {
 }
 
 public extension Writer {
-  /// Writes a single ``Item`` to a single output file, using Item.destination as the destination path.
+  /// Writes a single ``Item`` to a single output file, using `Item.destination` as the destination path.
   static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M, SiteMetadata>) throws -> String) -> Self {
     Writer { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
       for item in items {
@@ -31,7 +31,6 @@ public extension Writer {
   }
 
   /// Writes an array of items into a single output file.
-  /// As such, it needs an output path, for example "articles/index.html".
   static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M, SiteMetadata>) throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
     return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
       try writePages(renderer: renderer, items: items, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
@@ -41,9 +40,11 @@ public extension Writer {
   }
 
   /// Writes an array of items into multiple output files.
-  /// Use this to partition an array of Items into a dictionary of Items, with a custom key.
-  /// The output path is a template where [key] will be replaced with the key used for the partition.
-  /// Example: "articles/[key]/index.html"
+  ///
+  /// Use this to partition an array of items into a dictionary of Items, with a custom key.
+  ///
+  /// The `output` path is a template where `[key]` will be replaced with the key used for the partition.
+  /// Example: `articles/[key]/index.html`
   static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
     return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
       let partitions = partitioner(items)
@@ -80,7 +81,8 @@ public extension Writer {
   }
 
   /// A convenience version of `partitionedWriter` that splits items based on tags.
-  /// (Tags can be any `[String]` array.)
+  ///
+  /// Tags can be any `[String]` array.
   static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M, SiteMetadata>) throws -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @escaping (Item<M>) -> [String]) -> Self {
     let partitioner: ([Item<M>]) -> [String: [Item<M>]] = { items in
       var itemsPerTag = [String: [Item<M>]]()

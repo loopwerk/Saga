@@ -27,7 +27,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> 
 struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy", siteMetadata: EmptyMetadata())
-      // All files will be parsed to html.
+      // All Markdown files within the `input` folder will be parsed to html.
       .register(
         metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
@@ -39,16 +39,14 @@ struct Run {
       // Run the step we registered above
       .run()
 
-      // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
-      // are copied as-is to the output folder.
+      // All the remaining files that were not parsed to markdown, so for example 
+      // images, raw html files and css, are copied as-is to the output folder.
       .staticFiles()
   }
 }
 ```
 
-That example uses the [Swim](https://github.com/robb/Swim) library to create type-safe HTML.
-
-> Note: The <doc:Architecture> document has more information on how Saga works. 
+> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. The <doc:Architecture> document has more information on how Saga works. 
 
 
 ## Custom metadata
@@ -82,11 +80,6 @@ As you can see, they both use different metadata: the article has `tags`, a `sum
 Let's configure Saga to render these files, while also adding a `SiteMetadata` type that will be given to each template.
 
 ```swift
-import Foundation
-import Saga
-import SagaParsleyMarkdownReader
-import SagaSwimRenderer
-
 struct ArticleMetadata: Metadata {
   let tags: [String]
   let summary: String?
@@ -97,7 +90,7 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-// SiteMetadata is given to every RenderingContext.
+// SiteMetadata is given to every rendering context.
 // You can put whatever properties you want in here.
 struct SiteMetadata: Metadata {
   let url: URL
@@ -113,8 +106,8 @@ let siteMetadata = SiteMetadata(
 struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
-      // All markdown files within the "articles" subfolder will be parsed to html,
-      // using ArticleMetadata as the Item's metadata type.
+      // All Markdown files within the "articles" subfolder will be parsed to html,
+      // using `ArticleMetadata` as the item's metadata type.
       .register(
         folder: "articles",
         metadata: ArticleMetadata.self,
@@ -131,8 +124,8 @@ struct Run {
         ]
       )
 
-      // All markdown files within the "apps" subfolder will be parsed to html,
-      // using AppMetadata as the Item's metadata type.
+      // All Markdown files within the "apps" subfolder will be parsed to html,
+      // using `AppMetadata` as the item's metadata type.
       .register(
         folder: "apps",
         metadata: AppMetadata.self,
@@ -140,8 +133,8 @@ struct Run {
         writers: [.listWriter(swim(renderApps))]
       )
      
-      // All the remaining markdown files will be parsed to html,
-      // using the default EmptyMetadata as the Item's metadata type.
+      // All the remaining Markdown files will be parsed to html,
+      // using the default `EmptyMetadata` as the item's metadata type.
       .register(
         metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
@@ -163,6 +156,21 @@ While that might look a bit overwhelming, it should be easy to follow what each 
 Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
 
 You can also check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which is completely built with Saga.
+
+
+## Writers
+In the custom metadata example above, you can see that the articles step uses four different kinds of writers: `itemWriter`, `listWriter`, `tagWriter`, and `yearWriter`. Each writer takes a renderer function, in this case `swim`, using a locally defined function with the HTML template. The `swim` function comes from the [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) library, whereas `renderArticle`, `renderArticles`, `renderTag` and the rest are locally defined in your project. They are the actual HTML templates, using a strongly typed DSL. 
+
+> tip: If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
+
+The four different writers are all used for different purposes:
+
+- `itemWriter` writes a single item to a single file. For example `content/articles/my-article.md` will be written to `deploy/articles/my-article.html`, or `content/index.md` to `deploy/index.html`.
+- `listWriter` writes an array of items to multiple files. For example to create an `deploy/articles/index.html` page that lists all your articles in a paginated manner.
+- `tagWriter` writes an array of items to multiple files, based on a tag. If you tag your articles you can use this to render tag pages like `deploy/articles/iOS/index.html`.
+- `yearWriter` is similar to `tagWriter` but uses the publication date of the item. You can use this to create year-based archives of your articles, for example `deploy/articles/2022/index.html`.
+
+For more information, please check out ``Writer``.
 
 
 ## Extending Saga
@@ -191,7 +199,7 @@ try await Saga(input: "content", output: "deploy")
 But probably more common and useful is to use the `itemProcessor` parameter of the readers:
 
 ```swift
-func itemProcessor(item: Item<EmptyMetadata>) async {
+func addExclamationToTitle(item: Item<EmptyMetadata>) async {
   // Do whatever you want with the Item - you can even use async functions and await them!
   item.title.append("!")
 }
@@ -202,14 +210,16 @@ struct Run {
     try await Saga(input: "content", output: "deploy")
       .register(
         metadata: EmptyMetadata.self,
-        readers: [.parsleyMarkdownReader(itemProcessor: itemProcessor)],
+        readers: [.parsleyMarkdownReader(itemProcessor: addExclamationToTitle)],
         writers: [.itemWriter(swim(renderItem))]
       )
   }
 }
 ```
 
-It's also easy to add your own readers, writers, and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
+> tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which uses a custom item processors and a custom processing step, for more inspiration.
+
+It's also easy to add your own readers and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
 
 
 ## Development server
