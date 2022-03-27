@@ -27,6 +27,24 @@
           "revision": "26cc5e9ae0947092c7139ef7ba612e34646086c7",
           "version": "0.10.1"
         }
+      },
+      {
+        "package": "SwiftDocCPlugin",
+        "repositoryURL": "https://github.com/apple/swift-docc-plugin.git",
+        "state": {
+          "branch": "main",
+          "revision": "859caac534e94ace18b894ccd9ed301ae4aeda84",
+          "version": null
+        }
+      },
+      {
+        "package": "SymbolKit",
+        "repositoryURL": "https://github.com/apple/swift-docc-symbolkit",
+        "state": {
+          "branch": "main",
+          "revision": "0a45209833f4a151212c1aa38e13cfc03b9462e4",
+          "version": null
+        }
       }
     ]
   },
