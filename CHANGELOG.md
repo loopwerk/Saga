@@ -4,8 +4,7 @@
 - `makeOutputPath` and `relativePath` are public again
 
 ## Documentation Changes
-- Add rendered DocC docs
-- Try again
+- Added rendered DocC docs
 
 # 1.1.0 - 2022-03-26
 
