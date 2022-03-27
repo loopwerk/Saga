@@ -52,9 +52,9 @@ Of course Saga can do much more than just render a folder of Markdown files as-i
 
 
 ## Documentation
-Please refer to the documentation for [installation instructions](https://github.com/loopwerk/Saga/blob/main/Sources/Saga/Saga.docc/Installation.md), system requirements, basic [getting started](https://github.com/loopwerk/Saga/blob/main/Sources/Saga/Saga.docc/GettingStarted.md) information, and how-to's for more advanced things.
+Please refer to the documentation for [installation instructions](https://loopwerk.github.io/Saga/documentation/saga/installation), system requirements, basic [getting started](https://loopwerk.github.io/Saga/documentation/saga/gettingstarted) information, and how-to's for more advanced things.
 
-The documentation is available from within Xcode (Product > Build Documentation) or by browsing the [Saga.docc folder](https://github.com/loopwerk/Saga/tree/main/Sources/Saga/Saga.docc).
+The documentation is available from within Xcode (Product > Build Documentation) or at [loopwerk.github.io/Saga/documentation/saga/](https://loopwerk.github.io/Saga/documentation/saga/).
 
 
 ## Websites using Saga
