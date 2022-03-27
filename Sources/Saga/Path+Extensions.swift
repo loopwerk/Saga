@@ -13,6 +13,23 @@ public extension Path {
     }
     return url
   }
+
+  func makeOutputPath(itemWriteMode: ItemWriteMode) -> Path {
+    switch itemWriteMode {
+      case .keepAsFile:
+        return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
+      case .moveToSubfolder:
+        return self.parent() + self.lastComponentWithoutExtension.slugified + "index.html"
+    }
+  }
+
+  func relativePath(from: Path) throws -> Path {
+    guard self.string.hasPrefix(from.string) else {
+      return self
+    }
+    let index = self.string.index(self.string.startIndex, offsetBy: from.string.count)
+    return Path(String(self.string[index...]).removingPrefix("/"))
+  }
 }
 
 internal extension Path {
@@ -32,23 +49,6 @@ internal extension Path {
 
   func containsFile(named file: Path) -> Bool {
     return (self + file).isFile
-  }
-
-  func makeOutputPath(itemWriteMode: ItemWriteMode) -> Path {
-    switch itemWriteMode {
-      case .keepAsFile:
-        return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
-      case .moveToSubfolder:
-        return self.parent() + self.lastComponentWithoutExtension.slugified + "index.html"
-    }
-  }
-
-  func relativePath(from: Path) throws -> Path {
-    guard self.string.hasPrefix(from.string) else {
-      return self
-    }
-    let index = self.string.index(self.string.startIndex, offsetBy: from.string.count)
-    return Path(String(self.string[index...]).removingPrefix("/"))
   }
 
   var attributes: [FileAttributeKey : Any] {
