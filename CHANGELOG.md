@@ -1,3 +1,12 @@
+# 1.1.1 - 2022-03-27
+
+## Bugfixes
+- `makeOutputPath` and `relativePath` are public again
+
+## Documentation Changes
+- Add rendered DocC docs
+- Try again
+
 # 1.1.0 - 2022-03-26
 
 ## New Features
