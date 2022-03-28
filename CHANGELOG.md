@@ -1,3 +1,11 @@
+# 1.1.2 - 2022-03-28
+
+## New Features
+- Switched from the Loopwerk fork of PathKit back to the original repo
+
+## Documentation Changes
+- Update docs
+
 # 1.1.1 - 2022-03-27
 
 ## Bugfixes
