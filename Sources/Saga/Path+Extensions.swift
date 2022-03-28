@@ -32,6 +32,14 @@ public extension Path {
   }
 }
 
+extension Path: Decodable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    let decodedString = try container.decode(String.self)
+    self.init(decodedString)
+  }
+}
+
 internal extension Path {
   func resolveSwiftPackageFolder() throws -> Path {
     var nextFolder = parent()

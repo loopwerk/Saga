@@ -1,7 +1,7 @@
 import Foundation
 import PathKit
 
-public protocol Metadata: Codable {}
+public protocol Metadata: Decodable {}
 
 /// A convenience version of ``Metadata`` that's just empty. This can be used, for example, when you don't have custom item metadata or site metadata.
 public struct EmptyMetadata: Metadata {
