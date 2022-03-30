@@ -14,7 +14,6 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
     .package(url: "https://github.com/JohnSundell/Codextended.git", from: "0.1.0"),
-    .package(url: "https://github.com/apple/swift-docc-plugin.git", branch: "main"),
   ],
   targets: [
     .target(
