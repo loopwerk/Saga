@@ -65,7 +65,7 @@ struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
       // All markdown files within the "articles" subfolder will be parsed to html,
-      // using ArticleMetadata as the Page's metadata type.
+      // using ArticleMetadata as the Item's metadata type.
       // Furthermore we are only interested in public articles.
       .register(
         folder: "articles",
@@ -85,7 +85,7 @@ struct Run {
       )
 
       // All markdown files within the "apps" subfolder will be parsed to html,
-      // using AppMetadata as the Page's metadata type.
+      // using AppMetadata as the Item's metadata type.
       .register(
         folder: "apps",
         metadata: AppMetadata.self,
@@ -96,7 +96,7 @@ struct Run {
       )
 
       // All the remaining markdown files will be parsed to html,
-      // using the default EmptyMetadata as the Page's metadata type.
+      // using the default EmptyMetadata as the Item's metadata type.
       .register(
         metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
