@@ -1,1 +1,289 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"EmptyMetadata"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/emptymetadata"],"traits":[{"interfaceLanguage":"swift"}]}],"relationshipsSections":[{"identifiers":["doc:\/\/Saga\/documentation\/Saga\/Metadata","doc:\/\/Saga\/Se"],"kind":"relationships","title":"Conforms To","type":"conformsTo"}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"A convenience version of "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata"},{"type":"text","text":" that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"EmptyMetadata"}],"title":"EmptyMetadata","roleHeading":"Structure","role":"symbol","symbolKind":"struct","externalID":"s:4Saga13EmptyMetadataV","modules":[{"name":"Saga"}],"navigatorTitle":[{"kind":"identifier","text":"EmptyMetadata"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga"]]},"topicSections":[{"title":"Initializers","identifiers":["doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init()","doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init(from:)"]}],"references":{"doc://Saga/documentation/Saga/EmptyMetadata/init(from:)":{"role":"symbol","title":"init(from:)","fragments":[{"kind":"identifier","text":"init"},{"kind":"text","text":"("},{"kind":"externalParam","text":"from"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Decoder","preciseIdentifier":"s:s7DecoderP"},{"kind":"text","text":") "},{"kind":"keyword","text":"throws"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init(from:)","kind":"symbol","type":"topic","url":"\/documentation\/saga\/emptymetadata\/init(from:)"},"doc://Saga/documentation/Saga/EmptyMetadata":{"role":"symbol","title":"EmptyMetadata","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"EmptyMetadata"}],"abstract":[{"type":"text","text":"A convenience version of "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata"},{"type":"text","text":" that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"EmptyMetadata"}],"url":"\/documentation\/saga\/emptymetadata"},"doc://Saga/documentation/Saga/Metadata":{"role":"symbol","title":"Metadata","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"Metadata"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Metadata"}],"url":"\/documentation\/saga\/metadata"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/Se":{"type":"unresolvable","title":"Swift.Decodable","identifier":"doc:\/\/Saga\/Se"},"doc://Saga/documentation/Saga/EmptyMetadata/init()":{"role":"symbol","title":"init()","fragments":[{"kind":"identifier","text":"init"},{"kind":"text","text":"()"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init()","kind":"symbol","type":"topic","url":"\/documentation\/saga\/emptymetadata\/init()"}}}
+{
+  "abstract" : [
+    {
+      "text" : "A convenience version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga13EmptyMetadataV",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "struct"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "EmptyMetadata"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "navigatorTitle" : [
+      {
+        "kind" : "identifier",
+        "text" : "EmptyMetadata"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Structure",
+    "symbolKind" : "struct",
+    "title" : "EmptyMetadata"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "struct"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "EmptyMetadata"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "relationshipsSections" : [
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+        "doc:\/\/Saga\/Se"
+      ],
+      "kind" : "relationships",
+      "title" : "Conforms To",
+      "type" : "conformsTo"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "topicSections" : [
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init()",
+        "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init(from:)"
+      ],
+      "title" : "Initializers"
+    }
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/emptymetadata"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/Se": {
+  "identifier" : "doc:\/\/Saga\/Se",
+  "title" : "Swift.Decodable",
+  "type" : "unresolvable"
+},
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/EmptyMetadata": {
+  "abstract" : [
+    {
+      "text" : "A convenience version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "EmptyMetadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "EmptyMetadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "EmptyMetadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/emptymetadata"
+},
+"doc://Saga/documentation/Saga/EmptyMetadata/init()": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "identifier",
+      "text" : "init"
+    },
+    {
+      "kind" : "text",
+      "text" : "()"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init()",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "init()",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/emptymetadata\/init()"
+},
+"doc://Saga/documentation/Saga/EmptyMetadata/init(from:)": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "identifier",
+      "text" : "init"
+    },
+    {
+      "kind" : "text",
+      "text" : "("
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "from"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:s7DecoderP",
+      "text" : "Decoder"
+    },
+    {
+      "kind" : "text",
+      "text" : ") "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init(from:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "init(from:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/emptymetadata\/init(from:)"
+},
+"doc://Saga/documentation/Saga/Metadata": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Metadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/metadata"
+}
+}
+}

@@ -1,1 +1,875 @@
-{"primaryContentSections":[{"kind":"content","content":[{"anchor":"Overview","level":2,"type":"heading","text":"Overview"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, paginating, and strongly typed HTML templates."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it’s quite easy to configure."}]},{"anchor":"Thanks","level":2,"type":"heading","text":"Thanks"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Inspiration for the API of Saga is very much owed to my favorite (but sadly long unmaintained) static site generator: "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/avelino\/liquidluck"},{"type":"text","text":". Its system of multiple readers and writers is really good and I wanted something similar."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Thanks also goes to "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/JohnSundell\/Publish"},{"type":"text","text":", another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder, which was copied over shamelessly."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"You can read "},{"type":"reference","isActive":true,"identifier":"https:\/\/www.loopwerk.io\/articles\/tag\/saga\/"},{"type":"text","text":" discussing the inspiration behind the API."}]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"kind":"symbol","metadata":{"roleHeading":"Framework","externalID":"Saga","title":"Saga","symbolKind":"module","role":"collection","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[[]]},"topicSections":[{"title":"Essentials","identifiers":["doc:\/\/Saga\/documentation\/Saga\/Installation","doc:\/\/Saga\/documentation\/Saga\/GettingStarted","doc:\/\/Saga\/documentation\/Saga\/Architecture","doc:\/\/Saga\/documentation\/Saga\/Reader","doc:\/\/Saga\/documentation\/Saga\/Writer"]},{"title":"Classes","identifiers":["doc:\/\/Saga\/documentation\/Saga\/FileContainer","doc:\/\/Saga\/documentation\/Saga\/Item","doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder","doc:\/\/Saga\/documentation\/Saga\/Saga"]},{"title":"Protocols","identifiers":["doc:\/\/Saga\/documentation\/Saga\/AnyItem","doc:\/\/Saga\/documentation\/Saga\/Metadata"]},{"title":"Structures","identifiers":["doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata","doc:\/\/Saga\/documentation\/Saga\/FileIO","doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext","doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext","doc:\/\/Saga\/documentation\/Saga\/Paginator","doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext"]},{"title":"Type Aliases","identifiers":["doc:\/\/Saga\/documentation\/Saga\/ContextKey"]},{"title":"Enumerations","identifiers":["doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode"]}],"references":{"doc://Saga/documentation/Saga/AnyItem":{"role":"symbol","title":"AnyItem","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"AnyItem"}],"abstract":[{"type":"text","text":"A type-erased version of "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":"."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/AnyItem","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"AnyItem"}],"url":"\/documentation\/saga\/anyitem"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"},"doc://Saga/documentation/Saga/Reader":{"role":"symbol","title":"Reader","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Reader"}],"abstract":[{"type":"text","text":"Readers are responsible for turning text files into "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" instances."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Reader","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Reader"}],"url":"\/documentation\/saga\/reader"},"doc://Saga/documentation/Saga/PartitionedRenderingContext":{"role":"symbol","title":"PartitionedRenderingContext","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"PartitionedRenderingContext"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"PartitionedRenderingContext"}],"url":"\/documentation\/saga\/partitionedrenderingcontext"},"https://github.com/avelino/liquidluck":{"title":"liquidluck","titleInlineContent":[{"type":"text","text":"liquidluck"}],"type":"link","identifier":"https:\/\/github.com\/avelino\/liquidluck","url":"https:\/\/github.com\/avelino\/liquidluck"},"doc://Saga/documentation/Saga/ItemWriteMode":{"role":"symbol","title":"ItemWriteMode","fragments":[{"kind":"keyword","text":"enum"},{"kind":"text","text":" "},{"kind":"identifier","text":"ItemWriteMode"}],"abstract":[{"type":"text","text":"A value that represents item writing modes."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"ItemWriteMode"}],"url":"\/documentation\/saga\/itemwritemode"},"doc://Saga/documentation/Saga/Writer":{"role":"symbol","title":"Writer","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Writer"}],"abstract":[{"type":"text","text":"Writers turn an "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":" using a “renderer”, and write the resulting "},{"type":"codeVoice","code":"String"},{"type":"text","text":" to a file on disk."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Writer"}],"url":"\/documentation\/saga\/writer"},"doc://Saga/documentation/Saga/Installation":{"role":"article","title":"Installation","abstract":[{"type":"text","text":"How to set up your project with the right dependencies."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Installation","kind":"article","type":"topic","url":"\/documentation\/saga\/installation"},"doc://Saga/documentation/Saga/FileIO":{"role":"symbol","title":"FileIO","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"FileIO"}],"abstract":[{"type":"text","text":"A wrapper around file operations used by Saga, to abstract away the PathKit dependency."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileIO","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"FileIO"}],"url":"\/documentation\/saga\/fileio"},"doc://Saga/documentation/Saga/Architecture":{"role":"article","title":"Architecture","abstract":[{"type":"text","text":"An overview of how Saga works."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Architecture","kind":"article","type":"topic","url":"\/documentation\/saga\/architecture"},"doc://Saga/documentation/Saga/ItemRenderingContext":{"role":"symbol","title":"ItemRenderingContext","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"ItemRenderingContext"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"ItemRenderingContext"}],"url":"\/documentation\/saga\/itemrenderingcontext"},"doc://Saga/documentation/Saga/Metadata":{"role":"symbol","title":"Metadata","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"Metadata"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Metadata"}],"url":"\/documentation\/saga\/metadata"},"doc://Saga/documentation/Saga/MetadataDecoder":{"role":"symbol","title":"MetadataDecoder","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"MetadataDecoder"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"MetadataDecoder"}],"url":"\/documentation\/saga\/metadatadecoder"},"doc://Saga/documentation/Saga/Paginator":{"role":"symbol","title":"Paginator","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Paginator"}],"abstract":[{"type":"text","text":"A model representing a paginator."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Paginator","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Paginator"}],"url":"\/documentation\/saga\/paginator"},"doc://Saga/documentation/Saga/ItemsRenderingContext":{"role":"symbol","title":"ItemsRenderingContext","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"ItemsRenderingContext"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"ItemsRenderingContext"}],"url":"\/documentation\/saga\/itemsrenderingcontext"},"doc://Saga/documentation/Saga/FileContainer":{"role":"symbol","title":"FileContainer","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"FileContainer"}],"abstract":[{"type":"text","text":"A wrapper around a "},{"type":"codeVoice","code":"Path"},{"type":"text","text":", used to keep track if got handled by one of the registered processing steps."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileContainer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"FileContainer"}],"url":"\/documentation\/saga\/filecontainer"},"doc://Saga/documentation/Saga/ContextKey":{"role":"symbol","title":"ContextKey","fragments":[{"kind":"keyword","text":"typealias"},{"kind":"text","text":" "},{"kind":"identifier","text":"ContextKey"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ContextKey","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"ContextKey"}],"url":"\/documentation\/saga\/contextkey"},"doc://Saga/documentation/Saga/GettingStarted":{"role":"article","title":"Getting Started with Saga","abstract":[{"type":"text","text":"An overview of how to configure Saga to render your pages and articles."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/GettingStarted","kind":"article","type":"topic","url":"\/documentation\/saga\/gettingstarted"},"https://github.com/JohnSundell/Publish":{"title":"Publish","titleInlineContent":[{"type":"text","text":"Publish"}],"type":"link","identifier":"https:\/\/github.com\/JohnSundell\/Publish","url":"https:\/\/github.com\/JohnSundell\/Publish"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"https://www.loopwerk.io/articles/tag/saga/":{"title":"this series of articles","titleInlineContent":[{"type":"text","text":"this series of articles"}],"type":"link","identifier":"https:\/\/www.loopwerk.io\/articles\/tag\/saga\/","url":"https:\/\/www.loopwerk.io\/articles\/tag\/saga\/"},"doc://Saga/documentation/Saga/EmptyMetadata":{"role":"symbol","title":"EmptyMetadata","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"EmptyMetadata"}],"abstract":[{"type":"text","text":"A convenience version of "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata"},{"type":"text","text":" that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"EmptyMetadata"}],"url":"\/documentation\/saga\/emptymetadata"},"doc://Saga/documentation/Saga/Saga":{"role":"symbol","title":"Saga","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Saga"}],"abstract":[{"type":"text","text":"The main Saga class, used to configure and build your website."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Saga","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Saga"}],"url":"\/documentation\/saga\/saga"}}}
+{
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "Saga",
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "collection",
+    "roleHeading" : "Framework",
+    "symbolKind" : "module",
+    "title" : "Saga"
+  },
+  "primaryContentSections" : [
+    {
+      "content" : [
+        {
+          "anchor" : "Overview",
+          "level" : 2,
+          "text" : "Overview",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, paginating, and strongly typed HTML templates.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it’s quite easy to configure.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "anchor" : "Thanks",
+          "level" : 2,
+          "text" : "Thanks",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Inspiration for the API of Saga is very much owed to my favorite (but sadly long unmaintained) static site generator: ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/avelino\/liquidluck",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ". Its system of multiple readers and writers is really good and I wanted something similar.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Thanks also goes to ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/JohnSundell\/Publish",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ", another static site generator written in Swift, for inspiring me towards custom strongly typed metadata. A huge thanks also for its metadata decoder, which was copied over shamelessly.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "You can read ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/www.loopwerk.io\/articles\/tag\/saga\/",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " discussing the inspiration behind the API.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        }
+      ],
+      "kind" : "content"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "topicSections" : [
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/Installation",
+        "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
+        "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+        "doc:\/\/Saga\/documentation\/Saga\/Reader",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer"
+      ],
+      "title" : "Essentials"
+    },
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/FileContainer",
+        "doc:\/\/Saga\/documentation\/Saga\/Item",
+        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
+        "doc:\/\/Saga\/documentation\/Saga\/Saga"
+      ],
+      "title" : "Classes"
+    },
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+        "doc:\/\/Saga\/documentation\/Saga\/Metadata"
+      ],
+      "title" : "Protocols"
+    },
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata",
+        "doc:\/\/Saga\/documentation\/Saga\/FileIO",
+        "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext",
+        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext",
+        "doc:\/\/Saga\/documentation\/Saga\/Paginator",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext"
+      ],
+      "title" : "Structures"
+    },
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/ContextKey"
+      ],
+      "title" : "Type Aliases"
+    },
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode"
+      ],
+      "title" : "Enumerations"
+    }
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/AnyItem": {
+  "abstract" : [
+    {
+      "text" : "A type-erased version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : ".",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "AnyItem",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem"
+},
+"doc://Saga/documentation/Saga/Architecture": {
+  "abstract" : [
+    {
+      "text" : "An overview of how Saga works.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Architecture",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/architecture"
+},
+"doc://Saga/documentation/Saga/ContextKey": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "typealias"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "ContextKey"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ContextKey",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "ContextKey"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "ContextKey",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/contextkey"
+},
+"doc://Saga/documentation/Saga/EmptyMetadata": {
+  "abstract" : [
+    {
+      "text" : "A convenience version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "EmptyMetadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "EmptyMetadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "EmptyMetadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/emptymetadata"
+},
+"doc://Saga/documentation/Saga/FileContainer": {
+  "abstract" : [
+    {
+      "text" : "A wrapper around a ",
+      "type" : "text"
+    },
+    {
+      "code" : "Path",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ", used to keep track if got handled by one of the registered processing steps.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "FileContainer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "FileContainer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "FileContainer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/filecontainer"
+},
+"doc://Saga/documentation/Saga/FileIO": {
+  "abstract" : [
+    {
+      "text" : "A wrapper around file operations used by Saga, to abstract away the PathKit dependency.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "FileIO"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileIO",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "FileIO"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "FileIO",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/fileio"
+},
+"doc://Saga/documentation/Saga/GettingStarted": {
+  "abstract" : [
+    {
+      "text" : "An overview of how to configure Saga to render your pages and articles.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Getting Started with Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/gettingstarted"
+},
+"doc://Saga/documentation/Saga/Installation": {
+  "abstract" : [
+    {
+      "text" : "How to set up your project with the right dependencies.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Installation",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Installation",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/installation"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+},
+"doc://Saga/documentation/Saga/ItemRenderingContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "ItemRenderingContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "ItemRenderingContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "ItemRenderingContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemrenderingcontext"
+},
+"doc://Saga/documentation/Saga/ItemWriteMode": {
+  "abstract" : [
+    {
+      "text" : "A value that represents item writing modes.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "enum"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "ItemWriteMode"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "ItemWriteMode"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "ItemWriteMode",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemwritemode"
+},
+"doc://Saga/documentation/Saga/ItemsRenderingContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "ItemsRenderingContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "ItemsRenderingContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "ItemsRenderingContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemsrenderingcontext"
+},
+"doc://Saga/documentation/Saga/Metadata": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Metadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/metadata"
+},
+"doc://Saga/documentation/Saga/MetadataDecoder": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "MetadataDecoder"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "MetadataDecoder"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "MetadataDecoder",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/metadatadecoder"
+},
+"doc://Saga/documentation/Saga/Paginator": {
+  "abstract" : [
+    {
+      "text" : "A model representing a paginator.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Paginator"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Paginator",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Paginator"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Paginator",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/paginator"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "PartitionedRenderingContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "PartitionedRenderingContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "PartitionedRenderingContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext"
+},
+"doc://Saga/documentation/Saga/Reader": {
+  "abstract" : [
+    {
+      "text" : "Readers are responsible for turning text files into ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " instances.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Reader",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Reader",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/reader"
+},
+"doc://Saga/documentation/Saga/Saga": {
+  "abstract" : [
+    {
+      "text" : "The main Saga class, used to configure and build your website.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Saga"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Saga"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/saga"
+},
+"doc://Saga/documentation/Saga/Writer": {
+  "abstract" : [
+    {
+      "text" : "Writers turn an ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " into a ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " using a “renderer”, and write the resulting ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to a file on disk.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Writer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer"
+},
+"https://github.com/JohnSundell/Publish": {
+  "identifier" : "https:\/\/github.com\/JohnSundell\/Publish",
+  "title" : "Publish",
+  "titleInlineContent" : [
+    {
+      "text" : "Publish",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/JohnSundell\/Publish"
+},
+"https://github.com/avelino/liquidluck": {
+  "identifier" : "https:\/\/github.com\/avelino\/liquidluck",
+  "title" : "liquidluck",
+  "titleInlineContent" : [
+    {
+      "text" : "liquidluck",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/avelino\/liquidluck"
+},
+"https://www.loopwerk.io/articles/tag/saga/": {
+  "identifier" : "https:\/\/www.loopwerk.io\/articles\/tag\/saga\/",
+  "title" : "this series of articles",
+  "titleInlineContent" : [
+    {
+      "text" : "this series of articles",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/www.loopwerk.io\/articles\/tag\/saga\/"
+}
+}
+}

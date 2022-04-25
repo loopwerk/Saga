@@ -1,1 +1,1228 @@
-{"primaryContentSections":[{"kind":"content","content":[{"anchor":"Overview","level":2,"type":"heading","text":"Overview"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Let’s start with the most basic example: rendering all Markdown files to HTML."}]},{"type":"codeListing","syntax":"swift","code":["import Saga","import SagaParsleyMarkdownReader","import SagaSwimRenderer","import HTML","","func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {","  html(lang: \"en-US\") {","    body {","      div(id: \"content\") {","        h1 { context.item.title }","        Node.raw(context.item.body)","      }","    }","  }","}","","@main","struct Run {","  static func main() async throws {","    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: EmptyMetadata())","      \/\/ All Markdown files within the `input` folder will be parsed to html.","      .register(","        metadata: EmptyMetadata.self,","        readers: [.parsleyMarkdownReader()],","        writers: [","          .itemWriter(swim(renderPage))","        ]","      )","","      \/\/ Run the step we registered above","      .run()","","      \/\/ All the remaining files that were not parsed to markdown, so for example ","      \/\/ images, raw html files and css, are copied as-is to the output folder.","      .staticFiles()","  }","}"]},{"type":"aside","style":"note","content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"This example uses the "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/robb\/Swim"},{"type":"text","text":" library via "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer"},{"type":"text","text":" to create type-safe HTML. The "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Architecture"},{"type":"text","text":" document has more information on how Saga works."}]}]},{"anchor":"Custom-metadata","level":2,"type":"heading","text":"Custom metadata"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Of course Saga can do much more than just render a folder of Markdown files as-is. It can also deal with custom metadata contained within Markdown files - even multiple types of metadata for different kinds of pages."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Let’s look at an example Markdown article, "},{"type":"codeVoice","code":"\/content\/articles\/first-article.md"},{"type":"text","text":":"}]},{"type":"codeListing","syntax":"text","code":["---","tags: article, news","summary: This is the summary of the first article","date: 2020-01-01","---","# Hello world","Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]},{"type":"paragraph","inlineContent":[{"type":"text","text":"And an example app for a portfolio, "},{"type":"codeVoice","code":"\/content\/apps\/lastfm.md"},{"type":"text","text":":"}]},{"type":"codeListing","syntax":"text","code":["---","url: https:\/\/itunes.apple.com\/us\/app\/last-fm-scrobbler\/id1188681944?ls=1&mt=8)","images: lastfm_1.jpg, lastfm_2.jpg","---","# Last.fm Scrobbler","\"Get the official Last.fm Scrobbler App to keep track of what you're listening to on Apple Music. Check out your top artist, album and song charts from all-time to last week, and watch videos of your favourite tracks.\""]},{"type":"paragraph","inlineContent":[{"type":"text","text":"As you can see, they both use different metadata: the article has "},{"type":"codeVoice","code":"tags"},{"type":"text","text":", a "},{"type":"codeVoice","code":"summary"},{"type":"text","text":" and a "},{"type":"codeVoice","code":"date"},{"type":"text","text":", while the app has a "},{"type":"codeVoice","code":"url"},{"type":"text","text":" and "},{"type":"codeVoice","code":"images"},{"type":"text","text":"."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Let’s configure Saga to render these files, while also adding a "},{"type":"codeVoice","code":"SiteMetadata"},{"type":"text","text":" type that will be given to each template."}]},{"type":"codeListing","syntax":"swift","code":["struct ArticleMetadata: Metadata {","  let tags: [String]","  let summary: String?","}","","struct AppMetadata: Metadata {","  let url: URL?","  let images: [String]?","}","","\/\/ SiteMetadata is given to every rendering context.","\/\/ You can put whatever properties you want in here.","struct SiteMetadata: Metadata {","  let url: URL","  let name: String","}","","let siteMetadata = SiteMetadata(","  url: URL(string: \"http:\/\/www.example.com\")!,","  name: \"Example website\"",")","","@main","struct Run {","  static func main() async throws {","    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: siteMetadata)","      \/\/ All Markdown files within the \"articles\" subfolder will be parsed to html,","      \/\/ using `ArticleMetadata` as the item's metadata type.","      .register(","        folder: \"articles\",","        metadata: ArticleMetadata.self,","        readers: [.parsleyMarkdownReader()],","        writers: [","          .itemWriter(swim(renderArticle)),","          .listWriter(swim(renderArticles), paginate: 20),","          .tagWriter(swim(renderTag), tags: \\.metadata.tags),","          .yearWriter(swim(renderYear)),","          ","          \/\/ Atom feed for all articles, and a feed per tag","          .listWriter(swim(renderFeed), output: \"feed.xml\"),","          .tagWriter(swim(renderTagFeed), output: \"tag\/[key]\/feed.xml\", tags: \\.metadata.tags),","        ]","      )","","      \/\/ All Markdown files within the \"apps\" subfolder will be parsed to html,","      \/\/ using `AppMetadata` as the item's metadata type.","      .register(","        folder: \"apps\",","        metadata: AppMetadata.self,","        readers: [.parsleyMarkdownReader()],","        writers: [.listWriter(swim(renderApps))]","      )","     ","      \/\/ All the remaining Markdown files will be parsed to html,","      \/\/ using the default `EmptyMetadata` as the item's metadata type.","      .register(","        metadata: EmptyMetadata.self,","        readers: [.parsleyMarkdownReader()],","        writers: [.itemWriter(swim(renderItem))]","      )","      ","      \/\/ Run the steps we registered above","      .run()","      ","      \/\/ All the remaining files that were not parsed to markdown, so for example images,","      \/\/ raw html files and css, are copied as-is to the output folder.","      .staticFiles()","  }","}"]},{"type":"paragraph","inlineContent":[{"type":"text","text":"While that might look a bit overwhelming, it should be easy to follow what each "},{"type":"codeVoice","code":"register"},{"type":"text","text":" step does, each operating on a set of files in a subfolder and processing them in different ways."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Please check out the "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example"},{"type":"text","text":" for a more complete picture of Saga. Simply open "},{"type":"codeVoice","code":"Package.swift"},{"type":"text","text":", wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: "},{"type":"codeVoice","code":"swift run"},{"type":"text","text":". The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"You can also check the "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/loopwerk.io"},{"type":"text","text":", which is completely built with Saga."}]},{"anchor":"Writers","level":2,"type":"heading","text":"Writers"},{"type":"paragraph","inlineContent":[{"type":"text","text":"In the custom metadata example above, you can see that the articles step uses four different kinds of writers: "},{"type":"codeVoice","code":"itemWriter"},{"type":"text","text":", "},{"type":"codeVoice","code":"listWriter"},{"type":"text","text":", "},{"type":"codeVoice","code":"tagWriter"},{"type":"text","text":", and "},{"type":"codeVoice","code":"yearWriter"},{"type":"text","text":". Each writer takes a renderer function, in this case "},{"type":"codeVoice","code":"swim"},{"type":"text","text":", using a locally defined function with the HTML template. The "},{"type":"codeVoice","code":"swim"},{"type":"text","text":" function comes from the "},{"overridingTitleInlineContent":[{"type":"text","text":"SagaSwimRenderer"}],"isActive":true,"type":"reference","identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer","overridingTitle":"SagaSwimRenderer"},{"type":"text","text":" library, whereas "},{"type":"codeVoice","code":"renderArticle"},{"type":"text","text":", "},{"type":"codeVoice","code":"renderArticles"},{"type":"text","text":", "},{"type":"codeVoice","code":"renderTag"},{"type":"text","text":" and the rest are locally defined in your project. They are the actual HTML templates, using a strongly typed DSL."}]},{"type":"aside","style":"tip","content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"If you prefer to work with Mustache-type HTML template files, check out "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaStencilRenderer"},{"type":"text","text":"."}]}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"The four different writers are all used for different purposes:"}]},{"type":"unorderedList","items":[{"content":[{"type":"paragraph","inlineContent":[{"type":"codeVoice","code":"itemWriter"},{"type":"text","text":" writes a single item to a single file. For example "},{"type":"codeVoice","code":"content\/articles\/my-article.md"},{"type":"text","text":" will be written to "},{"type":"codeVoice","code":"deploy\/articles\/my-article.html"},{"type":"text","text":", or "},{"type":"codeVoice","code":"content\/index.md"},{"type":"text","text":" to "},{"type":"codeVoice","code":"deploy\/index.html"},{"type":"text","text":"."}]}]},{"content":[{"type":"paragraph","inlineContent":[{"type":"codeVoice","code":"listWriter"},{"type":"text","text":" writes an array of items to multiple files. For example to create an "},{"type":"codeVoice","code":"deploy\/articles\/index.html"},{"type":"text","text":" page that lists all your articles in a paginated manner."}]}]},{"content":[{"type":"paragraph","inlineContent":[{"type":"codeVoice","code":"tagWriter"},{"type":"text","text":" writes an array of items to multiple files, based on a tag. If you tag your articles you can use this to render tag pages like "},{"type":"codeVoice","code":"deploy\/articles\/iOS\/index.html"},{"type":"text","text":"."}]}]},{"content":[{"type":"paragraph","inlineContent":[{"type":"codeVoice","code":"yearWriter"},{"type":"text","text":" is similar to "},{"type":"codeVoice","code":"tagWriter"},{"type":"text","text":" but uses the publication date of the item. You can use this to create year-based archives of your articles, for example "},{"type":"codeVoice","code":"deploy\/articles\/2022\/index.html"},{"type":"text","text":"."}]}]}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"For more information, please check out "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer"},{"type":"text","text":"."}]},{"anchor":"Extending-Saga","level":2,"type":"heading","text":"Extending Saga"},{"type":"paragraph","inlineContent":[{"type":"text","text":"It’s very easy to add your own step to Saga where you can access the items and run your own code:"}]},{"type":"codeListing","syntax":"swift","code":["extension Saga {","  @discardableResult","  func createArticleImages() -> Self {","    let articles = fileStorage.compactMap { $0.item as? Item<ArticleMetadata> }","","    for article in articles {","      let destination = (self.outputPath + article.relativeDestination.parent()).string + \".png\"","      \/\/ generate an image and write it to `destination`","    }","","    return self","  }","}","","try await Saga(input: \"content\", output: \"deploy\")"," \/\/ ...register and run steps..."," .createArticleImages()"]},{"type":"paragraph","inlineContent":[{"type":"text","text":"But probably more common and useful is to use the "},{"type":"codeVoice","code":"itemProcessor"},{"type":"text","text":" parameter of the readers:"}]},{"type":"codeListing","syntax":"swift","code":["func addExclamationToTitle(item: Item<EmptyMetadata>) async {","  \/\/ Do whatever you want with the Item - you can even use async functions and await them!","  item.title.append(\"!\")","}","","@main","struct Run {","  static func main() async throws {","    try await Saga(input: \"content\", output: \"deploy\")","      .register(","        metadata: EmptyMetadata.self,","        readers: [.parsleyMarkdownReader(itemProcessor: addExclamationToTitle)],","        writers: [.itemWriter(swim(renderItem))]","      )","  }","}"]},{"type":"aside","style":"tip","content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"You can check the "},{"overridingTitleInlineContent":[{"type":"text","text":"source of loopwerk.io"}],"isActive":true,"type":"reference","identifier":"https:\/\/github.com\/loopwerk\/loopwerk.io","overridingTitle":"source of loopwerk.io"},{"type":"text","text":", which uses a custom item processors and a custom processing step, for more inspiration."}]}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"It’s also easy to add your own readers and renderers; search for "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/topics\/saga-plugin"},{"type":"text","text":" on Github. For example, "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaInkMarkdownReader"},{"type":"text","text":" adds an "},{"type":"codeVoice","code":".inkMarkdownReader"},{"type":"text","text":" that uses Ink and Splash."}]},{"anchor":"Development-server","level":2,"type":"heading","text":"Development server"},{"type":"paragraph","inlineContent":[{"type":"text","text":"From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well."}]},{"type":"codeListing","syntax":null,"code":["swift run watch [input-folders, separated by a space] [output-folder]"]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Use the same relative input- and output folders as you gave to Saga. Example: "},{"type":"codeVoice","code":"swift run watch content Sources deploy"},{"type":"text","text":" to rebuild whenever you change your content or your Swift code."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"This functionality does depend on a globally installed "},{"type":"reference","isActive":true,"identifier":"https:\/\/browsersync.io"},{"type":"text","text":", and only works on macOS, not Linux."}]},{"type":"codeListing","syntax":null,"code":["npm install -g browser-sync"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/gettingstarted"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/GettingStarted","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"An overview of how to configure Saga to render your pages and articles."}],"kind":"article","metadata":{"roleHeading":"Article","title":"Getting Started with Saga","role":"article","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga"]]},"seeAlsoSections":[{"title":"Essentials","identifiers":["doc:\/\/Saga\/documentation\/Saga\/Installation","doc:\/\/Saga\/documentation\/Saga\/Architecture","doc:\/\/Saga\/documentation\/Saga\/Reader","doc:\/\/Saga\/documentation\/Saga\/Writer"],"generated":true}],"references":{"https://github.com/loopwerk/SagaSwimRenderer":{"title":"SagaSwimRenderer","titleInlineContent":[{"type":"text","text":"SagaSwimRenderer"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer","url":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer"},"https://github.com/loopwerk/SagaStencilRenderer":{"title":"SagaStencilRenderer","titleInlineContent":[{"type":"text","text":"SagaStencilRenderer"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaStencilRenderer","url":"https:\/\/github.com\/loopwerk\/SagaStencilRenderer"},"doc://Saga/documentation/Saga/Reader":{"role":"symbol","title":"Reader","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Reader"}],"abstract":[{"type":"text","text":"Readers are responsible for turning text files into "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" instances."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Reader","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Reader"}],"url":"\/documentation\/saga\/reader"},"https://github.com/loopwerk/Saga/blob/main/Example":{"title":"Example project","titleInlineContent":[{"type":"text","text":"Example project"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example","url":"https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example"},"https://github.com/loopwerk/SagaInkMarkdownReader":{"title":"SagaInkMarkdownReader","titleInlineContent":[{"type":"text","text":"SagaInkMarkdownReader"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaInkMarkdownReader","url":"https:\/\/github.com\/loopwerk\/SagaInkMarkdownReader"},"https://github.com/topics/saga-plugin":{"title":"saga-plugin","titleInlineContent":[{"type":"text","text":"saga-plugin"}],"type":"link","identifier":"https:\/\/github.com\/topics\/saga-plugin","url":"https:\/\/github.com\/topics\/saga-plugin"},"https://browsersync.io":{"title":"browser-sync","titleInlineContent":[{"type":"text","text":"browser-sync"}],"type":"link","identifier":"https:\/\/browsersync.io","url":"https:\/\/browsersync.io"},"doc://Saga/documentation/Saga/Architecture":{"role":"article","title":"Architecture","abstract":[{"type":"text","text":"An overview of how Saga works."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Architecture","kind":"article","type":"topic","url":"\/documentation\/saga\/architecture"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/Writer":{"role":"symbol","title":"Writer","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Writer"}],"abstract":[{"type":"text","text":"Writers turn an "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":" using a “renderer”, and write the resulting "},{"type":"codeVoice","code":"String"},{"type":"text","text":" to a file on disk."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Writer"}],"url":"\/documentation\/saga\/writer"},"doc://Saga/documentation/Saga/Installation":{"role":"article","title":"Installation","abstract":[{"type":"text","text":"How to set up your project with the right dependencies."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Installation","kind":"article","type":"topic","url":"\/documentation\/saga\/installation"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"},"https://github.com/loopwerk/loopwerk.io":{"title":"source of loopwerk.io","titleInlineContent":[{"type":"text","text":"source of loopwerk.io"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/loopwerk.io","url":"https:\/\/github.com\/loopwerk\/loopwerk.io"},"https://github.com/robb/Swim":{"title":"Swim","titleInlineContent":[{"type":"text","text":"Swim"}],"type":"link","identifier":"https:\/\/github.com\/robb\/Swim","url":"https:\/\/github.com\/robb\/Swim"}}}
+{
+  "abstract" : [
+    {
+      "text" : "An overview of how to configure Saga to render your pages and articles.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/GettingStarted"
+  },
+  "kind" : "article",
+  "metadata" : {
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "article",
+    "roleHeading" : "Article",
+    "title" : "Getting Started with Saga"
+  },
+  "primaryContentSections" : [
+    {
+      "content" : [
+        {
+          "anchor" : "Overview",
+          "level" : 2,
+          "text" : "Overview",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Let’s start with the most basic example: rendering all Markdown files to HTML.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "import Saga",
+            "import SagaParsleyMarkdownReader",
+            "import SagaSwimRenderer",
+            "import HTML",
+            "",
+            "func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {",
+            "  html(lang: \"en-US\") {",
+            "    body {",
+            "      div(id: \"content\") {",
+            "        h1 { context.item.title }",
+            "        Node.raw(context.item.body)",
+            "      }",
+            "    }",
+            "  }",
+            "}",
+            "",
+            "@main",
+            "struct Run {",
+            "  static func main() async throws {",
+            "    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: EmptyMetadata())",
+            "      \/\/ All Markdown files within the `input` folder will be parsed to html.",
+            "      .register(",
+            "        metadata: EmptyMetadata.self,",
+            "        readers: [.parsleyMarkdownReader()],",
+            "        writers: [",
+            "          .itemWriter(swim(renderPage))",
+            "        ]",
+            "      )",
+            "",
+            "      \/\/ Run the step we registered above",
+            "      .run()",
+            "",
+            "      \/\/ All the remaining files that were not parsed to markdown, so for example ",
+            "      \/\/ images, raw html files and css, are copied as-is to the output folder.",
+            "      .staticFiles()",
+            "  }",
+            "}"
+          ],
+          "syntax" : "swift",
+          "type" : "codeListing"
+        },
+        {
+          "content" : [
+            {
+              "inlineContent" : [
+                {
+                  "text" : "This example uses the ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/robb\/Swim",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : " library via ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : " to create type-safe HTML. The ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : " document has more information on how Saga works.",
+                  "type" : "text"
+                }
+              ],
+              "type" : "paragraph"
+            }
+          ],
+          "style" : "note",
+          "type" : "aside"
+        },
+        {
+          "anchor" : "Custom-metadata",
+          "level" : 2,
+          "text" : "Custom metadata",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Of course Saga can do much more than just render a folder of Markdown files as-is. It can also deal with custom metadata contained within Markdown files - even multiple types of metadata for different kinds of pages.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Let’s look at an example Markdown article, ",
+              "type" : "text"
+            },
+            {
+              "code" : "\/content\/articles\/first-article.md",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ":",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "---",
+            "tags: article, news",
+            "summary: This is the summary of the first article",
+            "date: 2020-01-01",
+            "---",
+            "# Hello world",
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          ],
+          "syntax" : "text",
+          "type" : "codeListing"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "And an example app for a portfolio, ",
+              "type" : "text"
+            },
+            {
+              "code" : "\/content\/apps\/lastfm.md",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ":",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "---",
+            "url: https:\/\/itunes.apple.com\/us\/app\/last-fm-scrobbler\/id1188681944?ls=1&mt=8)",
+            "images: lastfm_1.jpg, lastfm_2.jpg",
+            "---",
+            "# Last.fm Scrobbler",
+            "\"Get the official Last.fm Scrobbler App to keep track of what you're listening to on Apple Music. Check out your top artist, album and song charts from all-time to last week, and watch videos of your favourite tracks.\""
+          ],
+          "syntax" : "text",
+          "type" : "codeListing"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "As you can see, they both use different metadata: the article has ",
+              "type" : "text"
+            },
+            {
+              "code" : "tags",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", a ",
+              "type" : "text"
+            },
+            {
+              "code" : "summary",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " and a ",
+              "type" : "text"
+            },
+            {
+              "code" : "date",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", while the app has a ",
+              "type" : "text"
+            },
+            {
+              "code" : "url",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " and ",
+              "type" : "text"
+            },
+            {
+              "code" : "images",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ".",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Let’s configure Saga to render these files, while also adding a ",
+              "type" : "text"
+            },
+            {
+              "code" : "SiteMetadata",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " type that will be given to each template.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "struct ArticleMetadata: Metadata {",
+            "  let tags: [String]",
+            "  let summary: String?",
+            "}",
+            "",
+            "struct AppMetadata: Metadata {",
+            "  let url: URL?",
+            "  let images: [String]?",
+            "}",
+            "",
+            "\/\/ SiteMetadata is given to every rendering context.",
+            "\/\/ You can put whatever properties you want in here.",
+            "struct SiteMetadata: Metadata {",
+            "  let url: URL",
+            "  let name: String",
+            "}",
+            "",
+            "let siteMetadata = SiteMetadata(",
+            "  url: URL(string: \"http:\/\/www.example.com\")!,",
+            "  name: \"Example website\"",
+            ")",
+            "",
+            "@main",
+            "struct Run {",
+            "  static func main() async throws {",
+            "    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: siteMetadata)",
+            "      \/\/ All Markdown files within the \"articles\" subfolder will be parsed to html,",
+            "      \/\/ using `ArticleMetadata` as the item's metadata type.",
+            "      .register(",
+            "        folder: \"articles\",",
+            "        metadata: ArticleMetadata.self,",
+            "        readers: [.parsleyMarkdownReader()],",
+            "        writers: [",
+            "          .itemWriter(swim(renderArticle)),",
+            "          .listWriter(swim(renderArticles), paginate: 20),",
+            "          .tagWriter(swim(renderTag), tags: \\.metadata.tags),",
+            "          .yearWriter(swim(renderYear)),",
+            "          ",
+            "          \/\/ Atom feed for all articles, and a feed per tag",
+            "          .listWriter(swim(renderFeed), output: \"feed.xml\"),",
+            "          .tagWriter(swim(renderTagFeed), output: \"tag\/[key]\/feed.xml\", tags: \\.metadata.tags),",
+            "        ]",
+            "      )",
+            "",
+            "      \/\/ All Markdown files within the \"apps\" subfolder will be parsed to html,",
+            "      \/\/ using `AppMetadata` as the item's metadata type.",
+            "      .register(",
+            "        folder: \"apps\",",
+            "        metadata: AppMetadata.self,",
+            "        readers: [.parsleyMarkdownReader()],",
+            "        writers: [.listWriter(swim(renderApps))]",
+            "      )",
+            "     ",
+            "      \/\/ All the remaining Markdown files will be parsed to html,",
+            "      \/\/ using the default `EmptyMetadata` as the item's metadata type.",
+            "      .register(",
+            "        metadata: EmptyMetadata.self,",
+            "        readers: [.parsleyMarkdownReader()],",
+            "        writers: [.itemWriter(swim(renderItem))]",
+            "      )",
+            "      ",
+            "      \/\/ Run the steps we registered above",
+            "      .run()",
+            "      ",
+            "      \/\/ All the remaining files that were not parsed to markdown, so for example images,",
+            "      \/\/ raw html files and css, are copied as-is to the output folder.",
+            "      .staticFiles()",
+            "  }",
+            "}"
+          ],
+          "syntax" : "swift",
+          "type" : "codeListing"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "While that might look a bit overwhelming, it should be easy to follow what each ",
+              "type" : "text"
+            },
+            {
+              "code" : "register",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " step does, each operating on a set of files in a subfolder and processing them in different ways.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Please check out the ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " for a more complete picture of Saga. Simply open ",
+              "type" : "text"
+            },
+            {
+              "code" : "Package.swift",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: ",
+              "type" : "text"
+            },
+            {
+              "code" : "swift run",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ". The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "You can also check the ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/loopwerk.io",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ", which is completely built with Saga.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "anchor" : "Writers",
+          "level" : 2,
+          "text" : "Writers",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "In the custom metadata example above, you can see that the articles step uses four different kinds of writers: ",
+              "type" : "text"
+            },
+            {
+              "code" : "itemWriter",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", ",
+              "type" : "text"
+            },
+            {
+              "code" : "listWriter",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", ",
+              "type" : "text"
+            },
+            {
+              "code" : "tagWriter",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", and ",
+              "type" : "text"
+            },
+            {
+              "code" : "yearWriter",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ". Each writer takes a renderer function, in this case ",
+              "type" : "text"
+            },
+            {
+              "code" : "swim",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", using a locally defined function with the HTML template. The ",
+              "type" : "text"
+            },
+            {
+              "code" : "swim",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " function comes from the ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+              "isActive" : true,
+              "overridingTitle" : "SagaSwimRenderer",
+              "overridingTitleInlineContent" : [
+                {
+                  "text" : "SagaSwimRenderer",
+                  "type" : "text"
+                }
+              ],
+              "type" : "reference"
+            },
+            {
+              "text" : " library, whereas ",
+              "type" : "text"
+            },
+            {
+              "code" : "renderArticle",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", ",
+              "type" : "text"
+            },
+            {
+              "code" : "renderArticles",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", ",
+              "type" : "text"
+            },
+            {
+              "code" : "renderTag",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " and the rest are locally defined in your project. They are the actual HTML templates, using a strongly typed DSL.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "content" : [
+            {
+              "inlineContent" : [
+                {
+                  "text" : "If you prefer to work with Mustache-type HTML template files, check out ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : ".",
+                  "type" : "text"
+                }
+              ],
+              "type" : "paragraph"
+            }
+          ],
+          "style" : "tip",
+          "type" : "aside"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "The four different writers are all used for different purposes:",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "items" : [
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "code" : "itemWriter",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " writes a single item to a single file. For example ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "content\/articles\/my-article.md",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " will be written to ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "deploy\/articles\/my-article.html",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : ", or ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "content\/index.md",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " to ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "deploy\/index.html",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : ".",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            },
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "code" : "listWriter",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " writes an array of items to multiple files. For example to create an ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "deploy\/articles\/index.html",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " page that lists all your articles in a paginated manner.",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            },
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "code" : "tagWriter",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " writes an array of items to multiple files, based on a tag. If you tag your articles you can use this to render tag pages like ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "deploy\/articles\/iOS\/index.html",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : ".",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            },
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "code" : "yearWriter",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " is similar to ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "tagWriter",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " but uses the publication date of the item. You can use this to create year-based archives of your articles, for example ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "deploy\/articles\/2022\/index.html",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : ".",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            }
+          ],
+          "type" : "unorderedList"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "For more information, please check out ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ".",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "anchor" : "Extending-Saga",
+          "level" : 2,
+          "text" : "Extending Saga",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "It’s very easy to add your own step to Saga where you can access the items and run your own code:",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "extension Saga {",
+            "  @discardableResult",
+            "  func createArticleImages() -> Self {",
+            "    let articles = fileStorage.compactMap { $0.item as? Item<ArticleMetadata> }",
+            "",
+            "    for article in articles {",
+            "      let destination = (self.outputPath + article.relativeDestination.parent()).string + \".png\"",
+            "      \/\/ generate an image and write it to `destination`",
+            "    }",
+            "",
+            "    return self",
+            "  }",
+            "}",
+            "",
+            "try await Saga(input: \"content\", output: \"deploy\")",
+            " \/\/ ...register and run steps...",
+            " .createArticleImages()"
+          ],
+          "syntax" : "swift",
+          "type" : "codeListing"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "But probably more common and useful is to use the ",
+              "type" : "text"
+            },
+            {
+              "code" : "itemProcessor",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " parameter of the readers:",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "func addExclamationToTitle(item: Item<EmptyMetadata>) async {",
+            "  \/\/ Do whatever you want with the Item - you can even use async functions and await them!",
+            "  item.title.append(\"!\")",
+            "}",
+            "",
+            "@main",
+            "struct Run {",
+            "  static func main() async throws {",
+            "    try await Saga(input: \"content\", output: \"deploy\")",
+            "      .register(",
+            "        metadata: EmptyMetadata.self,",
+            "        readers: [.parsleyMarkdownReader(itemProcessor: addExclamationToTitle)],",
+            "        writers: [.itemWriter(swim(renderItem))]",
+            "      )",
+            "  }",
+            "}"
+          ],
+          "syntax" : "swift",
+          "type" : "codeListing"
+        },
+        {
+          "content" : [
+            {
+              "inlineContent" : [
+                {
+                  "text" : "You can check the ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/loopwerk\/loopwerk.io",
+                  "isActive" : true,
+                  "overridingTitle" : "source of loopwerk.io",
+                  "overridingTitleInlineContent" : [
+                    {
+                      "text" : "source of loopwerk.io",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "reference"
+                },
+                {
+                  "text" : ", which uses a custom item processors and a custom processing step, for more inspiration.",
+                  "type" : "text"
+                }
+              ],
+              "type" : "paragraph"
+            }
+          ],
+          "style" : "tip",
+          "type" : "aside"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "It’s also easy to add your own readers and renderers; search for ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/topics\/saga-plugin",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " on Github. For example, ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/SagaInkMarkdownReader",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " adds an ",
+              "type" : "text"
+            },
+            {
+              "code" : ".inkMarkdownReader",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " that uses Ink and Splash.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "anchor" : "Development-server",
+          "level" : 2,
+          "text" : "Development server",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "swift run watch [input-folders, separated by a space] [output-folder]"
+          ],
+          "syntax" : null,
+          "type" : "codeListing"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Use the same relative input- and output folders as you gave to Saga. Example: ",
+              "type" : "text"
+            },
+            {
+              "code" : "swift run watch content Sources deploy",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " to rebuild whenever you change your content or your Swift code.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "This functionality does depend on a globally installed ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/browsersync.io",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ", and only works on macOS, not Linux.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "code" : [
+            "npm install -g browser-sync"
+          ],
+          "syntax" : null,
+          "type" : "codeListing"
+        }
+      ],
+      "kind" : "content"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "seeAlsoSections" : [
+    {
+      "generated" : true,
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/Installation",
+        "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+        "doc:\/\/Saga\/documentation\/Saga\/Reader",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer"
+      ],
+      "title" : "Essentials"
+    }
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/gettingstarted"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/Architecture": {
+  "abstract" : [
+    {
+      "text" : "An overview of how Saga works.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Architecture",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/architecture"
+},
+"doc://Saga/documentation/Saga/Installation": {
+  "abstract" : [
+    {
+      "text" : "How to set up your project with the right dependencies.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Installation",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Installation",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/installation"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+},
+"doc://Saga/documentation/Saga/Reader": {
+  "abstract" : [
+    {
+      "text" : "Readers are responsible for turning text files into ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " instances.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Reader",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Reader",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/reader"
+},
+"doc://Saga/documentation/Saga/Writer": {
+  "abstract" : [
+    {
+      "text" : "Writers turn an ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " into a ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " using a “renderer”, and write the resulting ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to a file on disk.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Writer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer"
+},
+"https://browsersync.io": {
+  "identifier" : "https:\/\/browsersync.io",
+  "title" : "browser-sync",
+  "titleInlineContent" : [
+    {
+      "text" : "browser-sync",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/browsersync.io"
+},
+"https://github.com/loopwerk/Saga/blob/main/Example": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example",
+  "title" : "Example project",
+  "titleInlineContent" : [
+    {
+      "text" : "Example project",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example"
+},
+"https://github.com/loopwerk/SagaInkMarkdownReader": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaInkMarkdownReader",
+  "title" : "SagaInkMarkdownReader",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaInkMarkdownReader",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaInkMarkdownReader"
+},
+"https://github.com/loopwerk/SagaStencilRenderer": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer",
+  "title" : "SagaStencilRenderer",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaStencilRenderer",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer"
+},
+"https://github.com/loopwerk/SagaSwimRenderer": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+  "title" : "SagaSwimRenderer",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaSwimRenderer",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer"
+},
+"https://github.com/loopwerk/loopwerk.io": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/loopwerk.io",
+  "title" : "source of loopwerk.io",
+  "titleInlineContent" : [
+    {
+      "text" : "source of loopwerk.io",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/loopwerk.io"
+},
+"https://github.com/robb/Swim": {
+  "identifier" : "https:\/\/github.com\/robb\/Swim",
+  "title" : "Swim",
+  "titleInlineContent" : [
+    {
+      "text" : "Swim",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/robb\/Swim"
+},
+"https://github.com/topics/saga-plugin": {
+  "identifier" : "https:\/\/github.com\/topics\/saga-plugin",
+  "title" : "saga-plugin",
+  "titleInlineContent" : [
+    {
+      "text" : "saga-plugin",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/topics\/saga-plugin"
+}
+}
+}

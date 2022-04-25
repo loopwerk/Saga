@@ -1,1 +1,202 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"lastModified"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Date","preciseIdentifier":"s:10Foundation4DateV"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/item\/lastmodified"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/Item\/lastModified","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"The last modified date of the item."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"lastModified"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Date","preciseIdentifier":"s:10Foundation4DateV"}],"title":"lastModified","roleHeading":"Instance Property","role":"symbol","symbolKind":"property","externalID":"s:4Saga4ItemC12lastModified10Foundation4DateVvp","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga","doc:\/\/Saga\/documentation\/Saga\/Item"]]},"references":{"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/Item/lastModified":{"role":"symbol","title":"lastModified","fragments":[{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"lastModified"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Date","preciseIdentifier":"s:10Foundation4DateV"}],"abstract":[{"type":"text","text":"The last modified date of the item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item\/lastModified","kind":"symbol","type":"topic","url":"\/documentation\/saga\/item\/lastmodified"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"}}}
+{
+  "abstract" : [
+    {
+      "text" : "The last modified date of the item.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga",
+        "doc:\/\/Saga\/documentation\/Saga\/Item"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/lastModified"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga4ItemC12lastModified10Foundation4DateVvp",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "var"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "lastModified"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:10Foundation4DateV",
+        "text" : "Date"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Instance Property",
+    "symbolKind" : "property",
+    "title" : "lastModified"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "var"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "lastModified"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:10Foundation4DateV",
+              "text" : "Date"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/item\/lastmodified"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+},
+"doc://Saga/documentation/Saga/Item/lastModified": {
+  "abstract" : [
+    {
+      "text" : "The last modified date of the item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "lastModified"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:10Foundation4DateV",
+      "text" : "Date"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/lastModified",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "lastModified",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item\/lastmodified"
+}
+}
+}

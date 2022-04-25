@@ -1,1 +1,500 @@
-{"primaryContentSections":[{"kind":"content","content":[{"anchor":"Overview","level":2,"type":"heading","text":"Overview"},{"type":"paragraph","inlineContent":[{"type":"text","text":"Saga does its work in multiple stages."}]},{"type":"orderedList","items":[{"content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"First, it finds all the files within the "},{"type":"codeVoice","code":"input"},{"type":"text","text":" folder"}]}]},{"content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"Then, for every registered step, it passes those files to a matching "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Reader"},{"type":"text","text":". These readers turn text files (such as Markdown or RestructuredText files) into "},{"type":"codeVoice","code":"Item"},{"type":"text","text":" instances."}]}]},{"content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"Finally Saga runs all the registered steps again, now executing the "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer"},{"type":"text","text":"s. These writers turn a rendering context (which holds the "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" among other things) into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":" using a “renderer”, which it’ll then write to disk, to the "},{"type":"codeVoice","code":"output"},{"type":"text","text":" folder."}]}]}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Saga does not come with any readers or renderers out of the box. The official recommendation is to use "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaParsleyMarkdownReader"},{"type":"text","text":" for reading Markdown files using "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/Parsley"},{"type":"text","text":", and "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer"},{"type":"text","text":" to render them using "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/robb\/Swim"},{"type":"text","text":", which offers a great HTML DSL using Swift’s function builders."}]},{"type":"paragraph","inlineContent":[{"type":"text","text":"Please check the "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Installation"},{"type":"text","text":" instructions, or check out the "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example"},{"type":"text","text":" to get an idea of how Saga works with Parsley and Swim."}]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/architecture"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/Architecture","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"An overview of how Saga works."}],"kind":"article","metadata":{"roleHeading":"Article","title":"Architecture","role":"article","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga"]]},"seeAlsoSections":[{"title":"Essentials","identifiers":["doc:\/\/Saga\/documentation\/Saga\/Installation","doc:\/\/Saga\/documentation\/Saga\/GettingStarted","doc:\/\/Saga\/documentation\/Saga\/Reader","doc:\/\/Saga\/documentation\/Saga\/Writer"],"generated":true}],"references":{"doc://Saga/documentation/Saga/Reader":{"role":"symbol","title":"Reader","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Reader"}],"abstract":[{"type":"text","text":"Readers are responsible for turning text files into "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" instances."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Reader","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Reader"}],"url":"\/documentation\/saga\/reader"},"https://github.com/loopwerk/Parsley":{"title":"Parsley","titleInlineContent":[{"type":"text","text":"Parsley"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/Parsley","url":"https:\/\/github.com\/loopwerk\/Parsley"},"doc://Saga/documentation/Saga/GettingStarted":{"role":"article","title":"Getting Started with Saga","abstract":[{"type":"text","text":"An overview of how to configure Saga to render your pages and articles."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/GettingStarted","kind":"article","type":"topic","url":"\/documentation\/saga\/gettingstarted"},"doc://Saga/documentation/Saga/Installation":{"role":"article","title":"Installation","abstract":[{"type":"text","text":"How to set up your project with the right dependencies."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Installation","kind":"article","type":"topic","url":"\/documentation\/saga\/installation"},"https://github.com/loopwerk/SagaSwimRenderer":{"title":"SagaSwimRenderer","titleInlineContent":[{"type":"text","text":"SagaSwimRenderer"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer","url":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/Writer":{"role":"symbol","title":"Writer","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Writer"}],"abstract":[{"type":"text","text":"Writers turn an "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":" using a “renderer”, and write the resulting "},{"type":"codeVoice","code":"String"},{"type":"text","text":" to a file on disk."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Writer"}],"url":"\/documentation\/saga\/writer"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"},"https://github.com/loopwerk/Saga/blob/main/Example":{"title":"Example project","titleInlineContent":[{"type":"text","text":"Example project"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example","url":"https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example"},"https://github.com/loopwerk/SagaParsleyMarkdownReader":{"title":"SagaParsleyMarkdownReader","titleInlineContent":[{"type":"text","text":"SagaParsleyMarkdownReader"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaParsleyMarkdownReader","url":"https:\/\/github.com\/loopwerk\/SagaParsleyMarkdownReader"},"https://github.com/robb/Swim":{"title":"Swim","titleInlineContent":[{"type":"text","text":"Swim"}],"type":"link","identifier":"https:\/\/github.com\/robb\/Swim","url":"https:\/\/github.com\/robb\/Swim"}}}
+{
+  "abstract" : [
+    {
+      "text" : "An overview of how Saga works.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Architecture"
+  },
+  "kind" : "article",
+  "metadata" : {
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "article",
+    "roleHeading" : "Article",
+    "title" : "Architecture"
+  },
+  "primaryContentSections" : [
+    {
+      "content" : [
+        {
+          "anchor" : "Overview",
+          "level" : 2,
+          "text" : "Overview",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Saga does its work in multiple stages.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "items" : [
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "text" : "First, it finds all the files within the ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "input",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " folder",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            },
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "text" : "Then, for every registered step, it passes those files to a matching ",
+                      "type" : "text"
+                    },
+                    {
+                      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Reader",
+                      "isActive" : true,
+                      "type" : "reference"
+                    },
+                    {
+                      "text" : ". These readers turn text files (such as Markdown or RestructuredText files) into ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "Item",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " instances.",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            },
+            {
+              "content" : [
+                {
+                  "inlineContent" : [
+                    {
+                      "text" : "Finally Saga runs all the registered steps again, now executing the ",
+                      "type" : "text"
+                    },
+                    {
+                      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer",
+                      "isActive" : true,
+                      "type" : "reference"
+                    },
+                    {
+                      "text" : "s. These writers turn a rendering context (which holds the ",
+                      "type" : "text"
+                    },
+                    {
+                      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+                      "isActive" : true,
+                      "type" : "reference"
+                    },
+                    {
+                      "text" : " among other things) into a ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "String",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " using a “renderer”, which it’ll then write to disk, to the ",
+                      "type" : "text"
+                    },
+                    {
+                      "code" : "output",
+                      "type" : "codeVoice"
+                    },
+                    {
+                      "text" : " folder.",
+                      "type" : "text"
+                    }
+                  ],
+                  "type" : "paragraph"
+                }
+              ]
+            }
+          ],
+          "type" : "orderedList"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Saga does not come with any readers or renderers out of the box. The official recommendation is to use ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/SagaParsleyMarkdownReader",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " for reading Markdown files using ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/Parsley",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ", and ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " to render them using ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/robb\/Swim",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : ", which offers a great HTML DSL using Swift’s function builders.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "Please check the ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Installation",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " instructions, or check out the ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " to get an idea of how Saga works with Parsley and Swim.",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        }
+      ],
+      "kind" : "content"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "seeAlsoSections" : [
+    {
+      "generated" : true,
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/Installation",
+        "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
+        "doc:\/\/Saga\/documentation\/Saga\/Reader",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer"
+      ],
+      "title" : "Essentials"
+    }
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/architecture"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/GettingStarted": {
+  "abstract" : [
+    {
+      "text" : "An overview of how to configure Saga to render your pages and articles.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Getting Started with Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/gettingstarted"
+},
+"doc://Saga/documentation/Saga/Installation": {
+  "abstract" : [
+    {
+      "text" : "How to set up your project with the right dependencies.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Installation",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Installation",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/installation"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+},
+"doc://Saga/documentation/Saga/Reader": {
+  "abstract" : [
+    {
+      "text" : "Readers are responsible for turning text files into ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " instances.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Reader",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Reader",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/reader"
+},
+"doc://Saga/documentation/Saga/Writer": {
+  "abstract" : [
+    {
+      "text" : "Writers turn an ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " into a ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " using a “renderer”, and write the resulting ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to a file on disk.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Writer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer"
+},
+"https://github.com/loopwerk/Parsley": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/Parsley",
+  "title" : "Parsley",
+  "titleInlineContent" : [
+    {
+      "text" : "Parsley",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/Parsley"
+},
+"https://github.com/loopwerk/Saga/blob/main/Example": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example",
+  "title" : "Example project",
+  "titleInlineContent" : [
+    {
+      "text" : "Example project",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/Saga\/blob\/main\/Example"
+},
+"https://github.com/loopwerk/SagaParsleyMarkdownReader": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaParsleyMarkdownReader",
+  "title" : "SagaParsleyMarkdownReader",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaParsleyMarkdownReader",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaParsleyMarkdownReader"
+},
+"https://github.com/loopwerk/SagaSwimRenderer": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+  "title" : "SagaSwimRenderer",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaSwimRenderer",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer"
+},
+"https://github.com/robb/Swim": {
+  "identifier" : "https:\/\/github.com\/robb\/Swim",
+  "title" : "Swim",
+  "titleInlineContent" : [
+    {
+      "text" : "Swim",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/robb\/Swim"
+}
+}
+}

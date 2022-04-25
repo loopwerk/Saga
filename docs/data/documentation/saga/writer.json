@@ -1,1 +1,1716 @@
-{"seeAlsoSections":[{"title":"Essentials","identifiers":["doc:\/\/Saga\/documentation\/Saga\/Installation","doc:\/\/Saga\/documentation\/Saga\/GettingStarted","doc:\/\/Saga\/documentation\/Saga\/Architecture","doc:\/\/Saga\/documentation\/Saga\/Reader"],"generated":true}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Writer"},{"kind":"text","text":"<"},{"kind":"genericParameter","text":"M"},{"kind":"text","text":", "},{"kind":"genericParameter","text":"SiteMetadata"},{"kind":"text","text":"> "},{"kind":"keyword","text":"where"},{"kind":"text","text":" "},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":" : "},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","preciseIdentifier":"s:4Saga8MetadataP","text":"Metadata"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":" : "},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","preciseIdentifier":"s:4Saga8MetadataP","text":"Metadata"}],"languages":["swift"],"platforms":["macOS"]}]},{"kind":"content","content":[{"anchor":"overview","level":2,"type":"heading","text":"Overview"},{"type":"paragraph","inlineContent":[{"type":"text","text":"To turn an "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":", a "},{"type":"codeVoice","code":"Writer"},{"type":"text","text":" uses a “renderer”; a function that knows how to turn a rendering context such as "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":"."}]},{"type":"aside","style":"note","content":[{"type":"paragraph","inlineContent":[{"type":"text","text":"Saga does not come bundled with any renderers out of the box, instead you should install one such as "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer"},{"type":"text","text":" or "},{"type":"reference","isActive":true,"identifier":"https:\/\/github.com\/loopwerk\/SagaStencilRenderer"},{"type":"text","text":"."}]}]}]}],"variants":[{"paths":["\/documentation\/saga\/writer"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/Writer","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"Writers turn an "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":" using a “renderer”, and write the resulting "},{"type":"codeVoice","code":"String"},{"type":"text","text":" to a file on disk."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Writer"}],"title":"Writer","roleHeading":"Structure","role":"symbol","symbolKind":"struct","externalID":"s:4Saga6WriterV","modules":[{"name":"Saga"}],"navigatorTitle":[{"kind":"identifier","text":"Writer"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga"]]},"topicSections":[{"title":"Type Methods","identifiers":["doc:\/\/Saga\/documentation\/Saga\/Writer\/itemWriter(_:)","doc:\/\/Saga\/documentation\/Saga\/Writer\/listWriter(_:output:paginate:paginatedOutput:)","doc:\/\/Saga\/documentation\/Saga\/Writer\/partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)","doc:\/\/Saga\/documentation\/Saga\/Writer\/tagWriter(_:output:paginate:paginatedOutput:tags:)","doc:\/\/Saga\/documentation\/Saga\/Writer\/yearWriter(_:output:paginate:paginatedOutput:)"]}],"references":{"doc://Saga/documentation/Saga/Writer/itemWriter(_:)":{"conformance":{"constraints":[{"type":"codeVoice","code":"M"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":" and "},{"type":"codeVoice","code":"SiteMetadata"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":"."}],"availabilityPrefix":[{"type":"text","text":"Available when"}],"conformancePrefix":[{"type":"text","text":"Conforms when"}]},"role":"symbol","title":"itemWriter(_:)","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"func"},{"kind":"text","text":" "},{"kind":"identifier","text":"itemWriter"},{"kind":"text","text":"(("},{"kind":"typeIdentifier","text":"ItemRenderingContext","preciseIdentifier":"s:4Saga20ItemRenderingContextV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">) "},{"kind":"keyword","text":"throws"},{"kind":"text","text":" -> "},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":") -> "},{"kind":"typeIdentifier","text":"Writer","preciseIdentifier":"s:4Saga6WriterV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">"}],"abstract":[{"type":"text","text":"Writes a single "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" to a single output file, using "},{"type":"codeVoice","code":"Item.destination"},{"type":"text","text":" as the destination path."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer\/itemWriter(_:)","kind":"symbol","type":"topic","url":"\/documentation\/saga\/writer\/itemwriter(_:)"},"doc://Saga/documentation/Saga/ItemRenderingContext":{"role":"symbol","title":"ItemRenderingContext","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"ItemRenderingContext"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"ItemRenderingContext"}],"url":"\/documentation\/saga\/itemrenderingcontext"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"},"doc://Saga/documentation/Saga/Writer":{"role":"symbol","title":"Writer","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Writer"}],"abstract":[{"type":"text","text":"Writers turn an "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" into a "},{"type":"codeVoice","code":"String"},{"type":"text","text":" using a “renderer”, and write the resulting "},{"type":"codeVoice","code":"String"},{"type":"text","text":" to a file on disk."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Writer"}],"url":"\/documentation\/saga\/writer"},"doc://Saga/documentation/Saga/Installation":{"role":"article","title":"Installation","abstract":[{"type":"text","text":"How to set up your project with the right dependencies."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Installation","kind":"article","type":"topic","url":"\/documentation\/saga\/installation"},"doc://Saga/documentation/Saga/Architecture":{"role":"article","title":"Architecture","abstract":[{"type":"text","text":"An overview of how Saga works."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Architecture","kind":"article","type":"topic","url":"\/documentation\/saga\/architecture"},"doc://Saga/documentation/Saga/Metadata":{"role":"symbol","title":"Metadata","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"Metadata"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Metadata"}],"url":"\/documentation\/saga\/metadata"},"doc://Saga/documentation/Saga/Writer/partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)":{"conformance":{"constraints":[{"type":"codeVoice","code":"M"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":" and "},{"type":"codeVoice","code":"SiteMetadata"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":"."}],"availabilityPrefix":[{"type":"text","text":"Available when"}],"conformancePrefix":[{"type":"text","text":"Conforms when"}]},"role":"symbol","title":"partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"func"},{"kind":"text","text":" "},{"kind":"identifier","text":"partitionedWriter"},{"kind":"text","text":"<"},{"kind":"genericParameter","text":"T"},{"kind":"text","text":">(("},{"kind":"typeIdentifier","text":"PartitionedRenderingContext","preciseIdentifier":"s:4Saga27PartitionedRenderingContextV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"T"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">) "},{"kind":"keyword","text":"throws"},{"kind":"text","text":" -> "},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":", "},{"kind":"externalParam","text":"output"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":", "},{"kind":"externalParam","text":"paginate"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Int","preciseIdentifier":"s:Si"},{"kind":"text","text":"?, "},{"kind":"externalParam","text":"paginatedOutput"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":", "},{"kind":"externalParam","text":"partitioner"},{"kind":"text","text":": (["},{"kind":"typeIdentifier","text":"Item","preciseIdentifier":"s:4Saga4ItemC"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":">]) -> ["},{"kind":"typeIdentifier","text":"T"},{"kind":"text","text":" : ["},{"kind":"typeIdentifier","text":"Item","preciseIdentifier":"s:4Saga4ItemC"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":">]]) -> "},{"kind":"typeIdentifier","text":"Writer","preciseIdentifier":"s:4Saga6WriterV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">"}],"abstract":[{"type":"text","text":"Writes an array of items into multiple output files."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer\/partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)","kind":"symbol","type":"topic","url":"\/documentation\/saga\/writer\/partitionedwriter(_:output:paginate:paginatedoutput:partitioner:)"},"https://github.com/loopwerk/SagaSwimRenderer":{"title":"SagaSwimRenderer","titleInlineContent":[{"type":"text","text":"SagaSwimRenderer"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer","url":"https:\/\/github.com\/loopwerk\/SagaSwimRenderer"},"doc://Saga/documentation/Saga/Writer/listWriter(_:output:paginate:paginatedOutput:)":{"conformance":{"constraints":[{"type":"codeVoice","code":"M"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":" and "},{"type":"codeVoice","code":"SiteMetadata"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":"."}],"availabilityPrefix":[{"type":"text","text":"Available when"}],"conformancePrefix":[{"type":"text","text":"Conforms when"}]},"role":"symbol","title":"listWriter(_:output:paginate:paginatedOutput:)","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"func"},{"kind":"text","text":" "},{"kind":"identifier","text":"listWriter"},{"kind":"text","text":"(("},{"kind":"typeIdentifier","text":"ItemsRenderingContext","preciseIdentifier":"s:4Saga21ItemsRenderingContextV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">) "},{"kind":"keyword","text":"throws"},{"kind":"text","text":" -> "},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":", "},{"kind":"externalParam","text":"output"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":", "},{"kind":"externalParam","text":"paginate"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Int","preciseIdentifier":"s:Si"},{"kind":"text","text":"?, "},{"kind":"externalParam","text":"paginatedOutput"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":") -> "},{"kind":"typeIdentifier","text":"Writer","preciseIdentifier":"s:4Saga6WriterV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">"}],"abstract":[{"type":"text","text":"Writes an array of items into a single output file."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer\/listWriter(_:output:paginate:paginatedOutput:)","kind":"symbol","type":"topic","url":"\/documentation\/saga\/writer\/listwriter(_:output:paginate:paginatedoutput:)"},"doc://Saga/documentation/Saga/Reader":{"role":"symbol","title":"Reader","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Reader"}],"abstract":[{"type":"text","text":"Readers are responsible for turning text files into "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":" instances."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Reader","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Reader"}],"url":"\/documentation\/saga\/reader"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/GettingStarted":{"role":"article","title":"Getting Started with Saga","abstract":[{"type":"text","text":"An overview of how to configure Saga to render your pages and articles."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/GettingStarted","kind":"article","type":"topic","url":"\/documentation\/saga\/gettingstarted"},"doc://Saga/documentation/Saga/Writer/tagWriter(_:output:paginate:paginatedOutput:tags:)":{"conformance":{"constraints":[{"type":"codeVoice","code":"M"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":" and "},{"type":"codeVoice","code":"SiteMetadata"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":"."}],"availabilityPrefix":[{"type":"text","text":"Available when"}],"conformancePrefix":[{"type":"text","text":"Conforms when"}]},"role":"symbol","title":"tagWriter(_:output:paginate:paginatedOutput:tags:)","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"func"},{"kind":"text","text":" "},{"kind":"identifier","text":"tagWriter"},{"kind":"text","text":"(("},{"kind":"typeIdentifier","text":"PartitionedRenderingContext","preciseIdentifier":"s:4Saga27PartitionedRenderingContextV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">) "},{"kind":"keyword","text":"throws"},{"kind":"text","text":" -> "},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":", "},{"kind":"externalParam","text":"output"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":", "},{"kind":"externalParam","text":"paginate"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Int","preciseIdentifier":"s:Si"},{"kind":"text","text":"?, "},{"kind":"externalParam","text":"paginatedOutput"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":", "},{"kind":"externalParam","text":"tags"},{"kind":"text","text":": ("},{"kind":"typeIdentifier","text":"Item","preciseIdentifier":"s:4Saga4ItemC"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":">) -> ["},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":"]) -> "},{"kind":"typeIdentifier","text":"Writer","preciseIdentifier":"s:4Saga6WriterV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">"}],"abstract":[{"type":"text","text":"A convenience version of "},{"type":"codeVoice","code":"partitionedWriter"},{"type":"text","text":" that splits items based on tags."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer\/tagWriter(_:output:paginate:paginatedOutput:tags:)","kind":"symbol","type":"topic","url":"\/documentation\/saga\/writer\/tagwriter(_:output:paginate:paginatedoutput:tags:)"},"https://github.com/loopwerk/SagaStencilRenderer":{"title":"SagaStencilRenderer","titleInlineContent":[{"type":"text","text":"SagaStencilRenderer"}],"type":"link","identifier":"https:\/\/github.com\/loopwerk\/SagaStencilRenderer","url":"https:\/\/github.com\/loopwerk\/SagaStencilRenderer"},"doc://Saga/documentation/Saga/Writer/yearWriter(_:output:paginate:paginatedOutput:)":{"conformance":{"constraints":[{"type":"codeVoice","code":"M"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":" and "},{"type":"codeVoice","code":"SiteMetadata"},{"type":"text","text":" conforms to "},{"type":"codeVoice","code":"Metadata"},{"type":"text","text":"."}],"availabilityPrefix":[{"type":"text","text":"Available when"}],"conformancePrefix":[{"type":"text","text":"Conforms when"}]},"role":"symbol","title":"yearWriter(_:output:paginate:paginatedOutput:)","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"func"},{"kind":"text","text":" "},{"kind":"identifier","text":"yearWriter"},{"kind":"text","text":"(("},{"kind":"typeIdentifier","text":"PartitionedRenderingContext","preciseIdentifier":"s:4Saga27PartitionedRenderingContextV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"Int","preciseIdentifier":"s:Si"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">) "},{"kind":"keyword","text":"throws"},{"kind":"text","text":" -> "},{"kind":"typeIdentifier","text":"String","preciseIdentifier":"s:SS"},{"kind":"text","text":", "},{"kind":"externalParam","text":"output"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":", "},{"kind":"externalParam","text":"paginate"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Int","preciseIdentifier":"s:Si"},{"kind":"text","text":"?, "},{"kind":"externalParam","text":"paginatedOutput"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":") -> "},{"kind":"typeIdentifier","text":"Writer","preciseIdentifier":"s:4Saga6WriterV"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":">"}],"abstract":[{"type":"text","text":"A convenience version of "},{"type":"codeVoice","code":"partitionedWriter"},{"type":"text","text":" that splits items based on year."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Writer\/yearWriter(_:output:paginate:paginatedOutput:)","kind":"symbol","type":"topic","url":"\/documentation\/saga\/writer\/yearwriter(_:output:paginate:paginatedoutput:)"}}}
+{
+  "abstract" : [
+    {
+      "text" : "Writers turn an ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " into a ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " using a “renderer”, and write the resulting ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to a file on disk.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Writer"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga6WriterV",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "struct"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "Writer"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "navigatorTitle" : [
+      {
+        "kind" : "identifier",
+        "text" : "Writer"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Structure",
+    "symbolKind" : "struct",
+    "title" : "Writer"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "struct"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "Writer"
+            },
+            {
+              "kind" : "text",
+              "text" : "<"
+            },
+            {
+              "kind" : "genericParameter",
+              "text" : "M"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "genericParameter",
+              "text" : "SiteMetadata"
+            },
+            {
+              "kind" : "text",
+              "text" : "> "
+            },
+            {
+              "kind" : "keyword",
+              "text" : "where"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "text" : "M"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga8MetadataP",
+              "text" : "Metadata"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "text" : "SiteMetadata"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga8MetadataP",
+              "text" : "Metadata"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    },
+    {
+      "content" : [
+        {
+          "anchor" : "overview",
+          "level" : 2,
+          "text" : "Overview",
+          "type" : "heading"
+        },
+        {
+          "inlineContent" : [
+            {
+              "text" : "To turn an ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " into a ",
+              "type" : "text"
+            },
+            {
+              "code" : "String",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ", a ",
+              "type" : "text"
+            },
+            {
+              "code" : "Writer",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : " uses a “renderer”; a function that knows how to turn a rendering context such as ",
+              "type" : "text"
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext",
+              "isActive" : true,
+              "type" : "reference"
+            },
+            {
+              "text" : " into a ",
+              "type" : "text"
+            },
+            {
+              "code" : "String",
+              "type" : "codeVoice"
+            },
+            {
+              "text" : ".",
+              "type" : "text"
+            }
+          ],
+          "type" : "paragraph"
+        },
+        {
+          "content" : [
+            {
+              "inlineContent" : [
+                {
+                  "text" : "Saga does not come bundled with any renderers out of the box, instead you should install one such as ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : " or ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : ".",
+                  "type" : "text"
+                }
+              ],
+              "type" : "paragraph"
+            }
+          ],
+          "style" : "note",
+          "type" : "aside"
+        }
+      ],
+      "kind" : "content"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "seeAlsoSections" : [
+    {
+      "generated" : true,
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/Installation",
+        "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
+        "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+        "doc:\/\/Saga\/documentation\/Saga\/Reader"
+      ],
+      "title" : "Essentials"
+    }
+  ],
+  "topicSections" : [
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/Writer\/itemWriter(_:)",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer\/listWriter(_:output:paginate:paginatedOutput:)",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer\/partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer\/tagWriter(_:output:paginate:paginatedOutput:tags:)",
+        "doc:\/\/Saga\/documentation\/Saga\/Writer\/yearWriter(_:output:paginate:paginatedOutput:)"
+      ],
+      "title" : "Type Methods"
+    }
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/writer"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/Architecture": {
+  "abstract" : [
+    {
+      "text" : "An overview of how Saga works.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Architecture",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Architecture",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/architecture"
+},
+"doc://Saga/documentation/Saga/GettingStarted": {
+  "abstract" : [
+    {
+      "text" : "An overview of how to configure Saga to render your pages and articles.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Getting Started with Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/gettingstarted"
+},
+"doc://Saga/documentation/Saga/Installation": {
+  "abstract" : [
+    {
+      "text" : "How to set up your project with the right dependencies.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Installation",
+  "kind" : "article",
+  "role" : "article",
+  "title" : "Installation",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/installation"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+},
+"doc://Saga/documentation/Saga/ItemRenderingContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "ItemRenderingContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "ItemRenderingContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "ItemRenderingContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemrenderingcontext"
+},
+"doc://Saga/documentation/Saga/Metadata": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Metadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/metadata"
+},
+"doc://Saga/documentation/Saga/Reader": {
+  "abstract" : [
+    {
+      "text" : "Readers are responsible for turning text files into ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " instances.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Reader",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Reader"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Reader",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/reader"
+},
+"doc://Saga/documentation/Saga/Writer": {
+  "abstract" : [
+    {
+      "text" : "Writers turn an ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " into a ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " using a “renderer”, and write the resulting ",
+      "type" : "text"
+    },
+    {
+      "code" : "String",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to a file on disk.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Writer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Writer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer"
+},
+"doc://Saga/documentation/Saga/Writer/itemWriter(_:)": {
+  "abstract" : [
+    {
+      "text" : "Writes a single ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : " to a single output file, using ",
+      "type" : "text"
+    },
+    {
+      "code" : "Item.destination",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " as the destination path.",
+      "type" : "text"
+    }
+  ],
+  "conformance" : {
+    "availabilityPrefix" : [
+      {
+        "text" : "Available when",
+        "type" : "text"
+      }
+    ],
+    "conformancePrefix" : [
+      {
+        "text" : "Conforms when",
+        "type" : "text"
+      }
+    ],
+    "constraints" : [
+      {
+        "code" : "M",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " and ",
+        "type" : "text"
+      },
+      {
+        "code" : "SiteMetadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : ".",
+        "type" : "text"
+      }
+    ]
+  },
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "static"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "itemWriter"
+    },
+    {
+      "kind" : "text",
+      "text" : "(("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga20ItemRenderingContextV",
+      "text" : "ItemRenderingContext"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ") -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga6WriterV",
+      "text" : "Writer"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer\/itemWriter(_:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "itemWriter(_:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer\/itemwriter(_:)"
+},
+"doc://Saga/documentation/Saga/Writer/listWriter(_:output:paginate:paginatedOutput:)": {
+  "abstract" : [
+    {
+      "text" : "Writes an array of items into a single output file.",
+      "type" : "text"
+    }
+  ],
+  "conformance" : {
+    "availabilityPrefix" : [
+      {
+        "text" : "Available when",
+        "type" : "text"
+      }
+    ],
+    "conformancePrefix" : [
+      {
+        "text" : "Conforms when",
+        "type" : "text"
+      }
+    ],
+    "constraints" : [
+      {
+        "code" : "M",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " and ",
+        "type" : "text"
+      },
+      {
+        "code" : "SiteMetadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : ".",
+        "type" : "text"
+      }
+    ]
+  },
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "static"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "listWriter"
+    },
+    {
+      "kind" : "text",
+      "text" : "(("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga21ItemsRenderingContextV",
+      "text" : "ItemsRenderingContext"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "output"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginate"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:Si",
+      "text" : "Int"
+    },
+    {
+      "kind" : "text",
+      "text" : "?, "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginatedOutput"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ") -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga6WriterV",
+      "text" : "Writer"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer\/listWriter(_:output:paginate:paginatedOutput:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "listWriter(_:output:paginate:paginatedOutput:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer\/listwriter(_:output:paginate:paginatedoutput:)"
+},
+"doc://Saga/documentation/Saga/Writer/partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)": {
+  "abstract" : [
+    {
+      "text" : "Writes an array of items into multiple output files.",
+      "type" : "text"
+    }
+  ],
+  "conformance" : {
+    "availabilityPrefix" : [
+      {
+        "text" : "Available when",
+        "type" : "text"
+      }
+    ],
+    "conformancePrefix" : [
+      {
+        "text" : "Conforms when",
+        "type" : "text"
+      }
+    ],
+    "constraints" : [
+      {
+        "code" : "M",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " and ",
+        "type" : "text"
+      },
+      {
+        "code" : "SiteMetadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : ".",
+        "type" : "text"
+      }
+    ]
+  },
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "static"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "partitionedWriter"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "genericParameter",
+      "text" : "T"
+    },
+    {
+      "kind" : "text",
+      "text" : ">(("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga27PartitionedRenderingContextV",
+      "text" : "PartitionedRenderingContext"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "T"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "output"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginate"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:Si",
+      "text" : "Int"
+    },
+    {
+      "kind" : "text",
+      "text" : "?, "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginatedOutput"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "partitioner"
+    },
+    {
+      "kind" : "text",
+      "text" : ": (["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">]) -> ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "T"
+    },
+    {
+      "kind" : "text",
+      "text" : " : ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">]]) -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga6WriterV",
+      "text" : "Writer"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer\/partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "partitionedWriter(_:output:paginate:paginatedOutput:partitioner:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer\/partitionedwriter(_:output:paginate:paginatedoutput:partitioner:)"
+},
+"doc://Saga/documentation/Saga/Writer/tagWriter(_:output:paginate:paginatedOutput:tags:)": {
+  "abstract" : [
+    {
+      "text" : "A convenience version of ",
+      "type" : "text"
+    },
+    {
+      "code" : "partitionedWriter",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " that splits items based on tags.",
+      "type" : "text"
+    }
+  ],
+  "conformance" : {
+    "availabilityPrefix" : [
+      {
+        "text" : "Available when",
+        "type" : "text"
+      }
+    ],
+    "conformancePrefix" : [
+      {
+        "text" : "Conforms when",
+        "type" : "text"
+      }
+    ],
+    "constraints" : [
+      {
+        "code" : "M",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " and ",
+        "type" : "text"
+      },
+      {
+        "code" : "SiteMetadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : ".",
+        "type" : "text"
+      }
+    ]
+  },
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "static"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "tagWriter"
+    },
+    {
+      "kind" : "text",
+      "text" : "(("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga27PartitionedRenderingContextV",
+      "text" : "PartitionedRenderingContext"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "output"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginate"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:Si",
+      "text" : "Int"
+    },
+    {
+      "kind" : "text",
+      "text" : "?, "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginatedOutput"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "tags"
+    },
+    {
+      "kind" : "text",
+      "text" : ": ("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) -> ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : "]) -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga6WriterV",
+      "text" : "Writer"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer\/tagWriter(_:output:paginate:paginatedOutput:tags:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "tagWriter(_:output:paginate:paginatedOutput:tags:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer\/tagwriter(_:output:paginate:paginatedoutput:tags:)"
+},
+"doc://Saga/documentation/Saga/Writer/yearWriter(_:output:paginate:paginatedOutput:)": {
+  "abstract" : [
+    {
+      "text" : "A convenience version of ",
+      "type" : "text"
+    },
+    {
+      "code" : "partitionedWriter",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " that splits items based on year.",
+      "type" : "text"
+    }
+  ],
+  "conformance" : {
+    "availabilityPrefix" : [
+      {
+        "text" : "Available when",
+        "type" : "text"
+      }
+    ],
+    "conformancePrefix" : [
+      {
+        "text" : "Conforms when",
+        "type" : "text"
+      }
+    ],
+    "constraints" : [
+      {
+        "code" : "M",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " and ",
+        "type" : "text"
+      },
+      {
+        "code" : "SiteMetadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : " conforms to ",
+        "type" : "text"
+      },
+      {
+        "code" : "Metadata",
+        "type" : "codeVoice"
+      },
+      {
+        "text" : ".",
+        "type" : "text"
+      }
+    ]
+  },
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "static"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "yearWriter"
+    },
+    {
+      "kind" : "text",
+      "text" : "(("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga27PartitionedRenderingContextV",
+      "text" : "PartitionedRenderingContext"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:Si",
+      "text" : "Int"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "output"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginate"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:Si",
+      "text" : "Int"
+    },
+    {
+      "kind" : "text",
+      "text" : "?, "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "paginatedOutput"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ") -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga6WriterV",
+      "text" : "Writer"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ">"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Writer\/yearWriter(_:output:paginate:paginatedOutput:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "yearWriter(_:output:paginate:paginatedOutput:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/writer\/yearwriter(_:output:paginate:paginatedoutput:)"
+},
+"https://github.com/loopwerk/SagaStencilRenderer": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer",
+  "title" : "SagaStencilRenderer",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaStencilRenderer",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer"
+},
+"https://github.com/loopwerk/SagaSwimRenderer": {
+  "identifier" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer",
+  "title" : "SagaSwimRenderer",
+  "titleInlineContent" : [
+    {
+      "text" : "SagaSwimRenderer",
+      "type" : "text"
+    }
+  ],
+  "type" : "link",
+  "url" : "https:\/\/github.com\/loopwerk\/SagaSwimRenderer"
+}
+}
+}

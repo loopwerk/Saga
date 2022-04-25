@@ -1,1 +1,286 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"allItems"},{"kind":"text","text":": ["},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/AnyItem","preciseIdentifier":"s:4Saga7AnyItemP","text":"AnyItem"},{"kind":"text","text":"]"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/itemsrenderingcontext\/allitems"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"No overview available."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"allItems"},{"kind":"text","text":": ["},{"kind":"typeIdentifier","text":"AnyItem","preciseIdentifier":"s:4Saga7AnyItemP"},{"kind":"text","text":"]"}],"title":"allItems","roleHeading":"Instance Property","role":"symbol","symbolKind":"property","externalID":"s:4Saga21ItemsRenderingContextV03allB0SayAA7AnyItem_pGvp","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga","doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext"]]},"references":{"doc://Saga/documentation/Saga/ItemsRenderingContext":{"role":"symbol","title":"ItemsRenderingContext","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"ItemsRenderingContext"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"ItemsRenderingContext"}],"url":"\/documentation\/saga\/itemsrenderingcontext"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/ItemsRenderingContext/allItems":{"role":"symbol","title":"allItems","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"allItems"},{"kind":"text","text":": ["},{"kind":"typeIdentifier","text":"AnyItem","preciseIdentifier":"s:4Saga7AnyItemP"},{"kind":"text","text":"]"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems","kind":"symbol","type":"topic","url":"\/documentation\/saga\/itemsrenderingcontext\/allitems"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"},"doc://Saga/documentation/Saga/AnyItem":{"role":"symbol","title":"AnyItem","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"AnyItem"}],"abstract":[{"type":"text","text":"A type-erased version of "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":"."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/AnyItem","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"AnyItem"}],"url":"\/documentation\/saga\/anyitem"}}}
+{
+  "abstract" : [
+    {
+      "text" : "No overview available.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga",
+        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga21ItemsRenderingContextV03allB0SayAA7AnyItem_pGvp",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "let"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "allItems"
+      },
+      {
+        "kind" : "text",
+        "text" : ": ["
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:4Saga7AnyItemP",
+        "text" : "AnyItem"
+      },
+      {
+        "kind" : "text",
+        "text" : "]"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Instance Property",
+    "symbolKind" : "property",
+    "title" : "allItems"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "let"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "allItems"
+            },
+            {
+              "kind" : "text",
+              "text" : ": ["
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga7AnyItemP",
+              "text" : "AnyItem"
+            },
+            {
+              "kind" : "text",
+              "text" : "]"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/itemsrenderingcontext\/allitems"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/AnyItem": {
+  "abstract" : [
+    {
+      "text" : "A type-erased version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : ".",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "AnyItem",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+},
+"doc://Saga/documentation/Saga/ItemsRenderingContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "ItemsRenderingContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "ItemsRenderingContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "ItemsRenderingContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemsrenderingcontext"
+},
+"doc://Saga/documentation/Saga/ItemsRenderingContext/allItems": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "allItems"
+    },
+    {
+      "kind" : "text",
+      "text" : ": ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga7AnyItemP",
+      "text" : "AnyItem"
+    },
+    {
+      "kind" : "text",
+      "text" : "]"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "allItems",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemsrenderingcontext\/allitems"
+}
+}
+}

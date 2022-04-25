@@ -1,1 +1,207 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"path"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/filecontainer\/path"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/FileContainer\/path","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"No overview available."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"path"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"}],"title":"path","roleHeading":"Instance Property","role":"symbol","symbolKind":"property","externalID":"s:4Saga13FileContainerC4path7PathKit0E0Vvp","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga","doc:\/\/Saga\/documentation\/Saga\/FileContainer"]]},"references":{"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/FileContainer/path":{"role":"symbol","title":"path","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"path"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileContainer\/path","kind":"symbol","type":"topic","url":"\/documentation\/saga\/filecontainer\/path"},"doc://Saga/documentation/Saga/FileContainer":{"role":"symbol","title":"FileContainer","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"FileContainer"}],"abstract":[{"type":"text","text":"A wrapper around a "},{"type":"codeVoice","code":"Path"},{"type":"text","text":", used to keep track if got handled by one of the registered processing steps."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileContainer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"FileContainer"}],"url":"\/documentation\/saga\/filecontainer"}}}
+{
+  "abstract" : [
+    {
+      "text" : "No overview available.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga",
+        "doc:\/\/Saga\/documentation\/Saga\/FileContainer"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/path"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga13FileContainerC4path7PathKit0E0Vvp",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "let"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "path"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Instance Property",
+    "symbolKind" : "property",
+    "title" : "path"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "let"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "path"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/filecontainer\/path"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/FileContainer": {
+  "abstract" : [
+    {
+      "text" : "A wrapper around a ",
+      "type" : "text"
+    },
+    {
+      "code" : "Path",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ", used to keep track if got handled by one of the registered processing steps.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "FileContainer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "FileContainer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "FileContainer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/filecontainer"
+},
+"doc://Saga/documentation/Saga/FileContainer/path": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "path"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/path",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "path",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/filecontainer\/path"
+}
+}
+}

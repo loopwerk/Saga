@@ -1,1 +1,482 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"PartitionedRenderingContext"},{"kind":"text","text":"<"},{"kind":"genericParameter","text":"T"},{"kind":"text","text":", "},{"kind":"genericParameter","text":"M"},{"kind":"text","text":", "},{"kind":"genericParameter","text":"SiteMetadata"},{"kind":"text","text":"> "},{"kind":"keyword","text":"where"},{"kind":"text","text":" "},{"kind":"typeIdentifier","text":"T"},{"kind":"text","text":" : "},{"kind":"typeIdentifier","text":"Comparable","preciseIdentifier":"s:SL"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"T"},{"kind":"text","text":" : "},{"kind":"typeIdentifier","text":"CustomStringConvertible","preciseIdentifier":"s:s23CustomStringConvertibleP"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":" : "},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","preciseIdentifier":"s:4Saga8MetadataP","text":"Metadata"},{"kind":"text","text":", "},{"kind":"typeIdentifier","text":"SiteMetadata"},{"kind":"text","text":" : "},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","preciseIdentifier":"s:4Saga8MetadataP","text":"Metadata"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/partitionedrenderingcontext"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"No overview available."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"PartitionedRenderingContext"}],"title":"PartitionedRenderingContext","roleHeading":"Structure","role":"symbol","symbolKind":"struct","externalID":"s:4Saga27PartitionedRenderingContextV","modules":[{"name":"Saga"}],"navigatorTitle":[{"kind":"identifier","text":"PartitionedRenderingContext"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga"]]},"topicSections":[{"title":"Instance Properties","identifiers":["doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/allItems","doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/items","doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/key","doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/paginator","doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata"]}],"references":{"doc://Saga/documentation/Saga/PartitionedRenderingContext/paginator":{"role":"symbol","title":"paginator","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"paginator"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Paginator","preciseIdentifier":"s:4Saga9PaginatorV"},{"kind":"text","text":"?"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/paginator","kind":"symbol","type":"topic","url":"\/documentation\/saga\/partitionedrenderingcontext\/paginator"},"doc://Saga/documentation/Saga/PartitionedRenderingContext/allItems":{"role":"symbol","title":"allItems","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"allItems"},{"kind":"text","text":": ["},{"kind":"typeIdentifier","text":"AnyItem","preciseIdentifier":"s:4Saga7AnyItemP"},{"kind":"text","text":"]"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/allItems","kind":"symbol","type":"topic","url":"\/documentation\/saga\/partitionedrenderingcontext\/allitems"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/PartitionedRenderingContext/items":{"role":"symbol","title":"items","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"items"},{"kind":"text","text":": ["},{"kind":"typeIdentifier","text":"Item","preciseIdentifier":"s:4Saga4ItemC"},{"kind":"text","text":"<"},{"kind":"typeIdentifier","text":"M"},{"kind":"text","text":">]"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/items","kind":"symbol","type":"topic","url":"\/documentation\/saga\/partitionedrenderingcontext\/items"},"doc://Saga/documentation/Saga/PartitionedRenderingContext":{"role":"symbol","title":"PartitionedRenderingContext","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"PartitionedRenderingContext"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"PartitionedRenderingContext"}],"url":"\/documentation\/saga\/partitionedrenderingcontext"},"doc://Saga/documentation/Saga/PartitionedRenderingContext/siteMetadata":{"role":"symbol","title":"siteMetadata","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"siteMetadata"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"SiteMetadata"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata","kind":"symbol","type":"topic","url":"\/documentation\/saga\/partitionedrenderingcontext\/sitemetadata"},"doc://Saga/documentation/Saga/PartitionedRenderingContext/key":{"role":"symbol","title":"key","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"key"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"T"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/key","kind":"symbol","type":"topic","url":"\/documentation\/saga\/partitionedrenderingcontext\/key"},"doc://Saga/documentation/Saga/Metadata":{"role":"symbol","title":"Metadata","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"Metadata"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Metadata","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Metadata"}],"url":"\/documentation\/saga\/metadata"}}}
+{
+  "abstract" : [
+    {
+      "text" : "No overview available.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga27PartitionedRenderingContextV",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "struct"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "PartitionedRenderingContext"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "navigatorTitle" : [
+      {
+        "kind" : "identifier",
+        "text" : "PartitionedRenderingContext"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Structure",
+    "symbolKind" : "struct",
+    "title" : "PartitionedRenderingContext"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "struct"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "PartitionedRenderingContext"
+            },
+            {
+              "kind" : "text",
+              "text" : "<"
+            },
+            {
+              "kind" : "genericParameter",
+              "text" : "T"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "genericParameter",
+              "text" : "M"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "genericParameter",
+              "text" : "SiteMetadata"
+            },
+            {
+              "kind" : "text",
+              "text" : "> "
+            },
+            {
+              "kind" : "keyword",
+              "text" : "where"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "text" : "T"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:SL",
+              "text" : "Comparable"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "text" : "T"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:s23CustomStringConvertibleP",
+              "text" : "CustomStringConvertible"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "text" : "M"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga8MetadataP",
+              "text" : "Metadata"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "text" : "SiteMetadata"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga8MetadataP",
+              "text" : "Metadata"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "topicSections" : [
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/allItems",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/items",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/key",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/paginator",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata"
+      ],
+      "title" : "Instance Properties"
+    }
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/partitionedrenderingcontext"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/Metadata": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Metadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/metadata"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "PartitionedRenderingContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "PartitionedRenderingContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "PartitionedRenderingContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/allItems": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "allItems"
+    },
+    {
+      "kind" : "text",
+      "text" : ": ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga7AnyItemP",
+      "text" : "AnyItem"
+    },
+    {
+      "kind" : "text",
+      "text" : "]"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/allItems",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "allItems",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/allitems"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/items": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "items"
+    },
+    {
+      "kind" : "text",
+      "text" : ": ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">]"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/items",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "items",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/items"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/key": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "key"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "T"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/key",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "key",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/key"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/paginator": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "paginator"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga9PaginatorV",
+      "text" : "Paginator"
+    },
+    {
+      "kind" : "text",
+      "text" : "?"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/paginator",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "paginator",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/paginator"
+},
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/siteMetadata": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "siteMetadata"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "SiteMetadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "siteMetadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/sitemetadata"
+}
+}
+}

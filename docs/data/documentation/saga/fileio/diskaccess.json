@@ -1,1 +1,244 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"diskAccess"},{"kind":"text","text":": "},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/FileIO","preciseIdentifier":"s:4Saga6FileIOV","text":"FileIO"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/fileio\/diskaccess"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/FileIO\/diskAccess","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"The default version of "},{"type":"codeVoice","code":"FileIO"},{"type":"text","text":", which uses PathKit."}],"kind":"symbol","metadata":{"role":"symbol","title":"diskAccess","roleHeading":"Type Property","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"diskAccess"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"FileIO","preciseIdentifier":"s:4Saga6FileIOV"}],"symbolKind":"property","externalID":"s:4Saga6FileIOV10diskAccessACvpZ","extendedModule":"Saga","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga","doc:\/\/Saga\/documentation\/Saga\/FileIO"]]},"references":{"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/FileIO":{"role":"symbol","title":"FileIO","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"FileIO"}],"abstract":[{"type":"text","text":"A wrapper around file operations used by Saga, to abstract away the PathKit dependency."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileIO","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"FileIO"}],"url":"\/documentation\/saga\/fileio"},"doc://Saga/documentation/Saga/FileIO/diskAccess":{"role":"symbol","title":"diskAccess","fragments":[{"kind":"keyword","text":"static"},{"kind":"text","text":" "},{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"diskAccess"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"FileIO","preciseIdentifier":"s:4Saga6FileIOV"}],"abstract":[{"type":"text","text":"The default version of "},{"type":"codeVoice","code":"FileIO"},{"type":"text","text":", which uses PathKit."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileIO\/diskAccess","kind":"symbol","type":"topic","url":"\/documentation\/saga\/fileio\/diskaccess"}}}
+{
+  "abstract" : [
+    {
+      "text" : "The default version of ",
+      "type" : "text"
+    },
+    {
+      "code" : "FileIO",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ", which uses PathKit.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga",
+        "doc:\/\/Saga\/documentation\/Saga\/FileIO"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/FileIO\/diskAccess"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "extendedModule" : "Saga",
+    "externalID" : "s:4Saga6FileIOV10diskAccessACvpZ",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "static"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "keyword",
+        "text" : "var"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "diskAccess"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:4Saga6FileIOV",
+        "text" : "FileIO"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Type Property",
+    "symbolKind" : "property",
+    "title" : "diskAccess"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "static"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "keyword",
+              "text" : "var"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "diskAccess"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileIO",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga6FileIOV",
+              "text" : "FileIO"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/fileio\/diskaccess"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/FileIO": {
+  "abstract" : [
+    {
+      "text" : "A wrapper around file operations used by Saga, to abstract away the PathKit dependency.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "FileIO"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileIO",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "FileIO"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "FileIO",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/fileio"
+},
+"doc://Saga/documentation/Saga/FileIO/diskAccess": {
+  "abstract" : [
+    {
+      "text" : "The default version of ",
+      "type" : "text"
+    },
+    {
+      "code" : "FileIO",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ", which uses PathKit.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "static"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "diskAccess"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga6FileIOV",
+      "text" : "FileIO"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileIO\/diskAccess",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "diskAccess",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/fileio\/diskaccess"
+}
+}
+}

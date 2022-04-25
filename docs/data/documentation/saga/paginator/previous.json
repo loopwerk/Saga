@@ -1,1 +1,246 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"previous"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":"?"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/paginator\/previous"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/Paginator\/previous","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"The "},{"type":"codeVoice","code":"Path"},{"type":"text","text":" to the previous page  in the "},{"type":"codeVoice","code":"Paginator"},{"type":"text","text":"."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"previous"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":"?"}],"title":"previous","roleHeading":"Instance Property","role":"symbol","symbolKind":"property","externalID":"s:4Saga9PaginatorV8previous7PathKit0D0VSgvp","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga","doc:\/\/Saga\/documentation\/Saga\/Paginator"]]},"references":{"doc://Saga/documentation/Saga/Paginator":{"role":"symbol","title":"Paginator","fragments":[{"kind":"keyword","text":"struct"},{"kind":"text","text":" "},{"kind":"identifier","text":"Paginator"}],"abstract":[{"type":"text","text":"A model representing a paginator."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Paginator","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Paginator"}],"url":"\/documentation\/saga\/paginator"},"doc://Saga/documentation/Saga/Paginator/previous":{"role":"symbol","title":"previous","fragments":[{"kind":"keyword","text":"let"},{"kind":"text","text":" "},{"kind":"identifier","text":"previous"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"Path","preciseIdentifier":"s:7PathKit0A0V"},{"kind":"text","text":"?"}],"abstract":[{"type":"text","text":"The "},{"type":"codeVoice","code":"Path"},{"type":"text","text":" to the previous page  in the "},{"type":"codeVoice","code":"Paginator"},{"type":"text","text":"."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Paginator\/previous","kind":"symbol","type":"topic","url":"\/documentation\/saga\/paginator\/previous"},"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"}}}
+{
+  "abstract" : [
+    {
+      "text" : "The ",
+      "type" : "text"
+    },
+    {
+      "code" : "Path",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to the previous page  in the ",
+      "type" : "text"
+    },
+    {
+      "code" : "Paginator",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ".",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga",
+        "doc:\/\/Saga\/documentation\/Saga\/Paginator"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Paginator\/previous"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga9PaginatorV8previous7PathKit0D0VSgvp",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "let"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "previous"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
+      },
+      {
+        "kind" : "text",
+        "text" : "?"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Instance Property",
+    "symbolKind" : "property",
+    "title" : "previous"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "let"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "previous"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
+            },
+            {
+              "kind" : "text",
+              "text" : "?"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/paginator\/previous"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/Paginator": {
+  "abstract" : [
+    {
+      "text" : "A model representing a paginator.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "struct"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Paginator"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Paginator",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Paginator"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Paginator",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/paginator"
+},
+"doc://Saga/documentation/Saga/Paginator/previous": {
+  "abstract" : [
+    {
+      "text" : "The ",
+      "type" : "text"
+    },
+    {
+      "code" : "Path",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : " to the previous page  in the ",
+      "type" : "text"
+    },
+    {
+      "code" : "Paginator",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ".",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "previous"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : "?"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Paginator\/previous",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "previous",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/paginator\/previous"
+}
+}
+}

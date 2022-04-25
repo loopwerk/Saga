@@ -1,1 +1,297 @@
-{"primaryContentSections":[{"kind":"declarations","declarations":[{"tokens":[{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"item"},{"kind":"text","text":": "},{"kind":"typeIdentifier","identifier":"doc:\/\/Saga\/documentation\/Saga\/AnyItem","preciseIdentifier":"s:4Saga7AnyItemP","text":"AnyItem"},{"kind":"text","text":"? { get }"}],"languages":["swift"],"platforms":["macOS"]}]}],"schemaVersion":{"major":0,"minor":2,"patch":0},"sections":[],"variants":[{"paths":["\/documentation\/saga\/filecontainer\/item"],"traits":[{"interfaceLanguage":"swift"}]}],"identifier":{"url":"doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item","interfaceLanguage":"swift"},"abstract":[{"type":"text","text":"No overview available."}],"kind":"symbol","metadata":{"fragments":[{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"item"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"AnyItem","preciseIdentifier":"s:4Saga7AnyItemP"},{"kind":"text","text":"?"}],"title":"item","roleHeading":"Instance Property","role":"symbol","symbolKind":"property","externalID":"s:4Saga13FileContainerC4itemAA7AnyItem_pSgvp","modules":[{"name":"Saga"}]},"hierarchy":{"paths":[["doc:\/\/Saga\/documentation\/Saga","doc:\/\/Saga\/documentation\/Saga\/FileContainer"]]},"references":{"doc://Saga/documentation/Saga":{"role":"collection","title":"Saga","abstract":[{"type":"text","text":"A static site generator, written in Swift, allowing you to supply your own metadata types for your items."}],"identifier":"doc:\/\/Saga\/documentation\/Saga","kind":"symbol","type":"topic","url":"\/documentation\/saga"},"doc://Saga/documentation/Saga/Item":{"role":"symbol","title":"Item","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"Item"}],"abstract":[{"type":"text","text":"A model reprenting an item."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"Item"}],"url":"\/documentation\/saga\/item"},"doc://Saga/documentation/Saga/FileContainer":{"role":"symbol","title":"FileContainer","fragments":[{"kind":"keyword","text":"class"},{"kind":"text","text":" "},{"kind":"identifier","text":"FileContainer"}],"abstract":[{"type":"text","text":"A wrapper around a "},{"type":"codeVoice","code":"Path"},{"type":"text","text":", used to keep track if got handled by one of the registered processing steps."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileContainer","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"FileContainer"}],"url":"\/documentation\/saga\/filecontainer"},"doc://Saga/documentation/Saga/AnyItem":{"role":"symbol","title":"AnyItem","fragments":[{"kind":"keyword","text":"protocol"},{"kind":"text","text":" "},{"kind":"identifier","text":"AnyItem"}],"abstract":[{"type":"text","text":"A type-erased version of "},{"type":"reference","isActive":true,"identifier":"doc:\/\/Saga\/documentation\/Saga\/Item"},{"type":"text","text":"."}],"identifier":"doc:\/\/Saga\/documentation\/Saga\/AnyItem","kind":"symbol","type":"topic","navigatorTitle":[{"kind":"identifier","text":"AnyItem"}],"url":"\/documentation\/saga\/anyitem"},"doc://Saga/documentation/Saga/FileContainer/item":{"role":"symbol","title":"item","fragments":[{"kind":"keyword","text":"var"},{"kind":"text","text":" "},{"kind":"identifier","text":"item"},{"kind":"text","text":": "},{"kind":"typeIdentifier","text":"AnyItem","preciseIdentifier":"s:4Saga7AnyItemP"},{"kind":"text","text":"?"}],"abstract":[],"identifier":"doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item","kind":"symbol","type":"topic","url":"\/documentation\/saga\/filecontainer\/item"}}}
+{
+  "abstract" : [
+    {
+      "text" : "No overview available.",
+      "type" : "text"
+    }
+  ],
+  "hierarchy" : {
+    "paths" : [
+      [
+        "doc:\/\/Saga\/documentation\/Saga",
+        "doc:\/\/Saga\/documentation\/Saga\/FileContainer"
+      ]
+    ]
+  },
+  "identifier" : {
+    "interfaceLanguage" : "swift",
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item"
+  },
+  "kind" : "symbol",
+  "metadata" : {
+    "externalID" : "s:4Saga13FileContainerC4itemAA7AnyItem_pSgvp",
+    "fragments" : [
+      {
+        "kind" : "keyword",
+        "text" : "var"
+      },
+      {
+        "kind" : "text",
+        "text" : " "
+      },
+      {
+        "kind" : "identifier",
+        "text" : "item"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:4Saga7AnyItemP",
+        "text" : "AnyItem"
+      },
+      {
+        "kind" : "text",
+        "text" : "?"
+      }
+    ],
+    "modules" : [
+      {
+        "name" : "Saga"
+      }
+    ],
+    "role" : "symbol",
+    "roleHeading" : "Instance Property",
+    "symbolKind" : "property",
+    "title" : "item"
+  },
+  "primaryContentSections" : [
+    {
+      "declarations" : [
+        {
+          "languages" : [
+            "swift"
+          ],
+          "platforms" : [
+            "macOS"
+          ],
+          "tokens" : [
+            {
+              "kind" : "keyword",
+              "text" : "var"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "identifier",
+              "text" : "item"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga7AnyItemP",
+              "text" : "AnyItem"
+            },
+            {
+              "kind" : "text",
+              "text" : "? { get }"
+            }
+          ]
+        }
+      ],
+      "kind" : "declarations"
+    }
+  ],
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 2,
+    "patch" : 0
+  },
+  "sections" : [
+
+  ],
+  "variants" : [
+    {
+      "paths" : [
+        "\/documentation\/saga\/filecontainer\/item"
+      ],
+      "traits" : [
+        {
+          "interfaceLanguage" : "swift"
+        }
+      ]
+    }
+  ]
+, 
+"references": {
+"doc://Saga/documentation/Saga": {
+  "abstract" : [
+    {
+      "text" : "A static site generator, written in Swift, allowing you to supply your own metadata types for your items.",
+      "type" : "text"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Saga",
+  "type" : "topic",
+  "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/AnyItem": {
+  "abstract" : [
+    {
+      "text" : "A type-erased version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : ".",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "AnyItem",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem"
+},
+"doc://Saga/documentation/Saga/FileContainer": {
+  "abstract" : [
+    {
+      "text" : "A wrapper around a ",
+      "type" : "text"
+    },
+    {
+      "code" : "Path",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ", used to keep track if got handled by one of the registered processing steps.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "FileContainer"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "FileContainer"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "FileContainer",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/filecontainer"
+},
+"doc://Saga/documentation/Saga/FileContainer/item": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "item"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga7AnyItemP",
+      "text" : "AnyItem"
+    },
+    {
+      "kind" : "text",
+      "text" : "?"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/filecontainer\/item"
+},
+"doc://Saga/documentation/Saga/Item": {
+  "abstract" : [
+    {
+      "text" : "A model reprenting an item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "class"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Item"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Item",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item"
+}
+}
+}
