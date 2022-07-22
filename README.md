@@ -59,4 +59,3 @@ The documentation is available from within Xcode (Product > Build Documentation)
 
 ## Websites using Saga
 - https://loopwerk.io ([source](https://github.com/loopwerk/loopwerk.io))
-- https://david.dev
