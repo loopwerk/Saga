@@ -261,6 +261,7 @@ final class SagaTests: XCTestCase {
 
   func testSlugified() throws {
     XCTAssertEqual("one two".slugified, "one-two")
+    XCTAssertEqual("one - two".slugified, "one-two")
     XCTAssertEqual("One Two".slugified, "one-two")
     XCTAssertEqual("One! .Two@".slugified, "one-two")
     XCTAssertEqual("one-two".slugified, "one-two")
