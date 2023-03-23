@@ -1,3 +1,11 @@
+# 1.1.4 - 2023-03-23
+
+## New Features
+- Improved the slugified function
+
+## Documentation Changes
+- Fixed the generate_docs.sh script to add the swift-docc-plugin dependency on the fly
+
 # 1.1.3 - 2022-03-30
 
 - No code changes
