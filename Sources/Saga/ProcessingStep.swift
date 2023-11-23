@@ -1,14 +1,14 @@
 import Foundation
 import PathKit
 
-internal class ProcessStep<M: Metadata, SiteMetadata: Metadata> {
+internal class ProcessStep<M: Metadata> {
   let folder: Path?
   let readers: [Reader<M>]
   let filter: (Item<M>) -> Bool
-  let writers: [Writer<M, SiteMetadata>]
+  let writers: [Writer<M>]
   var items: [Item<M>]
 
-  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Item<M>) -> Bool, writers: [Writer<M, SiteMetadata>]) {
+  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Item<M>) -> Bool, writers: [Writer<M>]) {
     self.folder = folder
     self.readers = readers
     self.filter = filter
@@ -21,7 +21,7 @@ internal class AnyProcessStep {
   let runReaders: () async throws -> ()
   let runWriters: () throws -> ()
 
-  init<M: Metadata, SiteMetadata: Metadata>(step: ProcessStep<M, SiteMetadata>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, siteMetadata: SiteMetadata, fileIO: FileIO) {
+  init<M: Metadata>(step: ProcessStep<M>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, fileIO: FileIO) {
     runReaders = {
       var items = [Item<M>]()
 
@@ -71,7 +71,7 @@ internal class AnyProcessStep {
         .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
-        try writer.run(step.items, allItems, siteMetadata, outputPath, step.folder ?? "", fileIO)
+        try writer.run(step.items, allItems, outputPath, step.folder ?? "", fileIO)
       }
     }
   }

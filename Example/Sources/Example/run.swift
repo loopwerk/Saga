@@ -4,6 +4,12 @@ import PathKit
 import SagaParsleyMarkdownReader
 import SagaSwimRenderer
 
+enum SiteMetadata {
+  static let url = URL(string: "http://www.example.com")!
+  static let name = "Example website"
+  static let author = "Kevin Renskers"
+}
+
 struct ArticleMetadata: Metadata {
   let tags: [String]
   var summary: String?
@@ -14,18 +20,6 @@ struct AppMetadata: Metadata {
   let url: URL?
   let images: [String]?
 }
-
-// SiteMetadata is given to every template.
-// You can put whatever you want in here, as long as it's Decodable.
-struct SiteMetadata: Metadata {
-  let url: URL
-  let name: String
-}
-
-let siteMetadata = SiteMetadata(
-  url: URL(string: "http://www.example.com")!,
-  name: "Example website"
-)
 
 // An easy way to only get public articles, since ArticleMetadata.public is optional
 extension Item where M == ArticleMetadata {
@@ -63,7 +57,7 @@ struct Run {
   }()
 
   static func main() async throws {
-    try await Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
+    try await Saga(input: "content", output: "deploy")
       // All markdown files within the "articles" subfolder will be parsed to html,
       // using ArticleMetadata as the Item's metadata type.
       // Furthermore we are only interested in public articles.

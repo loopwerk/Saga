@@ -6,8 +6,8 @@ import Foundation
 /// To turn an ``Item`` into a `String`, a `Writer` uses a "renderer"; a function that knows how to turn a rendering context such as ``ItemRenderingContext`` into a `String`.
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
-public struct Writer<M: Metadata, SiteMetadata: Metadata> {
-  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ siteMetadata: SiteMetadata, _ outputRoot: Path, _ outputPrefix: Path, _ fileIO: FileIO) throws -> Void
+public struct Writer<M: Metadata> {
+  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ outputRoot: Path, _ outputPrefix: Path, _ fileIO: FileIO) throws -> Void
 }
 
 private extension Array {
@@ -20,10 +20,10 @@ private extension Array {
 
 public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.destination` as the destination path.
-  static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M, SiteMetadata>) throws -> String) -> Self {
-    Writer { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
+  static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M>) throws -> String) -> Self {
+    Writer { items, allItems, outputRoot, outputPrefix, fileIO in
       for item in items {
-        let context = ItemRenderingContext(item: item, items: items, allItems: allItems, siteMetadata: siteMetadata)
+        let context = ItemRenderingContext(item: item, items: items, allItems: allItems)
         let stringToWrite = try renderer(context)
         try fileIO.write(outputRoot + item.relativeDestination, stringToWrite)
       }
@@ -31,10 +31,10 @@ public extension Writer {
   }
 
   /// Writes an array of items into a single output file.
-  static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M, SiteMetadata>) throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
-    return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
-      try writePages(renderer: renderer, items: items, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
-        return ItemsRenderingContext(items: $0, allItems: $1, siteMetadata: $2, paginator: $3)
+  static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M>) throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
+    return Self { items, allItems, outputRoot, outputPrefix, fileIO in
+      try writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
+        return ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
       }
     }
   }
@@ -45,22 +45,22 @@ public extension Writer {
   ///
   /// The `output` path is a template where `[key]` will be replaced with the key used for the partition.
   /// Example: `articles/[key]/index.html`
-  static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M, SiteMetadata>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
-    return Self { items, allItems, siteMetadata, outputRoot, outputPrefix, fileIO in
+  static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
+    return Self { items, allItems, outputRoot, outputPrefix, fileIO in
       let partitions = partitioner(items)
 
       for (key, itemsInPartition) in Array(partitions).sorted(by: {$0.0 < $1.0}) {
         let finishedOutputPath = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
         let finishedPaginatedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
-        try writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, siteMetadata: siteMetadata, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutputPath, paginate: paginate, paginatedOutput: finishedPaginatedOutputPath, fileIO: fileIO) {
-          return PartitionedRenderingContext(key: key, items: $0, allItems: $1, siteMetadata: $2, paginator: $3)
+        try writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutputPath, paginate: paginate, paginatedOutput: finishedPaginatedOutputPath, fileIO: fileIO) {
+          return PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
         }
       }
     }
   }
 
   /// A convenience version of `partitionedWriter` that splits items based on year.
-  static func yearWriter(_ renderer: @escaping (PartitionedRenderingContext<Int, M, SiteMetadata>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html") -> Self {
+  static func yearWriter(_ renderer: @escaping (PartitionedRenderingContext<Int, M>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html") -> Self {
     let partitioner: ([Item<M>]) -> [Int: [Item<M>]] = { items in
       var itemsPerYear = [Int: [Item<M>]]()
 
@@ -83,7 +83,7 @@ public extension Writer {
   /// A convenience version of `partitionedWriter` that splits items based on tags.
   ///
   /// Tags can be any `[String]` array.
-  static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M, SiteMetadata>) throws -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @escaping (Item<M>) -> [String]) -> Self {
+  static func tagWriter(_ renderer: @escaping (PartitionedRenderingContext<String, M>) throws -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @escaping (Item<M>) -> [String]) -> Self {
     let partitioner: ([Item<M>]) -> [String: [Item<M>]] = { items in
       var itemsPerTag = [String: [Item<M>]]()
 
@@ -106,7 +106,7 @@ public extension Writer {
 }
 
 private extension Writer {
-  static func writePages<Context>(renderer: @escaping (Context) throws -> String, items: [Item<M>], allItems: [AnyItem], siteMetadata: SiteMetadata, outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, fileIO: FileIO, getContext: ([Item<M>], [AnyItem], SiteMetadata, Paginator?) -> Context) throws {
+  static func writePages<Context>(renderer: @escaping (Context) throws -> String, items: [Item<M>], allItems: [AnyItem], outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, fileIO: FileIO, getContext: ([Item<M>], [AnyItem], Paginator?, Path) -> Context) throws {
     if let perPage = paginate {
       let ranges = items.chunked(into: perPage)
       let numberOfPages = ranges.count
@@ -123,7 +123,7 @@ private extension Writer {
           next: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
         )
 
-        let context = getContext(firstItems, allItems, siteMetadata, paginator)
+        let context = getContext(firstItems, allItems, paginator, outputPrefix + output)
         let stringToWrite = try renderer(context)
         try fileIO.write(outputRoot + outputPrefix + output, stringToWrite)
       }
@@ -143,12 +143,12 @@ private extension Writer {
         )
 
         let finishedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
-        let context = getContext(items, allItems, siteMetadata, paginator)
+        let context = getContext(items, allItems, paginator, outputPrefix + finishedOutputPath)
         let stringToWrite = try renderer(context)
         try fileIO.write(outputRoot + outputPrefix + finishedOutputPath, stringToWrite)
       }
     } else {
-      let context = getContext(items, allItems, siteMetadata, nil)
+      let context = getContext(items, allItems, nil, outputPrefix + output)
       let stringToWrite = try renderer(context)
       try fileIO.write(outputRoot + outputPrefix + output, stringToWrite)
     }

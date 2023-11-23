@@ -7,7 +7,7 @@ import PathKit
 /// @main
 /// struct Run {
 ///   static func main() async throws {
-///     try await Saga(input: "content", output: "deploy", siteMetadata: EmptyMetadata())
+///     try await Saga(input: "content", output: "deploy")
 ///       // All files in the input folder will be parsed to html, and written to the output folder.
 ///       .register(
 ///         metadata: EmptyMetadata.self,
@@ -26,7 +26,7 @@ import PathKit
 ///   }
 /// }
 /// ```
-public class Saga<SiteMetadata: Metadata> {
+public class Saga {
   /// The root working path. This is automatically set to the same folder that holds `Package.swift`.
   public let rootPath: Path
 
@@ -36,21 +36,17 @@ public class Saga<SiteMetadata: Metadata> {
   /// The path that Saga will write the rendered website to, relative to the `rootPath`. For example "deploy".
   public let outputPath: Path
 
-  /// The metadata used to hold site-wide information, such as the website name or URL. This will be included in all rendering contexts.
-  public let siteMetadata: SiteMetadata
-
   /// An array of all file containters.
   public let fileStorage: [FileContainer]
 
   internal var processSteps = [AnyProcessStep]()
   internal let fileIO: FileIO
 
-  public init(input: Path, output: Path = "deploy", siteMetadata: SiteMetadata, fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
+  public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
     rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
     inputPath = rootPath + input
     outputPath = rootPath + output
-    self.siteMetadata = siteMetadata
     self.fileIO = fileIO
 
     // 1. Find all files in the source folder
@@ -75,7 +71,7 @@ public class Saga<SiteMetadata: Metadata> {
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>], itemWriteMode: ItemWriteMode = .moveToSubfolder, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, writers: [Writer<M, SiteMetadata>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type, readers: [Reader<M>], itemWriteMode: ItemWriteMode = .moveToSubfolder, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, writers: [Writer<M>]) throws -> Self {
     let step = ProcessStep(folder: folder, readers: readers, filter: filter, writers: writers)
     self.processSteps.append(
       .init(
@@ -84,7 +80,6 @@ public class Saga<SiteMetadata: Metadata> {
         inputPath: inputPath,
         outputPath: outputPath,
         itemWriteMode: itemWriteMode,
-        siteMetadata: siteMetadata,
         fileIO: fileIO
       ))
     return self

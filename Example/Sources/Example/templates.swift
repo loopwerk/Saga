@@ -3,10 +3,10 @@ import Saga
 import SagaSwimRenderer
 import Foundation
 
-func baseHtml(siteMetadata: SiteMetadata, title pageTitle: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
+func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
   html(lang: "en-US") {
     head {
-      title { siteMetadata.name+": "+pageTitle }
+      title { SiteMetadata.name+": "+pageTitle }
       link(href: "/static/style.css", rel: "stylesheet")
       link(href: "/static/prism.css", rel: "stylesheet")
     }
@@ -34,8 +34,8 @@ extension Date {
   }
 }
 
-func renderArticle(context: ItemRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
-  return baseHtml(siteMetadata: context.siteMetadata, title: context.item.title) {
+func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
+  return baseHtml(title: context.item.title) {
     div(id: "article") {
       h1 { context.item.title }
       h2 {
@@ -85,24 +85,24 @@ func renderPagination(_ paginator: Paginator?) -> Node {
   }
 }
 
-func renderArticles(context: ItemsRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: "Articles") {
+func renderArticles(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
+  baseHtml(title: "Articles") {
     h1 { "Articles" }
     context.items.map(articleInList)
     renderPagination(context.paginator)
   }
 }
 
-func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: "Articles in \(context.key)") {
+func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata>) -> Node {
+  baseHtml(title: "Articles in \(context.key)") {
     h1 { "Articles in \(context.key)" }
     context.items.map(articleInList)
     renderPagination(context.paginator)
   }
 }
 
-func renderPage(context: ItemRenderingContext<EmptyMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: context.item.title) {
+func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
+  baseHtml(title: context.item.title) {
     div(id: "page") {
       h1 { context.item.title }
       Node.raw(context.item.body)
@@ -117,8 +117,8 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata, SiteMetadata>) -> N
   }
 }
 
-func renderApps(context: ItemsRenderingContext<AppMetadata, SiteMetadata>) -> Node {
-  baseHtml(siteMetadata: context.siteMetadata, title: "Apps") {
+func renderApps(context: ItemsRenderingContext<AppMetadata>) -> Node {
+  baseHtml(title: "Apps") {
     h1 { "Apps" }
     context.items.map { app in
       div(class: "app") {
@@ -151,36 +151,28 @@ extension Item where M == ArticleMetadata {
   }
 }
 
-func renderFeed(context: ItemsRenderingContext<ArticleMetadata, SiteMetadata>) -> Node {
+func renderFeed(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
   AtomFeed(
-    title: context.siteMetadata.name,
-    author: "Kevin Renskers",
-    baseURL: context.siteMetadata.url,
-    pagePath: "articles/",
-    feedPath: "articles/feed.xml",
+    title: SiteMetadata.name,
+    author: SiteMetadata.author,
+    baseURL: SiteMetadata.url,
+    feedPath: context.outputPath.string,
     items: Array(context.items.prefix(20)),
     summary: { item in
-      if let article = item as? Item<ArticleMetadata> {
-        return article.summary
-      }
-      return nil
+      return item.summary
     }
   ).node()
 }
 
-func renderTagFeed(context: PartitionedRenderingContext<String, ArticleMetadata, SiteMetadata>) -> Node {
+func renderTagFeed(context: PartitionedRenderingContext<String, ArticleMetadata>) -> Node {
   AtomFeed(
-    title: context.siteMetadata.name,
-    author: "Kevin Renskers",
-    baseURL: context.siteMetadata.url,
-    pagePath: "articles/tag/\(context.key)/",
-    feedPath: "articles/tag/\(context.key)/feed.xml",
+    title: SiteMetadata.name,
+    author: SiteMetadata.author,
+    baseURL: SiteMetadata.url,
+    feedPath: context.outputPath.string,
     items: Array(context.items.prefix(20)),
     summary: { item in
-      if let article = item as? Item<ArticleMetadata> {
-        return article.summary
-      }
-      return nil
+      return item.summary
     }
   ).node()
 }
