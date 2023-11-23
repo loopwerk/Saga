@@ -12,7 +12,7 @@ Saga is quite flexible: for example you can have one set of metadata for the art
 ## Syntax
 
 ```swift
-func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {
+func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   html(lang: "en-US") {
     body {
       div(id: "content") {
@@ -26,7 +26,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> 
 @main
 struct Run {
   static func main() async throws {
-    try await Saga(input: "content", output: "deploy", siteMetadata: EmptyMetadata())
+    try await Saga(input: "content", output: "deploy")
       // All files will be parsed to html.
       .register(
         metadata: EmptyMetadata.self,
