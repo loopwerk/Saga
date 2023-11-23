@@ -52,7 +52,7 @@
             "import SagaSwimRenderer",
             "import HTML",
             "",
-            "func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {",
+            "func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {",
             "  html(lang: \"en-US\") {",
             "    body {",
             "      div(id: \"content\") {",
@@ -66,7 +66,7 @@
             "@main",
             "struct Run {",
             "  static func main() async throws {",
-            "    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: EmptyMetadata())",
+            "    try await Saga(input: \"content\", output: \"deploy\")",
             "      \/\/ All Markdown files within the `input` folder will be parsed to html.",
             "      .register(",
             "        metadata: EmptyMetadata.self,",
@@ -127,6 +127,7 @@
               "type" : "paragraph"
             }
           ],
+          "name" : "Note",
           "style" : "note",
           "type" : "aside"
         },
@@ -256,15 +257,7 @@
         {
           "inlineContent" : [
             {
-              "text" : "Let’s configure Saga to render these files, while also adding a ",
-              "type" : "text"
-            },
-            {
-              "code" : "SiteMetadata",
-              "type" : "codeVoice"
-            },
-            {
-              "text" : " type that will be given to each template.",
+              "text" : "Let’s configure Saga to render these files.",
               "type" : "text"
             }
           ],
@@ -282,22 +275,10 @@
             "  let images: [String]?",
             "}",
             "",
-            "\/\/ SiteMetadata is given to every rendering context.",
-            "\/\/ You can put whatever properties you want in here.",
-            "struct SiteMetadata: Metadata {",
-            "  let url: URL",
-            "  let name: String",
-            "}",
-            "",
-            "let siteMetadata = SiteMetadata(",
-            "  url: URL(string: \"http:\/\/www.example.com\")!,",
-            "  name: \"Example website\"",
-            ")",
-            "",
             "@main",
             "struct Run {",
             "  static func main() async throws {",
-            "    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: siteMetadata)",
+            "    try await Saga(input: \"content\", output: \"deploy\")",
             "      \/\/ All Markdown files within the \"articles\" subfolder will be parsed to html,",
             "      \/\/ using `ArticleMetadata` as the item's metadata type.",
             "      .register(",
@@ -538,6 +519,7 @@
               "type" : "paragraph"
             }
           ],
+          "name" : "Tip",
           "style" : "tip",
           "type" : "aside"
         },
@@ -810,6 +792,7 @@
               "type" : "paragraph"
             }
           ],
+          "name" : "Tip",
           "style" : "tip",
           "type" : "aside"
         },
@@ -918,7 +901,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [

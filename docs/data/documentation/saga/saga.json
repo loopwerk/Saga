@@ -71,40 +71,6 @@
             {
               "kind" : "identifier",
               "text" : "Saga"
-            },
-            {
-              "kind" : "text",
-              "text" : "<"
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
-              "text" : "> "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "where"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
-              "text" : " : "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga8MetadataP",
-              "text" : "Metadata"
             }
           ]
         }
@@ -124,7 +90,7 @@
             "@main",
             "struct Run {",
             "  static func main() async throws {",
-            "    try await Saga(input: \"content\", output: \"deploy\", siteMetadata: EmptyMetadata())",
+            "    try await Saga(input: \"content\", output: \"deploy\")",
             "      \/\/ All files in the input folder will be parsed to html, and written to the output folder.",
             "      .register(",
             "        metadata: EmptyMetadata.self,",
@@ -152,7 +118,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -161,7 +127,7 @@
   "topicSections" : [
     {
       "identifiers" : [
-        "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:siteMetadata:fileIO:originFilePath:)"
+        "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:fileIO:originFilePath:)"
       ],
       "title" : "Initializers"
     },
@@ -170,8 +136,7 @@
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/fileStorage",
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/inputPath",
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/outputPath",
-        "doc:\/\/Saga\/documentation\/Saga\/Saga\/rootPath",
-        "doc:\/\/Saga\/documentation\/Saga\/Saga\/siteMetadata"
+        "doc:\/\/Saga\/documentation\/Saga\/Saga\/rootPath"
       ],
       "title" : "Instance Properties"
     },
@@ -211,37 +176,6 @@
   "title" : "Saga",
   "type" : "topic",
   "url" : "\/documentation\/saga"
-},
-"doc://Saga/documentation/Saga/Metadata": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "protocol"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "Metadata"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
-  "kind" : "symbol",
-  "navigatorTitle" : [
-    {
-      "kind" : "identifier",
-      "text" : "Metadata"
-    }
-  ],
-  "role" : "symbol",
-  "title" : "Metadata",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/metadata"
 },
 "doc://Saga/documentation/Saga/Saga": {
   "abstract" : [
@@ -318,7 +252,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/saga\/filestorage"
 },
-"doc://Saga/documentation/Saga/Saga/init(input:output:siteMetadata:fileIO:originFilePath:)": {
+"doc://Saga/documentation/Saga/Saga/init(input:output:fileIO:originFilePath:)": {
   "abstract" : [
 
   ],
@@ -367,22 +301,6 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "siteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "externalParam",
       "text" : "fileIO"
     },
     {
@@ -420,12 +338,12 @@
       "text" : "throws"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:siteMetadata:fileIO:originFilePath:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:fileIO:originFilePath:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "init(input:output:siteMetadata:fileIO:originFilePath:)",
+  "title" : "init(input:output:fileIO:originFilePath:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/saga\/init(input:output:sitemetadata:fileio:originfilepath:)"
+  "url" : "\/documentation\/saga\/saga\/init(input:output:fileio:originfilepath:)"
 },
 "doc://Saga/documentation/Saga/Saga/inputPath": {
   "abstract" : [
@@ -681,14 +599,6 @@
     },
     {
       "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    },
-    {
-      "kind" : "text",
       "text" : ">]) "
     },
     {
@@ -807,42 +717,6 @@
   "title" : "run()",
   "type" : "topic",
   "url" : "\/documentation\/saga\/saga\/run()"
-},
-"doc://Saga/documentation/Saga/Saga/siteMetadata": {
-  "abstract" : [
-    {
-      "text" : "The metadata used to hold site-wide information, such as the website name or URL. This will be included in all rendering contexts.",
-      "type" : "text"
-    }
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "let"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "siteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/siteMetadata",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "siteMetadata",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/saga\/sitemetadata"
 },
 "doc://Saga/documentation/Saga/Saga/staticFiles()": {
   "abstract" : [

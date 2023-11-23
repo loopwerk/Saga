@@ -1,10 +1,4 @@
 {
-  "abstract" : [
-    {
-      "text" : "No overview available.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
@@ -15,11 +9,11 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:siteMetadata:fileIO:originFilePath:)"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:fileIO:originFilePath:)"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4SagaAAC5input6output12siteMetadata6fileIO14originFilePathAByxG0J3Kit0J0V_AKxAA0iG0Vs12StaticStringVtKcfc",
+    "externalID" : "s:4SagaAAC5input6output6fileIO14originFilePathAB0H3Kit0H0V_AiA0gE0Vs12StaticStringVtKcfc",
     "fragments" : [
       {
         "kind" : "identifier",
@@ -58,22 +52,6 @@
         "kind" : "typeIdentifier",
         "preciseIdentifier" : "s:7PathKit0A0V",
         "text" : "Path"
-      },
-      {
-        "kind" : "text",
-        "text" : ", "
-      },
-      {
-        "kind" : "externalParam",
-        "text" : "siteMetadata"
-      },
-      {
-        "kind" : "text",
-        "text" : ": "
-      },
-      {
-        "kind" : "typeIdentifier",
-        "text" : "SiteMetadata"
       },
       {
         "kind" : "text",
@@ -126,7 +104,7 @@
     "role" : "symbol",
     "roleHeading" : "Initializer",
     "symbolKind" : "init",
-    "title" : "init(input:output:siteMetadata:fileIO:originFilePath:)"
+    "title" : "init(input:output:fileIO:originFilePath:)"
   },
   "primaryContentSections" : [
     {
@@ -183,22 +161,6 @@
             },
             {
               "kind" : "externalParam",
-              "text" : "siteMetadata"
-            },
-            {
-              "kind" : "text",
-              "text" : ": "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "externalParam",
               "text" : "fileIO"
             },
             {
@@ -252,7 +214,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -261,7 +223,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/saga\/init(input:output:sitemetadata:fileio:originfilepath:)"
+        "\/documentation\/saga\/saga\/init(input:output:fileio:originfilepath:)"
       ],
       "traits" : [
         {
@@ -354,7 +316,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/saga"
 },
-"doc://Saga/documentation/Saga/Saga/init(input:output:siteMetadata:fileIO:originFilePath:)": {
+"doc://Saga/documentation/Saga/Saga/init(input:output:fileIO:originFilePath:)": {
   "abstract" : [
 
   ],
@@ -403,22 +365,6 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "siteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "externalParam",
       "text" : "fileIO"
     },
     {
@@ -456,12 +402,12 @@
       "text" : "throws"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:siteMetadata:fileIO:originFilePath:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:fileIO:originFilePath:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "init(input:output:siteMetadata:fileIO:originFilePath:)",
+  "title" : "init(input:output:fileIO:originFilePath:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/saga\/init(input:output:sitemetadata:fileio:originfilepath:)"
+  "url" : "\/documentation\/saga\/saga\/init(input:output:fileio:originfilepath:)"
 }
 }
 }

@@ -63,29 +63,13 @@
           "type" : "codeVoice"
         },
         {
-          "text" : " and ",
-          "type" : "text"
-        },
-        {
-          "code" : "SiteMetadata",
-          "type" : "codeVoice"
-        },
-        {
-          "text" : " conforms to ",
-          "type" : "text"
-        },
-        {
-          "code" : "Metadata",
-          "type" : "codeVoice"
-        },
-        {
           "text" : ".",
           "type" : "text"
         }
       ]
     },
     "extendedModule" : "Saga",
-    "externalID" : "s:4Saga6WriterV04itemB0yACyxq_GSSAA20ItemRenderingContextVyxq_GKcFZ",
+    "externalID" : "s:4Saga6WriterV04itemB0yACyxGSSAA20ItemRenderingContextVyxGKcFZ",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -126,14 +110,6 @@
       },
       {
         "kind" : "text",
-        "text" : ", "
-      },
-      {
-        "kind" : "typeIdentifier",
-        "text" : "SiteMetadata"
-      },
-      {
-        "kind" : "text",
         "text" : ">) "
       },
       {
@@ -165,14 +141,6 @@
       {
         "kind" : "typeIdentifier",
         "text" : "M"
-      },
-      {
-        "kind" : "text",
-        "text" : ", "
-      },
-      {
-        "kind" : "typeIdentifier",
-        "text" : "SiteMetadata"
       },
       {
         "kind" : "text",
@@ -264,14 +232,6 @@
             },
             {
               "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
               "text" : ">) "
             },
             {
@@ -307,14 +267,6 @@
             },
             {
               "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
               "text" : ">"
             }
           ]
@@ -325,7 +277,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -534,22 +486,6 @@
         "type" : "codeVoice"
       },
       {
-        "text" : " and ",
-        "type" : "text"
-      },
-      {
-        "code" : "SiteMetadata",
-        "type" : "codeVoice"
-      },
-      {
-        "text" : " conforms to ",
-        "type" : "text"
-      },
-      {
-        "code" : "Metadata",
-        "type" : "codeVoice"
-      },
-      {
         "text" : ".",
         "type" : "text"
       }
@@ -595,14 +531,6 @@
     },
     {
       "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    },
-    {
-      "kind" : "text",
       "text" : ">) "
     },
     {
@@ -634,14 +562,6 @@
     {
       "kind" : "typeIdentifier",
       "text" : "M"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
     },
     {
       "kind" : "text",

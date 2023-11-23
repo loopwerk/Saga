@@ -1,7 +1,15 @@
 {
   "abstract" : [
     {
-      "text" : "Decode a singular value from the underlying data.",
+      "text" : "Inherited from ",
+      "type" : "text"
+    },
+    {
+      "code" : "Decoder.decodeSingleValue(as:)",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ".",
       "type" : "text"
     }
   ],
@@ -78,7 +86,10 @@
     ],
     "modules" : [
       {
-        "name" : "Saga"
+        "name" : "Saga",
+        "relatedModules" : [
+          "Swift"
+        ]
       }
     ],
     "role" : "symbol",
@@ -190,7 +201,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -268,10 +279,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decodeSingleValue(as:)": {
   "abstract" : [
-    {
-      "text" : "Decode a singular value from the underlying data.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {

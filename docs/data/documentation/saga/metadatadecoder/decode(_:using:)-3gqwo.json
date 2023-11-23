@@ -1,23 +1,15 @@
 {
   "abstract" : [
     {
-      "text" : "Decode a date from a string for a given key (specified as a string), using a",
+      "text" : "Inherited from ",
       "type" : "text"
     },
     {
-      "text" : " ",
-      "type" : "text"
+      "code" : "Decoder.decode(_:using:)",
+      "type" : "codeVoice"
     },
     {
-      "text" : "specific formatter. To decode a date using the decoder’s default settings,",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "simply decode it like any other value instead of using this method.",
+      "text" : ".",
       "type" : "text"
     }
   ],
@@ -104,7 +96,10 @@
     ],
     "modules" : [
       {
-        "name" : "Saga"
+        "name" : "Saga",
+        "relatedModules" : [
+          "Swift"
+        ]
       }
     ],
     "role" : "symbol",
@@ -242,7 +237,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -320,26 +315,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decode(_:using:)-3gqwo": {
   "abstract" : [
-    {
-      "text" : "Decode a date from a string for a given key (specified as a string), using a",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "specific formatter. To decode a date using the decoder’s default settings,",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "simply decode it like any other value instead of using this method.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {

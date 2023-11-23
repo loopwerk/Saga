@@ -1,25 +1,19 @@
 {
-  "abstract" : [
-    {
-      "text" : "No overview available.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
         "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext"
+        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext\/siteMetadata"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/outputPath"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga20ItemRenderingContextV12siteMetadataq_vp",
+    "externalID" : "s:4Saga21ItemsRenderingContextV10outputPath0F3Kit0F0Vvp",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -31,7 +25,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "siteMetadata"
+        "text" : "outputPath"
       },
       {
         "kind" : "text",
@@ -39,7 +33,8 @@
       },
       {
         "kind" : "typeIdentifier",
-        "text" : "SiteMetadata"
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
       }
     ],
     "modules" : [
@@ -50,7 +45,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "siteMetadata"
+    "title" : "outputPath"
   },
   "primaryContentSections" : [
     {
@@ -73,7 +68,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "siteMetadata"
+              "text" : "outputPath"
             },
             {
               "kind" : "text",
@@ -81,7 +76,8 @@
             },
             {
               "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
             }
           ]
         }
@@ -91,7 +87,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -100,7 +96,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/itemrenderingcontext\/sitemetadata"
+        "\/documentation\/saga\/itemsrenderingcontext\/outputpath"
       ],
       "traits" : [
         {
@@ -125,7 +121,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga"
 },
-"doc://Saga/documentation/Saga/ItemRenderingContext": {
+"doc://Saga/documentation/Saga/ItemsRenderingContext": {
   "abstract" : [
 
   ],
@@ -140,23 +136,23 @@
     },
     {
       "kind" : "identifier",
-      "text" : "ItemRenderingContext"
+      "text" : "ItemsRenderingContext"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext",
   "kind" : "symbol",
   "navigatorTitle" : [
     {
       "kind" : "identifier",
-      "text" : "ItemRenderingContext"
+      "text" : "ItemsRenderingContext"
     }
   ],
   "role" : "symbol",
-  "title" : "ItemRenderingContext",
+  "title" : "ItemsRenderingContext",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/itemrenderingcontext"
+  "url" : "\/documentation\/saga\/itemsrenderingcontext"
 },
-"doc://Saga/documentation/Saga/ItemRenderingContext/siteMetadata": {
+"doc://Saga/documentation/Saga/ItemsRenderingContext/outputPath": {
   "abstract" : [
 
   ],
@@ -171,7 +167,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "siteMetadata"
+      "text" : "outputPath"
     },
     {
       "kind" : "text",
@@ -179,15 +175,16 @@
     },
     {
       "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemRenderingContext\/siteMetadata",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/outputPath",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "siteMetadata",
+  "title" : "outputPath",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/itemrenderingcontext\/sitemetadata"
+  "url" : "\/documentation\/saga\/itemsrenderingcontext\/outputpath"
 }
 }
 }

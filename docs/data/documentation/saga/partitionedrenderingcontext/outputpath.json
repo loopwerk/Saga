@@ -1,10 +1,4 @@
 {
-  "abstract" : [
-    {
-      "text" : "No overview available.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
@@ -15,11 +9,11 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/outputPath"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga27PartitionedRenderingContextV12siteMetadataq0_vp",
+    "externalID" : "s:4Saga27PartitionedRenderingContextV10outputPath0F3Kit0F0Vvp",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -31,7 +25,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "siteMetadata"
+        "text" : "outputPath"
       },
       {
         "kind" : "text",
@@ -39,7 +33,8 @@
       },
       {
         "kind" : "typeIdentifier",
-        "text" : "SiteMetadata"
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
       }
     ],
     "modules" : [
@@ -50,7 +45,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "siteMetadata"
+    "title" : "outputPath"
   },
   "primaryContentSections" : [
     {
@@ -73,7 +68,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "siteMetadata"
+              "text" : "outputPath"
             },
             {
               "kind" : "text",
@@ -81,7 +76,8 @@
             },
             {
               "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
             }
           ]
         }
@@ -91,7 +87,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -100,7 +96,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/partitionedrenderingcontext\/sitemetadata"
+        "\/documentation\/saga\/partitionedrenderingcontext\/outputpath"
       ],
       "traits" : [
         {
@@ -156,7 +152,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/partitionedrenderingcontext"
 },
-"doc://Saga/documentation/Saga/PartitionedRenderingContext/siteMetadata": {
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/outputPath": {
   "abstract" : [
 
   ],
@@ -171,7 +167,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "siteMetadata"
+      "text" : "outputPath"
     },
     {
       "kind" : "text",
@@ -179,15 +175,16 @@
     },
     {
       "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/outputPath",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "siteMetadata",
+  "title" : "outputPath",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/sitemetadata"
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/outputpath"
 }
 }
 }

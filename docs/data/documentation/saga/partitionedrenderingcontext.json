@@ -1,10 +1,4 @@
 {
-  "abstract" : [
-    {
-      "text" : "No overview available.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
@@ -90,14 +84,6 @@
             },
             {
               "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
               "text" : "> "
             },
             {
@@ -155,24 +141,6 @@
               "kind" : "typeIdentifier",
               "preciseIdentifier" : "s:4Saga8MetadataP",
               "text" : "Metadata"
-            },
-            {
-              "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
-              "text" : " : "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga8MetadataP",
-              "text" : "Metadata"
             }
           ]
         }
@@ -182,7 +150,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -194,8 +162,8 @@
         "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/allItems",
         "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/items",
         "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/key",
-        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/paginator",
-        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata"
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/outputPath",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/paginator"
       ],
       "title" : "Instance Properties"
     }
@@ -407,6 +375,40 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/partitionedrenderingcontext\/key"
 },
+"doc://Saga/documentation/Saga/PartitionedRenderingContext/outputPath": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "outputPath"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/outputPath",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "outputPath",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/outputpath"
+},
 "doc://Saga/documentation/Saga/PartitionedRenderingContext/paginator": {
   "abstract" : [
 
@@ -444,39 +446,6 @@
   "title" : "paginator",
   "type" : "topic",
   "url" : "\/documentation\/saga\/partitionedrenderingcontext\/paginator"
-},
-"doc://Saga/documentation/Saga/PartitionedRenderingContext/siteMetadata": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "let"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "siteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/siteMetadata",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "siteMetadata",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/partitionedrenderingcontext\/sitemetadata"
 }
 }
 }

@@ -1,10 +1,4 @@
 {
-  "abstract" : [
-    {
-      "text" : "No overview available.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
@@ -82,14 +76,6 @@
             },
             {
               "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
               "text" : "> "
             },
             {
@@ -113,24 +99,6 @@
               "kind" : "typeIdentifier",
               "preciseIdentifier" : "s:4Saga8MetadataP",
               "text" : "Metadata"
-            },
-            {
-              "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "SiteMetadata"
-            },
-            {
-              "kind" : "text",
-              "text" : " : "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga8MetadataP",
-              "text" : "Metadata"
             }
           ]
         }
@@ -140,7 +108,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -151,8 +119,8 @@
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems",
         "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/items",
-        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/paginator",
-        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/siteMetadata"
+        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/outputPath",
+        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/paginator"
       ],
       "title" : "Instance Properties"
     }
@@ -300,6 +268,40 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/itemsrenderingcontext\/items"
 },
+"doc://Saga/documentation/Saga/ItemsRenderingContext/outputPath": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "outputPath"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/outputPath",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "outputPath",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/itemsrenderingcontext\/outputpath"
+},
 "doc://Saga/documentation/Saga/ItemsRenderingContext/paginator": {
   "abstract" : [
 
@@ -337,39 +339,6 @@
   "title" : "paginator",
   "type" : "topic",
   "url" : "\/documentation\/saga\/itemsrenderingcontext\/paginator"
-},
-"doc://Saga/documentation/Saga/ItemsRenderingContext/siteMetadata": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "let"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "siteMetadata"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "SiteMetadata"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/siteMetadata",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "siteMetadata",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/itemsrenderingcontext\/sitemetadata"
 },
 "doc://Saga/documentation/Saga/Metadata": {
   "abstract" : [

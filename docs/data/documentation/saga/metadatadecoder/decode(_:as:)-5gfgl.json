@@ -1,7 +1,15 @@
 {
   "abstract" : [
     {
-      "text" : "Decode a value for a given key, specified as a string.",
+      "text" : "Inherited from ",
+      "type" : "text"
+    },
+    {
+      "code" : "Decoder.decode(_:as:)",
+      "type" : "codeVoice"
+    },
+    {
+      "text" : ".",
       "type" : "text"
     }
   ],
@@ -87,7 +95,10 @@
     ],
     "modules" : [
       {
-        "name" : "Saga"
+        "name" : "Saga",
+        "relatedModules" : [
+          "Swift"
+        ]
       }
     ],
     "role" : "symbol",
@@ -224,7 +235,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -302,10 +313,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decode(_:as:)-5gfgl": {
   "abstract" : [
-    {
-      "text" : "Decode a value for a given key, specified as a string.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {

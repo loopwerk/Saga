@@ -1,15 +1,15 @@
 {
   "abstract" : [
     {
-      "text" : "Decode an optional value for a given key, specified as a string. Throws an error if the",
+      "text" : "Inherited from ",
       "type" : "text"
     },
     {
-      "text" : " ",
-      "type" : "text"
+      "code" : "Decoder.decodeIfPresent(_:as:)",
+      "type" : "codeVoice"
     },
     {
-      "text" : "specified key exists but is not able to be decoded as the inferred type.",
+      "text" : ".",
       "type" : "text"
     }
   ],
@@ -99,7 +99,10 @@
     ],
     "modules" : [
       {
-        "name" : "Saga"
+        "name" : "Saga",
+        "relatedModules" : [
+          "Swift"
+        ]
       }
     ],
     "role" : "symbol",
@@ -236,7 +239,7 @@
   ],
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -314,18 +317,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decodeIfPresent(_:as:)-mhc5": {
   "abstract" : [
-    {
-      "text" : "Decode an optional value for a given key, specified as a string. Throws an error if the",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "specified key exists but is not able to be decoded as the inferred type.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {

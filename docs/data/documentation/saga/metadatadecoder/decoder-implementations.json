@@ -1,10 +1,4 @@
 {
-  "abstract" : [
-    {
-      "text" : "No overview available.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
@@ -29,7 +23,7 @@
   },
   "schemaVersion" : {
     "major" : 0,
-    "minor" : 2,
+    "minor" : 3,
     "patch" : 0
   },
   "sections" : [
@@ -111,18 +105,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decode(_:as:)-520be": {
   "abstract" : [
-    {
-      "text" : "Decode a value for a given key, specified as a ",
-      "type" : "text"
-    },
-    {
-      "code" : "CodingKey",
-      "type" : "codeVoice"
-    },
-    {
-      "text" : ".",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -203,10 +186,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decode(_:as:)-5gfgl": {
   "abstract" : [
-    {
-      "text" : "Decode a value for a given key, specified as a string.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -280,34 +260,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decode(_:using:)-2nkj8": {
   "abstract" : [
-    {
-      "text" : "Decode a date from a string for a given key (specified as a ",
-      "type" : "text"
-    },
-    {
-      "code" : "CodingKey",
-      "type" : "codeVoice"
-    },
-    {
-      "text" : "), using",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "a specific formatter. To decode a date using the decoder’s default settings,",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "simply decode it like any other value instead of using this method.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -389,26 +342,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decode(_:using:)-3gqwo": {
   "abstract" : [
-    {
-      "text" : "Decode a date from a string for a given key (specified as a string), using a",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "specific formatter. To decode a date using the decoder’s default settings,",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "simply decode it like any other value instead of using this method.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -483,26 +417,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decodeIfPresent(_:as:)-dzez": {
   "abstract" : [
-    {
-      "text" : "Decode an optional value for a given key, specified as a ",
-      "type" : "text"
-    },
-    {
-      "code" : "CodingKey",
-      "type" : "codeVoice"
-    },
-    {
-      "text" : ". Throws an error if the",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "specified key exists but is not able to be decoded as the inferred type.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -587,18 +502,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decodeIfPresent(_:as:)-mhc5": {
   "abstract" : [
-    {
-      "text" : "Decode an optional value for a given key, specified as a string. Throws an error if the",
-      "type" : "text"
-    },
-    {
-      "text" : " ",
-      "type" : "text"
-    },
-    {
-      "text" : "specified key exists but is not able to be decoded as the inferred type.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -676,10 +580,7 @@
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/decodeSingleValue(as:)": {
   "abstract" : [
-    {
-      "text" : "Decode a singular value from the underlying data.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {

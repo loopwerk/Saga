@@ -1,0 +1,659 @@
+{
+  "interfaceLanguages" : {
+    "swift" : [
+      {
+        "children" : [
+          {
+            "title" : "Essentials",
+            "type" : "groupMarker"
+          },
+          {
+            "path" : "\/documentation\/saga\/installation",
+            "title" : "Installation",
+            "type" : "article"
+          },
+          {
+            "path" : "\/documentation\/saga\/gettingstarted",
+            "title" : "Getting Started with Saga",
+            "type" : "article"
+          },
+          {
+            "path" : "\/documentation\/saga\/architecture",
+            "title" : "Architecture",
+            "type" : "article"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Initializers",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/reader\/init(supportedextensions:convert:)",
+                "title" : "init(supportedExtensions: [String], convert: Reader<M>.Converter)",
+                "type" : "init"
+              },
+              {
+                "title" : "Type Aliases",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/reader\/converter",
+                "title" : "Reader.Converter",
+                "type" : "typealias"
+              },
+              {
+                "title" : "Type Methods",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/reader\/makemetadatadecoder(for:)",
+                "title" : "static func makeMetadataDecoder(for: [String : String]) -> MetadataDecoder",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/reader\/resolvepublishingdate(from:decoder:)",
+                "title" : "static func resolvePublishingDate(from: Path, decoder: MetadataDecoder) throws -> Date",
+                "type" : "method"
+              }
+            ],
+            "path" : "\/documentation\/saga\/reader",
+            "title" : "Reader",
+            "type" : "struct"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Type Methods",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/writer\/itemwriter(_:)",
+                "title" : "static func itemWriter((ItemRenderingContext<M>) throws -> String) -> Writer<M>",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/writer\/listwriter(_:output:paginate:paginatedoutput:)",
+                "title" : "static func listWriter((ItemsRenderingContext<M>) throws -> String, output: Path, paginate: Int?, paginatedOutput: Path) -> Writer<M>",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/writer\/partitionedwriter(_:output:paginate:paginatedoutput:partitioner:)",
+                "title" : "static func partitionedWriter<T>((PartitionedRenderingContext<T, M>) throws -> String, output: Path, paginate: Int?, paginatedOutput: Path, partitioner: ([Item<M>]) -> [T : [Item<M>]]) -> Writer<M>",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/writer\/tagwriter(_:output:paginate:paginatedoutput:tags:)",
+                "title" : "static func tagWriter((PartitionedRenderingContext<String, M>) throws -> String, output: Path, paginate: Int?, paginatedOutput: Path, tags: (Item<M>) -> [String]) -> Writer<M>",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/writer\/yearwriter(_:output:paginate:paginatedoutput:)",
+                "title" : "static func yearWriter((PartitionedRenderingContext<Int, M>) throws -> String, output: Path, paginate: Int?, paginatedOutput: Path) -> Writer<M>",
+                "type" : "method"
+              }
+            ],
+            "path" : "\/documentation\/saga\/writer",
+            "title" : "Writer",
+            "type" : "struct"
+          },
+          {
+            "title" : "Classes",
+            "type" : "groupMarker"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/filecontainer\/handled",
+                "title" : "var handled: Bool",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/filecontainer\/item",
+                "title" : "var item: AnyItem?",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/filecontainer\/path",
+                "title" : "let path: Path",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/filecontainer",
+            "title" : "FileContainer",
+            "type" : "class"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Initializers",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:date:lastmodified:metadata:)",
+                "title" : "init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M)",
+                "type" : "init"
+              },
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/body",
+                "title" : "var body: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/date",
+                "title" : "var date: Date",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/filenamewithoutextension",
+                "title" : "var filenameWithoutExtension: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/lastmodified",
+                "title" : "var lastModified: Date",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/metadata",
+                "title" : "var metadata: M",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/rawcontent",
+                "title" : "var rawContent: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/relativedestination",
+                "title" : "var relativeDestination: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/relativesource",
+                "title" : "let relativeSource: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/title",
+                "title" : "var title: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/url",
+                "title" : "var url: String",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/item",
+            "title" : "Item",
+            "type" : "class"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Initializers",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/metadatadecoder\/init(metadata:codingpath:dateformatter:)",
+                "title" : "init(metadata: [String : String], codingPath: [CodingKey], dateFormatter: DateFormatter)",
+                "type" : "init"
+              },
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/metadatadecoder\/codingpath",
+                "title" : "let codingPath: [CodingKey]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/metadatadecoder\/userinfo",
+                "title" : "var userInfo: [CodingUserInfoKey : Any]",
+                "type" : "property"
+              },
+              {
+                "title" : "Instance Methods",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/metadatadecoder\/container(keyedby:)",
+                "title" : "func container<T>(keyedBy: T.Type) throws -> KeyedDecodingContainer<T>",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/metadatadecoder\/singlevaluecontainer()",
+                "title" : "func singleValueContainer() throws -> SingleValueDecodingContainer",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/metadatadecoder\/unkeyedcontainer()",
+                "title" : "func unkeyedContainer() throws -> UnkeyedDecodingContainer",
+                "type" : "method"
+              },
+              {
+                "title" : "Default Implementations",
+                "type" : "groupMarker"
+              },
+              {
+                "children" : [
+                  {
+                    "title" : "Instance Methods",
+                    "type" : "groupMarker"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:as:)-520be",
+                    "title" : "func decode<T, K>(K, as: T.Type) throws -> T",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:as:)-5gfgl",
+                    "title" : "func decode<T>(String, as: T.Type) throws -> T",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:using:)-2nkj8",
+                    "title" : "func decode<K, F>(K, using: F) throws -> Date",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:using:)-3gqwo",
+                    "title" : "func decode<F>(String, using: F) throws -> Date",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decodeifpresent(_:as:)-dzez",
+                    "title" : "func decodeIfPresent<T, K>(K, as: T.Type) throws -> T?",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decodeifpresent(_:as:)-mhc5",
+                    "title" : "func decodeIfPresent<T>(String, as: T.Type) throws -> T?",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/metadatadecoder\/decodesinglevalue(as:)",
+                    "title" : "func decodeSingleValue<T>(as: T.Type) throws -> T",
+                    "type" : "method"
+                  }
+                ],
+                "path" : "\/documentation\/saga\/metadatadecoder\/decoder-implementations",
+                "title" : "Decoder Implementations",
+                "type" : "symbol"
+              }
+            ],
+            "path" : "\/documentation\/saga\/metadatadecoder",
+            "title" : "MetadataDecoder",
+            "type" : "class"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Initializers",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/init(input:output:fileio:originfilepath:)",
+                "title" : "init(input: Path, output: Path, fileIO: FileIO, originFilePath: StaticString) throws",
+                "type" : "init"
+              },
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/filestorage",
+                "title" : "let fileStorage: [FileContainer]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/inputpath",
+                "title" : "let inputPath: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/outputpath",
+                "title" : "let outputPath: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/rootpath",
+                "title" : "let rootPath: Path",
+                "type" : "property"
+              },
+              {
+                "title" : "Instance Methods",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemwritemode:filter:writers:)",
+                "title" : "func register<M>(folder: Path?, metadata: M.Type, readers: [Reader<M>], itemWriteMode: ItemWriteMode, filter: ((Item<M>) -> Bool), writers: [Writer<M>]) throws -> Self",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/run()",
+                "title" : "func run() async throws -> Self",
+                "type" : "method"
+              },
+              {
+                "path" : "\/documentation\/saga\/saga\/staticfiles()",
+                "title" : "func staticFiles() throws -> Self",
+                "type" : "method"
+              }
+            ],
+            "path" : "\/documentation\/saga\/saga",
+            "title" : "Saga",
+            "type" : "class"
+          },
+          {
+            "title" : "Protocols",
+            "type" : "groupMarker"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/body",
+                "title" : "var body: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/date",
+                "title" : "var date: Date",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/filenamewithoutextension",
+                "title" : "var filenameWithoutExtension: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/lastmodified",
+                "title" : "var lastModified: Date",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/rawcontent",
+                "title" : "var rawContent: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/relativedestination",
+                "title" : "var relativeDestination: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/relativesource",
+                "title" : "var relativeSource: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/title",
+                "title" : "var title: String",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/url",
+                "title" : "var url: String",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/anyitem",
+            "title" : "AnyItem",
+            "type" : "protocol"
+          },
+          {
+            "path" : "\/documentation\/saga\/metadata",
+            "title" : "Metadata",
+            "type" : "protocol"
+          },
+          {
+            "title" : "Structures",
+            "type" : "groupMarker"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Initializers",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/emptymetadata\/init()",
+                "title" : "init()",
+                "type" : "init"
+              },
+              {
+                "path" : "\/documentation\/saga\/emptymetadata\/init(from:)",
+                "title" : "init(from: Decoder) throws",
+                "type" : "init"
+              }
+            ],
+            "path" : "\/documentation\/saga\/emptymetadata",
+            "title" : "EmptyMetadata",
+            "type" : "struct"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Type Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/fileio\/diskaccess",
+                "title" : "static var diskAccess: FileIO",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/fileio",
+            "title" : "FileIO",
+            "type" : "struct"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemrenderingcontext\/allitems",
+                "title" : "let allItems: [AnyItem]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemrenderingcontext\/item",
+                "title" : "let item: Item<M>",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemrenderingcontext\/items",
+                "title" : "let items: [Item<M>]",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/itemrenderingcontext",
+            "title" : "ItemRenderingContext",
+            "type" : "struct"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemsrenderingcontext\/allitems",
+                "title" : "let allItems: [AnyItem]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemsrenderingcontext\/items",
+                "title" : "let items: [Item<M>]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemsrenderingcontext\/outputpath",
+                "title" : "let outputPath: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemsrenderingcontext\/paginator",
+                "title" : "let paginator: Paginator?",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/itemsrenderingcontext",
+            "title" : "ItemsRenderingContext",
+            "type" : "struct"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/paginator\/index",
+                "title" : "let index: Int",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/paginator\/itemsperpage",
+                "title" : "let itemsPerPage: Int",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/paginator\/next",
+                "title" : "let next: Path?",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/paginator\/numberofpages",
+                "title" : "let numberOfPages: Int",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/paginator\/previous",
+                "title" : "let previous: Path?",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/paginator",
+            "title" : "Paginator",
+            "type" : "struct"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/partitionedrenderingcontext\/allitems",
+                "title" : "let allItems: [AnyItem]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/partitionedrenderingcontext\/items",
+                "title" : "let items: [Item<M>]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/partitionedrenderingcontext\/key",
+                "title" : "let key: T",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/partitionedrenderingcontext\/outputpath",
+                "title" : "let outputPath: Path",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/partitionedrenderingcontext\/paginator",
+                "title" : "let paginator: Paginator?",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/partitionedrenderingcontext",
+            "title" : "PartitionedRenderingContext",
+            "type" : "struct"
+          },
+          {
+            "title" : "Type Aliases",
+            "type" : "groupMarker"
+          },
+          {
+            "path" : "\/documentation\/saga\/contextkey",
+            "title" : "ContextKey",
+            "type" : "typealias"
+          },
+          {
+            "title" : "Enumerations",
+            "type" : "groupMarker"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Enumeration Cases",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemwritemode\/keepasfile",
+                "title" : "case keepAsFile",
+                "type" : "case"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemwritemode\/movetosubfolder",
+                "title" : "case moveToSubfolder",
+                "type" : "case"
+              },
+              {
+                "title" : "Default Implementations",
+                "type" : "groupMarker"
+              },
+              {
+                "children" : [
+                  {
+                    "title" : "Operators",
+                    "type" : "groupMarker"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/itemwritemode\/!=(_:_:)",
+                    "title" : "static func != (Self, Self) -> Bool",
+                    "type" : "op"
+                  }
+                ],
+                "path" : "\/documentation\/saga\/itemwritemode\/equatable-implementations",
+                "title" : "Equatable Implementations",
+                "type" : "symbol"
+              }
+            ],
+            "path" : "\/documentation\/saga\/itemwritemode",
+            "title" : "ItemWriteMode",
+            "type" : "enum"
+          }
+        ],
+        "path" : "\/documentation\/saga",
+        "title" : "Saga",
+        "type" : "module"
+      }
+    ]
+  },
+  "schemaVersion" : {
+    "major" : 0,
+    "minor" : 1,
+    "patch" : 1
+  }
+}
