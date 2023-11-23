@@ -12,7 +12,7 @@ import SagaParsleyMarkdownReader
 import SagaSwimRenderer
 import HTML
 
-func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> Node {
+func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   html(lang: "en-US") {
     body {
       div(id: "content") {
@@ -26,7 +26,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata, EmptyMetadata>) -> 
 @main
 struct Run {
   static func main() async throws {
-    try await Saga(input: "content", output: "deploy", siteMetadata: EmptyMetadata())
+    try await Saga(input: "content", output: "deploy")
       // All Markdown files within the `input` folder will be parsed to html.
       .register(
         metadata: EmptyMetadata.self,
@@ -77,7 +77,7 @@ images: lastfm_1.jpg, lastfm_2.jpg
 
 As you can see, they both use different metadata: the article has `tags`, a `summary` and a `date`, while the app has a `url` and `images`.
 
-Let's configure Saga to render these files, while also adding a `SiteMetadata` type that will be given to each template.
+Let's configure Saga to render these files.
 
 ```swift
 struct ArticleMetadata: Metadata {
@@ -90,22 +90,10 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-// SiteMetadata is given to every rendering context.
-// You can put whatever properties you want in here.
-struct SiteMetadata: Metadata {
-  let url: URL
-  let name: String
-}
-
-let siteMetadata = SiteMetadata(
-  url: URL(string: "http://www.example.com")!,
-  name: "Example website"
-)
-
 @main
 struct Run {
   static func main() async throws {
-    try await Saga(input: "content", output: "deploy", siteMetadata: siteMetadata)
+    try await Saga(input: "content", output: "deploy")
       // All Markdown files within the "articles" subfolder will be parsed to html,
       // using `ArticleMetadata` as the item's metadata type.
       .register(
