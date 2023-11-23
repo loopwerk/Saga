@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 jobs:
   create-release:
@@ -28,23 +28,3 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: ${{ steps.changelog.outputs.changes }}
-
-      - name: Read CHANGELOG.md
-        id: readfile
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ./CHANGELOG.md
-
-      - name: Write to CHANGELOG.md
-        uses: DamianReeves/write-file-action@master
-        with:
-          path: ./CHANGELOG.md
-          contents: ${{ steps.changelog.outputs.changelog }}${{ steps.readfile.outputs.content }}
-          write-mode: overwrite
-
-      - name: Commit and push CHANGELOG.md
-        uses: EndBug/add-and-commit@v7
-        with:
-          add: CHANGELOG.md
-          message: "chore: Update CHANGELOG.md [skip ci]"
-          branch: main

@@ -2,10 +2,6 @@ import XCTest
 import PathKit
 @testable import Saga
 
-private struct TestMetadata: Metadata {
-  let property: String
-}
-
 extension FileIO {
   static var mock = Self(
     resolveSwiftPackageFolder: { _ in "root" },
@@ -65,9 +61,7 @@ final class SagaTests: XCTestCase {
       deletePathCalled = true
     }
 
-    let saga = try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
-    XCTAssertEqual(saga.siteMetadata.property, "test")
-
+    let saga = try Saga(input: "input", output: "output", fileIO: mock)
     XCTAssertEqual(saga.rootPath, "root")
     XCTAssertEqual(saga.inputPath, "root/input")
     XCTAssertEqual(saga.outputPath, "root/output")
@@ -82,7 +76,7 @@ final class SagaTests: XCTestCase {
   }
 
   func testRegister() throws {
-    let saga = try Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: .mock)
+    let saga = try Saga(input: "input", output: "output", fileIO: .mock)
     XCTAssertEqual(saga.processSteps.count, 0)
 
     try saga.register(metadata: EmptyMetadata.self, readers: [], writers: [])
@@ -101,7 +95,7 @@ final class SagaTests: XCTestCase {
       deletePathCalled = true
     }
 
-    let saga = try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
         readers: [
@@ -143,7 +137,7 @@ final class SagaTests: XCTestCase {
       writtenPages.append(.init(destination: destination, content: content))
     }
 
-    try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
         readers: [
@@ -170,7 +164,7 @@ final class SagaTests: XCTestCase {
       writtenPages.append(.init(destination: destination, content: content))
     }
 
-    try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: TaggedMetadata.self,
         readers: [
@@ -197,7 +191,7 @@ final class SagaTests: XCTestCase {
       writtenFiles.append(destination)
     }
 
-    try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: TaggedMetadata.self,
         readers: [
@@ -220,7 +214,7 @@ final class SagaTests: XCTestCase {
       writtenPages.append(.init(destination: destination, content: content))
     }
 
-    let saga = try await Saga(input: "input", output: "output", siteMetadata: TestMetadata(property: "test"), fileIO: mock)
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
         readers: [
