@@ -152,7 +152,7 @@
       "type" : "reference"
     },
     {
-      "text" : " that’s just empty. This can be used, for example, when you don’t have custom item metadata or site metadata.",
+      "text" : " that’s just empty. This can be used, for example, when you don’t have custom item metadata.",
       "type" : "text"
     }
   ],
