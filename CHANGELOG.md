@@ -1,3 +1,8 @@
+# 1.2.0 - 2023-11-23
+
+## New Features
+- Simplify API by getting rid of SiteMetadata
+
 # 1.1.4 - 2023-03-23
 
 ## New Features
