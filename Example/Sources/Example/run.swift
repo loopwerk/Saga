@@ -38,7 +38,7 @@ func itemProcessor(item: Item<ArticleMetadata>) async {
   }
 
   // Set the date
-  item.date = date
+  item.published = date
 
   // And remove the first 11 characters from the filename
   let first11 = String(item.relativeSource.lastComponentWithoutExtension.prefix(11))

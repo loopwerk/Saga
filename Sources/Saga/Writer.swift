@@ -65,7 +65,7 @@ public extension Writer {
       var itemsPerYear = [Int: [Item<M>]]()
 
       for item in items {
-        let year = item.date.year
+        let year = item.published.year
         if var itemsArray = itemsPerYear[year] {
           itemsArray.append(item)
           itemsPerYear[year] = itemsArray

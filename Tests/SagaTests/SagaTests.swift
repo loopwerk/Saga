@@ -23,7 +23,8 @@ extension Reader {
           title: "Test",
           rawContent: "test",
           body: "<p>\(relativeSource)</p>",
-          date: Date(timeIntervalSince1970: 1580598000),
+          published: Date(timeIntervalSince1970: 1580598000),
+          created: Date(timeIntervalSince1970: 1580598000),
           lastModified: Date(timeIntervalSince1970: 1580598000),
           metadata: metadata
         )
@@ -34,7 +35,8 @@ extension Reader {
           title: "Test",
           rawContent: "test",
           body: "<p>\(relativeSource)</p>",
-          date: Date(timeIntervalSince1970: 1612220400),
+          published: Date(timeIntervalSince1970: 1612220400),
+          created: Date(timeIntervalSince1970: 1612220400),
           lastModified: Date(timeIntervalSince1970: 1612220400),
           metadata: metadata
         )

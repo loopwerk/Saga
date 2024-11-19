@@ -62,13 +62,13 @@ internal class AnyProcessStep {
         }
       }
 
-      step.items = items.sorted(by: { left, right in left.date > right.date })
+      step.items = items.sorted(by: { left, right in left.published > right.published })
     }
 
     runWriters = {
       let allItems = fileStorage
         .compactMap(\.item)
-        .sorted(by: { left, right in left.date > right.date })
+        .sorted(by: { left, right in left.published > right.published })
 
       for writer in step.writers {
         try writer.run(step.items, allItems, outputPath, step.folder ?? "", fileIO)

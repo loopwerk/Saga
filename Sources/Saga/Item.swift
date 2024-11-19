@@ -16,7 +16,8 @@ public protocol AnyItem: AnyObject {
   var title: String { get set }
   var rawContent: String { get set }
   var body: String { get set }
-  var date: Date { get set }
+  var published: Date { get set }
+  var created: Date { get set }
   var lastModified: Date { get set }
   var url: String { get }
 }
@@ -41,21 +42,25 @@ public class Item<M: Metadata>: AnyItem {
   public var body: String
 
   /// The published date of the item.
-  public var date: Date
+  public var published: Date
 
+  /// The creation date of the item.
+  public var created: Date
+  
   /// The last modified date of the item.
   public var lastModified: Date
 
   /// The parsed metadata. ``Metadata`` can be any `Codable` object.
   public var metadata: M
 
-  public init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M) {
+  public init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, published: Date, created: Date, lastModified: Date, metadata: M) {
     self.relativeSource = relativeSource
     self.relativeDestination = relativeDestination
     self.title = title
     self.rawContent = rawContent
     self.body = body
-    self.date = date
+    self.published = published
+    self.created = created
     self.lastModified = lastModified
     self.metadata = metadata
   }

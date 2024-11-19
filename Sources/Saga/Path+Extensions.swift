@@ -2,6 +2,10 @@ import PathKit
 import Foundation
 
 public extension Path {
+  var creationDate: Date? {
+    return self.attributes[.creationDate] as? Date
+  }
+
   var modificationDate: Date? {
     return self.attributes[.modificationDate] as? Date
   }
