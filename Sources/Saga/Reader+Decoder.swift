@@ -15,6 +15,6 @@ public extension Reader {
   }
 
   static func resolvePublishingDate(from path: Path, decoder: MetadataDecoder) throws -> Date {
-    return try decoder.decodeIfPresent("date", as: Date.self) ?? path.modificationDate ?? Date()
+    return try decoder.decodeIfPresent("date", as: Date.self) ?? path.creationDate ?? Date()
   }
 }
