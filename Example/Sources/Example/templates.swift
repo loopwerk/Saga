@@ -39,8 +39,8 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
     div(id: "article") {
       h1 { context.item.title }
       h2 {
-        context.item.date.formatted("dd MMMM")+", "
-        a(href: "/articles/\(context.item.date.formatted("yyyy"))/") { context.item.date.formatted("yyyy") }
+        context.item.published.formatted("dd MMMM")+", "
+        a(href: "/articles/\(context.item.published.formatted("yyyy"))/") { context.item.published.formatted("yyyy") }
       }
       ul {
         context.item.metadata.tags.map { tag in

@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaParsleyMarkdownReader",
         "state": {
           "branch": null,
-          "revision": "d4fe9fca9829c1fb294af0160c23d5fc4bcf5fe4",
-          "version": "0.6.0"
+          "revision": "f2d0038703f72b8a15943c0ddd591feba20d2ed3",
+          "version": "0.7.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaSwimRenderer",
         "state": {
           "branch": null,
-          "revision": "ee8c082934d1daf0a6819b8120170dd60760b9a9",
-          "version": "0.8.0"
+          "revision": "79032c8a51b84f2be739a93fa2faad5dabd8ff56",
+          "version": "0.9.0"
         }
       },
       {
