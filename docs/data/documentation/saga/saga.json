@@ -126,12 +126,16 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Initializers",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/init(input:output:fileIO:originFilePath:)"
       ],
       "title" : "Initializers"
     },
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/fileStorage",
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/inputPath",
@@ -141,6 +145,8 @@
       "title" : "Instance Properties"
     },
     {
+      "anchor" : "Instance-Methods",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemWriteMode:filter:writers:)",
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/run()",

@@ -100,12 +100,16 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Initializers",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/init(metadata:codingPath:dateFormatter:)"
       ],
       "title" : "Initializers"
     },
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/codingPath",
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/userInfo"
@@ -113,6 +117,8 @@
       "title" : "Instance Properties"
     },
     {
+      "anchor" : "Instance-Methods",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/container(keyedBy:)",
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/singleValueContainer()",
@@ -121,6 +127,7 @@
       "title" : "Instance Methods"
     },
     {
+      "anchor" : "Default-Implementations",
       "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations"
@@ -217,7 +224,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": ["
+      "text" : ": [any "
     },
     {
       "kind" : "typeIdentifier",
@@ -359,7 +366,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": ["
+      "text" : ": [any "
     },
     {
       "kind" : "typeIdentifier",
@@ -422,7 +429,7 @@
     },
     {
       "kind" : "text",
-      "text" : " -> "
+      "text" : " -> any "
     },
     {
       "kind" : "typeIdentifier",
@@ -464,7 +471,7 @@
     },
     {
       "kind" : "text",
-      "text" : " -> "
+      "text" : " -> any "
     },
     {
       "kind" : "typeIdentifier",

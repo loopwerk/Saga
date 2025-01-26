@@ -108,6 +108,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Initializers",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init()",
         "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata\/init(from:)"
@@ -231,7 +233,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": "
+      "text" : ": any "
     },
     {
       "kind" : "typeIdentifier",

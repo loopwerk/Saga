@@ -276,7 +276,7 @@
             },
             {
               "kind" : "text",
-              "text" : ".Type, "
+              "text" : ".Type = EmptyMetadata.self, "
             },
             {
               "kind" : "externalParam",
@@ -480,7 +480,7 @@
             {
               "inlineContent" : [
                 {
-                  "text" : "The metadata type used for the processing step. Required, but you can use ",
+                  "text" : "The metadata type used for the processing step. You can use ",
                   "type" : "text"
                 },
                 {
@@ -489,7 +489,7 @@
                   "type" : "reference"
                 },
                 {
-                  "text" : " if you don’t need any custom metadata.",
+                  "text" : " if you don’t need any custom metadata (which is the default value).",
                   "type" : "text"
                 }
               ],

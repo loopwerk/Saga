@@ -196,18 +196,23 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Initializers",
+      "generated" : true,
       "identifiers" : [
-        "doc:\/\/Saga\/documentation\/Saga\/Item\/init(relativeSource:relativeDestination:title:rawContent:body:date:lastModified:metadata:)"
+        "doc:\/\/Saga\/documentation\/Saga\/Item\/init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)"
       ],
       "title" : "Initializers"
     },
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Item\/body",
-        "doc:\/\/Saga\/documentation\/Saga\/Item\/date",
+        "doc:\/\/Saga\/documentation\/Saga\/Item\/created",
         "doc:\/\/Saga\/documentation\/Saga\/Item\/filenameWithoutExtension",
         "doc:\/\/Saga\/documentation\/Saga\/Item\/lastModified",
         "doc:\/\/Saga\/documentation\/Saga\/Item\/metadata",
+        "doc:\/\/Saga\/documentation\/Saga\/Item\/published",
         "doc:\/\/Saga\/documentation\/Saga\/Item\/rawContent",
         "doc:\/\/Saga\/documentation\/Saga\/Item\/relativeDestination",
         "doc:\/\/Saga\/documentation\/Saga\/Item\/relativeSource",
@@ -359,10 +364,10 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/item\/body"
 },
-"doc://Saga/documentation/Saga/Item/date": {
+"doc://Saga/documentation/Saga/Item/created": {
   "abstract" : [
     {
-      "text" : "The published date of the item.",
+      "text" : "The creation date of the item.",
       "type" : "text"
     }
   ],
@@ -377,7 +382,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "date"
+      "text" : "created"
     },
     {
       "kind" : "text",
@@ -389,12 +394,12 @@
       "text" : "Date"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/date",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/created",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "date",
+  "title" : "created",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/item\/date"
+  "url" : "\/documentation\/saga\/item\/created"
 },
 "doc://Saga/documentation/Saga/Item/filenameWithoutExtension": {
   "abstract" : [
@@ -430,7 +435,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/item\/filenamewithoutextension"
 },
-"doc://Saga/documentation/Saga/Item/init(relativeSource:relativeDestination:title:rawContent:body:date:lastModified:metadata:)": {
+"doc://Saga/documentation/Saga/Item/init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)": {
   "abstract" : [
 
   ],
@@ -530,7 +535,24 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "date"
+      "text" : "published"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:10Foundation4DateV",
+      "text" : "Date"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "created"
     },
     {
       "kind" : "text",
@@ -579,12 +601,12 @@
       "text" : ")"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/init(relativeSource:relativeDestination:title:rawContent:body:date:lastModified:metadata:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "init(relativeSource:relativeDestination:title:rawContent:body:date:lastModified:metadata:)",
+  "title" : "init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:date:lastmodified:metadata:)"
+  "url" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:published:created:lastmodified:metadata:)"
 },
 "doc://Saga/documentation/Saga/Item/lastModified": {
   "abstract" : [
@@ -675,6 +697,43 @@
   "title" : "metadata",
   "type" : "topic",
   "url" : "\/documentation\/saga\/item\/metadata"
+},
+"doc://Saga/documentation/Saga/Item/published": {
+  "abstract" : [
+    {
+      "text" : "The published date of the item.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "published"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:10Foundation4DateV",
+      "text" : "Date"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/published",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "published",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/item\/published"
 },
 "doc://Saga/documentation/Saga/Item/rawContent": {
   "abstract" : [

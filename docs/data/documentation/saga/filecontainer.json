@@ -96,6 +96,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/handled",
         "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item",
@@ -227,7 +229,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": "
+      "text" : ": (any "
     },
     {
       "kind" : "typeIdentifier",
@@ -236,7 +238,7 @@
     },
     {
       "kind" : "text",
-      "text" : "?"
+      "text" : ")?"
     }
   ],
   "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item",

@@ -258,6 +258,7 @@
   ],
   "seeAlsoSections" : [
     {
+      "anchor" : "Essentials",
       "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Installation",
@@ -270,18 +271,24 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Initializers",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Reader\/init(supportedExtensions:convert:)"
       ],
       "title" : "Initializers"
     },
     {
+      "anchor" : "Type-Aliases",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Reader\/Converter"
       ],
       "title" : "Type Aliases"
     },
     {
+      "anchor" : "Type-Methods",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Reader\/makeMetadataDecoder(for:)",
         "doc:\/\/Saga\/documentation\/Saga\/Reader\/resolvePublishingDate(from:decoder:)"

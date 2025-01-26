@@ -149,6 +149,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Paginator\/index",
         "doc:\/\/Saga\/documentation\/Saga\/Paginator\/itemsPerPage",

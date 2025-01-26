@@ -243,6 +243,7 @@
   ],
   "seeAlsoSections" : [
     {
+      "anchor" : "Essentials",
       "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Installation",
@@ -255,6 +256,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Type-Methods",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Writer\/itemWriter(_:)",
         "doc:\/\/Saga\/documentation\/Saga\/Writer\/listWriter(_:output:paginate:paginatedOutput:)",

@@ -99,6 +99,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Enumeration-Cases",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode\/keepAsFile",
         "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode\/moveToSubfolder"
@@ -106,6 +108,7 @@
       "title" : "Enumeration Cases"
     },
     {
+      "anchor" : "Default-Implementations",
       "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode\/Equatable-Implementations"

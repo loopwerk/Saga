@@ -130,6 +130,7 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Essentials",
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/Installation",
         "doc:\/\/Saga\/documentation\/Saga\/GettingStarted",
@@ -140,6 +141,8 @@
       "title" : "Essentials"
     },
     {
+      "anchor" : "Classes",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/FileContainer",
         "doc:\/\/Saga\/documentation\/Saga\/Item",
@@ -149,6 +152,8 @@
       "title" : "Classes"
     },
     {
+      "anchor" : "Protocols",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
         "doc:\/\/Saga\/documentation\/Saga\/Metadata"
@@ -156,6 +161,8 @@
       "title" : "Protocols"
     },
     {
+      "anchor" : "Structures",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/EmptyMetadata",
         "doc:\/\/Saga\/documentation\/Saga\/FileIO",
@@ -167,16 +174,29 @@
       "title" : "Structures"
     },
     {
+      "anchor" : "Type-Aliases",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/ContextKey"
       ],
       "title" : "Type Aliases"
     },
     {
+      "anchor" : "Enumerations",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode"
       ],
       "title" : "Enumerations"
+    },
+    {
+      "anchor" : "Extended-Modules",
+      "generated" : true,
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/PathKit",
+        "doc:\/\/Saga\/documentation\/Saga\/Swift"
+      ],
+      "title" : "Extended Modules"
     }
   ],
   "variants" : [
@@ -699,6 +719,17 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/partitionedrenderingcontext"
 },
+"doc://Saga/documentation/Saga/PathKit": {
+  "abstract" : [
+
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PathKit",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "PathKit",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/pathkit"
+},
 "doc://Saga/documentation/Saga/Reader": {
   "abstract" : [
     {
@@ -775,6 +806,17 @@
   "title" : "Saga",
   "type" : "topic",
   "url" : "\/documentation\/saga\/saga"
+},
+"doc://Saga/documentation/Saga/Swift": {
+  "abstract" : [
+
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Swift",
+  "kind" : "symbol",
+  "role" : "collection",
+  "title" : "Swift",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/swift"
 },
 "doc://Saga/documentation/Saga/Writer": {
   "abstract" : [

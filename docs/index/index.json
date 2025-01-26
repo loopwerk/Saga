@@ -1,4 +1,7 @@
 {
+  "includedArchiveIdentifiers" : [
+    "Saga"
+  ],
   "interfaceLanguages" : {
     "swift" : [
       {
@@ -114,7 +117,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/filecontainer\/item",
-                "title" : "var item: AnyItem?",
+                "title" : "var item: (any AnyItem)?",
                 "type" : "property"
               },
               {
@@ -134,8 +137,8 @@
                 "type" : "groupMarker"
               },
               {
-                "path" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:date:lastmodified:metadata:)",
-                "title" : "init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, date: Date, lastModified: Date, metadata: M)",
+                "path" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:published:created:lastmodified:metadata:)",
+                "title" : "init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, published: Date, created: Date, lastModified: Date, metadata: M)",
                 "type" : "init"
               },
               {
@@ -148,8 +151,8 @@
                 "type" : "property"
               },
               {
-                "path" : "\/documentation\/saga\/item\/date",
-                "title" : "var date: Date",
+                "path" : "\/documentation\/saga\/item\/created",
+                "title" : "var created: Date",
                 "type" : "property"
               },
               {
@@ -165,6 +168,11 @@
               {
                 "path" : "\/documentation\/saga\/item\/metadata",
                 "title" : "var metadata: M",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/item\/published",
+                "title" : "var published: Date",
                 "type" : "property"
               },
               {
@@ -205,7 +213,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/metadatadecoder\/init(metadata:codingpath:dateformatter:)",
-                "title" : "init(metadata: [String : String], codingPath: [CodingKey], dateFormatter: DateFormatter)",
+                "title" : "init(metadata: [String : String], codingPath: [any CodingKey], dateFormatter: DateFormatter)",
                 "type" : "init"
               },
               {
@@ -214,7 +222,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/metadatadecoder\/codingpath",
-                "title" : "let codingPath: [CodingKey]",
+                "title" : "let codingPath: [any CodingKey]",
                 "type" : "property"
               },
               {
@@ -233,12 +241,12 @@
               },
               {
                 "path" : "\/documentation\/saga\/metadatadecoder\/singlevaluecontainer()",
-                "title" : "func singleValueContainer() throws -> SingleValueDecodingContainer",
+                "title" : "func singleValueContainer() throws -> any SingleValueDecodingContainer",
                 "type" : "method"
               },
               {
                 "path" : "\/documentation\/saga\/metadatadecoder\/unkeyedcontainer()",
-                "title" : "func unkeyedContainer() throws -> UnkeyedDecodingContainer",
+                "title" : "func unkeyedContainer() throws -> any UnkeyedDecodingContainer",
                 "type" : "method"
               },
               {
@@ -371,8 +379,8 @@
                 "type" : "property"
               },
               {
-                "path" : "\/documentation\/saga\/anyitem\/date",
-                "title" : "var date: Date",
+                "path" : "\/documentation\/saga\/anyitem\/created",
+                "title" : "var created: Date",
                 "type" : "property"
               },
               {
@@ -383,6 +391,11 @@
               {
                 "path" : "\/documentation\/saga\/anyitem\/lastmodified",
                 "title" : "var lastModified: Date",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/anyitem\/published",
+                "title" : "var published: Date",
                 "type" : "property"
               },
               {
@@ -437,7 +450,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/emptymetadata\/init(from:)",
-                "title" : "init(from: Decoder) throws",
+                "title" : "init(from: any Decoder) throws",
                 "type" : "init"
               }
             ],
@@ -469,7 +482,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/itemrenderingcontext\/allitems",
-                "title" : "let allItems: [AnyItem]",
+                "title" : "let allItems: [any AnyItem]",
                 "type" : "property"
               },
               {
@@ -495,7 +508,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/itemsrenderingcontext\/allitems",
-                "title" : "let allItems: [AnyItem]",
+                "title" : "let allItems: [any AnyItem]",
                 "type" : "property"
               },
               {
@@ -562,7 +575,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/partitionedrenderingcontext\/allitems",
-                "title" : "let allItems: [AnyItem]",
+                "title" : "let allItems: [any AnyItem]",
                 "type" : "property"
               },
               {
@@ -643,6 +656,108 @@
             "path" : "\/documentation\/saga\/itemwritemode",
             "title" : "ItemWriteMode",
             "type" : "enum"
+          },
+          {
+            "title" : "Extended Modules",
+            "type" : "groupMarker"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Extended Structures",
+                "type" : "groupMarker"
+              },
+              {
+                "children" : [
+                  {
+                    "title" : "Instance Properties",
+                    "type" : "groupMarker"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/pathkit\/path\/creationdate",
+                    "title" : "var creationDate: Date?",
+                    "type" : "property"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/pathkit\/path\/modificationdate",
+                    "title" : "var modificationDate: Date?",
+                    "type" : "property"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/pathkit\/path\/url",
+                    "title" : "var url: String",
+                    "type" : "property"
+                  },
+                  {
+                    "title" : "Instance Methods",
+                    "type" : "groupMarker"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/pathkit\/path\/makeoutputpath(itemwritemode:)",
+                    "title" : "func makeOutputPath(itemWriteMode: ItemWriteMode) -> Path",
+                    "type" : "method"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/pathkit\/path\/relativepath(from:)",
+                    "title" : "func relativePath(from: Path) throws -> Path",
+                    "type" : "method"
+                  },
+                  {
+                    "title" : "Default Implementations",
+                    "type" : "groupMarker"
+                  },
+                  {
+                    "children" : [
+                      {
+                        "title" : "Initializers",
+                        "type" : "groupMarker"
+                      },
+                      {
+                        "path" : "\/documentation\/saga\/pathkit\/path\/init(from:)",
+                        "title" : "init(from: any Decoder) throws",
+                        "type" : "init"
+                      }
+                    ],
+                    "path" : "\/documentation\/saga\/pathkit\/path\/decodable-implementations",
+                    "title" : "Decodable Implementations",
+                    "type" : "symbol"
+                  }
+                ],
+                "path" : "\/documentation\/saga\/pathkit\/path",
+                "title" : "Path",
+                "type" : "extension"
+              }
+            ],
+            "path" : "\/documentation\/saga\/pathkit",
+            "title" : "PathKit",
+            "type" : "extension"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Extended Protocols",
+                "type" : "groupMarker"
+              },
+              {
+                "children" : [
+                  {
+                    "title" : "Instance Properties",
+                    "type" : "groupMarker"
+                  },
+                  {
+                    "path" : "\/documentation\/saga\/swift\/customstringconvertible\/slugified",
+                    "title" : "var slugified: String",
+                    "type" : "property"
+                  }
+                ],
+                "path" : "\/documentation\/saga\/swift\/customstringconvertible",
+                "title" : "CustomStringConvertible",
+                "type" : "extension"
+              }
+            ],
+            "path" : "\/documentation\/saga\/swift",
+            "title" : "Swift",
+            "type" : "extension"
           }
         ],
         "path" : "\/documentation\/saga",
@@ -654,6 +769,6 @@
   "schemaVersion" : {
     "major" : 0,
     "minor" : 1,
-    "patch" : 1
+    "patch" : 2
   }
 }

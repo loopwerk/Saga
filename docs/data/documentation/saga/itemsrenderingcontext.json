@@ -116,6 +116,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems",
         "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/items",
@@ -203,7 +205,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": ["
+      "text" : ": [any "
     },
     {
       "kind" : "typeIdentifier",

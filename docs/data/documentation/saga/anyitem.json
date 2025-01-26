@@ -111,11 +111,14 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/body",
-        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/date",
+        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/created",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/filenameWithoutExtension",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/lastModified",
+        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/published",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/rawContent",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/relativeDestination",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/relativeSource",
@@ -231,7 +234,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/anyitem\/body"
 },
-"doc://Saga/documentation/Saga/AnyItem/date": {
+"doc://Saga/documentation/Saga/AnyItem/created": {
   "abstract" : [
 
   ],
@@ -246,7 +249,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "date"
+      "text" : "created"
     },
     {
       "kind" : "text",
@@ -258,13 +261,13 @@
       "text" : "Date"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/date",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/created",
   "kind" : "symbol",
   "required" : true,
   "role" : "symbol",
-  "title" : "date",
+  "title" : "created",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/date"
+  "url" : "\/documentation\/saga\/anyitem\/created"
 },
 "doc://Saga/documentation/Saga/AnyItem/filenameWithoutExtension": {
   "abstract" : [
@@ -335,6 +338,41 @@
   "title" : "lastModified",
   "type" : "topic",
   "url" : "\/documentation\/saga\/anyitem\/lastmodified"
+},
+"doc://Saga/documentation/Saga/AnyItem/published": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "published"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:10Foundation4DateV",
+      "text" : "Date"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/published",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "published",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem\/published"
 },
 "doc://Saga/documentation/Saga/AnyItem/rawContent": {
   "abstract" : [

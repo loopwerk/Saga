@@ -29,7 +29,7 @@
       },
       {
         "kind" : "text",
-        "text" : ": "
+        "text" : ": (any "
       },
       {
         "kind" : "typeIdentifier",
@@ -38,7 +38,7 @@
       },
       {
         "kind" : "text",
-        "text" : "?"
+        "text" : ")?"
       }
     ],
     "modules" : [
@@ -76,7 +76,7 @@
             },
             {
               "kind" : "text",
-              "text" : ": "
+              "text" : ": (any "
             },
             {
               "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
@@ -86,7 +86,7 @@
             },
             {
               "kind" : "text",
-              "text" : "? { get }"
+              "text" : ")? { get }"
             }
           ]
         }
@@ -234,7 +234,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": "
+      "text" : ": (any "
     },
     {
       "kind" : "typeIdentifier",
@@ -243,7 +243,7 @@
     },
     {
       "kind" : "text",
-      "text" : "?"
+      "text" : ")?"
     }
   ],
   "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item",

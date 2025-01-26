@@ -158,6 +158,8 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Instance-Properties",
+      "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/allItems",
         "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext\/items",
@@ -277,7 +279,7 @@
     },
     {
       "kind" : "text",
-      "text" : ": ["
+      "text" : ": [any "
     },
     {
       "kind" : "typeIdentifier",
