@@ -29,7 +29,6 @@ struct Run {
     try await Saga(input: "content", output: "deploy")
       // All files will be parsed to html.
       .register(
-        metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
         writers: [
           .itemWriter(swim(renderPage))
