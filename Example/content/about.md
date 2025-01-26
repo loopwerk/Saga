@@ -1,2 +1,2 @@
-#  About this site
+# About this site
 A short text here.
