@@ -29,7 +29,6 @@ struct Run {
     try await Saga(input: "content", output: "deploy")
       // All Markdown files within the `input` folder will be parsed to html.
       .register(
-        metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
         writers: [
           .itemWriter(swim(renderPage))
@@ -105,7 +104,7 @@ struct Run {
           .listWriter(swim(renderArticles), paginate: 20),
           .tagWriter(swim(renderTag), tags: \.metadata.tags),
           .yearWriter(swim(renderYear)),
-          
+
           // Atom feed for all articles, and a feed per tag
           .listWriter(swim(renderFeed), output: "feed.xml"),
           .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
@@ -120,18 +119,17 @@ struct Run {
         readers: [.parsleyMarkdownReader()],
         writers: [.listWriter(swim(renderApps))]
       )
-     
+
       // All the remaining Markdown files will be parsed to html,
       // using the default `EmptyMetadata` as the item's metadata type.
       .register(
-        metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
         writers: [.itemWriter(swim(renderItem))]
       )
-      
+
       // Run the steps we registered above
       .run()
-      
+
       // All the remaining files that were not parsed to markdown, so for example images,
       // raw html files and css, are copied as-is to the output folder.
       .staticFiles()
@@ -197,7 +195,6 @@ struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy")
       .register(
-        metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader(itemProcessor: addExclamationToTitle)],
         writers: [.itemWriter(swim(renderItem))]
       )
@@ -209,8 +206,8 @@ struct Run {
 
 It's also easy to add your own readers and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
 
-
 ## Development server
+
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
 ```
