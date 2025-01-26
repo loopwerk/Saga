@@ -10,7 +10,7 @@ on:
 
 jobs:
   test-xcode:
-    runs-on: macos-12
+    runs-on: macos-15
     strategy:
       matrix:
         xcode:
