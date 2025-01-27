@@ -30,9 +30,7 @@ struct Run {
       // All Markdown files within the `input` folder will be parsed to html.
       .register(
         readers: [.parsleyMarkdownReader()],
-        writers: [
-          .itemWriter(swim(renderPage))
-        ]
+        writers: [.itemWriter(swim(renderPage))]
       )
 
       // Run the step we registered above
@@ -45,7 +43,7 @@ struct Run {
 }
 ```
 
-> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. The <doc:Architecture> document has more information on how Saga works. 
+> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer). The <doc:Architecture> document has more information on how Saga works. 
 
 
 ## Custom metadata
@@ -67,7 +65,7 @@ And an example app for a portfolio, `/content/apps/lastfm.md`:
 
 ```text
 ---
-url: https://itunes.apple.com/us/app/last-fm-scrobbler/id1188681944?ls=1&mt=8)
+url: https://itunes.apple.com/us/app/last-fm-scrobbler/id1188681944?ls=1&mt=8
 images: lastfm_1.jpg, lastfm_2.jpg
 ---
 # Last.fm Scrobbler

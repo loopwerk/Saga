@@ -70,9 +70,7 @@
             "      \/\/ All Markdown files within the `input` folder will be parsed to html.",
             "      .register(",
             "        readers: [.parsleyMarkdownReader()],",
-            "        writers: [",
-            "          .itemWriter(swim(renderPage))",
-            "        ]",
+            "        writers: [.itemWriter(swim(renderPage))]",
             "      )",
             "",
             "      \/\/ Run the step we registered above",
@@ -110,7 +108,16 @@
                   "type" : "reference"
                 },
                 {
-                  "text" : " to create type-safe HTML. The ",
+                  "text" : " to create type-safe HTML. If you prefer to work with Mustache-type HTML template files, check out ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : ". The ",
                   "type" : "text"
                 },
                 {
@@ -195,7 +202,7 @@
         {
           "code" : [
             "---",
-            "url: https:\/\/itunes.apple.com\/us\/app\/last-fm-scrobbler\/id1188681944?ls=1&mt=8)",
+            "url: https:\/\/itunes.apple.com\/us\/app\/last-fm-scrobbler\/id1188681944?ls=1&mt=8",
             "images: lastfm_1.jpg, lastfm_2.jpg",
             "---",
             "# Last.fm Scrobbler",
@@ -507,6 +514,13 @@
                 {
                   "identifier" : "https:\/\/github.com\/loopwerk\/SagaStencilRenderer",
                   "isActive" : true,
+                  "overridingTitle" : "SagaStencilRenderer",
+                  "overridingTitleInlineContent" : [
+                    {
+                      "text" : "SagaStencilRenderer",
+                      "type" : "text"
+                    }
+                  ],
                   "type" : "reference"
                 },
                 {
