@@ -23,7 +23,11 @@ public extension Path {
       case .keepAsFile:
         return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
       case .moveToSubfolder:
-        return self.parent() + self.lastComponentWithoutExtension.slugified + "index.html"
+        if self.lastComponentWithoutExtension.slugified == "index" {
+          return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
+        } else {
+          return self.parent() + self.lastComponentWithoutExtension.slugified + "index.html"
+        }
     }
   }
 
@@ -36,7 +40,7 @@ public extension Path {
   }
 }
 
-extension Path: Decodable {
+extension Path: @retroactive Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     let decodedString = try container.decode(String.self)
