@@ -64,7 +64,8 @@ struct Run {
       .register(
         folder: "articles",
         metadata: ArticleMetadata.self,
-        readers: [.parsleyMarkdownReader(itemProcessor: itemProcessor)],
+        readers: [.parsleyMarkdownReader()],
+        itemProcessor: itemProcessor,
         filter: \.public,
         writers: [
           .itemWriter(swim(renderArticle)),
@@ -84,9 +85,7 @@ struct Run {
         folder: "apps",
         metadata: AppMetadata.self,
         readers: [.parsleyMarkdownReader()],
-        writers: [
-          .listWriter(swim(renderApps))
-        ]
+        writers: [.listWriter(swim(renderApps))]
       )
 
       // All the remaining markdown files will be parsed to html,
@@ -94,10 +93,7 @@ struct Run {
       .register(
         metadata: EmptyMetadata.self,
         readers: [.parsleyMarkdownReader()],
-        itemWriteMode: .keepAsFile,
-        writers: [
-          .itemWriter(swim(renderPage))
-        ]
+        writers: [.itemWriter(swim(renderPage))]
       )
 
       // Run the steps we registered above

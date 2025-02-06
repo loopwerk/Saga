@@ -180,7 +180,7 @@ try await Saga(input: "content", output: "deploy")
  .createArticleImages()
 ```
 
-But probably more common and useful is to use the `itemProcessor` parameter of the readers:
+But probably more common and useful is to use an `itemProcessor`:
 
 ```swift
 func addExclamationToTitle(item: Item<EmptyMetadata>) async {
@@ -193,7 +193,8 @@ struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy")
       .register(
-        readers: [.parsleyMarkdownReader(itemProcessor: addExclamationToTitle)],
+        readers: [.parsleyMarkdownReader()],
+        itemProcessor: addExclamationToTitle
         writers: [.itemWriter(swim(renderItem))]
       )
   }

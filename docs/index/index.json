@@ -344,8 +344,8 @@
                 "type" : "groupMarker"
               },
               {
-                "path" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemwritemode:filter:writers:)",
-                "title" : "func register<M>(folder: Path?, metadata: M.Type, readers: [Reader<M>], itemWriteMode: ItemWriteMode, filter: ((Item<M>) -> Bool), writers: [Writer<M>]) throws -> Self",
+                "path" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemwritemode:itemprocessor:filter:writers:)",
+                "title" : "func register<M>(folder: Path?, metadata: M.Type, readers: [Reader<M>], itemWriteMode: ItemWriteMode, itemProcessor: ((Item<M>) async -> Void)?, filter: ((Item<M>) -> Bool), writers: [Writer<M>]) throws -> Self",
                 "type" : "method"
               },
               {

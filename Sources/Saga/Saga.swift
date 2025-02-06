@@ -67,12 +67,13 @@ public class Saga {
   ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
   ///   - itemWriteMode: The ``ItemWriteMode`` used by this step.
+  ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
   ///   - filter: A filter to only include certain items from the input folder.
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader<M>], itemWriteMode: ItemWriteMode = .moveToSubfolder, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, writers: [Writer<M>]) throws -> Self {
-    let step = ProcessStep(folder: folder, readers: readers, filter: filter, writers: writers)
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader<M>], itemWriteMode: ItemWriteMode = .moveToSubfolder, itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, writers: [Writer<M>]) throws -> Self {
+    let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, writers: writers)
     self.processSteps.append(
       .init(
         step: step,
@@ -112,7 +113,7 @@ public class Saga {
 
     let writeEnd = DispatchTime.now()
     let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
-    print("\(Date()) | Finished writers \(Double(writeTime) / 1_000_000_000)s")
+    print("\(Date()) | Finished writers in \(Double(writeTime) / 1_000_000_000)s")
 
     return self
   }

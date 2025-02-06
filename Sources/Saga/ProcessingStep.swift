@@ -5,12 +5,14 @@ internal class ProcessStep<M: Metadata> {
   let folder: Path?
   let readers: [Reader<M>]
   let filter: (Item<M>) -> Bool
+  let itemProcessor: ((Item<M>) async -> Void)?
   let writers: [Writer<M>]
   var items: [Item<M>]
 
-  init(folder: Path?, readers: [Reader<M>], filter: @escaping (Item<M>) -> Bool, writers: [Writer<M>]) {
+  init(folder: Path?, readers: [Reader<M>], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, writers: [Writer<M>]) {
     self.folder = folder
     self.readers = readers
+    self.itemProcessor = itemProcessor
     self.filter = filter
     self.writers = writers
     self.items = []
@@ -47,7 +49,12 @@ internal class AnyProcessStep {
           // Turn the file into an Item
           let item = try await reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
 
-          // Store the generated Item
+          // Process the Item if there's an itemProcessor
+          if let itemProcessor = step.itemProcessor {
+            await itemProcessor(item)
+          }
+          
+          // Store the generated Item if it passes the filter
           if step.filter(item) {
             unhandledFileContainer.item = item
             items.append(item)

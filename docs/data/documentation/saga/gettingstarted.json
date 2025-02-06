@@ -740,7 +740,7 @@
         {
           "inlineContent" : [
             {
-              "text" : "But probably more common and useful is to use the ",
+              "text" : "But probably more common and useful is to use an ",
               "type" : "text"
             },
             {
@@ -748,7 +748,7 @@
               "type" : "codeVoice"
             },
             {
-              "text" : " parameter of the readers:",
+              "text" : ":",
               "type" : "text"
             }
           ],
@@ -766,7 +766,8 @@
             "  static func main() async throws {",
             "    try await Saga(input: \"content\", output: \"deploy\")",
             "      .register(",
-            "        readers: [.parsleyMarkdownReader(itemProcessor: addExclamationToTitle)],",
+            "        readers: [.parsleyMarkdownReader()],",
+            "        itemProcessor: addExclamationToTitle",
             "        writers: [.itemWriter(swim(renderItem))]",
             "      )",
             "  }",
