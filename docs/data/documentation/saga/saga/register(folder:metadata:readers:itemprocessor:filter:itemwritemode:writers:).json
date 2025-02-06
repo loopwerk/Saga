@@ -15,11 +15,11 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4SagaAAC8register6folder8metadata7readers13itemWriteMode0F9Processor6filter7writersABXD7PathKit0L0VSg_xmSayAA6ReaderVyxGGAA04ItemgH0OyAA0O0CyxGYacSgSbAWcSayAA6WriterVyxGGtKAA8MetadataRzlF",
+    "externalID" : "s:4SagaAAC8register6folder8metadata7readers13itemProcessor6filter0F9WriteMode7writersABXD7PathKit0L0VSg_xmSayAA6ReaderVyxGGyAA4ItemCyxGYacSgSbAUcAA0oiJ0OSayAA6WriterVyxGGtKAA8MetadataRzlF",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -105,23 +105,6 @@
       },
       {
         "kind" : "externalParam",
-        "text" : "itemWriteMode"
-      },
-      {
-        "kind" : "text",
-        "text" : ": "
-      },
-      {
-        "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
-        "text" : "ItemWriteMode"
-      },
-      {
-        "kind" : "text",
-        "text" : ", "
-      },
-      {
-        "kind" : "externalParam",
         "text" : "itemProcessor"
       },
       {
@@ -198,6 +181,23 @@
       },
       {
         "kind" : "externalParam",
+        "text" : "itemWriteMode"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
+        "text" : "ItemWriteMode"
+      },
+      {
+        "kind" : "text",
+        "text" : ", "
+      },
+      {
+        "kind" : "externalParam",
         "text" : "writers"
       },
       {
@@ -242,7 +242,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Method",
     "symbolKind" : "method",
-    "title" : "register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)"
+    "title" : "register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)"
   },
   "primaryContentSections" : [
     {
@@ -348,24 +348,6 @@
             },
             {
               "kind" : "externalParam",
-              "text" : "itemWriteMode"
-            },
-            {
-              "kind" : "text",
-              "text" : ": "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
-              "text" : "ItemWriteMode"
-            },
-            {
-              "kind" : "text",
-              "text" : " = .moveToSubfolder, "
-            },
-            {
-              "kind" : "externalParam",
               "text" : "itemProcessor"
             },
             {
@@ -449,6 +431,24 @@
             {
               "kind" : "text",
               "text" : ") = { _ in true }, "
+            },
+            {
+              "kind" : "externalParam",
+              "text" : "itemWriteMode"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
+              "text" : "ItemWriteMode"
+            },
+            {
+              "kind" : "text",
+              "text" : " = .moveToSubfolder, "
             },
             {
               "kind" : "externalParam",
@@ -602,29 +602,6 @@
             {
               "inlineContent" : [
                 {
-                  "text" : "The ",
-                  "type" : "text"
-                },
-                {
-                  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode",
-                  "isActive" : true,
-                  "type" : "reference"
-                },
-                {
-                  "text" : " used by this step.",
-                  "type" : "text"
-                }
-              ],
-              "type" : "paragraph"
-            }
-          ],
-          "name" : "itemWriteMode"
-        },
-        {
-          "content" : [
-            {
-              "inlineContent" : [
-                {
                   "text" : "A function to modify the generated ",
                   "type" : "text"
                 },
@@ -656,6 +633,29 @@
             }
           ],
           "name" : "filter"
+        },
+        {
+          "content" : [
+            {
+              "inlineContent" : [
+                {
+                  "text" : "The ",
+                  "type" : "text"
+                },
+                {
+                  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemWriteMode",
+                  "isActive" : true,
+                  "type" : "reference"
+                },
+                {
+                  "text" : " used by this step.",
+                  "type" : "text"
+                }
+              ],
+              "type" : "paragraph"
+            }
+          ],
+          "name" : "itemWriteMode"
         },
         {
           "content" : [
@@ -705,7 +705,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemwritemode:itemprocessor:filter:writers:)"
+        "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemprocessor:filter:itemwritemode:writers:)"
       ],
       "traits" : [
         {
@@ -949,7 +949,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/saga"
 },
-"doc://Saga/documentation/Saga/Saga/register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)": {
+"doc://Saga/documentation/Saga/Saga/register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)": {
   "abstract" : [
     {
       "text" : "Register a new processing step.",
@@ -1041,23 +1041,6 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "itemWriteMode"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
-      "text" : "ItemWriteMode"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "externalParam",
       "text" : "itemProcessor"
     },
     {
@@ -1134,6 +1117,23 @@
     },
     {
       "kind" : "externalParam",
+      "text" : "itemWriteMode"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
+      "text" : "ItemWriteMode"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
       "text" : "writers"
     },
     {
@@ -1170,12 +1170,12 @@
       "text" : "Self"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)",
+  "title" : "register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemwritemode:itemprocessor:filter:writers:)"
+  "url" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemprocessor:filter:itemwritemode:writers:)"
 },
 "doc://Saga/documentation/Saga/Writer": {
   "abstract" : [

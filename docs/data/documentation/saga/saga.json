@@ -148,7 +148,7 @@
       "anchor" : "Instance-Methods",
       "generated" : true,
       "identifiers" : [
-        "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)",
+        "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)",
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/run()",
         "doc:\/\/Saga\/documentation\/Saga\/Saga\/staticFiles()"
       ],
@@ -441,7 +441,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/saga\/outputpath"
 },
-"doc://Saga/documentation/Saga/Saga/register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)": {
+"doc://Saga/documentation/Saga/Saga/register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)": {
   "abstract" : [
     {
       "text" : "Register a new processing step.",
@@ -533,23 +533,6 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "itemWriteMode"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
-      "text" : "ItemWriteMode"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "externalParam",
       "text" : "itemProcessor"
     },
     {
@@ -626,6 +609,23 @@
     },
     {
       "kind" : "externalParam",
+      "text" : "itemWriteMode"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga13ItemWriteModeO",
+      "text" : "ItemWriteMode"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
       "text" : "writers"
     },
     {
@@ -662,12 +662,12 @@
       "text" : "Self"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Saga\/register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "register(folder:metadata:readers:itemWriteMode:itemProcessor:filter:writers:)",
+  "title" : "register(folder:metadata:readers:itemProcessor:filter:itemWriteMode:writers:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemwritemode:itemprocessor:filter:writers:)"
+  "url" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemprocessor:filter:itemwritemode:writers:)"
 },
 "doc://Saga/documentation/Saga/Saga/rootPath": {
   "abstract" : [

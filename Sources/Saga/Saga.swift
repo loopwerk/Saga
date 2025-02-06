@@ -66,13 +66,13 @@ public class Saga {
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
   ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
-  ///   - itemWriteMode: The ``ItemWriteMode`` used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
   ///   - filter: A filter to only include certain items from the input folder.
+  ///   - itemWriteMode: The ``ItemWriteMode`` used by this step.
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader<M>], itemWriteMode: ItemWriteMode = .moveToSubfolder, itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, writers: [Writer<M>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader<M>], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, itemWriteMode: ItemWriteMode = .moveToSubfolder, writers: [Writer<M>]) throws -> Self {
     let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, writers: writers)
     self.processSteps.append(
       .init(
