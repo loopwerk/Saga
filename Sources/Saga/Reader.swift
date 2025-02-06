@@ -15,7 +15,7 @@ import PathKit
 ///
 /// ```swift
 /// public extension Reader {
-///   static func myMarkdownReader(itemProcessor: ((Item<M>) async -> Void)? = nil) -> Self {
+///   static func myMarkdownReader() -> Self {
 ///     Reader(supportedExtensions: ["md", "markdown"], convert: { absoluteSource, relativeSource, relativeDestination in
 ///       let content: String = try absoluteSource.read()
 ///

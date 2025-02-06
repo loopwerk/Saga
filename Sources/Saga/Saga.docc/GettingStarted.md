@@ -29,7 +29,7 @@ struct Run {
     try await Saga(input: "content", output: "deploy")
       // All Markdown files within the `input` folder will be parsed to html.
       .register(
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         writers: [.itemWriter(swim(renderPage))]
       )
 
@@ -96,7 +96,7 @@ struct Run {
       .register(
         folder: "articles",
         metadata: ArticleMetadata.self,
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         writers: [
           .itemWriter(swim(renderArticle)),
           .listWriter(swim(renderArticles), paginate: 20),
@@ -114,14 +114,14 @@ struct Run {
       .register(
         folder: "apps",
         metadata: AppMetadata.self,
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         writers: [.listWriter(swim(renderApps))]
       )
 
       // All the remaining Markdown files will be parsed to html,
       // using the default `EmptyMetadata` as the item's metadata type.
       .register(
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         writers: [.itemWriter(swim(renderItem))]
       )
 
@@ -193,7 +193,7 @@ struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy")
       .register(
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         itemProcessor: addExclamationToTitle,
         writers: [.itemWriter(swim(renderItem))]
       )

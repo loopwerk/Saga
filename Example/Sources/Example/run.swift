@@ -64,7 +64,7 @@ struct Run {
       .register(
         folder: "articles",
         metadata: ArticleMetadata.self,
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         itemProcessor: itemProcessor,
         filter: \.public,
         writers: [
@@ -84,7 +84,7 @@ struct Run {
       .register(
         folder: "apps",
         metadata: AppMetadata.self,
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         writers: [.listWriter(swim(renderApps))]
       )
 
@@ -92,7 +92,7 @@ struct Run {
       // using the default EmptyMetadata as the Item's metadata type.
       .register(
         metadata: EmptyMetadata.self,
-        readers: [.parsleyMarkdownReader()],
+        readers: [.parsleyMarkdownReader],
         writers: [.itemWriter(swim(renderPage))]
       )
 
