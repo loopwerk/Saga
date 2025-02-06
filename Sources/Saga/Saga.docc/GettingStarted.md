@@ -194,7 +194,7 @@ struct Run {
     try await Saga(input: "content", output: "deploy")
       .register(
         readers: [.parsleyMarkdownReader()],
-        itemProcessor: addExclamationToTitle
+        itemProcessor: addExclamationToTitle,
         writers: [.itemWriter(swim(renderItem))]
       )
   }
