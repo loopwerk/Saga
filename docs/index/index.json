@@ -124,6 +124,11 @@
                 "path" : "\/documentation\/saga\/filecontainer\/path",
                 "title" : "let path: Path",
                 "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/filecontainer\/relativepath",
+                "title" : "let relativePath: Path",
+                "type" : "property"
               }
             ],
             "path" : "\/documentation\/saga\/filecontainer",
@@ -493,6 +498,11 @@
               {
                 "path" : "\/documentation\/saga\/itemrenderingcontext\/items",
                 "title" : "let items: [Item<M>]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/itemrenderingcontext\/resources",
+                "title" : "let resources: [Path]",
                 "type" : "property"
               }
             ],

@@ -101,7 +101,8 @@
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/handled",
         "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/item",
-        "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/path"
+        "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/path",
+        "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/relativePath"
       ],
       "title" : "Instance Properties"
     }
@@ -281,6 +282,40 @@
   "title" : "path",
   "type" : "topic",
   "url" : "\/documentation\/saga\/filecontainer\/path"
+},
+"doc://Saga/documentation/Saga/FileContainer/relativePath": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "let"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "relativePath"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/FileContainer\/relativePath",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "relativePath",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/filecontainer\/relativepath"
 }
 }
 }
