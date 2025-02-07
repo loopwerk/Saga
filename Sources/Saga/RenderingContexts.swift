@@ -4,6 +4,7 @@ public struct ItemRenderingContext<M: Metadata> {
   public let item: Item<M>
   public let items: [Item<M>]
   public let allItems: [AnyItem]
+  public let resources: [Path]
 }
 
 public struct ItemsRenderingContext<M: Metadata> {

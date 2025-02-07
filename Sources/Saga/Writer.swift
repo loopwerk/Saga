@@ -7,7 +7,7 @@ import Foundation
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 public struct Writer<M: Metadata> {
-  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ outputRoot: Path, _ outputPrefix: Path, _ fileIO: FileIO) throws -> Void
+  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer],_ outputRoot: Path, _ outputPrefix: Path, _ fileIO: FileIO) throws -> Void
 }
 
 private extension Array {
@@ -21,9 +21,13 @@ private extension Array {
 public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.destination` as the destination path.
   static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M>) throws -> String) -> Self {
-    Writer { items, allItems, outputRoot, outputPrefix, fileIO in
+    Writer { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       for item in items {
-        let context = ItemRenderingContext(item: item, items: items, allItems: allItems)
+        // Resources are unhandled files in the same folder. These could be images for example, or other static files.
+        let resources = fileStorage
+          .filter { $0.relativePath.parent() == item.relativeSource.parent() && !$0.handled }
+          .map { $0.path }
+        let context = ItemRenderingContext(item: item, items: items, allItems: allItems, resources: resources)
         let stringToWrite = try renderer(context)
         try fileIO.write(outputRoot + item.relativeDestination, stringToWrite)
       }
@@ -32,7 +36,7 @@ public extension Writer {
 
   /// Writes an array of items into a single output file.
   static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M>) throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
-    return Self { items, allItems, outputRoot, outputPrefix, fileIO in
+    return Self { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       try writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
         return ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
       }
@@ -46,7 +50,7 @@ public extension Writer {
   /// The `output` path is a template where `[key]` will be replaced with the key used for the partition.
   /// Example: `articles/[key]/index.html`
   static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
-    return Self { items, allItems, outputRoot, outputPrefix, fileIO in
+    return Self { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       let partitions = partitioner(items)
 
       for (key, itemsInPartition) in Array(partitions).sorted(by: {$0.0 < $1.0}) {

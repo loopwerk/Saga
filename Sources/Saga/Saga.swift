@@ -47,14 +47,14 @@ public class Saga {
     outputPath = rootPath + output
     self.fileIO = fileIO
 
-    // 1. Find all files in the source folder
-    let files = try fileIO.findFiles(inputPath)
+    // 1. Find all files in the source folder (filter out .DS_Store)
+    let files = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
 
     // 2. Turn the files into FileContainers so we can keep track if they're handled or not
+    let ip = inputPath
     self.fileStorage = files.map { path in
-      FileContainer(
-        path: path
-      )
+      let relativePath = (try? path.relativePath(from: ip)) ?? Path("")
+      return FileContainer(path: path, relativePath: relativePath)
     }
   }
 

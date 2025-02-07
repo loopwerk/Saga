@@ -30,15 +30,13 @@ internal class AnyProcessStep {
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
 
       for unhandledFileContainer in unhandledFileContainers {
-        let relativePath = try unhandledFileContainer.path.relativePath(from: inputPath)
-
         // Only work on files that match the folder (if any)
-        if let folder = step.folder, !relativePath.string.starts(with: folder.string) {
+        if let folder = step.folder, !unhandledFileContainer.relativePath.string.starts(with: folder.string) {
           continue
         }
 
         // Pick the first reader that is able to work on this file, based on file extension
-        guard let reader = step.readers.first(where: { $0.supportedExtensions.contains(relativePath.extension ?? "") }) else {
+        guard let reader = step.readers.first(where: { $0.supportedExtensions.contains(unhandledFileContainer.path.extension ?? "") }) else {
           continue
         }
 
@@ -47,7 +45,7 @@ internal class AnyProcessStep {
 
         do {
           // Turn the file into an Item
-          let item = try await reader.convert(unhandledFileContainer.path, relativePath, relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
+          let item = try await reader.convert(unhandledFileContainer.path, unhandledFileContainer.relativePath, unhandledFileContainer.relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
 
           // Process the Item if there's an itemProcessor
           if let itemProcessor = step.itemProcessor {
@@ -64,7 +62,7 @@ internal class AnyProcessStep {
           // We still mark it has handled, otherwise another, less specific, read step might
           // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
           // which is probably not what you want.
-          print("❕File \(relativePath) failed conversion to Item<\(M.self)>, error: ", error)
+          print("❕File \(unhandledFileContainer.relativePath) failed conversion to Item<\(M.self)>, error: ", error)
           continue
         }
       }
@@ -78,7 +76,7 @@ internal class AnyProcessStep {
         .sorted(by: { left, right in left.published > right.published })
 
       for writer in step.writers {
-        try writer.run(step.items, allItems, outputPath, step.folder ?? "", fileIO)
+        try writer.run(step.items, allItems, fileStorage, outputPath, step.folder ?? "", fileIO)
       }
     }
   }

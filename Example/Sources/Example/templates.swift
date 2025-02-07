@@ -15,6 +15,7 @@ func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConverti
         a(href: "/") { "Home" }
         a(href: "/articles/") { "Articles" }
         a(href: "/apps/") { "Apps" }
+        a(href: "/photos/") { "Photos" }
         a(href: "/about.html") { "About" }
       }
       div(id: "content") {
@@ -138,6 +139,17 @@ func renderApps(context: ItemsRenderingContext<AppMetadata>) -> Node {
           }
         }
       }
+    }
+  }
+}
+
+func renderPhotos(context: ItemRenderingContext<EmptyMetadata>) -> Node {
+  baseHtml(title: "Photos") {
+    h1 { context.item.title }
+    Node.raw(context.item.body)
+    
+    context.resources.map { imagePath in
+      img(height: "300", src: imagePath.lastComponent)
     }
   }
 }

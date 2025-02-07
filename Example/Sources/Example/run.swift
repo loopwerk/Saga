@@ -62,6 +62,12 @@ struct Run {
         writers: [.listWriter(swim(renderApps))]
       )
 
+      .register(
+        folder: "photos",
+        readers: [.parsleyMarkdownReader],
+        writers: [.itemWriter(swim(renderPhotos))]
+      )
+
       // All the remaining markdown files will be parsed to html,
       // using the default EmptyMetadata as the Item's metadata type.
       .register(
