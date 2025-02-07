@@ -11,10 +11,8 @@ import PathKit
 ///       // All files in the input folder will be parsed to html, and written to the output folder.
 ///       .register(
 ///         metadata: EmptyMetadata.self,
-///         readers: [.parsleyMarkdownReader()],
-///         writers: [
-///           .itemWriter(swim(renderPage))
-///         ]
+///         readers: [.parsleyMarkdownReader],
+///         writers: [.itemWriter(swim(renderPage))]
 ///       )
 ///
 ///       // Run the step we registered above

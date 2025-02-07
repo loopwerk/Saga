@@ -604,6 +604,20 @@
             "type" : "struct"
           },
           {
+            "title" : "Functions",
+            "type" : "groupMarker"
+          },
+          {
+            "path" : "\/documentation\/saga\/publicationdateinfilename(item:)",
+            "title" : "func publicationDateInFilename<M>(item: Item<M>) async",
+            "type" : "func"
+          },
+          {
+            "path" : "\/documentation\/saga\/sequence(_:)",
+            "title" : "func sequence<M>(((Item<M>) async -> Void)...) -> (Item<M>) async -> Void",
+            "type" : "func"
+          },
+          {
             "title" : "Type Aliases",
             "type" : "groupMarker"
           },

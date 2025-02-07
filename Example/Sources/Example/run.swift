@@ -28,34 +28,8 @@ extension Item where M == ArticleMetadata {
   }
 }
 
-// An example of a simple page processor that takes files such as "2021-01-27-post-with-date-in-filename"
-// and uses the date within the filename as the publication date.
-func itemProcessor(item: Item<ArticleMetadata>) async {
-  // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
-  let first10 = String(item.relativeSource.lastComponentWithoutExtension.prefix(10))
-  guard first10.count == 10, let date = Run.pageProcessorDateFormatter.date(from: first10) else {
-    return
-  }
-
-  // Set the date
-  item.published = date
-
-  // And remove the first 11 characters from the filename
-  let first11 = String(item.relativeSource.lastComponentWithoutExtension.prefix(11))
-  item.relativeDestination = Path(
-    item.relativeSource.string.replacingOccurrences(of: first11, with: "")
-  ).makeOutputPath(itemWriteMode: .moveToSubfolder)
-}
-
 @main
 struct Run {
-  static var pageProcessorDateFormatter: DateFormatter = {
-    let pageProcessorDateFormatter = DateFormatter()
-    pageProcessorDateFormatter.dateFormat = "yyyy-MM-dd"
-    pageProcessorDateFormatter.timeZone = .current
-    return pageProcessorDateFormatter
-  }()
-
   static func main() async throws {
     try await Saga(input: "content", output: "deploy")
       // All markdown files within the "articles" subfolder will be parsed to html,
@@ -65,7 +39,7 @@ struct Run {
         folder: "articles",
         metadata: ArticleMetadata.self,
         readers: [.parsleyMarkdownReader],
-        itemProcessor: itemProcessor,
+        itemProcessor: publicationDateInFilename,
         filter: \.public,
         writers: [
           .itemWriter(swim(renderArticle)),

@@ -174,6 +174,15 @@
       "title" : "Structures"
     },
     {
+      "anchor" : "Functions",
+      "generated" : true,
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/publicationDateInFilename(item:)",
+        "doc:\/\/Saga\/documentation\/Saga\/sequence(_:)"
+      ],
+      "title" : "Functions"
+    },
+    {
       "anchor" : "Type-Aliases",
       "generated" : true,
       "identifiers" : [
@@ -876,6 +885,187 @@
   "title" : "Writer",
   "type" : "topic",
   "url" : "\/documentation\/saga\/writer"
+},
+"doc://Saga/documentation/Saga/publicationDateInFilename(item:)": {
+  "abstract" : [
+    {
+      "text" : "An item processor that takes files such as “2021-01-27-post-with-date-in-filename”",
+      "type" : "text"
+    },
+    {
+      "text" : " ",
+      "type" : "text"
+    },
+    {
+      "text" : "and uses the date within the filename as the publication date.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "publicationDateInFilename"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "genericParameter",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">("
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "item"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "async"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/publicationDateInFilename(item:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "publicationDateInFilename(item:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/publicationdateinfilename(item:)"
+},
+"doc://Saga/documentation/Saga/sequence(_:)": {
+  "abstract" : [
+    {
+      "text" : "Run multiple item processors in sequence.",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "sequence"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "genericParameter",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">((("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "async"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:s4Voida",
+      "text" : "Void"
+    },
+    {
+      "kind" : "text",
+      "text" : ")...) -> ("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "async"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:s4Voida",
+      "text" : "Void"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/sequence(_:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "sequence(_:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/sequence(_:)"
 },
 "https://github.com/JohnSundell/Publish": {
   "identifier" : "https:\/\/github.com\/JohnSundell\/Publish",
