@@ -40,7 +40,7 @@ public extension Path {
   }
 }
 
-extension Path: @retroactive Decodable {
+extension Path: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     let decodedString = try container.decode(String.self)
