@@ -4,7 +4,7 @@ An overview of how to configure Saga to render your pages and articles.
 
 
 ## Overview
-Let's start with the most basic example: rendering all Markdown files to HTML.
+Let's start with the most basic example: rendering all markdown files to HTML.
 
 ```swift
 import Saga
@@ -36,7 +36,7 @@ struct Run {
       // Run the step we registered above
       .run()
 
-      // All the remaining files that were not parsed to markdown, so for example 
+      // All the remaining files that were not parsed from markdown, so for example 
       // images, raw html files and css, are copied as-is to the output folder.
       .staticFiles()
   }
@@ -47,9 +47,9 @@ struct Run {
 
 
 ## Custom metadata
-Of course Saga can do much more than just render a folder of Markdown files as-is. It can also deal with custom metadata contained within Markdown files - even multiple types of metadata for different kinds of pages.
+Of course Saga can do much more than just render a folder of markdown files as-is. It can also deal with custom metadata contained within markdown files - even multiple types of metadata for different kinds of pages.
 
-Let's look at an example Markdown article, `/content/articles/first-article.md`:
+Let's look at an example markdown article, `/content/articles/first-article.md`:
 
 ```text
 ---
@@ -91,7 +91,7 @@ struct AppMetadata: Metadata {
 struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy")
-      // All Markdown files within the "articles" subfolder will be parsed to html,
+      // All markdown files within the "articles" subfolder will be parsed to html,
       // using `ArticleMetadata` as the item's metadata type.
       .register(
         folder: "articles",
@@ -109,7 +109,7 @@ struct Run {
         ]
       )
 
-      // All Markdown files within the "apps" subfolder will be parsed to html,
+      // All markdown files within the "apps" subfolder will be parsed to html,
       // using `AppMetadata` as the item's metadata type.
       .register(
         folder: "apps",
@@ -118,7 +118,7 @@ struct Run {
         writers: [.listWriter(swim(renderApps))]
       )
 
-      // All the remaining Markdown files will be parsed to html,
+      // All the remaining markdown files will be parsed to html,
       // using the default `EmptyMetadata` as the item's metadata type.
       .register(
         readers: [.parsleyMarkdownReader],
