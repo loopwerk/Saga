@@ -7,7 +7,13 @@ public struct ItemRenderingContext<M: Metadata> {
   public let resources: [Path]
 }
 
-public struct ItemsRenderingContext<M: Metadata> {
+public protocol AtomContext {
+  associatedtype M: Metadata
+  var items: [Item<M>] { get }
+  var outputPath: Path { get }
+}
+
+public struct ItemsRenderingContext<M: Metadata>: AtomContext {
   public let items: [Item<M>]
   public let allItems: [AnyItem]
   public let paginator: Paginator?
@@ -15,7 +21,7 @@ public struct ItemsRenderingContext<M: Metadata> {
 }
 
 public typealias ContextKey = CustomStringConvertible & Comparable
-public struct PartitionedRenderingContext<T: ContextKey, M: Metadata> {
+public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomContext {
   public let key: T
   public let items: [Item<M>]
   public let allItems: [AnyItem]
