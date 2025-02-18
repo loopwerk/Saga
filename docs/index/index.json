@@ -198,55 +198,6 @@
                 "type" : "groupMarker"
               },
               {
-                "path" : "\/documentation\/saga\/metadatadecoder\/init(metadata:codingpath:dateformatter:)",
-                "title" : "init(metadata: [String : String], codingPath: [any CodingKey], dateFormatter: DateFormatter)",
-                "type" : "init"
-              },
-              {
-                "title" : "Instance Properties",
-                "type" : "groupMarker"
-              },
-              {
-                "path" : "\/documentation\/saga\/metadatadecoder\/codingpath",
-                "title" : "let codingPath: [any CodingKey]",
-                "type" : "property"
-              },
-              {
-                "path" : "\/documentation\/saga\/metadatadecoder\/userinfo",
-                "title" : "var userInfo: [CodingUserInfoKey : Any]",
-                "type" : "property"
-              },
-              {
-                "title" : "Instance Methods",
-                "type" : "groupMarker"
-              },
-              {
-                "path" : "\/documentation\/saga\/metadatadecoder\/container(keyedby:)",
-                "title" : "func container<T>(keyedBy: T.Type) throws -> KeyedDecodingContainer<T>",
-                "type" : "method"
-              },
-              {
-                "path" : "\/documentation\/saga\/metadatadecoder\/singlevaluecontainer()",
-                "title" : "func singleValueContainer() throws -> any SingleValueDecodingContainer",
-                "type" : "method"
-              },
-              {
-                "path" : "\/documentation\/saga\/metadatadecoder\/unkeyedcontainer()",
-                "title" : "func unkeyedContainer() throws -> any UnkeyedDecodingContainer",
-                "type" : "method"
-              }
-            ],
-            "path" : "\/documentation\/saga\/metadatadecoder",
-            "title" : "MetadataDecoder",
-            "type" : "class"
-          },
-          {
-            "children" : [
-              {
-                "title" : "Initializers",
-                "type" : "groupMarker"
-              },
-              {
                 "path" : "\/documentation\/saga\/saga\/init(input:output:fileio:originfilepath:)",
                 "title" : "init(input: Path, output: Path, fileIO: FileIO, originFilePath: StaticString) throws",
                 "type" : "init"
@@ -579,18 +530,8 @@
             "type" : "func"
           },
           {
-            "path" : "\/documentation\/saga\/makemetadatadecoder(for:)",
-            "title" : "func makeMetadataDecoder(for: [String : String]) -> MetadataDecoder",
-            "type" : "func"
-          },
-          {
             "path" : "\/documentation\/saga\/publicationdateinfilename(item:)",
             "title" : "func publicationDateInFilename<M>(item: Item<M>) async",
-            "type" : "func"
-          },
-          {
-            "path" : "\/documentation\/saga\/resolvedate(from:)",
-            "title" : "func resolveDate(from: MetadataDecoder) throws -> Date?",
             "type" : "func"
           },
           {

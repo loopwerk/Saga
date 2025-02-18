@@ -146,7 +146,6 @@
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/FileContainer",
         "doc:\/\/Saga\/documentation\/Saga\/Item",
-        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
         "doc:\/\/Saga\/documentation\/Saga\/Saga"
       ],
       "title" : "Classes"
@@ -179,9 +178,7 @@
       "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/atomFeed(title:author:baseURL:summary:)",
-        "doc:\/\/Saga\/documentation\/Saga\/makeMetadataDecoder(for:)",
         "doc:\/\/Saga\/documentation\/Saga\/publicationDateInFilename(item:)",
-        "doc:\/\/Saga\/documentation\/Saga\/resolveDate(from:)",
         "doc:\/\/Saga\/documentation\/Saga\/sequence(_:)"
       ],
       "title" : "Functions"
@@ -667,37 +664,6 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/metadata"
 },
-"doc://Saga/documentation/Saga/MetadataDecoder": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "class"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "MetadataDecoder"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
-  "kind" : "symbol",
-  "navigatorTitle" : [
-    {
-      "kind" : "identifier",
-      "text" : "MetadataDecoder"
-    }
-  ],
-  "role" : "symbol",
-  "title" : "MetadataDecoder",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/metadatadecoder"
-},
 "doc://Saga/documentation/Saga/Paginator": {
   "abstract" : [
     {
@@ -1067,66 +1033,6 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/atomfeed(title:author:baseurl:summary:)"
 },
-"doc://Saga/documentation/Saga/makeMetadataDecoder(for:)": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "func"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "makeMetadataDecoder"
-    },
-    {
-      "kind" : "text",
-      "text" : "("
-    },
-    {
-      "kind" : "externalParam",
-      "text" : "for"
-    },
-    {
-      "kind" : "text",
-      "text" : ": ["
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:SS",
-      "text" : "String"
-    },
-    {
-      "kind" : "text",
-      "text" : " : "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:SS",
-      "text" : "String"
-    },
-    {
-      "kind" : "text",
-      "text" : "]) -> "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
-      "text" : "MetadataDecoder"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/makeMetadataDecoder(for:)",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "makeMetadataDecoder(for:)",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/makemetadatadecoder(for:)"
-},
 "doc://Saga/documentation/Saga/publicationDateInFilename(item:)": {
   "abstract" : [
     {
@@ -1203,69 +1109,6 @@
   "title" : "publicationDateInFilename(item:)",
   "type" : "topic",
   "url" : "\/documentation\/saga\/publicationdateinfilename(item:)"
-},
-"doc://Saga/documentation/Saga/resolveDate(from:)": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "func"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "resolveDate"
-    },
-    {
-      "kind" : "text",
-      "text" : "("
-    },
-    {
-      "kind" : "externalParam",
-      "text" : "from"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
-      "text" : "MetadataDecoder"
-    },
-    {
-      "kind" : "text",
-      "text" : ") "
-    },
-    {
-      "kind" : "keyword",
-      "text" : "throws"
-    },
-    {
-      "kind" : "text",
-      "text" : " -> "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
-    },
-    {
-      "kind" : "text",
-      "text" : "?"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/resolveDate(from:)",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "resolveDate(from:)",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/resolvedate(from:)"
 },
 "doc://Saga/documentation/Saga/sequence(_:)": {
   "abstract" : [
