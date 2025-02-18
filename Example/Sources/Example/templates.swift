@@ -40,8 +40,8 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
     div(id: "article") {
       h1 { context.item.title }
       h2 {
-        context.item.published.formatted("dd MMMM")+", "
-        a(href: "/articles/\(context.item.published.formatted("yyyy"))/") { context.item.published.formatted("yyyy") }
+        context.item.date.formatted("dd MMMM")+", "
+        a(href: "/articles/\(context.item.date.formatted("yyyy"))/") { context.item.date.formatted("yyyy") }
       }
       ul {
         context.item.metadata.tags.map { tag in
@@ -161,30 +161,4 @@ extension Item where M == ArticleMetadata {
     }
     return String(body.withoutHtmlTags.prefix(255))
   }
-}
-
-func renderFeed(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
-  AtomFeed(
-    title: SiteMetadata.name,
-    author: SiteMetadata.author,
-    baseURL: SiteMetadata.url,
-    feedPath: context.outputPath.string,
-    items: Array(context.items.prefix(20)),
-    summary: { item in
-      return item.summary
-    }
-  ).node()
-}
-
-func renderTagFeed(context: PartitionedRenderingContext<String, ArticleMetadata>) -> Node {
-  AtomFeed(
-    title: SiteMetadata.name,
-    author: SiteMetadata.author,
-    baseURL: SiteMetadata.url,
-    feedPath: context.outputPath.string,
-    items: Array(context.items.prefix(20)),
-    summary: { item in
-      return item.summary
-    }
-  ).node()
 }

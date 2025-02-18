@@ -48,8 +48,8 @@ struct Run {
           .yearWriter(swim(renderPartition)),
 
           // Atom feed for all articles, and a feed per tag
-          .listWriter(swim(renderFeed), output: "feed.xml"),
-          .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
+          .listWriter(atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.self.metadata.summary), output: "feed.xml"),
+          .tagWriter(atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.self.metadata.summary), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
         ]
       )
 
