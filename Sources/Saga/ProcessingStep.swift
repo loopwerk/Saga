@@ -61,7 +61,8 @@ internal class AnyProcessStep {
             body: partialItem.body,
             date: date ?? unhandledFileContainer.path.creationDate ?? Date(),
             lastModified: unhandledFileContainer.path.modificationDate ?? Date(),
-            metadata: metadata)
+            metadata: metadata
+          )
 
           // Process the Item if there's an itemProcessor
           if let itemProcessor = step.itemProcessor {

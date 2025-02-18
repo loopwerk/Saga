@@ -1,5 +1,5 @@
-import PathKit
 import Foundation
+import PathKit
 
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
 ///
@@ -7,7 +7,7 @@ import Foundation
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 public struct Writer<M: Metadata> {
-  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer],_ outputRoot: Path, _ outputPrefix: Path, _ fileIO: FileIO) throws -> Void
+  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer], _ outputRoot: Path, _ outputPrefix: Path, _ fileIO: FileIO) throws -> Void
 }
 
 private extension Array {

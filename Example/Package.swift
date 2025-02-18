@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
   name: "Example",
   platforms: [
-    .macOS(.v12)
+    .macOS(.v12),
   ],
   dependencies: [
     .package(path: "../"),
@@ -18,7 +18,7 @@ let package = Package(
       dependencies: [
         "Saga",
         "SagaParsleyMarkdownReader",
-        "SagaSwimRenderer"
+        "SagaSwimRenderer",
       ]
     ),
   ]

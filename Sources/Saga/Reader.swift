@@ -42,7 +42,7 @@ public struct Reader<M: Metadata> {
   /// Which file extensions can be handled by this reader? For example `md` or `rst`.
   var supportedExtensions: [String]
 
-  public typealias Converter = (_ absoluteSource: Path) async throws -> (title: String?, body: String, frontmatter: [String:String]?)
+  public typealias Converter = (_ absoluteSource: Path) async throws -> (title: String?, body: String, frontmatter: [String: String]?)
 
   /// The function that will do the actual work of reading and converting a file path into an ``Item``.
   var convert: Converter

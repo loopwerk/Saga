@@ -1,17 +1,17 @@
-import PathKit
 import Foundation
+import PathKit
 
 public extension Path {
   var creationDate: Date? {
-    return self.attributes[.creationDate] as? Date
+    return attributes[.creationDate] as? Date
   }
 
   var modificationDate: Date? {
-    return self.attributes[.modificationDate] as? Date
+    return attributes[.modificationDate] as? Date
   }
 
   var url: String {
-    var url = "/" + self.string
+    var url = "/" + string
     if url.hasSuffix("/index.html") {
       url.removeLast(10)
     }
@@ -21,22 +21,22 @@ public extension Path {
   func makeOutputPath(itemWriteMode: ItemWriteMode) -> Path {
     switch itemWriteMode {
       case .keepAsFile:
-        return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
+        return parent() + (lastComponentWithoutExtension.slugified + ".html")
       case .moveToSubfolder:
-        if self.lastComponentWithoutExtension.slugified == "index" {
-          return self.parent() + (self.lastComponentWithoutExtension.slugified + ".html")
+        if lastComponentWithoutExtension.slugified == "index" {
+          return parent() + (lastComponentWithoutExtension.slugified + ".html")
         } else {
-          return self.parent() + self.lastComponentWithoutExtension.slugified + "index.html"
+          return parent() + lastComponentWithoutExtension.slugified + "index.html"
         }
     }
   }
 
   func relativePath(from: Path) throws -> Path {
-    guard self.string.hasPrefix(from.string) else {
+    guard string.hasPrefix(from.string) else {
       return self
     }
-    let index = self.string.index(self.string.startIndex, offsetBy: from.string.count)
-    return Path(String(self.string[index...]).removingPrefix("/"))
+    let index = string.index(string.startIndex, offsetBy: from.string.count)
+    return Path(String(string[index...]).removingPrefix("/"))
   }
 }
 
@@ -67,8 +67,8 @@ internal extension Path {
     return (self + file).isFile
   }
 
-  var attributes: [FileAttributeKey : Any] {
-    return (try? FileManager.default.attributesOfItem(atPath: self.string)) ?? [:]
+  var attributes: [FileAttributeKey: Any] {
+    return (try? FileManager.default.attributesOfItem(atPath: string)) ?? [:]
   }
 }
 

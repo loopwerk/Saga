@@ -10,8 +10,7 @@ extension String {
   // This is a sloppy implementation but sadly `NSAttributedString(data:options:documentAttributes:)`
   // is not available in CoreFoundation, and as such can't run on Linux (blocking CI builds).
   var withoutHtmlTags: String {
-    return self
-      .replacingOccurrences(of: "(?m)<pre><span></span><code>[\\s\\S]+?</code></pre>", with: "", options: .regularExpression, range: nil)
+    return replacingOccurrences(of: "(?m)<pre><span></span><code>[\\s\\S]+?</code></pre>", with: "", options: .regularExpression, range: nil)
       .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression, range: nil)
       .trimmingCharacters(in: .whitespacesAndNewlines)
   }

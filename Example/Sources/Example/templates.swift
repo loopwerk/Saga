@@ -1,12 +1,12 @@
+import Foundation
 import HTML
 import Saga
 import SagaSwimRenderer
-import Foundation
 
 func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
   html(lang: "en-US") {
     head {
-      title { SiteMetadata.name+": "+pageTitle }
+      title { SiteMetadata.name + ": " + pageTitle }
       link(href: "/static/style.css", rel: "stylesheet")
       link(href: "/static/prism.css", rel: "stylesheet")
     }
@@ -40,7 +40,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
     div(id: "article") {
       h1 { context.item.title }
       h2 {
-        context.item.date.formatted("dd MMMM")+", "
+        context.item.date.formatted("dd MMMM") + ", "
         a(href: "/articles/\(context.item.date.formatted("yyyy"))/") { context.item.date.formatted("yyyy") }
       }
       ul {
@@ -147,7 +147,7 @@ func renderPhotos(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   baseHtml(title: "Photos") {
     h1 { context.item.title }
     Node.raw(context.item.body)
-    
+
     context.resources.map { imagePath in
       img(height: "300", src: imagePath.lastComponent)
     }

@@ -1,5 +1,5 @@
-import PathKit
 import Foundation
+import PathKit
 
 /// Run multiple item processors in sequence.
 ///
@@ -34,10 +34,10 @@ public func publicationDateInFilename<M>(item: Item<M>) async {
   guard first10.count == 10, let date = publicationDateFormatter.date(from: first10) else {
     return
   }
-  
+
   // Set the date
   item.date = date
-  
+
   // And remove the first 11 characters from the filename
   let first11 = String(item.relativeSource.lastComponentWithoutExtension.prefix(11))
   item.relativeDestination = Path(
