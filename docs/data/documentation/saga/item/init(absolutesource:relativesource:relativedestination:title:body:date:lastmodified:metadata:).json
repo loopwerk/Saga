@@ -9,11 +9,11 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/init(absoluteSource:relativeSource:relativeDestination:title:body:date:lastModified:metadata:)"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga4ItemC14relativeSource0C11Destination5title10rawContent4body9published7created12lastModified8metadataACyxG7PathKit0O0V_APS3S10Foundation4DateVA2Sxtcfc",
+    "externalID" : "s:4Saga4ItemC14absoluteSource08relativeD00E11Destination5title4body4date12lastModified8metadataACyxG7PathKit0M0V_A2OS2S10Foundation4DateVARxtcfc",
     "fragments" : [
       {
         "kind" : "identifier",
@@ -22,6 +22,23 @@
       {
         "kind" : "text",
         "text" : "("
+      },
+      {
+        "kind" : "externalParam",
+        "text" : "absoluteSource"
+      },
+      {
+        "kind" : "text",
+        "text" : ": "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
+      },
+      {
+        "kind" : "text",
+        "text" : ", "
       },
       {
         "kind" : "externalParam",
@@ -76,23 +93,6 @@
       },
       {
         "kind" : "externalParam",
-        "text" : "rawContent"
-      },
-      {
-        "kind" : "text",
-        "text" : ": "
-      },
-      {
-        "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:SS",
-        "text" : "String"
-      },
-      {
-        "kind" : "text",
-        "text" : ", "
-      },
-      {
-        "kind" : "externalParam",
         "text" : "body"
       },
       {
@@ -110,24 +110,7 @@
       },
       {
         "kind" : "externalParam",
-        "text" : "published"
-      },
-      {
-        "kind" : "text",
-        "text" : ": "
-      },
-      {
-        "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:10Foundation4DateV",
-        "text" : "Date"
-      },
-      {
-        "kind" : "text",
-        "text" : ", "
-      },
-      {
-        "kind" : "externalParam",
-        "text" : "created"
+        "text" : "date"
       },
       {
         "kind" : "text",
@@ -184,7 +167,7 @@
     "role" : "symbol",
     "roleHeading" : "Initializer",
     "symbolKind" : "init",
-    "title" : "init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)"
+    "title" : "init(absoluteSource:relativeSource:relativeDestination:title:body:date:lastModified:metadata:)"
   },
   "primaryContentSections" : [
     {
@@ -204,6 +187,23 @@
             {
               "kind" : "text",
               "text" : "("
+            },
+            {
+              "kind" : "externalParam",
+              "text" : "absoluteSource"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
+            },
+            {
+              "kind" : "text",
+              "text" : ", "
             },
             {
               "kind" : "externalParam",
@@ -258,23 +258,6 @@
             },
             {
               "kind" : "externalParam",
-              "text" : "rawContent"
-            },
-            {
-              "kind" : "text",
-              "text" : ": "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:SS",
-              "text" : "String"
-            },
-            {
-              "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "externalParam",
               "text" : "body"
             },
             {
@@ -292,24 +275,7 @@
             },
             {
               "kind" : "externalParam",
-              "text" : "published"
-            },
-            {
-              "kind" : "text",
-              "text" : ": "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:10Foundation4DateV",
-              "text" : "Date"
-            },
-            {
-              "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "externalParam",
-              "text" : "created"
+              "text" : "date"
             },
             {
               "kind" : "text",
@@ -374,7 +340,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:published:created:lastmodified:metadata:)"
+        "\/documentation\/saga\/item\/init(absolutesource:relativesource:relativedestination:title:body:date:lastmodified:metadata:)"
       ],
       "traits" : [
         {
@@ -433,7 +399,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/item"
 },
-"doc://Saga/documentation/Saga/Item/init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)": {
+"doc://Saga/documentation/Saga/Item/init(absoluteSource:relativeSource:relativeDestination:title:body:date:lastModified:metadata:)": {
   "abstract" : [
 
   ],
@@ -445,6 +411,23 @@
     {
       "kind" : "text",
       "text" : "("
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "absoluteSource"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
     },
     {
       "kind" : "externalParam",
@@ -499,23 +482,6 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "rawContent"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:SS",
-      "text" : "String"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "externalParam",
       "text" : "body"
     },
     {
@@ -533,24 +499,7 @@
     },
     {
       "kind" : "externalParam",
-      "text" : "published"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
-    },
-    {
-      "kind" : "externalParam",
-      "text" : "created"
+      "text" : "date"
     },
     {
       "kind" : "text",
@@ -599,12 +548,12 @@
       "text" : ")"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/init(absoluteSource:relativeSource:relativeDestination:title:body:date:lastModified:metadata:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "init(relativeSource:relativeDestination:title:rawContent:body:published:created:lastModified:metadata:)",
+  "title" : "init(absoluteSource:relativeSource:relativeDestination:title:body:date:lastModified:metadata:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:published:created:lastmodified:metadata:)"
+  "url" : "\/documentation\/saga\/item\/init(absolutesource:relativesource:relativedestination:title:body:date:lastmodified:metadata:)"
 }
 }
 }

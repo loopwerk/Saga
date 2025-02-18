@@ -125,14 +125,6 @@
         "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/unkeyedContainer()"
       ],
       "title" : "Instance Methods"
-    },
-    {
-      "anchor" : "Default-Implementations",
-      "generated" : true,
-      "identifiers" : [
-        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations"
-      ],
-      "title" : "Default Implementations"
     }
   ],
   "variants" : [
@@ -193,17 +185,6 @@
   "title" : "MetadataDecoder",
   "type" : "topic",
   "url" : "\/documentation\/saga\/metadatadecoder"
-},
-"doc://Saga/documentation/Saga/MetadataDecoder/Decoder-Implementations": {
-  "abstract" : [
-
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations",
-  "kind" : "article",
-  "role" : "collectionGroup",
-  "title" : "Decoder Implementations",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/metadatadecoder\/decoder-implementations"
 },
 "doc://Saga/documentation/Saga/MetadataDecoder/codingPath": {
   "abstract" : [

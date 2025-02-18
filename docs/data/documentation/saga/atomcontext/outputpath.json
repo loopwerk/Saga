@@ -3,17 +3,17 @@
     "paths" : [
       [
         "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/AnyItem"
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/created"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/outputPath"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga7AnyItemP7created10Foundation4DateVvp",
+    "externalID" : "s:4Saga11AtomContextP10outputPath0E3Kit0E0Vvp",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -25,7 +25,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "created"
+        "text" : "outputPath"
       },
       {
         "kind" : "text",
@@ -33,8 +33,8 @@
       },
       {
         "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:10Foundation4DateV",
-        "text" : "Date"
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
       }
     ],
     "modules" : [
@@ -46,7 +46,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "created"
+    "title" : "outputPath"
   },
   "primaryContentSections" : [
     {
@@ -69,7 +69,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "created"
+              "text" : "outputPath"
             },
             {
               "kind" : "text",
@@ -77,8 +77,8 @@
             },
             {
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:10Foundation4DateV",
-              "text" : "Date"
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
             },
             {
               "kind" : "text",
@@ -87,14 +87,6 @@
             {
               "kind" : "keyword",
               "text" : "get"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "set"
             },
             {
               "kind" : "text",
@@ -117,7 +109,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/anyitem\/created"
+        "\/documentation\/saga\/atomcontext\/outputpath"
       ],
       "traits" : [
         {
@@ -142,21 +134,9 @@
   "type" : "topic",
   "url" : "\/documentation\/saga"
 },
-"doc://Saga/documentation/Saga/AnyItem": {
+"doc://Saga/documentation/Saga/AtomContext": {
   "abstract" : [
-    {
-      "text" : "A type-erased version of ",
-      "type" : "text"
-    },
-    {
-      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
-      "isActive" : true,
-      "type" : "reference"
-    },
-    {
-      "text" : ".",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -169,23 +149,23 @@
     },
     {
       "kind" : "identifier",
-      "text" : "AnyItem"
+      "text" : "AtomContext"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext",
   "kind" : "symbol",
   "navigatorTitle" : [
     {
       "kind" : "identifier",
-      "text" : "AnyItem"
+      "text" : "AtomContext"
     }
   ],
   "role" : "symbol",
-  "title" : "AnyItem",
+  "title" : "AtomContext",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem"
+  "url" : "\/documentation\/saga\/atomcontext"
 },
-"doc://Saga/documentation/Saga/AnyItem/created": {
+"doc://Saga/documentation/Saga/AtomContext/outputPath": {
   "abstract" : [
 
   ],
@@ -200,7 +180,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "created"
+      "text" : "outputPath"
     },
     {
       "kind" : "text",
@@ -208,51 +188,17 @@
     },
     {
       "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/created",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/outputPath",
   "kind" : "symbol",
   "required" : true,
   "role" : "symbol",
-  "title" : "created",
+  "title" : "outputPath",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/created"
-},
-"doc://Saga/documentation/Saga/Item": {
-  "abstract" : [
-    {
-      "text" : "A model reprenting an item.",
-      "type" : "text"
-    }
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "class"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "Item"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
-  "kind" : "symbol",
-  "navigatorTitle" : [
-    {
-      "kind" : "identifier",
-      "text" : "Item"
-    }
-  ],
-  "role" : "symbol",
-  "title" : "Item",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/item"
+  "url" : "\/documentation\/saga\/atomcontext\/outputpath"
 }
 }
 }

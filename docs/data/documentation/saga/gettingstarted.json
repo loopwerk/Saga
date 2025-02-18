@@ -39,7 +39,7 @@
         {
           "inlineContent" : [
             {
-              "text" : "Let’s start with the most basic example: rendering all Markdown files to HTML.",
+              "text" : "Let’s start with the most basic example: rendering all markdown files to HTML.",
               "type" : "text"
             }
           ],
@@ -76,7 +76,7 @@
             "      \/\/ Run the step we registered above",
             "      .run()",
             "",
-            "      \/\/ All the remaining files that were not parsed to markdown, so for example ",
+            "      \/\/ All the remaining files that were not parsed from markdown, so for example ",
             "      \/\/ images, raw html files and css, are copied as-is to the output folder.",
             "      .staticFiles()",
             "  }",
@@ -146,7 +146,7 @@
         {
           "inlineContent" : [
             {
-              "text" : "Of course Saga can do much more than just render a folder of Markdown files as-is. It can also deal with custom metadata contained within Markdown files - even multiple types of metadata for different kinds of pages.",
+              "text" : "Of course Saga can do much more than just render a folder of markdown files as-is. It can also deal with custom metadata contained within markdown files - even multiple types of metadata for different kinds of pages.",
               "type" : "text"
             }
           ],
@@ -155,7 +155,7 @@
         {
           "inlineContent" : [
             {
-              "text" : "Let’s look at an example Markdown article, ",
+              "text" : "Let’s look at an example markdown article, ",
               "type" : "text"
             },
             {
@@ -285,7 +285,7 @@
             "struct Run {",
             "  static func main() async throws {",
             "    try await Saga(input: \"content\", output: \"deploy\")",
-            "      \/\/ All Markdown files within the \"articles\" subfolder will be parsed to html,",
+            "      \/\/ All markdown files within the \"articles\" subfolder will be parsed to html,",
             "      \/\/ using `ArticleMetadata` as the item's metadata type.",
             "      .register(",
             "        folder: \"articles\",",
@@ -303,7 +303,7 @@
             "        ]",
             "      )",
             "",
-            "      \/\/ All Markdown files within the \"apps\" subfolder will be parsed to html,",
+            "      \/\/ All markdown files within the \"apps\" subfolder will be parsed to html,",
             "      \/\/ using `AppMetadata` as the item's metadata type.",
             "      .register(",
             "        folder: \"apps\",",
@@ -312,7 +312,7 @@
             "        writers: [.listWriter(swim(renderApps))]",
             "      )",
             "",
-            "      \/\/ All the remaining Markdown files will be parsed to html,",
+            "      \/\/ All the remaining markdown files will be parsed to html,",
             "      \/\/ using the default `EmptyMetadata` as the item's metadata type.",
             "      .register(",
             "        readers: [.parsleyMarkdownReader],",

@@ -44,20 +44,6 @@
                 "path" : "\/documentation\/saga\/reader\/converter",
                 "title" : "Reader.Converter",
                 "type" : "typealias"
-              },
-              {
-                "title" : "Type Methods",
-                "type" : "groupMarker"
-              },
-              {
-                "path" : "\/documentation\/saga\/reader\/makemetadatadecoder(for:)",
-                "title" : "static func makeMetadataDecoder(for: [String : String]) -> MetadataDecoder",
-                "type" : "method"
-              },
-              {
-                "path" : "\/documentation\/saga\/reader\/resolvepublishingdate(from:decoder:)",
-                "title" : "static func resolvePublishingDate(from: Path, decoder: MetadataDecoder) throws -> Date",
-                "type" : "method"
               }
             ],
             "path" : "\/documentation\/saga\/reader",
@@ -142,8 +128,8 @@
                 "type" : "groupMarker"
               },
               {
-                "path" : "\/documentation\/saga\/item\/init(relativesource:relativedestination:title:rawcontent:body:published:created:lastmodified:metadata:)",
-                "title" : "init(relativeSource: Path, relativeDestination: Path, title: String, rawContent: String, body: String, published: Date, created: Date, lastModified: Date, metadata: M)",
+                "path" : "\/documentation\/saga\/item\/init(absolutesource:relativesource:relativedestination:title:body:date:lastmodified:metadata:)",
+                "title" : "init(absoluteSource: Path, relativeSource: Path, relativeDestination: Path, title: String, body: String, date: Date, lastModified: Date, metadata: M)",
                 "type" : "init"
               },
               {
@@ -151,13 +137,18 @@
                 "type" : "groupMarker"
               },
               {
+                "path" : "\/documentation\/saga\/item\/absolutesource",
+                "title" : "let absoluteSource: Path",
+                "type" : "property"
+              },
+              {
                 "path" : "\/documentation\/saga\/item\/body",
                 "title" : "var body: String",
                 "type" : "property"
               },
               {
-                "path" : "\/documentation\/saga\/item\/created",
-                "title" : "var created: Date",
+                "path" : "\/documentation\/saga\/item\/date",
+                "title" : "var date: Date",
                 "type" : "property"
               },
               {
@@ -167,22 +158,12 @@
               },
               {
                 "path" : "\/documentation\/saga\/item\/lastmodified",
-                "title" : "var lastModified: Date",
+                "title" : "let lastModified: Date",
                 "type" : "property"
               },
               {
                 "path" : "\/documentation\/saga\/item\/metadata",
                 "title" : "var metadata: M",
-                "type" : "property"
-              },
-              {
-                "path" : "\/documentation\/saga\/item\/published",
-                "title" : "var published: Date",
-                "type" : "property"
-              },
-              {
-                "path" : "\/documentation\/saga\/item\/rawcontent",
-                "title" : "var rawContent: String",
                 "type" : "property"
               },
               {
@@ -253,56 +234,6 @@
                 "path" : "\/documentation\/saga\/metadatadecoder\/unkeyedcontainer()",
                 "title" : "func unkeyedContainer() throws -> any UnkeyedDecodingContainer",
                 "type" : "method"
-              },
-              {
-                "title" : "Default Implementations",
-                "type" : "groupMarker"
-              },
-              {
-                "children" : [
-                  {
-                    "title" : "Instance Methods",
-                    "type" : "groupMarker"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:as:)-520be",
-                    "title" : "func decode<T, K>(K, as: T.Type) throws -> T",
-                    "type" : "method"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:as:)-5gfgl",
-                    "title" : "func decode<T>(String, as: T.Type) throws -> T",
-                    "type" : "method"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:using:)-2nkj8",
-                    "title" : "func decode<K, F>(K, using: F) throws -> Date",
-                    "type" : "method"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decode(_:using:)-3gqwo",
-                    "title" : "func decode<F>(String, using: F) throws -> Date",
-                    "type" : "method"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decodeifpresent(_:as:)-dzez",
-                    "title" : "func decodeIfPresent<T, K>(K, as: T.Type) throws -> T?",
-                    "type" : "method"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decodeifpresent(_:as:)-mhc5",
-                    "title" : "func decodeIfPresent<T>(String, as: T.Type) throws -> T?",
-                    "type" : "method"
-                  },
-                  {
-                    "path" : "\/documentation\/saga\/metadatadecoder\/decodesinglevalue(as:)",
-                    "title" : "func decodeSingleValue<T>(as: T.Type) throws -> T",
-                    "type" : "method"
-                  }
-                ],
-                "path" : "\/documentation\/saga\/metadatadecoder\/decoder-implementations",
-                "title" : "Decoder Implementations",
-                "type" : "symbol"
               }
             ],
             "path" : "\/documentation\/saga\/metadatadecoder",
@@ -379,13 +310,18 @@
                 "type" : "groupMarker"
               },
               {
+                "path" : "\/documentation\/saga\/anyitem\/absolutesource",
+                "title" : "var absoluteSource: Path",
+                "type" : "property"
+              },
+              {
                 "path" : "\/documentation\/saga\/anyitem\/body",
                 "title" : "var body: String",
                 "type" : "property"
               },
               {
-                "path" : "\/documentation\/saga\/anyitem\/created",
-                "title" : "var created: Date",
+                "path" : "\/documentation\/saga\/anyitem\/date",
+                "title" : "var date: Date",
                 "type" : "property"
               },
               {
@@ -396,16 +332,6 @@
               {
                 "path" : "\/documentation\/saga\/anyitem\/lastmodified",
                 "title" : "var lastModified: Date",
-                "type" : "property"
-              },
-              {
-                "path" : "\/documentation\/saga\/anyitem\/published",
-                "title" : "var published: Date",
-                "type" : "property"
-              },
-              {
-                "path" : "\/documentation\/saga\/anyitem\/rawcontent",
-                "title" : "var rawContent: String",
                 "type" : "property"
               },
               {
@@ -431,6 +357,36 @@
             ],
             "path" : "\/documentation\/saga\/anyitem",
             "title" : "AnyItem",
+            "type" : "protocol"
+          },
+          {
+            "children" : [
+              {
+                "title" : "Associated Types",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/atomcontext\/m",
+                "title" : "M",
+                "type" : "associatedtype"
+              },
+              {
+                "title" : "Instance Properties",
+                "type" : "groupMarker"
+              },
+              {
+                "path" : "\/documentation\/saga\/atomcontext\/items",
+                "title" : "var items: [Item<Self.M>]",
+                "type" : "property"
+              },
+              {
+                "path" : "\/documentation\/saga\/atomcontext\/outputpath",
+                "title" : "var outputPath: Path",
+                "type" : "property"
+              }
+            ],
+            "path" : "\/documentation\/saga\/atomcontext",
+            "title" : "AtomContext",
             "type" : "protocol"
           },
           {
@@ -618,8 +574,23 @@
             "type" : "groupMarker"
           },
           {
+            "path" : "\/documentation\/saga\/atomfeed(title:author:baseurl:summary:)",
+            "title" : "func atomFeed<Context, M>(title: String, author: String?, baseURL: URL, summary: ((Item<M>) -> String?)?) -> (Context) -> String",
+            "type" : "func"
+          },
+          {
+            "path" : "\/documentation\/saga\/makemetadatadecoder(for:)",
+            "title" : "func makeMetadataDecoder(for: [String : String]) -> MetadataDecoder",
+            "type" : "func"
+          },
+          {
             "path" : "\/documentation\/saga\/publicationdateinfilename(item:)",
             "title" : "func publicationDateInFilename<M>(item: Item<M>) async",
+            "type" : "func"
+          },
+          {
+            "path" : "\/documentation\/saga\/resolvedate(from:)",
+            "title" : "func resolveDate(from: MetadataDecoder) throws -> Date?",
             "type" : "func"
           },
           {

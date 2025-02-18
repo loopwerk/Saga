@@ -1,25 +1,19 @@
 {
-  "abstract" : [
-    {
-      "text" : "The creation date of the item.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
         "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/Item"
+        "doc:\/\/Saga\/documentation\/Saga\/AnyItem"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/created"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/absoluteSource"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga4ItemC7created10Foundation4DateVvp",
+    "externalID" : "s:4Saga7AnyItemP14absoluteSource7PathKit0F0Vvp",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -31,7 +25,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "created"
+        "text" : "absoluteSource"
       },
       {
         "kind" : "text",
@@ -39,8 +33,8 @@
       },
       {
         "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:10Foundation4DateV",
-        "text" : "Date"
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
       }
     ],
     "modules" : [
@@ -48,10 +42,11 @@
         "name" : "Saga"
       }
     ],
+    "required" : true,
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "created"
+    "title" : "absoluteSource"
   },
   "primaryContentSections" : [
     {
@@ -74,7 +69,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "created"
+              "text" : "absoluteSource"
             },
             {
               "kind" : "text",
@@ -82,8 +77,20 @@
             },
             {
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:10Foundation4DateV",
-              "text" : "Date"
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
+            },
+            {
+              "kind" : "text",
+              "text" : " { "
+            },
+            {
+              "kind" : "keyword",
+              "text" : "get"
+            },
+            {
+              "kind" : "text",
+              "text" : " }"
             }
           ]
         }
@@ -102,7 +109,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/item\/created"
+        "\/documentation\/saga\/anyitem\/absolutesource"
       ],
       "traits" : [
         {
@@ -126,6 +133,84 @@
   "title" : "Saga",
   "type" : "topic",
   "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/AnyItem": {
+  "abstract" : [
+    {
+      "text" : "A type-erased version of ",
+      "type" : "text"
+    },
+    {
+      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+      "isActive" : true,
+      "type" : "reference"
+    },
+    {
+      "text" : ".",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "AnyItem"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "AnyItem",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem"
+},
+"doc://Saga/documentation/Saga/AnyItem/absoluteSource": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "absoluteSource"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/absoluteSource",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "absoluteSource",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem\/absolutesource"
 },
 "doc://Saga/documentation/Saga/Item": {
   "abstract" : [
@@ -160,43 +245,6 @@
   "title" : "Item",
   "type" : "topic",
   "url" : "\/documentation\/saga\/item"
-},
-"doc://Saga/documentation/Saga/Item/created": {
-  "abstract" : [
-    {
-      "text" : "The creation date of the item.",
-      "type" : "text"
-    }
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "var"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "created"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/created",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "created",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/item\/created"
 }
 }
 }

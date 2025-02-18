@@ -114,12 +114,11 @@
       "anchor" : "Instance-Properties",
       "generated" : true,
       "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/absoluteSource",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/body",
-        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/created",
+        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/date",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/filenameWithoutExtension",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/lastModified",
-        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/published",
-        "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/rawContent",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/relativeDestination",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/relativeSource",
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/title",
@@ -199,6 +198,41 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/anyitem"
 },
+"doc://Saga/documentation/Saga/AnyItem/absoluteSource": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "absoluteSource"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/absoluteSource",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "absoluteSource",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/anyitem\/absolutesource"
+},
 "doc://Saga/documentation/Saga/AnyItem/body": {
   "abstract" : [
 
@@ -234,7 +268,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/anyitem\/body"
 },
-"doc://Saga/documentation/Saga/AnyItem/created": {
+"doc://Saga/documentation/Saga/AnyItem/date": {
   "abstract" : [
 
   ],
@@ -249,7 +283,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "created"
+      "text" : "date"
     },
     {
       "kind" : "text",
@@ -261,13 +295,13 @@
       "text" : "Date"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/created",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/date",
   "kind" : "symbol",
   "required" : true,
   "role" : "symbol",
-  "title" : "created",
+  "title" : "date",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/created"
+  "url" : "\/documentation\/saga\/anyitem\/date"
 },
 "doc://Saga/documentation/Saga/AnyItem/filenameWithoutExtension": {
   "abstract" : [
@@ -338,76 +372,6 @@
   "title" : "lastModified",
   "type" : "topic",
   "url" : "\/documentation\/saga\/anyitem\/lastmodified"
-},
-"doc://Saga/documentation/Saga/AnyItem/published": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "var"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "published"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/published",
-  "kind" : "symbol",
-  "required" : true,
-  "role" : "symbol",
-  "title" : "published",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/published"
-},
-"doc://Saga/documentation/Saga/AnyItem/rawContent": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "var"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "rawContent"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:SS",
-      "text" : "String"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/rawContent",
-  "kind" : "symbol",
-  "required" : true,
-  "role" : "symbol",
-  "title" : "rawContent",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/rawcontent"
 },
 "doc://Saga/documentation/Saga/AnyItem/relativeDestination": {
   "abstract" : [

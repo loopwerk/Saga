@@ -1,35 +1,18 @@
 {
-  "abstract" : [
-    {
-      "text" : "Inherited from ",
-      "type" : "text"
-    },
-    {
-      "code" : "Decoder.decodeIfPresent(_:as:)",
-      "type" : "codeVoice"
-    },
-    {
-      "text" : ".",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
-        "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
-        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations"
+        "doc:\/\/Saga\/documentation\/Saga"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/decodeIfPresent(_:as:)-mhc5"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/resolveDate(from:)"
   },
   "kind" : "symbol",
   "metadata" : {
-    "extendedModule" : "Swift",
-    "externalID" : "s:s7DecoderP11CodextendedE15decodeIfPresent_2asqd__SgSS_qd__mtKSeRd__lF::SYNTHESIZED::s:4Saga15MetadataDecoderC",
+    "externalID" : "s:4Saga11resolveDate4from10Foundation0C0VSgAA15MetadataDecoderC_tKF",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -41,32 +24,15 @@
       },
       {
         "kind" : "identifier",
-        "text" : "decodeIfPresent"
+        "text" : "resolveDate"
       },
       {
         "kind" : "text",
-        "text" : "<"
-      },
-      {
-        "kind" : "genericParameter",
-        "text" : "T"
-      },
-      {
-        "kind" : "text",
-        "text" : ">("
-      },
-      {
-        "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:SS",
-        "text" : "String"
-      },
-      {
-        "kind" : "text",
-        "text" : ", "
+        "text" : "("
       },
       {
         "kind" : "externalParam",
-        "text" : "as"
+        "text" : "from"
       },
       {
         "kind" : "text",
@@ -74,11 +40,12 @@
       },
       {
         "kind" : "typeIdentifier",
-        "text" : "T"
+        "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+        "text" : "MetadataDecoder"
       },
       {
         "kind" : "text",
-        "text" : ".Type) "
+        "text" : ") "
       },
       {
         "kind" : "keyword",
@@ -90,7 +57,8 @@
       },
       {
         "kind" : "typeIdentifier",
-        "text" : "T"
+        "preciseIdentifier" : "s:10Foundation4DateV",
+        "text" : "Date"
       },
       {
         "kind" : "text",
@@ -99,16 +67,13 @@
     ],
     "modules" : [
       {
-        "name" : "Saga",
-        "relatedModules" : [
-          "Swift"
-        ]
+        "name" : "Saga"
       }
     ],
     "role" : "symbol",
-    "roleHeading" : "Instance Method",
-    "symbolKind" : "method",
-    "title" : "decodeIfPresent(_:as:)"
+    "roleHeading" : "Function",
+    "symbolKind" : "func",
+    "title" : "resolveDate(from:)"
   },
   "primaryContentSections" : [
     {
@@ -131,23 +96,15 @@
             },
             {
               "kind" : "identifier",
-              "text" : "decodeIfPresent"
+              "text" : "resolveDate"
             },
             {
               "kind" : "text",
-              "text" : "<"
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "T"
-            },
-            {
-              "kind" : "text",
-              "text" : ">("
+              "text" : "("
             },
             {
               "kind" : "externalParam",
-              "text" : "_"
+              "text" : "from"
             },
             {
               "kind" : "text",
@@ -155,44 +112,21 @@
             },
             {
               "kind" : "internalParam",
-              "text" : "key"
+              "text" : "decoder"
             },
             {
               "kind" : "text",
               "text" : ": "
             },
             {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:SS",
-              "text" : "String"
+              "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+              "text" : "MetadataDecoder"
             },
             {
               "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "externalParam",
-              "text" : "as"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "internalParam",
-              "text" : "type"
-            },
-            {
-              "kind" : "text",
-              "text" : ": "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "T"
-            },
-            {
-              "kind" : "text",
-              "text" : ".Type = T.self) "
+              "text" : ") "
             },
             {
               "kind" : "keyword",
@@ -204,32 +138,12 @@
             },
             {
               "kind" : "typeIdentifier",
-              "text" : "T"
+              "preciseIdentifier" : "s:10Foundation4DateV",
+              "text" : "Date"
             },
             {
               "kind" : "text",
-              "text" : "? "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "where"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "T"
-            },
-            {
-              "kind" : "text",
-              "text" : " : "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:Se",
-              "text" : "Decodable"
+              "text" : "?"
             }
           ]
         }
@@ -248,7 +162,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/metadatadecoder\/decodeifpresent(_:as:)-mhc5"
+        "\/documentation\/saga\/resolvedate(from:)"
       ],
       "traits" : [
         {
@@ -304,18 +218,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/metadatadecoder"
 },
-"doc://Saga/documentation/Saga/MetadataDecoder/Decoder-Implementations": {
-  "abstract" : [
-
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations",
-  "kind" : "article",
-  "role" : "collectionGroup",
-  "title" : "Decoder Implementations",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/metadatadecoder\/decoder-implementations"
-},
-"doc://Saga/documentation/Saga/MetadataDecoder/decodeIfPresent(_:as:)-mhc5": {
+"doc://Saga/documentation/Saga/resolveDate(from:)": {
   "abstract" : [
 
   ],
@@ -330,32 +233,15 @@
     },
     {
       "kind" : "identifier",
-      "text" : "decodeIfPresent"
+      "text" : "resolveDate"
     },
     {
       "kind" : "text",
-      "text" : "<"
-    },
-    {
-      "kind" : "genericParameter",
-      "text" : "T"
-    },
-    {
-      "kind" : "text",
-      "text" : ">("
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:SS",
-      "text" : "String"
-    },
-    {
-      "kind" : "text",
-      "text" : ", "
+      "text" : "("
     },
     {
       "kind" : "externalParam",
-      "text" : "as"
+      "text" : "from"
     },
     {
       "kind" : "text",
@@ -363,11 +249,12 @@
     },
     {
       "kind" : "typeIdentifier",
-      "text" : "T"
+      "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+      "text" : "MetadataDecoder"
     },
     {
       "kind" : "text",
-      "text" : ".Type) "
+      "text" : ") "
     },
     {
       "kind" : "keyword",
@@ -379,19 +266,20 @@
     },
     {
       "kind" : "typeIdentifier",
-      "text" : "T"
+      "preciseIdentifier" : "s:10Foundation4DateV",
+      "text" : "Date"
     },
     {
       "kind" : "text",
       "text" : "?"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/decodeIfPresent(_:as:)-mhc5",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/resolveDate(from:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "decodeIfPresent(_:as:)",
+  "title" : "resolveDate(from:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/metadatadecoder\/decodeifpresent(_:as:)-mhc5"
+  "url" : "\/documentation\/saga\/resolvedate(from:)"
 }
 }
 }

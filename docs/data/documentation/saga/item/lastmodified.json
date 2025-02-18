@@ -3,6 +3,14 @@
     {
       "text" : "The last modified date of the item.",
       "type" : "text"
+    },
+    {
+      "text" : " ",
+      "type" : "text"
+    },
+    {
+      "text" : "Pleaae note that this value can be inconsistent when cloning or pulling from git, see https:\/\/github.com\/loopwerk\/Saga\/issues\/21.",
+      "type" : "text"
     }
   ],
   "hierarchy" : {
@@ -23,7 +31,7 @@
     "fragments" : [
       {
         "kind" : "keyword",
-        "text" : "var"
+        "text" : "let"
       },
       {
         "kind" : "text",
@@ -66,7 +74,7 @@
           "tokens" : [
             {
               "kind" : "keyword",
-              "text" : "var"
+              "text" : "let"
             },
             {
               "kind" : "text",
@@ -166,12 +174,20 @@
     {
       "text" : "The last modified date of the item.",
       "type" : "text"
+    },
+    {
+      "text" : " ",
+      "type" : "text"
+    },
+    {
+      "text" : "Pleaae note that this value can be inconsistent when cloning or pulling from git, see https:\/\/github.com\/loopwerk\/Saga\/issues\/21.",
+      "type" : "text"
     }
   ],
   "fragments" : [
     {
       "kind" : "keyword",
-      "text" : "var"
+      "text" : "let"
     },
     {
       "kind" : "text",

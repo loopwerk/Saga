@@ -1,29 +1,23 @@
 {
-  "abstract" : [
-    {
-      "text" : "The raw contents of the file, not parsed in any way.",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
         "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/Item"
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/rawContent"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/M"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga4ItemC10rawContentSSvp",
+    "externalID" : "s:4Saga11AtomContextP1MQa",
     "fragments" : [
       {
         "kind" : "keyword",
-        "text" : "var"
+        "text" : "associatedtype"
       },
       {
         "kind" : "text",
@@ -31,16 +25,16 @@
       },
       {
         "kind" : "identifier",
-        "text" : "rawContent"
+        "text" : "M"
       },
       {
         "kind" : "text",
-        "text" : ": "
+        "text" : " : "
       },
       {
         "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:SS",
-        "text" : "String"
+        "preciseIdentifier" : "s:4Saga8MetadataP",
+        "text" : "Metadata"
       }
     ],
     "modules" : [
@@ -48,10 +42,11 @@
         "name" : "Saga"
       }
     ],
+    "required" : true,
     "role" : "symbol",
-    "roleHeading" : "Instance Property",
-    "symbolKind" : "property",
-    "title" : "rawContent"
+    "roleHeading" : "Associated Type",
+    "symbolKind" : "associatedtype",
+    "title" : "M"
   },
   "primaryContentSections" : [
     {
@@ -66,7 +61,7 @@
           "tokens" : [
             {
               "kind" : "keyword",
-              "text" : "var"
+              "text" : "associatedtype"
             },
             {
               "kind" : "text",
@@ -74,16 +69,17 @@
             },
             {
               "kind" : "identifier",
-              "text" : "rawContent"
+              "text" : "M"
             },
             {
               "kind" : "text",
-              "text" : ": "
+              "text" : " : "
             },
             {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:SS",
-              "text" : "String"
+              "preciseIdentifier" : "s:4Saga8MetadataP",
+              "text" : "Metadata"
             }
           ]
         }
@@ -102,7 +98,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/item\/rawcontent"
+        "\/documentation\/saga\/atomcontext\/m"
       ],
       "traits" : [
         {
@@ -127,17 +123,14 @@
   "type" : "topic",
   "url" : "\/documentation\/saga"
 },
-"doc://Saga/documentation/Saga/Item": {
+"doc://Saga/documentation/Saga/AtomContext": {
   "abstract" : [
-    {
-      "text" : "A model reprenting an item.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
       "kind" : "keyword",
-      "text" : "class"
+      "text" : "protocol"
     },
     {
       "kind" : "text",
@@ -145,33 +138,30 @@
     },
     {
       "kind" : "identifier",
-      "text" : "Item"
+      "text" : "AtomContext"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext",
   "kind" : "symbol",
   "navigatorTitle" : [
     {
       "kind" : "identifier",
-      "text" : "Item"
+      "text" : "AtomContext"
     }
   ],
   "role" : "symbol",
-  "title" : "Item",
+  "title" : "AtomContext",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/item"
+  "url" : "\/documentation\/saga\/atomcontext"
 },
-"doc://Saga/documentation/Saga/Item/rawContent": {
+"doc://Saga/documentation/Saga/AtomContext/M": {
   "abstract" : [
-    {
-      "text" : "The raw contents of the file, not parsed in any way.",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
       "kind" : "keyword",
-      "text" : "var"
+      "text" : "associatedtype"
     },
     {
       "kind" : "text",
@@ -179,24 +169,56 @@
     },
     {
       "kind" : "identifier",
-      "text" : "rawContent"
+      "text" : "M"
     },
     {
       "kind" : "text",
-      "text" : ": "
+      "text" : " : "
     },
     {
       "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:SS",
-      "text" : "String"
+      "preciseIdentifier" : "s:4Saga8MetadataP",
+      "text" : "Metadata"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/rawContent",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/M",
   "kind" : "symbol",
+  "required" : true,
   "role" : "symbol",
-  "title" : "rawContent",
+  "title" : "M",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/item\/rawcontent"
+  "url" : "\/documentation\/saga\/atomcontext\/m"
+},
+"doc://Saga/documentation/Saga/Metadata": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "Metadata"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "Metadata",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/metadata"
 }
 }
 }

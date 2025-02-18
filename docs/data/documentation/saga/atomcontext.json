@@ -8,15 +8,15 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga21ItemsRenderingContextV",
+    "externalID" : "s:4Saga11AtomContextP",
     "fragments" : [
       {
         "kind" : "keyword",
-        "text" : "struct"
+        "text" : "protocol"
       },
       {
         "kind" : "text",
@@ -24,7 +24,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "ItemsRenderingContext"
+        "text" : "AtomContext"
       }
     ],
     "modules" : [
@@ -35,13 +35,13 @@
     "navigatorTitle" : [
       {
         "kind" : "identifier",
-        "text" : "ItemsRenderingContext"
+        "text" : "AtomContext"
       }
     ],
     "role" : "symbol",
-    "roleHeading" : "Structure",
-    "symbolKind" : "struct",
-    "title" : "ItemsRenderingContext"
+    "roleHeading" : "Protocol",
+    "symbolKind" : "protocol",
+    "title" : "AtomContext"
   },
   "primaryContentSections" : [
     {
@@ -56,7 +56,7 @@
           "tokens" : [
             {
               "kind" : "keyword",
-              "text" : "struct"
+              "text" : "protocol"
             },
             {
               "kind" : "text",
@@ -64,41 +64,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "ItemsRenderingContext"
-            },
-            {
-              "kind" : "text",
-              "text" : "<"
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "M"
-            },
-            {
-              "kind" : "text",
-              "text" : "> "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "where"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "M"
-            },
-            {
-              "kind" : "text",
-              "text" : " : "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga8MetadataP",
-              "text" : "Metadata"
+              "text" : "AtomContext"
             }
           ]
         }
@@ -109,11 +75,12 @@
   "relationshipsSections" : [
     {
       "identifiers" : [
-        "doc:\/\/Saga\/documentation\/Saga\/AtomContext"
+        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext",
+        "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext"
       ],
       "kind" : "relationships",
-      "title" : "Conforms To",
-      "type" : "conformsTo"
+      "title" : "Conforming Types",
+      "type" : "conformingTypes"
     }
   ],
   "schemaVersion" : {
@@ -126,13 +93,19 @@
   ],
   "topicSections" : [
     {
+      "anchor" : "Associated-Types",
+      "generated" : true,
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/M"
+      ],
+      "title" : "Associated Types"
+    },
+    {
       "anchor" : "Instance-Properties",
       "generated" : true,
       "identifiers" : [
-        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems",
-        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/items",
-        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/outputPath",
-        "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/paginator"
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/items",
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/outputPath"
       ],
       "title" : "Instance Properties"
     }
@@ -140,7 +113,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/itemsrenderingcontext"
+        "\/documentation\/saga\/atomcontext"
       ],
       "traits" : [
         {
@@ -196,6 +169,132 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/atomcontext"
 },
+"doc://Saga/documentation/Saga/AtomContext/M": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "associatedtype"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : " : "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga8MetadataP",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/M",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "M",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomcontext\/m"
+},
+"doc://Saga/documentation/Saga/AtomContext/items": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "items"
+    },
+    {
+      "kind" : "text",
+      "text" : ": ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "Self"
+    },
+    {
+      "kind" : "text",
+      "text" : "."
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga11AtomContextP1MQa",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">]"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/items",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "items",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomcontext\/items"
+},
+"doc://Saga/documentation/Saga/AtomContext/outputPath": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "var"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "outputPath"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/outputPath",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "outputPath",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomcontext\/outputpath"
+},
 "doc://Saga/documentation/Saga/ItemsRenderingContext": {
   "abstract" : [
 
@@ -227,14 +326,14 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/itemsrenderingcontext"
 },
-"doc://Saga/documentation/Saga/ItemsRenderingContext/allItems": {
+"doc://Saga/documentation/Saga/PartitionedRenderingContext": {
   "abstract" : [
 
   ],
   "fragments" : [
     {
       "kind" : "keyword",
-      "text" : "let"
+      "text" : "struct"
     },
     {
       "kind" : "text",
@@ -242,177 +341,21 @@
     },
     {
       "kind" : "identifier",
-      "text" : "allItems"
-    },
-    {
-      "kind" : "text",
-      "text" : ": [any "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga7AnyItemP",
-      "text" : "AnyItem"
-    },
-    {
-      "kind" : "text",
-      "text" : "]"
+      "text" : "PartitionedRenderingContext"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/allItems",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "allItems",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/itemsrenderingcontext\/allitems"
-},
-"doc://Saga/documentation/Saga/ItemsRenderingContext/items": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "let"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "items"
-    },
-    {
-      "kind" : "text",
-      "text" : ": ["
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga4ItemC",
-      "text" : "Item"
-    },
-    {
-      "kind" : "text",
-      "text" : "<"
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "M"
-    },
-    {
-      "kind" : "text",
-      "text" : ">]"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/items",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "items",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/itemsrenderingcontext\/items"
-},
-"doc://Saga/documentation/Saga/ItemsRenderingContext/outputPath": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "let"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "outputPath"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:7PathKit0A0V",
-      "text" : "Path"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/outputPath",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "outputPath",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/itemsrenderingcontext\/outputpath"
-},
-"doc://Saga/documentation/Saga/ItemsRenderingContext/paginator": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "let"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "paginator"
-    },
-    {
-      "kind" : "text",
-      "text" : ": "
-    },
-    {
-      "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:4Saga9PaginatorV",
-      "text" : "Paginator"
-    },
-    {
-      "kind" : "text",
-      "text" : "?"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/ItemsRenderingContext\/paginator",
-  "kind" : "symbol",
-  "role" : "symbol",
-  "title" : "paginator",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/itemsrenderingcontext\/paginator"
-},
-"doc://Saga/documentation/Saga/Metadata": {
-  "abstract" : [
-
-  ],
-  "fragments" : [
-    {
-      "kind" : "keyword",
-      "text" : "protocol"
-    },
-    {
-      "kind" : "text",
-      "text" : " "
-    },
-    {
-      "kind" : "identifier",
-      "text" : "Metadata"
-    }
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/PartitionedRenderingContext",
   "kind" : "symbol",
   "navigatorTitle" : [
     {
       "kind" : "identifier",
-      "text" : "Metadata"
+      "text" : "PartitionedRenderingContext"
     }
   ],
   "role" : "symbol",
-  "title" : "Metadata",
+  "title" : "PartitionedRenderingContext",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/metadata"
+  "url" : "\/documentation\/saga\/partitionedrenderingcontext"
 }
 }
 }

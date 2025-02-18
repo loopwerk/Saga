@@ -3,17 +3,17 @@
     "paths" : [
       [
         "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/AnyItem"
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/published"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/items"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga7AnyItemP9published10Foundation4DateVvp",
+    "externalID" : "s:4Saga11AtomContextP5itemsSayAA4ItemCy1MQzGGvp",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -25,16 +25,37 @@
       },
       {
         "kind" : "identifier",
-        "text" : "published"
+        "text" : "items"
       },
       {
         "kind" : "text",
-        "text" : ": "
+        "text" : ": ["
       },
       {
         "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:10Foundation4DateV",
-        "text" : "Date"
+        "preciseIdentifier" : "s:4Saga4ItemC",
+        "text" : "Item"
+      },
+      {
+        "kind" : "text",
+        "text" : "<"
+      },
+      {
+        "kind" : "typeIdentifier",
+        "text" : "Self"
+      },
+      {
+        "kind" : "text",
+        "text" : "."
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:4Saga11AtomContextP1MQa",
+        "text" : "M"
+      },
+      {
+        "kind" : "text",
+        "text" : ">]"
       }
     ],
     "modules" : [
@@ -46,7 +67,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "published"
+    "title" : "items"
   },
   "primaryContentSections" : [
     {
@@ -69,32 +90,43 @@
             },
             {
               "kind" : "identifier",
-              "text" : "published"
+              "text" : "items"
             },
             {
               "kind" : "text",
-              "text" : ": "
+              "text" : ": ["
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga4ItemC",
+              "text" : "Item"
+            },
+            {
+              "kind" : "text",
+              "text" : "<"
             },
             {
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:10Foundation4DateV",
-              "text" : "Date"
+              "text" : "Self"
             },
             {
               "kind" : "text",
-              "text" : " { "
+              "text" : "."
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/M",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga11AtomContextP1MQa",
+              "text" : "M"
+            },
+            {
+              "kind" : "text",
+              "text" : ">] { "
             },
             {
               "kind" : "keyword",
               "text" : "get"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "set"
             },
             {
               "kind" : "text",
@@ -117,7 +149,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/anyitem\/published"
+        "\/documentation\/saga\/atomcontext\/items"
       ],
       "traits" : [
         {
@@ -142,21 +174,9 @@
   "type" : "topic",
   "url" : "\/documentation\/saga"
 },
-"doc://Saga/documentation/Saga/AnyItem": {
+"doc://Saga/documentation/Saga/AtomContext": {
   "abstract" : [
-    {
-      "text" : "A type-erased version of ",
-      "type" : "text"
-    },
-    {
-      "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
-      "isActive" : true,
-      "type" : "reference"
-    },
-    {
-      "text" : ".",
-      "type" : "text"
-    }
+
   ],
   "fragments" : [
     {
@@ -169,23 +189,58 @@
     },
     {
       "kind" : "identifier",
-      "text" : "AnyItem"
+      "text" : "AtomContext"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext",
   "kind" : "symbol",
   "navigatorTitle" : [
     {
       "kind" : "identifier",
-      "text" : "AnyItem"
+      "text" : "AtomContext"
     }
   ],
   "role" : "symbol",
-  "title" : "AnyItem",
+  "title" : "AtomContext",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem"
+  "url" : "\/documentation\/saga\/atomcontext"
 },
-"doc://Saga/documentation/Saga/AnyItem/published": {
+"doc://Saga/documentation/Saga/AtomContext/M": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "associatedtype"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : " : "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga8MetadataP",
+      "text" : "Metadata"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/M",
+  "kind" : "symbol",
+  "required" : true,
+  "role" : "symbol",
+  "title" : "M",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomcontext\/m"
+},
+"doc://Saga/documentation/Saga/AtomContext/items": {
   "abstract" : [
 
   ],
@@ -200,25 +255,46 @@
     },
     {
       "kind" : "identifier",
-      "text" : "published"
+      "text" : "items"
     },
     {
       "kind" : "text",
-      "text" : ": "
+      "text" : ": ["
     },
     {
       "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "Self"
+    },
+    {
+      "kind" : "text",
+      "text" : "."
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga11AtomContextP1MQa",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">]"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/published",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext\/items",
   "kind" : "symbol",
   "required" : true,
   "role" : "symbol",
-  "title" : "published",
+  "title" : "items",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/published"
+  "url" : "\/documentation\/saga\/atomcontext\/items"
 },
 "doc://Saga/documentation/Saga/Item": {
   "abstract" : [

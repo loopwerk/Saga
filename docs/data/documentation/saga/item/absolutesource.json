@@ -1,7 +1,7 @@
 {
   "abstract" : [
     {
-      "text" : "The published date of the item.",
+      "text" : "The absolute path of the file",
       "type" : "text"
     }
   ],
@@ -15,15 +15,15 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/published"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/Item\/absoluteSource"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga4ItemC9published10Foundation4DateVvp",
+    "externalID" : "s:4Saga4ItemC14absoluteSource7PathKit0E0Vvp",
     "fragments" : [
       {
         "kind" : "keyword",
-        "text" : "var"
+        "text" : "let"
       },
       {
         "kind" : "text",
@@ -31,7 +31,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "published"
+        "text" : "absoluteSource"
       },
       {
         "kind" : "text",
@@ -39,8 +39,8 @@
       },
       {
         "kind" : "typeIdentifier",
-        "preciseIdentifier" : "s:10Foundation4DateV",
-        "text" : "Date"
+        "preciseIdentifier" : "s:7PathKit0A0V",
+        "text" : "Path"
       }
     ],
     "modules" : [
@@ -51,7 +51,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "published"
+    "title" : "absoluteSource"
   },
   "primaryContentSections" : [
     {
@@ -66,7 +66,7 @@
           "tokens" : [
             {
               "kind" : "keyword",
-              "text" : "var"
+              "text" : "let"
             },
             {
               "kind" : "text",
@@ -74,7 +74,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "published"
+              "text" : "absoluteSource"
             },
             {
               "kind" : "text",
@@ -82,8 +82,8 @@
             },
             {
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:10Foundation4DateV",
-              "text" : "Date"
+              "preciseIdentifier" : "s:7PathKit0A0V",
+              "text" : "Path"
             }
           ]
         }
@@ -102,7 +102,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/item\/published"
+        "\/documentation\/saga\/item\/absolutesource"
       ],
       "traits" : [
         {
@@ -161,17 +161,17 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/item"
 },
-"doc://Saga/documentation/Saga/Item/published": {
+"doc://Saga/documentation/Saga/Item/absoluteSource": {
   "abstract" : [
     {
-      "text" : "The published date of the item.",
+      "text" : "The absolute path of the file",
       "type" : "text"
     }
   ],
   "fragments" : [
     {
       "kind" : "keyword",
-      "text" : "var"
+      "text" : "let"
     },
     {
       "kind" : "text",
@@ -179,7 +179,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "published"
+      "text" : "absoluteSource"
     },
     {
       "kind" : "text",
@@ -187,16 +187,16 @@
     },
     {
       "kind" : "typeIdentifier",
-      "preciseIdentifier" : "s:10Foundation4DateV",
-      "text" : "Date"
+      "preciseIdentifier" : "s:7PathKit0A0V",
+      "text" : "Path"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/published",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item\/absoluteSource",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "published",
+  "title" : "absoluteSource",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/item\/published"
+  "url" : "\/documentation\/saga\/item\/absolutesource"
 }
 }
 }

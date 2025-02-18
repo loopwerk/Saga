@@ -148,6 +148,16 @@
       "kind" : "declarations"
     }
   ],
+  "relationshipsSections" : [
+    {
+      "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext"
+      ],
+      "kind" : "relationships",
+      "title" : "Conforms To",
+      "type" : "conformsTo"
+    }
+  ],
   "schemaVersion" : {
     "major" : 0,
     "minor" : 3,
@@ -197,6 +207,37 @@
   "title" : "Saga",
   "type" : "topic",
   "url" : "\/documentation\/saga"
+},
+"doc://Saga/documentation/Saga/AtomContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "AtomContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "AtomContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "AtomContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomcontext"
 },
 "doc://Saga/documentation/Saga/Metadata": {
   "abstract" : [

@@ -82,7 +82,7 @@
                       "type" : "reference"
                     },
                     {
-                      "text" : ". These readers turn text files (such as Markdown or RestructuredText files) into ",
+                      "text" : ". These readers turn text files (such as markdown or reStructuredText files) into ",
                       "type" : "text"
                     },
                     {
@@ -160,7 +160,7 @@
               "type" : "reference"
             },
             {
-              "text" : " for reading Markdown files using ",
+              "text" : " for reading markdown files using ",
               "type" : "text"
             },
             {

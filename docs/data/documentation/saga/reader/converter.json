@@ -78,24 +78,6 @@
             },
             {
               "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:7PathKit0A0V",
-              "text" : "Path"
-            },
-            {
-              "kind" : "text",
-              "text" : ", "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:7PathKit0A0V",
-              "text" : "Path"
-            },
-            {
-              "kind" : "text",
               "text" : ") "
             },
             {
@@ -112,25 +94,55 @@
             },
             {
               "kind" : "text",
-              "text" : " -> "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Item",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga4ItemC",
-              "text" : "Item"
+              "text" : " -> (title"
             },
             {
               "kind" : "text",
-              "text" : "<"
+              "text" : ": "
             },
             {
               "kind" : "typeIdentifier",
-              "text" : "M"
+              "preciseIdentifier" : "s:SS",
+              "text" : "String"
             },
             {
               "kind" : "text",
-              "text" : ">"
+              "text" : "?, body"
+            },
+            {
+              "kind" : "text",
+              "text" : ": "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:SS",
+              "text" : "String"
+            },
+            {
+              "kind" : "text",
+              "text" : ", frontmatter"
+            },
+            {
+              "kind" : "text",
+              "text" : ": ["
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:SS",
+              "text" : "String"
+            },
+            {
+              "kind" : "text",
+              "text" : " : "
+            },
+            {
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:SS",
+              "text" : "String"
+            },
+            {
+              "kind" : "text",
+              "text" : "]?)"
             }
           ]
         }

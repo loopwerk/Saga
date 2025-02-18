@@ -1,35 +1,18 @@
 {
-  "abstract" : [
-    {
-      "text" : "Inherited from ",
-      "type" : "text"
-    },
-    {
-      "code" : "Decoder.decodeSingleValue(as:)",
-      "type" : "codeVoice"
-    },
-    {
-      "text" : ".",
-      "type" : "text"
-    }
-  ],
   "hierarchy" : {
     "paths" : [
       [
-        "doc:\/\/Saga\/documentation\/Saga",
-        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
-        "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations"
+        "doc:\/\/Saga\/documentation\/Saga"
       ]
     ]
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/decodeSingleValue(as:)"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/makeMetadataDecoder(for:)"
   },
   "kind" : "symbol",
   "metadata" : {
-    "extendedModule" : "Swift",
-    "externalID" : "s:s7DecoderP11CodextendedE17decodeSingleValue2asqd__qd__m_tKSeRd__lF::SYNTHESIZED::s:4Saga15MetadataDecoderC",
+    "externalID" : "s:4Saga19makeMetadataDecoder3forAA0cD0CSDyS2SG_tF",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -41,61 +24,53 @@
       },
       {
         "kind" : "identifier",
-        "text" : "decodeSingleValue"
+        "text" : "makeMetadataDecoder"
       },
       {
         "kind" : "text",
-        "text" : "<"
-      },
-      {
-        "kind" : "genericParameter",
-        "text" : "T"
-      },
-      {
-        "kind" : "text",
-        "text" : ">("
+        "text" : "("
       },
       {
         "kind" : "externalParam",
-        "text" : "as"
+        "text" : "for"
       },
       {
         "kind" : "text",
-        "text" : ": "
+        "text" : ": ["
       },
       {
         "kind" : "typeIdentifier",
-        "text" : "T"
+        "preciseIdentifier" : "s:SS",
+        "text" : "String"
       },
       {
         "kind" : "text",
-        "text" : ".Type) "
-      },
-      {
-        "kind" : "keyword",
-        "text" : "throws"
-      },
-      {
-        "kind" : "text",
-        "text" : " -> "
+        "text" : " : "
       },
       {
         "kind" : "typeIdentifier",
-        "text" : "T"
+        "preciseIdentifier" : "s:SS",
+        "text" : "String"
+      },
+      {
+        "kind" : "text",
+        "text" : "]) -> "
+      },
+      {
+        "kind" : "typeIdentifier",
+        "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+        "text" : "MetadataDecoder"
       }
     ],
     "modules" : [
       {
-        "name" : "Saga",
-        "relatedModules" : [
-          "Swift"
-        ]
+        "name" : "Saga"
       }
     ],
     "role" : "symbol",
-    "roleHeading" : "Instance Method",
-    "symbolKind" : "method",
-    "title" : "decodeSingleValue(as:)"
+    "roleHeading" : "Function",
+    "symbolKind" : "func",
+    "title" : "makeMetadataDecoder(for:)"
   },
   "primaryContentSections" : [
     {
@@ -118,23 +93,15 @@
             },
             {
               "kind" : "identifier",
-              "text" : "decodeSingleValue"
+              "text" : "makeMetadataDecoder"
             },
             {
               "kind" : "text",
-              "text" : "<"
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "T"
-            },
-            {
-              "kind" : "text",
-              "text" : ">("
+              "text" : "("
             },
             {
               "kind" : "externalParam",
-              "text" : "as"
+              "text" : "for"
             },
             {
               "kind" : "text",
@@ -142,47 +109,16 @@
             },
             {
               "kind" : "internalParam",
-              "text" : "type"
+              "text" : "metadata"
             },
             {
               "kind" : "text",
-              "text" : ": "
+              "text" : ": ["
             },
             {
               "kind" : "typeIdentifier",
-              "text" : "T"
-            },
-            {
-              "kind" : "text",
-              "text" : ".Type = T.self) "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "throws"
-            },
-            {
-              "kind" : "text",
-              "text" : " -> "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "T"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "where"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "T"
+              "preciseIdentifier" : "s:SS",
+              "text" : "String"
             },
             {
               "kind" : "text",
@@ -190,8 +126,18 @@
             },
             {
               "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:Se",
-              "text" : "Decodable"
+              "preciseIdentifier" : "s:SS",
+              "text" : "String"
+            },
+            {
+              "kind" : "text",
+              "text" : "]) -> "
+            },
+            {
+              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder",
+              "kind" : "typeIdentifier",
+              "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+              "text" : "MetadataDecoder"
             }
           ]
         }
@@ -210,7 +156,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/metadatadecoder\/decodesinglevalue(as:)"
+        "\/documentation\/saga\/makemetadatadecoder(for:)"
       ],
       "traits" : [
         {
@@ -266,18 +212,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/metadatadecoder"
 },
-"doc://Saga/documentation/Saga/MetadataDecoder/Decoder-Implementations": {
-  "abstract" : [
-
-  ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/Decoder-Implementations",
-  "kind" : "article",
-  "role" : "collectionGroup",
-  "title" : "Decoder Implementations",
-  "type" : "topic",
-  "url" : "\/documentation\/saga\/metadatadecoder\/decoder-implementations"
-},
-"doc://Saga/documentation/Saga/MetadataDecoder/decodeSingleValue(as:)": {
+"doc://Saga/documentation/Saga/makeMetadataDecoder(for:)": {
   "abstract" : [
 
   ],
@@ -292,55 +227,50 @@
     },
     {
       "kind" : "identifier",
-      "text" : "decodeSingleValue"
+      "text" : "makeMetadataDecoder"
     },
     {
       "kind" : "text",
-      "text" : "<"
-    },
-    {
-      "kind" : "genericParameter",
-      "text" : "T"
-    },
-    {
-      "kind" : "text",
-      "text" : ">("
+      "text" : "("
     },
     {
       "kind" : "externalParam",
-      "text" : "as"
+      "text" : "for"
     },
     {
       "kind" : "text",
-      "text" : ": "
+      "text" : ": ["
     },
     {
       "kind" : "typeIdentifier",
-      "text" : "T"
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
     },
     {
       "kind" : "text",
-      "text" : ".Type) "
-    },
-    {
-      "kind" : "keyword",
-      "text" : "throws"
-    },
-    {
-      "kind" : "text",
-      "text" : " -> "
+      "text" : " : "
     },
     {
       "kind" : "typeIdentifier",
-      "text" : "T"
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : "]) -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+      "text" : "MetadataDecoder"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/MetadataDecoder\/decodeSingleValue(as:)",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/makeMetadataDecoder(for:)",
   "kind" : "symbol",
   "role" : "symbol",
-  "title" : "decodeSingleValue(as:)",
+  "title" : "makeMetadataDecoder(for:)",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/metadatadecoder\/decodesinglevalue(as:)"
+  "url" : "\/documentation\/saga\/makemetadatadecoder(for:)"
 }
 }
 }

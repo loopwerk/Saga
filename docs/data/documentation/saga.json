@@ -156,6 +156,7 @@
       "generated" : true,
       "identifiers" : [
         "doc:\/\/Saga\/documentation\/Saga\/AnyItem",
+        "doc:\/\/Saga\/documentation\/Saga\/AtomContext",
         "doc:\/\/Saga\/documentation\/Saga\/Metadata"
       ],
       "title" : "Protocols"
@@ -177,7 +178,10 @@
       "anchor" : "Functions",
       "generated" : true,
       "identifiers" : [
+        "doc:\/\/Saga\/documentation\/Saga\/atomFeed(title:author:baseURL:summary:)",
+        "doc:\/\/Saga\/documentation\/Saga\/makeMetadataDecoder(for:)",
         "doc:\/\/Saga\/documentation\/Saga\/publicationDateInFilename(item:)",
+        "doc:\/\/Saga\/documentation\/Saga\/resolveDate(from:)",
         "doc:\/\/Saga\/documentation\/Saga\/sequence(_:)"
       ],
       "title" : "Functions"
@@ -292,6 +296,37 @@
   "title" : "Architecture",
   "type" : "topic",
   "url" : "\/documentation\/saga\/architecture"
+},
+"doc://Saga/documentation/Saga/AtomContext": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "protocol"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "AtomContext"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AtomContext",
+  "kind" : "symbol",
+  "navigatorTitle" : [
+    {
+      "kind" : "identifier",
+      "text" : "AtomContext"
+    }
+  ],
+  "role" : "symbol",
+  "title" : "AtomContext",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomcontext"
 },
 "doc://Saga/documentation/Saga/ContextKey": {
   "abstract" : [
@@ -886,6 +921,212 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/writer"
 },
+"doc://Saga/documentation/Saga/atomFeed(title:author:baseURL:summary:)": {
+  "abstract" : [
+    {
+      "text" : "A rendered which creates an Atom feed for Items",
+      "type" : "text"
+    }
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "atomFeed"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "genericParameter",
+      "text" : "Context"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "genericParameter",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">("
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "title"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "author"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : "?, "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "baseURL"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:10Foundation3URLV",
+      "text" : "URL"
+    },
+    {
+      "kind" : "text",
+      "text" : ", "
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "summary"
+    },
+    {
+      "kind" : "text",
+      "text" : ": (("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga4ItemC",
+      "text" : "Item"
+    },
+    {
+      "kind" : "text",
+      "text" : "<"
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "M"
+    },
+    {
+      "kind" : "text",
+      "text" : ">) -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : "?)?) -> ("
+    },
+    {
+      "kind" : "typeIdentifier",
+      "text" : "Context"
+    },
+    {
+      "kind" : "text",
+      "text" : ") -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/atomFeed(title:author:baseURL:summary:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "atomFeed(title:author:baseURL:summary:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/atomfeed(title:author:baseurl:summary:)"
+},
+"doc://Saga/documentation/Saga/makeMetadataDecoder(for:)": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "makeMetadataDecoder"
+    },
+    {
+      "kind" : "text",
+      "text" : "("
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "for"
+    },
+    {
+      "kind" : "text",
+      "text" : ": ["
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : " : "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:SS",
+      "text" : "String"
+    },
+    {
+      "kind" : "text",
+      "text" : "]) -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+      "text" : "MetadataDecoder"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/makeMetadataDecoder(for:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "makeMetadataDecoder(for:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/makemetadatadecoder(for:)"
+},
 "doc://Saga/documentation/Saga/publicationDateInFilename(item:)": {
   "abstract" : [
     {
@@ -962,6 +1203,69 @@
   "title" : "publicationDateInFilename(item:)",
   "type" : "topic",
   "url" : "\/documentation\/saga\/publicationdateinfilename(item:)"
+},
+"doc://Saga/documentation/Saga/resolveDate(from:)": {
+  "abstract" : [
+
+  ],
+  "fragments" : [
+    {
+      "kind" : "keyword",
+      "text" : "func"
+    },
+    {
+      "kind" : "text",
+      "text" : " "
+    },
+    {
+      "kind" : "identifier",
+      "text" : "resolveDate"
+    },
+    {
+      "kind" : "text",
+      "text" : "("
+    },
+    {
+      "kind" : "externalParam",
+      "text" : "from"
+    },
+    {
+      "kind" : "text",
+      "text" : ": "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:4Saga15MetadataDecoderC",
+      "text" : "MetadataDecoder"
+    },
+    {
+      "kind" : "text",
+      "text" : ") "
+    },
+    {
+      "kind" : "keyword",
+      "text" : "throws"
+    },
+    {
+      "kind" : "text",
+      "text" : " -> "
+    },
+    {
+      "kind" : "typeIdentifier",
+      "preciseIdentifier" : "s:10Foundation4DateV",
+      "text" : "Date"
+    },
+    {
+      "kind" : "text",
+      "text" : "?"
+    }
+  ],
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/resolveDate(from:)",
+  "kind" : "symbol",
+  "role" : "symbol",
+  "title" : "resolveDate(from:)",
+  "type" : "topic",
+  "url" : "\/documentation\/saga\/resolvedate(from:)"
 },
 "doc://Saga/documentation/Saga/sequence(_:)": {
   "abstract" : [

@@ -9,11 +9,11 @@
   },
   "identifier" : {
     "interfaceLanguage" : "swift",
-    "url" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/lastModified"
+    "url" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/date"
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4Saga7AnyItemP12lastModified10Foundation4DateVvp",
+    "externalID" : "s:4Saga7AnyItemP4date10Foundation4DateVvp",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -25,7 +25,7 @@
       },
       {
         "kind" : "identifier",
-        "text" : "lastModified"
+        "text" : "date"
       },
       {
         "kind" : "text",
@@ -46,7 +46,7 @@
     "role" : "symbol",
     "roleHeading" : "Instance Property",
     "symbolKind" : "property",
-    "title" : "lastModified"
+    "title" : "date"
   },
   "primaryContentSections" : [
     {
@@ -69,7 +69,7 @@
             },
             {
               "kind" : "identifier",
-              "text" : "lastModified"
+              "text" : "date"
             },
             {
               "kind" : "text",
@@ -87,6 +87,14 @@
             {
               "kind" : "keyword",
               "text" : "get"
+            },
+            {
+              "kind" : "text",
+              "text" : " "
+            },
+            {
+              "kind" : "keyword",
+              "text" : "set"
             },
             {
               "kind" : "text",
@@ -109,7 +117,7 @@
   "variants" : [
     {
       "paths" : [
-        "\/documentation\/saga\/anyitem\/lastmodified"
+        "\/documentation\/saga\/anyitem\/date"
       ],
       "traits" : [
         {
@@ -177,7 +185,7 @@
   "type" : "topic",
   "url" : "\/documentation\/saga\/anyitem"
 },
-"doc://Saga/documentation/Saga/AnyItem/lastModified": {
+"doc://Saga/documentation/Saga/AnyItem/date": {
   "abstract" : [
 
   ],
@@ -192,7 +200,7 @@
     },
     {
       "kind" : "identifier",
-      "text" : "lastModified"
+      "text" : "date"
     },
     {
       "kind" : "text",
@@ -204,13 +212,13 @@
       "text" : "Date"
     }
   ],
-  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/lastModified",
+  "identifier" : "doc:\/\/Saga\/documentation\/Saga\/AnyItem\/date",
   "kind" : "symbol",
   "required" : true,
   "role" : "symbol",
-  "title" : "lastModified",
+  "title" : "date",
   "type" : "topic",
-  "url" : "\/documentation\/saga\/anyitem\/lastmodified"
+  "url" : "\/documentation\/saga\/anyitem\/date"
 },
 "doc://Saga/documentation/Saga/Item": {
   "abstract" : [
