@@ -6,7 +6,7 @@
 
 import Foundation
 
-public final class MetadataDecoder: Decoder {
+internal final class MetadataDecoder: Decoder {
   public var userInfo: [CodingUserInfoKey : Any] { [:] }
   public let codingPath: [CodingKey]
 
@@ -688,5 +688,53 @@ private extension Array {
     var array = self
     array.append(element)
     return array
+  }
+}
+
+internal func makeMetadataDecoder(for metadata: [String: String]) -> MetadataDecoder {
+  let dateFormatter = DateFormatter()
+  dateFormatter.dateFormat = "yyyy-MM-dd"
+  dateFormatter.timeZone = .current
+  
+  return MetadataDecoder(
+    metadata: metadata,
+    dateFormatter: dateFormatter
+  )
+}
+
+internal func resolveDate(from decoder: MetadataDecoder) throws -> Date? {
+  return try decoder.decodeIfPresent("date", as: Date.self)
+}
+
+private struct AnyCodingKey: CodingKey {
+  var stringValue: String
+  var intValue: Int?
+  
+  init(_ string: String) {
+    stringValue = string
+  }
+  
+  init?(stringValue: String) {
+    self.stringValue = stringValue
+  }
+  
+  init?(intValue: Int) {
+    self.intValue = intValue
+    self.stringValue = String(intValue)
+  }
+}
+
+private extension Decoder {
+  /// Decode an optional value for a given key, specified as a string. Throws an error if the
+  /// specified key exists but is not able to be decoded as the inferred type.
+  func decodeIfPresent<T: Decodable>(_ key: String, as type: T.Type = T.self) throws -> T? {
+    return try decodeIfPresent(AnyCodingKey(key), as: type)
+  }
+  
+  /// Decode an optional value for a given key, specified as a `CodingKey`. Throws an error if the
+  /// specified key exists but is not able to be decoded as the inferred type.
+  func decodeIfPresent<T: Decodable, K: CodingKey>(_ key: K, as type: T.Type = T.self) throws -> T? {
+    let container = try self.container(keyedBy: K.self)
+    return try container.decodeIfPresent(type, forKey: key)
   }
 }
