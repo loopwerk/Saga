@@ -16,7 +16,7 @@ func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConverti
         a(href: "/articles/") { "Articles" }
         a(href: "/apps/") { "Apps" }
         a(href: "/photos/") { "Photos" }
-        a(href: "/about.html") { "About" }
+        a(href: "/about/") { "About" }
       }
       div(id: "content") {
         children()
