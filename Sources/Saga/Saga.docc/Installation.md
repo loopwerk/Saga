@@ -17,9 +17,9 @@ let package = Package(
     .macOS(.v12)
   ],
   dependencies: [
-    .package(url: "https://github.com/loopwerk/Saga", from: "1.0.0"),
-    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "0.7.0"),
-    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "0.9.0"),
+    .package(url: "https://github.com/loopwerk/Saga", from: "2.0.0"),
+    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "1.0.0"),
+    .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "1.0.0"),
   ],
   targets: [
     .executableTarget(
@@ -38,4 +38,4 @@ Now you can `import Saga` and use it. You can continue with the <doc:GettingStar
 
 
 ## System requirements
-Saga uses async/await and as such requires at least Swift 5.5, and runs on both Mac (macOS 12) and Linux. Version 0.22.0 can be used on macOS 11 with Swift 5.2.
+Saga requires at least Swift 5.5, and runs on both Mac (macOS 12) and Linux.

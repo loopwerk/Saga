@@ -1,9 +1,3 @@
-/*
- * Code borrowed from https://github.com/bryceac/AtomFeed
- * Author: Bryce campbell
- * License: MIT License
- */
-
 import Foundation
 
 /// A rendered which creates an Atom feed for Items
