@@ -44,14 +44,30 @@ internal class AnyProcessStep {
         unhandledFileContainer.handled = true
 
         do {
-          // Turn the file into an Item
-          let item = try await reader.convert(unhandledFileContainer.path, unhandledFileContainer.relativePath, unhandledFileContainer.relativePath.makeOutputPath(itemWriteMode: itemWriteMode))
+          // Use the Reader to convert the contents of the file to HTML
+          let partialItem = try await reader.convert(unhandledFileContainer.path)
+
+          // Then we try to decode the frontmatter (which is just a [String: String] dict) to proper metadata
+          let decoder = makeMetadataDecoder(for: partialItem.frontmatter ?? [:])
+          let date = try resolveDate(from: decoder)
+          let metadata = try M(from: decoder)
+
+          // Create the Item instance
+          let item = Item(
+            absoluteSource: unhandledFileContainer.path,
+            relativeSource: unhandledFileContainer.relativePath,
+            relativeDestination: unhandledFileContainer.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
+            title: partialItem.title ?? "",
+            body: partialItem.body,
+            date: date ?? unhandledFileContainer.path.creationDate ?? Date(),
+            lastModified: unhandledFileContainer.path.modificationDate ?? Date(),
+            metadata: metadata)
 
           // Process the Item if there's an itemProcessor
           if let itemProcessor = step.itemProcessor {
             await itemProcessor(item)
           }
-          
+
           // Store the generated Item if it passes the filter
           if step.filter(item) {
             unhandledFileContainer.item = item
@@ -67,13 +83,13 @@ internal class AnyProcessStep {
         }
       }
 
-      step.items = items.sorted(by: { left, right in left.published > right.published })
+      step.items = items.sorted(by: { left, right in left.date > right.date })
     }
 
     runWriters = {
       let allItems = fileStorage
         .compactMap(\.item)
-        .sorted(by: { left, right in left.published > right.published })
+        .sorted(by: { left, right in left.date > right.date })
 
       for writer in step.writers {
         try writer.run(step.items, allItems, fileStorage, outputPath, step.folder ?? "", fileIO)

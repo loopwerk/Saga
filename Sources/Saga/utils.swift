@@ -36,7 +36,7 @@ public func publicationDateInFilename<M>(item: Item<M>) async {
   }
   
   // Set the date
-  item.published = date
+  item.date = date
   
   // And remove the first 11 characters from the filename
   let first11 = String(item.relativeSource.lastComponentWithoutExtension.prefix(11))
