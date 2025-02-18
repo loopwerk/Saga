@@ -14,33 +14,9 @@ extension FileIO {
 }
 
 extension Reader {
-  static func mock(metadata: M) -> Self {
-    return Self(supportedExtensions: ["md"]) { absoluteSource, relativeSource, relativeDestination in
-      if relativeSource == "test.md" {
-        return Item(
-          relativeSource: relativeSource,
-          relativeDestination: relativeDestination,
-          title: "Test",
-          rawContent: "test",
-          body: "<p>\(relativeSource)</p>",
-          published: Date(timeIntervalSince1970: 1580598000),
-          created: Date(timeIntervalSince1970: 1580598000),
-          lastModified: Date(timeIntervalSince1970: 1580598000),
-          metadata: metadata
-        )
-      } else {
-        return Item(
-          relativeSource: relativeSource,
-          relativeDestination: relativeDestination,
-          title: "Test",
-          rawContent: "test",
-          body: "<p>\(relativeSource)</p>",
-          published: Date(timeIntervalSince1970: 1612220400),
-          created: Date(timeIntervalSince1970: 1612220400),
-          lastModified: Date(timeIntervalSince1970: 1612220400),
-          metadata: metadata
-        )
-      }
+  static func mock(frontmatter: [String: String]) -> Self {
+    return Self(supportedExtensions: ["md"]) { absoluteSource in
+      return (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: frontmatter)
     }
   }
 }
@@ -101,7 +77,7 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(metadata: EmptyMetadata())
+          .mock(frontmatter: [:])
         ],
         writers: [
           .itemWriter { context in context.item.body },
@@ -143,18 +119,19 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(metadata: EmptyMetadata())
+          .mock(frontmatter: [:])
         ],
         writers: [
           .yearWriter({ context in context.items.map(\.body).joined(separator: "") })
         ]
       )
       .run()
+    
+    let currentYear = Calendar.current.component(.year, from: Date())
 
-    XCTAssertEqual(writtenPages.count, 2)
+    XCTAssertEqual(writtenPages.count, 1)
     XCTAssertEqual(writtenPages, [
-      WrittenPage(destination: "root/output/2020/index.html", content: "<p>test.md</p>"),
-      WrittenPage(destination: "root/output/2021/index.html", content: "<p>test2.md</p>"),
+      WrittenPage(destination: Path("root/output/\(currentYear)/index.html"), content: "<p>test2.md</p><p>test.md</p>"),
     ])
   }
 
@@ -170,7 +147,7 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: TaggedMetadata.self,
         readers: [
-          .mock(metadata: TaggedMetadata(tags: ["one", "with space"]))
+          .mock(frontmatter: ["tags": "one, with space"])
         ],
         writers: [
           .tagWriter({ context in context.items.map(\.body).joined(separator: "") }, tags: \.metadata.tags)
@@ -197,7 +174,7 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: TaggedMetadata.self,
         readers: [
-          .mock(metadata: TaggedMetadata(tags: ["one", "with space"]))
+          .mock(frontmatter: ["tags": "one, with space"])
         ],
         writers: [
         ]
@@ -220,7 +197,7 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(metadata: EmptyMetadata())
+          .mock(frontmatter: [:])
         ],
         itemWriteMode: .keepAsFile,
         writers: [
@@ -248,7 +225,7 @@ final class SagaTests: XCTestCase {
       "url": "https://www.example.com"
     ]
 
-    let decoder = Reader<TestMetadata>.makeMetadataDecoder(for: metadataDict)
+    let decoder = makeMetadataDecoder(for: metadataDict)
     let decoded = try TestMetadata(from: decoder)
 
     XCTAssertEqual(decoded.tags, ["one", "two"])
