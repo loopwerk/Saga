@@ -1,4 +1,14 @@
+/*
+ * Code borrowed from https://github.com/bryceac/AtomFeed
+ * Author: Bryce campbell
+ * License: MIT License
+ */
+
 import Foundation
+
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
 
 /// A rendered which creates an Atom feed for Items
 ///
@@ -10,78 +20,63 @@ import Foundation
 /// - Returns: A function which takes a rendering context, and returns a string.
 public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: ((Item<M>) -> String?)? = nil) -> (_ context: Context) -> String where Context.M == M {
   let RFC3339_DF = ISO8601DateFormatter()
-
+  
   return { context in
     let feedPath = context.outputPath.string
-    let currentDate = RFC3339_DF.string(from: Date())
-
-    // Build the feed header
-    var xml = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <feed xmlns="http://www.w3.org/2005/Atom">
-        <id>\(baseURL.appendingPathComponent(feedPath).absoluteString)</id>
-        <title>\(escapeXML(title))</title>
-
-    """
-
-    // Add optional author
+    
+    // Create the root element
+    let rootElement = XMLElement(name: "feed")
+    rootElement.setAttributesWith(["xmlns": "http://www.w3.org/2005/Atom"])
+    
+    // Create the XML document
+    let XML = XMLDocument(rootElement: rootElement)
+    
+    let idElement = XMLElement(name: "id")
+    idElement.stringValue = baseURL.appendingPathComponent(feedPath).absoluteString
+    rootElement.addChild(idElement)
+    
+    rootElement.addChild(XMLElement(name: "title", stringValue: title))
+    
     if let author = author {
-      xml += """
-          <author>
-              <name>\(escapeXML(author))</name>
-          </author>
-
-      """
+      let authorElement = XMLElement(name: "author")
+      authorElement.addChild(XMLElement(name: "name", stringValue: author))
+      rootElement.addChild(authorElement)
     }
-
-    // Add link and updated date
-    xml += """
-        <link rel="self" href="\(baseURL.absoluteString)"/>
-        <updated>\(currentDate)</updated>
-
-    """
-
-    // Add entries
+    
+    let linkElement = XMLElement(name: "link")
+    linkElement.setAttributesWith(["rel": "self", "href": baseURL.absoluteString])
+    rootElement.addChild(linkElement)
+    
+    let updatedElement = XMLElement(name: "updated", stringValue: RFC3339_DF.string(from: Date()))
+    rootElement.addChild(updatedElement)
+    
+    // add entries to feed
     for item in context.items {
-      let itemURL = baseURL.appendingPathComponent(item.url).absoluteString
-
-      xml += """
-          <entry>
-              <id>\(itemURL)</id>
-              <title>\(escapeXML(item.title))</title>
-              <updated>\(RFC3339_DF.string(from: item.lastModified))</updated>
-
-      """
-
+      // create entry element
+      let entryElement = XMLElement(name: "entry")
+      
+      let idElement = XMLElement(name: "id")
+      idElement.stringValue = baseURL.appendingPathComponent(item.url).absoluteString
+      
+      entryElement.addChild(idElement)
+      entryElement.addChild(XMLElement(name: "title", stringValue: item.title))
+      entryElement.addChild(XMLElement(name: "updated", stringValue: RFC3339_DF.string(from: item.lastModified)))
+      
       if let summary, let summaryString = summary(item) {
-        xml += """
-            <summary>\(escapeXML(summaryString))</summary>
-            <link rel="alternate" href="\(itemURL)"/>
-
-        """
+        let summaryElement = XMLElement(name: "summary", stringValue: summaryString)
+        let alternateElement = XMLElement(name: "link")
+        alternateElement.setAttributesWith(["rel": "alternate", "href": baseURL.appendingPathComponent(item.url).absoluteString])
+        entryElement.addChild(summaryElement)
+        entryElement.addChild(alternateElement)
       } else {
-        xml += """
-            <content type="html">\(escapeXML(item.body))</content>
-
-        """
+        let contentElement = XMLElement(name: "content", stringValue: item.body)
+        contentElement.setAttributesWith(["type": "html"])
+        entryElement.addChild(contentElement)
       }
-
-      xml += "    </entry>\n"
+      
+      rootElement.addChild(entryElement)
     }
-
-    // Close the feed
-    xml += "</feed>"
-
-    return xml
+    
+    return String(data: XML.xmlData(options: [.nodePrettyPrint]), encoding: .utf8) ?? ""
   }
-}
-
-// Helper function to escape special XML characters
-private func escapeXML(_ string: String) -> String {
-  return string
-    .replacingOccurrences(of: "&", with: "&amp;")
-    .replacingOccurrences(of: "<", with: "&lt;")
-    .replacingOccurrences(of: ">", with: "&gt;")
-    .replacingOccurrences(of: "\"", with: "&quot;")
-    .replacingOccurrences(of: "'", with: "&apos;")
 }
