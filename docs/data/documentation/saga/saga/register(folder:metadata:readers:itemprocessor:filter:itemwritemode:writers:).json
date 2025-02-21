@@ -19,7 +19,7 @@
   },
   "kind" : "symbol",
   "metadata" : {
-    "externalID" : "s:4SagaAAC8register6folder8metadata7readers13itemProcessor6filter0F9WriteMode7writersABXD7PathKit0L0VSg_xmSayAA6ReaderVyxGGyAA4ItemCyxGYacSgSbAUcAA0oiJ0OSayAA6WriterVyxGGtKAA8MetadataRzlF",
+    "externalID" : "s:4SagaAAC8register6folder8metadata7readers13itemProcessor6filter0F9WriteMode7writersABXD7PathKit0L0VSg_xmSayAA6ReaderVGyAA4ItemCyxGYacSgSbATcAA0oiJ0OSayAA6WriterVyxGGtKAA8MetadataRzlF",
     "fragments" : [
       {
         "kind" : "keyword",
@@ -93,15 +93,7 @@
       },
       {
         "kind" : "text",
-        "text" : "<"
-      },
-      {
-        "kind" : "typeIdentifier",
-        "text" : "M"
-      },
-      {
-        "kind" : "text",
-        "text" : ">], "
+        "text" : "], "
       },
       {
         "kind" : "externalParam",
@@ -336,15 +328,7 @@
             },
             {
               "kind" : "text",
-              "text" : "<"
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "M"
-            },
-            {
-              "kind" : "text",
-              "text" : ">], "
+              "text" : "], "
             },
             {
               "kind" : "externalParam",
@@ -1029,15 +1013,7 @@
     },
     {
       "kind" : "text",
-      "text" : "<"
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "M"
-    },
-    {
-      "kind" : "text",
-      "text" : ">], "
+      "text" : "], "
     },
     {
       "kind" : "externalParam",

@@ -70,7 +70,7 @@ public class Saga {
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader<M>], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, itemWriteMode: ItemWriteMode = .moveToSubfolder, writers: [Writer<M>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, itemWriteMode: ItemWriteMode = .moveToSubfolder, writers: [Writer<M>]) throws -> Self {
     let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, writers: writers)
     self.processSteps.append(
       .init(

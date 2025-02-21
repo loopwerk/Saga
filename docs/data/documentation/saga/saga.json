@@ -519,15 +519,7 @@
     },
     {
       "kind" : "text",
-      "text" : "<"
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "M"
-    },
-    {
-      "kind" : "text",
-      "text" : ">], "
+      "text" : "], "
     },
     {
       "kind" : "externalParam",

@@ -16,29 +16,21 @@ import PathKit
 /// ```swift
 /// public extension Reader {
 ///   static func myMarkdownReader() -> Self {
-///     Reader(supportedExtensions: ["md", "markdown"], convert: { absoluteSource, relativeSource, relativeDestination in
+///     Reader(supportedExtensions: ["md", "markdown"], convert: { absoluteSource in
 ///       let content: String = try absoluteSource.read()
 ///
-///       // Somehow turn `content` into an ``Item``, and return it:
-///       let item = Item(
-///         relativeSource: ...,
-///         relativeDestination: ...,
-///         title: ...,
-///         rawContent: ...,
-///         body: ...,
-///         date: ...,
-///         lastModified: ...,
-///         metadata: ...
-///       )
+///       // Parse `content` markdown
+///       // ...
 ///
-///       return item
+///       // and return the parts:
+///       return (title: "...", body: "...", frontmatter: [:])
 ///     })
 ///   }
 /// }
 /// ```
 ///
 /// > Note: Instead of constructing your own `Reader` from scratch for your website, you should probably install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
-public struct Reader<M: Metadata> {
+public struct Reader {
   /// Which file extensions can be handled by this reader? For example `md` or `rst`.
   var supportedExtensions: [String]
 

@@ -3,13 +3,13 @@ import PathKit
 
 internal class ProcessStep<M: Metadata> {
   let folder: Path?
-  let readers: [Reader<M>]
+  let readers: [Reader]
   let filter: (Item<M>) -> Bool
   let itemProcessor: ((Item<M>) async -> Void)?
   let writers: [Writer<M>]
   var items: [Item<M>]
 
-  init(folder: Path?, readers: [Reader<M>], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, writers: [Writer<M>]) {
+  init(folder: Path?, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, writers: [Writer<M>]) {
     self.folder = folder
     self.readers = readers
     self.itemProcessor = itemProcessor

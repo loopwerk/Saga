@@ -80,40 +80,6 @@
             {
               "kind" : "identifier",
               "text" : "Reader"
-            },
-            {
-              "kind" : "text",
-              "text" : "<"
-            },
-            {
-              "kind" : "genericParameter",
-              "text" : "M"
-            },
-            {
-              "kind" : "text",
-              "text" : "> "
-            },
-            {
-              "kind" : "keyword",
-              "text" : "where"
-            },
-            {
-              "kind" : "text",
-              "text" : " "
-            },
-            {
-              "kind" : "typeIdentifier",
-              "text" : "M"
-            },
-            {
-              "kind" : "text",
-              "text" : " : "
-            },
-            {
-              "identifier" : "doc:\/\/Saga\/documentation\/Saga\/Metadata",
-              "kind" : "typeIdentifier",
-              "preciseIdentifier" : "s:4Saga8MetadataP",
-              "text" : "Metadata"
             }
           ]
         }
@@ -170,22 +136,14 @@
           "code" : [
             "public extension Reader {",
             "  static func myMarkdownReader() -> Self {",
-            "    Reader(supportedExtensions: [\"md\", \"markdown\"], convert: { absoluteSource, relativeSource, relativeDestination in",
+            "    Reader(supportedExtensions: [\"md\", \"markdown\"], convert: { absoluteSource in",
             "      let content: String = try absoluteSource.read()",
             "",
-            "      \/\/ Somehow turn `content` into an ``Item``, and return it:",
-            "      let item = Item(",
-            "        relativeSource: ...,",
-            "        relativeDestination: ...,",
-            "        title: ...,",
-            "        rawContent: ...,",
-            "        body: ...,",
-            "        date: ...,",
-            "        lastModified: ...,",
-            "        metadata: ...",
-            "      )",
+            "      \/\/ Parse `content` markdown",
+            "      \/\/ ...",
             "",
-            "      return item",
+            "      \/\/ and return the parts:",
+            "      return (title: \"...\", body: \"...\", frontmatter: [:])",
             "    })",
             "  }",
             "}"
@@ -544,15 +502,7 @@
     },
     {
       "kind" : "text",
-      "text" : "<"
-    },
-    {
-      "kind" : "typeIdentifier",
-      "text" : "M"
-    },
-    {
-      "kind" : "text",
-      "text" : ">."
+      "text" : "."
     },
     {
       "kind" : "typeIdentifier",

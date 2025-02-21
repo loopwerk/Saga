@@ -33,7 +33,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/reader\/init(supportedextensions:convert:)",
-                "title" : "init(supportedExtensions: [String], convert: Reader<M>.Converter)",
+                "title" : "init(supportedExtensions: [String], convert: Reader.Converter)",
                 "type" : "init"
               },
               {
@@ -232,7 +232,7 @@
               },
               {
                 "path" : "\/documentation\/saga\/saga\/register(folder:metadata:readers:itemprocessor:filter:itemwritemode:writers:)",
-                "title" : "func register<M>(folder: Path?, metadata: M.Type, readers: [Reader<M>], itemProcessor: ((Item<M>) async -> Void)?, filter: ((Item<M>) -> Bool), itemWriteMode: ItemWriteMode, writers: [Writer<M>]) throws -> Self",
+                "title" : "func register<M>(folder: Path?, metadata: M.Type, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: ((Item<M>) -> Bool), itemWriteMode: ItemWriteMode, writers: [Writer<M>]) throws -> Self",
                 "type" : "method"
               },
               {
