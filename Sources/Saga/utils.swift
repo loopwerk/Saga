@@ -30,7 +30,7 @@ private let publicationDateFormatter: DateFormatter = {
 /// and uses the date within the filename as the publication date.
 public func publicationDateInFilename<M>(item: Item<M>) async {
   // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
-  let first10 = String(item.relativeSource.lastComponentWithoutExtension.prefix(10))
+  let first10 = String(item.filenameWithoutExtension.prefix(10))
   guard first10.count == 10, let date = publicationDateFormatter.date(from: first10) else {
     return
   }
@@ -39,7 +39,7 @@ public func publicationDateInFilename<M>(item: Item<M>) async {
   item.date = date
 
   // And remove the first 11 characters from the filename
-  let first11 = String(item.relativeSource.lastComponentWithoutExtension.prefix(11))
+  let first11 = String(item.filenameWithoutExtension.prefix(11))
   item.relativeDestination = Path(
     item.relativeSource.string.replacingOccurrences(of: first11, with: "")
   ).makeOutputPath(itemWriteMode: .moveToSubfolder)
