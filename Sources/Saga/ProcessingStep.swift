@@ -57,7 +57,7 @@ internal class AnyProcessStep {
             absoluteSource: unhandledFileContainer.path,
             relativeSource: unhandledFileContainer.relativePath,
             relativeDestination: unhandledFileContainer.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
-            title: partialItem.title ?? "",
+            title: partialItem.title ?? unhandledFileContainer.relativePath.lastComponentWithoutExtension,
             body: partialItem.body,
             date: date ?? unhandledFileContainer.path.creationDate ?? Date(),
             lastModified: unhandledFileContainer.path.modificationDate ?? Date(),
