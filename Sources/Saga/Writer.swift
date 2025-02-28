@@ -21,7 +21,7 @@ private extension Array {
 public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.destination` as the destination path.
   static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M>) throws -> String) -> Self {
-    Writer { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
+    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       for item in items {
         // Resources are unhandled files in the same folder. These could be images for example, or other static files.
         let resources = fileStorage
@@ -31,16 +31,16 @@ public extension Writer {
         let stringToWrite = try renderer(context)
         try fileIO.write(outputRoot + item.relativeDestination, stringToWrite)
       }
-    }
+    })
   }
 
   /// Writes an array of items into a single output file.
   static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M>) throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
-    return Self { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
+    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       try writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
         return ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
       }
-    }
+    })
   }
 
   /// Writes an array of items into multiple output files.
@@ -50,7 +50,7 @@ public extension Writer {
   /// The `output` path is a template where `[key]` will be replaced with the key used for the partition.
   /// Example: `articles/[key]/index.html`
   static func partitionedWriter<T>(_ renderer: @escaping (PartitionedRenderingContext<T, M>) throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
-    return Self { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
+    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       let partitions = partitioner(items)
 
       for (key, itemsInPartition) in Array(partitions).sorted(by: {$0.0 < $1.0}) {
@@ -60,7 +60,7 @@ public extension Writer {
           return PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
         }
       }
-    }
+    })
   }
 
   /// A convenience version of `partitionedWriter` that splits items based on year.
@@ -139,7 +139,7 @@ private extension Writer {
         let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(itemWriteMode: .keepAsFile)
 
         let paginator = Paginator(
-          index: index + 1,
+          index: currentPage,
           itemsPerPage: perPage,
           numberOfPages: numberOfPages,
           previous: currentPage == 1 ? nil : (outputPrefix + previousPage),

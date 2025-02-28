@@ -48,7 +48,7 @@ extension Path: Decodable {
   }
 }
 
-internal extension Path {
+public extension Path {
   func resolveSwiftPackageFolder() throws -> Path {
     var nextFolder = parent()
 
