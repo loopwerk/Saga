@@ -106,6 +106,24 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(writtenPages[2].destination, "root/output/list.html")
     XCTAssertEqual(writtenPages[2].content, "<p>test2.md</p><p>test.md</p>")
   }
+  
+  // If the frontmatter contains a date property then this should be set to the item's date
+  func testDateFromFrontMatter() async throws {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: FileIO.mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          .mock(frontmatter: ["date": "2025-01-02"])
+        ],
+        writers: []
+      )
+      .run()
+    
+    XCTAssertEqual(saga.fileStorage[0].item?.date, formatter.date(from: "2025-01-02"))
+  }
 
   func testYearWriter() async throws {
     var writtenPages: [WrittenPage] = []
