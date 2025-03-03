@@ -59,8 +59,8 @@ internal class AnyProcessStep {
                 relativeDestination: unhandledFileContainer.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
                 title: partialItem.title ?? unhandledFileContainer.relativePath.lastComponentWithoutExtension,
                 body: partialItem.body,
-                date: date ?? unhandledFileContainer.path.creationDate ?? Date(),
-                lastModified: unhandledFileContainer.path.modificationDate ?? Date(),
+                date: date ?? fileIO.creationDate(unhandledFileContainer.path) ?? Date(),
+                lastModified: fileIO.modificationDate(unhandledFileContainer.path) ?? Date(),
                 metadata: metadata
               )
               
@@ -107,7 +107,7 @@ internal class AnyProcessStep {
         .compactMap(\.item)
         .sorted(by: { left, right in left.date > right.date })
 
-      try await withThrowingTaskGroup(of: Void.self) { group in
+      await withThrowingTaskGroup(of: Void.self) { group in
         for writer in step.writers {
           group.addTask {
             try writer.run(step.items, allItems, fileStorage, outputPath, step.folder ?? "", fileIO)

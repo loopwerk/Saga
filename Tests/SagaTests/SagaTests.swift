@@ -9,7 +9,21 @@ extension FileIO {
     deletePath: { _ in },
     write: { _, _ in },
     mkpath: { _ in },
-    copy: { _, _ in }
+    copy: { _, _ in },
+    creationDate: { path in
+      if path == "test2.md" {
+        return Date(timeIntervalSince1970: 1735686000)
+      } else {
+        return Date(timeIntervalSince1970: 1704063600)
+      }
+    },
+    modificationDate: { path in
+      if path == "test2.md" {
+        return Date(timeIntervalSince1970: 1735686000)
+      } else {
+        return Date(timeIntervalSince1970: 1704063600)
+      }
+    }
   )
 }
 
@@ -99,12 +113,9 @@ final class SagaTests: XCTestCase {
 
     // And when the writer runs, the Items get written to disk
     XCTAssertEqual(writtenPages.count, 3)
-    XCTAssertEqual(writtenPages[0].destination, "root/output/test2/index.html")
-    XCTAssertEqual(writtenPages[0].content, "<p>test2.md</p>")
-    XCTAssertEqual(writtenPages[1].destination, "root/output/test/index.html")
-    XCTAssertEqual(writtenPages[1].content, "<p>test.md</p>")
-    XCTAssertEqual(writtenPages[2].destination, "root/output/list.html")
-    XCTAssertEqual(writtenPages[2].content, "<p>test2.md</p><p>test.md</p>")
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<p>test2.md</p>")))
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>")))
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/list.html", content: "<p>test2.md</p><p>test.md</p>")))
   }
   
   // If the frontmatter contains a date property then this should be set to the item's date
@@ -145,11 +156,10 @@ final class SagaTests: XCTestCase {
       )
       .run()
     
-    let currentYear = Calendar.current.component(.year, from: Date())
-
-    XCTAssertEqual(writtenPages.count, 1)
+    XCTAssertEqual(writtenPages.count, 2)
     XCTAssertEqual(writtenPages, [
-      WrittenPage(destination: Path("root/output/\(currentYear)/index.html"), content: "<p>test2.md</p><p>test.md</p>"),
+      WrittenPage(destination: Path("root/output/2024/index.html"), content: "<p>test.md</p>"),
+      WrittenPage(destination: Path("root/output/2025/index.html"), content: "<p>test2.md</p>"),
     ])
   }
 
@@ -172,12 +182,10 @@ final class SagaTests: XCTestCase {
         ]
       )
       .run()
-
+    
     XCTAssertEqual(writtenPages.count, 2)
-    XCTAssertEqual(writtenPages, [
-      WrittenPage(destination: "root/output/tag/one/index.html", content: "<p>test2.md</p><p>test.md</p>"),
-      WrittenPage(destination: "root/output/tag/with-space/index.html", content: "<p>test2.md</p><p>test.md</p>"),
-    ])
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/tag/one/index.html", content: "<p>test2.md</p><p>test.md</p>")))
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/tag/with-space/index.html", content: "<p>test2.md</p><p>test.md</p>")))
   }
 
   func testStaticFiles() async throws {
@@ -226,8 +234,8 @@ final class SagaTests: XCTestCase {
 
     XCTAssertEqual(saga.fileStorage[0].item?.relativeDestination, "test.html")
     XCTAssertEqual(saga.fileStorage[1].item?.relativeDestination, "test2.html")
-    XCTAssertEqual(writtenPages[0].destination, "root/output/test2.html")
-    XCTAssertEqual(writtenPages[1].destination, "root/output/test.html")
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/test.html", content: "<p>test.md</p>")))
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/test2.html", content: "<p>test2.md</p>")))
   }
 
   func testMetadataDecoder() throws {

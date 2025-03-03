@@ -1,4 +1,5 @@
 import PathKit
+import Foundation
 
 /// A wrapper around file operations used by Saga, to abstract away the PathKit dependency.
 public struct FileIO {
@@ -8,6 +9,8 @@ public struct FileIO {
   var write: (Path, String) throws -> Void
   var mkpath: (Path) throws -> Void
   var copy: (Path, Path) throws -> Void
+  var creationDate: (Path) -> Date?
+  var modificationDate: (Path) -> Date?
 }
 
 public extension FileIO {
@@ -29,6 +32,12 @@ public extension FileIO {
     },
     copy: { origin, destination in
       try origin.copy(destination)
+    },
+    creationDate: { path in
+      path.creationDate
+    },
+    modificationDate: { path in
+      path.modificationDate
     }
   )
 }
