@@ -106,7 +106,7 @@ public class Saga {
     // And run all the writers for all the steps, using those stored Items.
     let writeStart = DispatchTime.now()
     for step in processSteps {
-      try step.runWriters()
+      try await step.runWriters()
     }
 
     let writeEnd = DispatchTime.now()
