@@ -157,10 +157,8 @@ final class SagaTests: XCTestCase {
       .run()
     
     XCTAssertEqual(writtenPages.count, 2)
-    XCTAssertEqual(writtenPages, [
-      WrittenPage(destination: Path("root/output/2024/index.html"), content: "<p>test.md</p>"),
-      WrittenPage(destination: Path("root/output/2025/index.html"), content: "<p>test2.md</p>"),
-    ])
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/2024/index.html", content: "<p>test.md</p>")))
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/2025/index.html", content: "<p>test2.md</p>")))
   }
 
   func testTagWriter() async throws {
