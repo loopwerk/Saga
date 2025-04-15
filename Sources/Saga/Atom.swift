@@ -65,19 +65,15 @@ public func atomFeed<Context: AtomContext, M>(title: String, author: String? = n
       if let summary, let summaryString = summary(item) {
         let summaryElement = XMLElement(name: "summary", stringValue: summaryString)
         entryElement.addChild(summaryElement)
-
-        let alternateElement = XMLElement(name: "link")
-        alternateElement.setAttributesWith(["rel": "alternate", "href": baseURL.appendingPathComponent(item.url).absoluteString])
-        entryElement.addChild(alternateElement)
-      } else {
-        let contentElement = XMLElement(name: "content", stringValue: item.body)
-        contentElement.setAttributesWith(["type": "html"])
-        entryElement.addChild(contentElement)
-
-        let alternateElement = XMLElement(name: "link")
-        alternateElement.setAttributesWith(["rel": "alternate", "href": baseURL.appendingPathComponent(item.url).absoluteString])
-        entryElement.addChild(alternateElement)
       }
+      
+      let contentElement = XMLElement(name: "content", stringValue: item.body)
+      contentElement.setAttributesWith(["type": "html"])
+      entryElement.addChild(contentElement)
+
+      let alternateElement = XMLElement(name: "link")
+      alternateElement.setAttributesWith(["rel": "alternate", "href": baseURL.appendingPathComponent(item.url).absoluteString])
+      entryElement.addChild(alternateElement)
       
       rootElement.addChild(entryElement)
     }
