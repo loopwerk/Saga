@@ -38,13 +38,13 @@ internal class AnyProcessStep {
         return step.readers.contains { $0.supportedExtensions.contains(container.path.extension ?? "") }
       }
       
-      // Process files in parallel
-      let items = try await withThrowingTaskGroup(of: Item<M>?.self) { group in
-        for container in relevantContainers {
+      // Process files in parallel with deterministic result ordering
+      let items = try await withThrowingTaskGroup(of: (Int, Item<M>?).self) { group in
+        for (index, container) in relevantContainers.enumerated() {
           group.addTask {
             // Pick the first reader that is able to work on this file, based on file extension
             guard let reader = step.readers.first(where: { $0.supportedExtensions.contains(container.path.extension ?? "") }) else {
-              return nil
+              return (index, nil)
             }
             
             // Mark it as handled so that another step that works on a less specific folder doesn't also try to read it
@@ -79,29 +79,31 @@ internal class AnyProcessStep {
               // Store the generated Item if it passes the filter
               if step.filter(item) {
                 container.item = item
-                return item
+                return (index, item)
               }
               
-              return nil
+              return (index, nil)
             } catch {
               // Couldn't convert the file into an Item, probably because of missing metadata
               // We still mark it has handled, otherwise another, less specific, read step might
               // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
               // which is probably not what you want.
               print("❕File \(container.relativePath) failed conversion to Item<\(M.self)>, error: ", error)
-              return nil
+              return (index, nil)
             }
           }
         }
         
-        // Collect all successful items
-        var results: [Item<M>] = []
-        for try await item in group {
+        // Collect all successful items in deterministic order
+        var indexedResults: [(Int, Item<M>)] = []
+        for try await (index, item) in group {
           if let item = item {
-            results.append(item)
+            indexedResults.append((index, item))
           }
         }
-        return results
+        
+        // Sort by original index to maintain deterministic order before date sorting
+        return indexedResults.sorted(by: { $0.0 < $1.0 }).map(\.1)
       }
 
       step.items = items.sorted(by: { left, right in left.date > right.date })
