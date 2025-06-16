@@ -92,8 +92,13 @@ public class Saga: @unchecked Sendable {
     // Run all the readers for all the steps, which turns raw content into
     // Items, and stores them within the step.
     let readStart = DispatchTime.now()
-    for step in processSteps {
-      try await step.runReaders()
+    try await withThrowingTaskGroup(of: Void.self) { group in
+      for step in processSteps {
+        group.addTask {
+          try await step.runReaders()
+        }
+      }
+      try await group.waitForAll()
     }
 
     let readEnd = DispatchTime.now()
@@ -105,8 +110,13 @@ public class Saga: @unchecked Sendable {
 
     // And run all the writers for all the steps, using those stored Items.
     let writeStart = DispatchTime.now()
-    for step in processSteps {
-      try step.runWriters()
+    try await withThrowingTaskGroup(of: Void.self) { group in
+      for step in processSteps {
+        group.addTask {
+          try await step.runWriters()
+        }
+      }
+      try await group.waitForAll()
     }
 
     let writeEnd = DispatchTime.now()
@@ -118,19 +128,24 @@ public class Saga: @unchecked Sendable {
 
   /// Copy all unhandled files as-is to the output folder.
   @discardableResult
-  public func staticFiles() throws -> Self {
+  public func staticFiles() async throws -> Self {
     let start = DispatchTime.now()
 
     let unhandledPaths = fileStorage
       .filter { $0.handled == false }
       .map(\.path)
 
-    for path in unhandledPaths {
-      let relativePath = try path.relativePath(from: inputPath)
-      let input = path
-      let output = outputPath + relativePath
-      try fileIO.mkpath(output.parent())
-      try fileIO.copy(input, output)
+    try await withThrowingTaskGroup(of: Void.self) { group in
+      for path in unhandledPaths {
+        group.addTask {
+          let relativePath = try path.relativePath(from: self.inputPath)
+          let input = path
+          let output = self.outputPath + relativePath
+          try self.fileIO.mkpath(output.parent())
+          try self.fileIO.copy(input, output)
+        }
+      }
+      try await group.waitForAll()
     }
 
     let end = DispatchTime.now()
