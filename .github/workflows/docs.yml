@@ -24,10 +24,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Setup Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: "5.9"
         
     - name: Enable DocC plugin in Package.swift
       run: |
