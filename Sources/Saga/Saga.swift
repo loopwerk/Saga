@@ -89,16 +89,11 @@ public class Saga: @unchecked Sendable {
   public func run() async throws -> Self {
     print("\(Date()) | Starting run")
 
-    // Run all the readers for all the steps, which turns raw content into
-    // Items, and stores them within the step.
+    // Run all the readers for all the steps sequentially to ensure proper order,
+    // which turns raw content into Items, and stores them within the step.
     let readStart = DispatchTime.now()
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      for step in processSteps {
-        group.addTask {
-          try await step.runReaders()
-        }
-      }
-      try await group.waitForAll()
+    for step in processSteps {
+      try await step.runReaders()
     }
 
     let readEnd = DispatchTime.now()
