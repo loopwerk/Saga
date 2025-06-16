@@ -21,67 +21,89 @@ internal class ProcessStep<M: Metadata> {
 
 internal class AnyProcessStep {
   let runReaders: () async throws -> ()
-  let runWriters: () throws -> ()
+  let runWriters: () async throws -> ()
 
   init<M: Metadata>(step: ProcessStep<M>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, fileIO: FileIO) {
     runReaders = {
-      var items = [Item<M>]()
-
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
-
-      for unhandledFileContainer in unhandledFileContainers {
-        // Only work on files that match the folder (if any)
-        if let folder = step.folder, !unhandledFileContainer.relativePath.string.starts(with: folder.string) {
-          continue
+      
+      // Filter to only files that match the folder (if any) and have a supported reader
+      let relevantContainers = unhandledFileContainers.filter { container in
+        // Check folder match
+        if let folder = step.folder, !container.relativePath.string.starts(with: folder.string) {
+          return false
         }
-
-        // Pick the first reader that is able to work on this file, based on file extension
-        guard let reader = step.readers.first(where: { $0.supportedExtensions.contains(unhandledFileContainer.path.extension ?? "") }) else {
-          continue
-        }
-
-        // Mark it as handled so that another step that works on a less specific folder doesn't also try to read it
-        unhandledFileContainer.handled = true
-
-        do {
-          // Use the Reader to convert the contents of the file to HTML
-          let partialItem = try await reader.convert(unhandledFileContainer.path)
-
-          // Then we try to decode the frontmatter (which is just a [String: String] dict) to proper metadata
-          let decoder = makeMetadataDecoder(for: partialItem.frontmatter ?? [:])
-          let date = try resolveDate(from: decoder)
-          let metadata = try M(from: decoder)
-
-          // Create the Item instance
-          let item = Item(
-            absoluteSource: unhandledFileContainer.path,
-            relativeSource: unhandledFileContainer.relativePath,
-            relativeDestination: unhandledFileContainer.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
-            title: partialItem.title ?? unhandledFileContainer.relativePath.lastComponentWithoutExtension,
-            body: partialItem.body,
-            date: date ?? unhandledFileContainer.path.creationDate ?? Date(),
-            lastModified: unhandledFileContainer.path.modificationDate ?? Date(),
-            metadata: metadata
-          )
-
-          // Process the Item if there's an itemProcessor
-          if let itemProcessor = step.itemProcessor {
-            await itemProcessor(item)
+        
+        // Check if any reader supports this file extension
+        return step.readers.contains { $0.supportedExtensions.contains(container.path.extension ?? "") }
+      }
+      
+      // Process files in parallel with deterministic result ordering
+      let items = try await withThrowingTaskGroup(of: (Int, Item<M>?).self) { group in
+        for (index, container) in relevantContainers.enumerated() {
+          group.addTask {
+            // Pick the first reader that is able to work on this file, based on file extension
+            guard let reader = step.readers.first(where: { $0.supportedExtensions.contains(container.path.extension ?? "") }) else {
+              return (index, nil)
+            }
+            
+            // Mark it as handled so that another step that works on a less specific folder doesn't also try to read it
+            container.handled = true
+            
+            do {
+              // Use the Reader to convert the contents of the file to HTML
+              let partialItem = try await reader.convert(container.path)
+              
+              // Then we try to decode the frontmatter (which is just a [String: String] dict) to proper metadata
+              let decoder = makeMetadataDecoder(for: partialItem.frontmatter ?? [:])
+              let date = try resolveDate(from: decoder)
+              let metadata = try M(from: decoder)
+              
+              // Create the Item instance
+              let item = Item(
+                absoluteSource: container.path,
+                relativeSource: container.relativePath,
+                relativeDestination: container.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
+                title: partialItem.title ?? container.relativePath.lastComponentWithoutExtension,
+                body: partialItem.body,
+                date: date ?? fileIO.creationDate(container.path) ?? Date(),
+                lastModified: fileIO.modificationDate(container.path) ?? Date(),
+                metadata: metadata
+              )
+              
+              // Process the Item if there's an itemProcessor
+              if let itemProcessor = step.itemProcessor {
+                await itemProcessor(item)
+              }
+              
+              // Store the generated Item if it passes the filter
+              if step.filter(item) {
+                container.item = item
+                return (index, item)
+              }
+              
+              return (index, nil)
+            } catch {
+              // Couldn't convert the file into an Item, probably because of missing metadata
+              // We still mark it has handled, otherwise another, less specific, read step might
+              // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
+              // which is probably not what you want.
+              print("❕File \(container.relativePath) failed conversion to Item<\(M.self)>, error: ", error)
+              return (index, nil)
+            }
           }
-
-          // Store the generated Item if it passes the filter
-          if step.filter(item) {
-            unhandledFileContainer.item = item
-            items.append(item)
-          }
-        } catch {
-          // Couldn't convert the file into an Item, probably because of missing metadata
-          // We still mark it has handled, otherwise another, less specific, read step might
-          // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
-          // which is probably not what you want.
-          print("❕File \(unhandledFileContainer.relativePath) failed conversion to Item<\(M.self)>, error: ", error)
-          continue
         }
+        
+        // Collect all successful items in deterministic order
+        var indexedResults: [(Int, Item<M>)] = []
+        for try await (index, item) in group {
+          if let item = item {
+            indexedResults.append((index, item))
+          }
+        }
+        
+        // Sort by original index to maintain deterministic order before date sorting
+        return indexedResults.sorted(by: { $0.0 < $1.0 }).map(\.1)
       }
 
       step.items = items.sorted(by: { left, right in left.date > right.date })
@@ -92,8 +114,13 @@ internal class AnyProcessStep {
         .compactMap(\.item)
         .sorted(by: { left, right in left.date > right.date })
 
-      for writer in step.writers {
-        try writer.run(step.items, allItems, fileStorage, outputPath, step.folder ?? "", fileIO)
+      try await withThrowingTaskGroup(of: Void.self) { group in
+        for writer in step.writers {
+          group.addTask {
+            try await writer.run(step.items, allItems, fileStorage, outputPath, step.folder ?? "", fileIO)
+          }
+        }
+        try await group.waitForAll()
       }
     }
   }
