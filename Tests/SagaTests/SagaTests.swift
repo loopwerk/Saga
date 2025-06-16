@@ -141,11 +141,14 @@ final class SagaTests: XCTestCase {
   }
 
   func testYearWriter() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
-      writtenPages.append(.init(destination: destination, content: content))
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
@@ -160,17 +163,21 @@ final class SagaTests: XCTestCase {
       )
       .run()
     
-    XCTAssertEqual(writtenPages.count, 2)
-    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/2024/index.html", content: "<p>test.md</p>")))
-    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/2025/index.html", content: "<p>test2.md</p>")))
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/2024/index.html", content: "<p>test.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/2025/index.html", content: "<p>test2.md</p>")))
   }
 
   func testTagWriter() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
-      writtenPages.append(.init(destination: destination, content: content))
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
@@ -185,9 +192,10 @@ final class SagaTests: XCTestCase {
       )
       .run()
 
-    XCTAssertEqual(writtenPages.count, 2)
-    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/tag/one/index.html", content: "<p>test2.md</p><p>test.md</p>")))
-    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/tag/with-space/index.html", content: "<p>test2.md</p><p>test.md</p>")))
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/tag/one/index.html", content: "<p>test2.md</p><p>test.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/tag/with-space/index.html", content: "<p>test2.md</p><p>test.md</p>")))
   }
 
   func testStaticFiles() async throws {
@@ -214,11 +222,14 @@ final class SagaTests: XCTestCase {
   }
 
   func testWriteMode() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
-      writtenPages.append(.init(destination: destination, content: content))
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
     }
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
@@ -234,10 +245,11 @@ final class SagaTests: XCTestCase {
       )
       .run()
 
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
     XCTAssertEqual(saga.fileStorage[0].item?.relativeDestination, "test.html")
     XCTAssertEqual(saga.fileStorage[1].item?.relativeDestination, "test2.html")
-    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/test.html", content: "<p>test.md</p>")))
-    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/test2.html", content: "<p>test2.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test.html", content: "<p>test.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2.html", content: "<p>test2.md</p>")))
   }
 
   func testMetadataDecoder() throws {
