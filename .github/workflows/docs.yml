@@ -21,36 +21,38 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-        
-    - name: Generate documentation
-      run: |
-        # Enable the swift-docc-plugin dependency  
-        sed -i 's|//\.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|' Package.swift
-        
-        # Pretty print DocC JSON output so that it can be consistently diffed between commits
-        export DOCC_JSON_PRETTYPRINT="YES"
-        
-        # Generate documentation
-        swift package \
-          --allow-writing-to-directory ./docs \
-          generate-documentation \
-          --target Saga \
-          --disable-indexing \
-          --output-path ./docs \
-          --transform-for-static-hosting \
-          --hosting-base-path Saga
-          
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-      
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './docs'
-        
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate documentation
+        run: |
+          # Enable the swift-docc-plugin dependency  
+          sed -i 's|//\.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|' Package.swift
+
+          # Pretty print DocC JSON output so that it can be consistently diffed between commits
+          export DOCC_JSON_PRETTYPRINT="YES"
+
+          # Create docs directory
+          mkdir -p ./docs
+
+          # Generate documentation
+          swift package \
+            --allow-writing-to-directory ./docs \
+            generate-documentation \
+            --target Saga \
+            --disable-indexing \
+            --output-path ./docs \
+            --transform-for-static-hosting \
+            --hosting-base-path Saga
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
