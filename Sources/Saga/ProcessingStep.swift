@@ -66,8 +66,8 @@ internal class AnyProcessStep {
                 relativeDestination: container.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
                 title: partialItem.title ?? container.relativePath.lastComponentWithoutExtension,
                 body: partialItem.body,
-                date: date ?? container.path.creationDate ?? Date(),
-                lastModified: container.path.modificationDate ?? Date(),
+                date: date ?? fileIO.creationDate(container.path) ?? Date(),
+                lastModified: fileIO.modificationDate(container.path) ?? Date(),
                 metadata: metadata
               )
               
