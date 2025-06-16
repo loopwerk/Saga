@@ -24,7 +24,7 @@ import PathKit
 ///   }
 /// }
 /// ```
-public class Saga {
+public class Saga: @unchecked Sendable {
   /// The root working path. This is automatically set to the same folder that holds `Package.swift`.
   public let rootPath: Path
 

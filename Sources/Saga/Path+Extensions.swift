@@ -40,6 +40,15 @@ public extension Path {
   }
 }
 
+#if swift(>=6.0)
+extension Path: @retroactive Decodable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    let decodedString = try container.decode(String.self)
+    self.init(decodedString)
+  }
+}
+#else
 extension Path: Decodable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
@@ -47,6 +56,7 @@ extension Path: Decodable {
     self.init(decodedString)
   }
 }
+#endif
 
 public extension Path {
   func resolveSwiftPackageFolder() throws -> Path {
