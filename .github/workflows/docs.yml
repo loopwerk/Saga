@@ -25,13 +25,18 @@ jobs:
       uses: actions/checkout@v4
       
         
-    - name: Enable DocC plugin in Package.swift
-      run: |
-        sed -i 's|//\s*\.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|' Package.swift
-        
     - name: Generate documentation
       run: |
+        # Enable the swift-docc-plugin dependency
+        sed -i 's|//\.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|' Package.swift
+        
+        # Pretty print DocC JSON output
         export DOCC_JSON_PRETTYPRINT="YES"
+        
+        # Create docs directory
+        mkdir -p ./docs
+        
+        # Generate documentation
         swift package \
           --allow-writing-to-directory ./docs \
           generate-documentation \
