@@ -1,6 +1,6 @@
-import XCTest
 import PathKit
 @testable import Saga
+import XCTest
 
 extension FileIO {
   static var mock = Self(
@@ -12,16 +12,16 @@ extension FileIO {
     copy: { _, _ in },
     creationDate: { path in
       if path == "test2.md" {
-        return Date(timeIntervalSince1970: 1735729200)
+        return Date(timeIntervalSince1970: 1_735_729_200)
       } else {
-        return Date(timeIntervalSince1970: 1704106800)
+        return Date(timeIntervalSince1970: 1_704_106_800)
       }
     },
     modificationDate: { path in
       if path == "test2.md" {
-        return Date(timeIntervalSince1970: 1735729200)
+        return Date(timeIntervalSince1970: 1_735_729_200)
       } else {
-        return Date(timeIntervalSince1970: 1704106800)
+        return Date(timeIntervalSince1970: 1_704_106_800)
       }
     }
   )
@@ -30,7 +30,7 @@ extension FileIO {
 extension Reader {
   static func mock(frontmatter: [String: String]) -> Self {
     return Self(supportedExtensions: ["md"]) { absoluteSource in
-      return (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: frontmatter)
+      (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: frontmatter)
     }
   }
 }
@@ -94,11 +94,11 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(frontmatter: [:])
+          .mock(frontmatter: [:]),
         ],
         writers: [
           .itemWriter { context in context.item.body },
-          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "list.html")
+          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "list.html"),
         ]
       )
       .run()
@@ -121,7 +121,7 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>")))
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/list.html", content: "<p>test2.md</p><p>test.md</p>")))
   }
-  
+
   // If the frontmatter contains a date property then this should be set to the item's date
   func testDateFromFrontMatter() async throws {
     let formatter = DateFormatter()
@@ -131,12 +131,12 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(frontmatter: ["date": "2025-01-02"])
+          .mock(frontmatter: ["date": "2025-01-02"]),
         ],
         writers: []
       )
       .run()
-    
+
     XCTAssertEqual(saga.fileStorage[0].item?.date, formatter.date(from: "2025-01-02"))
   }
 
@@ -155,14 +155,14 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(frontmatter: [:])
+          .mock(frontmatter: [:]),
         ],
         writers: [
-          .yearWriter({ context in context.items.map(\.body).joined(separator: "") })
+          .yearWriter { context in context.items.map(\.body).joined(separator: "") },
         ]
       )
       .run()
-    
+
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
     XCTAssertEqual(finalWrittenPages.count, 2)
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/2024/index.html", content: "<p>test.md</p>")))
@@ -184,10 +184,10 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: TaggedMetadata.self,
         readers: [
-          .mock(frontmatter: ["tags": "one, with space"])
+          .mock(frontmatter: ["tags": "one, with space"]),
         ],
         writers: [
-          .tagWriter({ context in context.items.map(\.body).joined(separator: "") }, tags: \.metadata.tags)
+          .tagWriter({ context in context.items.map(\.body).joined(separator: "") }, tags: \.metadata.tags),
         ]
       )
       .run()
@@ -210,7 +210,7 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: TaggedMetadata.self,
         readers: [
-          .mock(frontmatter: ["tags": "one, with space"])
+          .mock(frontmatter: ["tags": "one, with space"]),
         ],
         writers: [
         ]
@@ -236,7 +236,7 @@ final class SagaTests: XCTestCase {
       .register(
         metadata: EmptyMetadata.self,
         readers: [
-          .mock(frontmatter: [:])
+          .mock(frontmatter: [:]),
         ],
         itemWriteMode: .keepAsFile,
         writers: [
@@ -262,7 +262,7 @@ final class SagaTests: XCTestCase {
     let metadataDict: [String: String] = [
       "tags": "one, two",
       "date": "2021-02-02",
-      "url": "https://www.example.com"
+      "url": "https://www.example.com",
     ]
 
     let decoder = makeMetadataDecoder(for: metadataDict)

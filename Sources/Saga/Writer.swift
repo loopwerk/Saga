@@ -43,7 +43,7 @@ public extension Writer {
   static func listWriter(_ renderer: @escaping (ItemsRenderingContext<M>) throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
     return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       try await writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, fileIO: fileIO) {
-        return ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
+        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
       }
     })
   }
@@ -59,12 +59,12 @@ public extension Writer {
       let partitions = partitioner(items)
 
       try await withThrowingTaskGroup(of: Void.self) { group in
-        for (key, itemsInPartition) in Array(partitions).sorted(by: {$0.0 < $1.0}) {
+        for (key, itemsInPartition) in Array(partitions).sorted(by: { $0.0 < $1.0 }) {
           group.addTask {
             let finishedOutputPath = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
             let finishedPaginatedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
             try await writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutputPath, paginate: paginate, paginatedOutput: finishedPaginatedOutputPath, fileIO: fileIO) {
-              return PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
+              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
             }
           }
         }

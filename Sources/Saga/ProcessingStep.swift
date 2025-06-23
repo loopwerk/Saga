@@ -1,7 +1,7 @@
 import Foundation
 import PathKit
 
-internal class ProcessStep<M: Metadata> {
+class ProcessStep<M: Metadata> {
   let folder: Path?
   let readers: [Reader]
   let filter: (Item<M>) -> Bool
@@ -15,29 +15,29 @@ internal class ProcessStep<M: Metadata> {
     self.itemProcessor = itemProcessor
     self.filter = filter
     self.writers = writers
-    self.items = []
+    items = []
   }
 }
 
-internal class AnyProcessStep {
-  let runReaders: () async throws -> ()
-  let runWriters: () async throws -> ()
+class AnyProcessStep {
+  let runReaders: () async throws -> Void
+  let runWriters: () async throws -> Void
 
   init<M: Metadata>(step: ProcessStep<M>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, fileIO: FileIO) {
     runReaders = {
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
-      
+
       // Filter to only files that match the folder (if any) and have a supported reader
       let relevantContainers = unhandledFileContainers.filter { container in
         // Check folder match
         if let folder = step.folder, !container.relativePath.string.starts(with: folder.string) {
           return false
         }
-        
+
         // Check if any reader supports this file extension
         return step.readers.contains { $0.supportedExtensions.contains(container.path.extension ?? "") }
       }
-      
+
       // Process files in parallel with deterministic result ordering
       let items = try await withThrowingTaskGroup(of: (Int, Item<M>?).self) { group in
         for (index, container) in relevantContainers.enumerated() {
@@ -46,19 +46,19 @@ internal class AnyProcessStep {
             guard let reader = step.readers.first(where: { $0.supportedExtensions.contains(container.path.extension ?? "") }) else {
               return (index, nil)
             }
-            
+
             // Mark it as handled so that another step that works on a less specific folder doesn't also try to read it
             container.handled = true
-            
+
             do {
               // Use the Reader to convert the contents of the file to HTML
               let partialItem = try await reader.convert(container.path)
-              
+
               // Then we try to decode the frontmatter (which is just a [String: String] dict) to proper metadata
               let decoder = makeMetadataDecoder(for: partialItem.frontmatter ?? [:])
               let date = try resolveDate(from: decoder)
               let metadata = try M(from: decoder)
-              
+
               // Create the Item instance
               let item = Item(
                 absoluteSource: container.path,
@@ -70,18 +70,18 @@ internal class AnyProcessStep {
                 lastModified: fileIO.modificationDate(container.path) ?? Date(),
                 metadata: metadata
               )
-              
+
               // Process the Item if there's an itemProcessor
               if let itemProcessor = step.itemProcessor {
                 await itemProcessor(item)
               }
-              
+
               // Store the generated Item if it passes the filter
               if step.filter(item) {
                 container.item = item
                 return (index, item)
               }
-              
+
               return (index, nil)
             } catch {
               // Couldn't convert the file into an Item, probably because of missing metadata
@@ -93,7 +93,7 @@ internal class AnyProcessStep {
             }
           }
         }
-        
+
         // Collect all successful items in deterministic order
         var indexedResults: [(Int, Item<M>)] = []
         for try await (index, item) in group {
@@ -101,7 +101,7 @@ internal class AnyProcessStep {
             indexedResults.append((index, item))
           }
         }
-        
+
         // Sort by original index to maintain deterministic order before date sorting
         return indexedResults.sorted(by: { $0.0 < $1.0 }).map(\.1)
       }

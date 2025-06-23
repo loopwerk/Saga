@@ -20,7 +20,7 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext {
   public let outputPath: Path
 }
 
-public typealias ContextKey = CustomStringConvertible & Comparable
+public typealias ContextKey = Comparable & CustomStringConvertible
 public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomContext {
   public let key: T
   public let items: [Item<M>]

@@ -1,0 +1,4 @@
+--indent 2
+--indentcase true
+--patternlet inline
+--disable unusedArguments

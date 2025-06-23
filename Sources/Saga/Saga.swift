@@ -37,8 +37,8 @@ public class Saga: @unchecked Sendable {
   /// An array of all file containters.
   public let fileStorage: [FileContainer]
 
-  internal var processSteps = [AnyProcessStep]()
-  internal let fileIO: FileIO
+  var processSteps = [AnyProcessStep]()
+  let fileIO: FileIO
 
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
@@ -52,7 +52,7 @@ public class Saga: @unchecked Sendable {
 
     // 2. Turn the files into FileContainers so we can keep track if they're handled or not
     let ip = inputPath
-    self.fileStorage = files.map { path in
+    fileStorage = files.map { path in
       let relativePath = (try? path.relativePath(from: ip)) ?? Path("")
       return FileContainer(path: path, relativePath: relativePath)
     }
@@ -72,7 +72,7 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, itemWriteMode: ItemWriteMode = .moveToSubfolder, writers: [Writer<M>]) throws -> Self {
     let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, writers: writers)
-    self.processSteps.append(
+    processSteps.append(
       .init(
         step: step,
         fileStorage: fileStorage,

@@ -7,10 +7,10 @@ public class FileContainer {
   public internal(set) var item: AnyItem?
   public var handled: Bool
 
-  internal init(path: Path, relativePath: Path) {
+  init(path: Path, relativePath: Path) {
     self.path = path
     self.relativePath = relativePath
-    self.item = nil
-    self.handled = false
+    item = nil
+    handled = false
   }
 }

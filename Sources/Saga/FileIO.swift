@@ -1,5 +1,5 @@
-import PathKit
 import Foundation
+import PathKit
 
 /// A wrapper around file operations used by Saga, to abstract away the PathKit dependency.
 public struct FileIO {

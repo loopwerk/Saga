@@ -6,17 +6,18 @@
 
 import Foundation
 
-internal final class MetadataDecoder: Decoder {
-  public var userInfo: [CodingUserInfoKey : Any] { [:] }
+final class MetadataDecoder: Decoder {
+  public var userInfo: [CodingUserInfoKey: Any] { [:] }
   public let codingPath: [CodingKey]
 
-  private let metadata: [String : String]
+  private let metadata: [String: String]
   private let dateFormatter: DateFormatter
-  private lazy var keyedContainers = [ObjectIdentifier : Any]()
+  private lazy var keyedContainers = [ObjectIdentifier: Any]()
 
-  public init(metadata: [String : String],
-       codingPath: [CodingKey] = [],
-       dateFormatter: DateFormatter) {
+  public init(metadata: [String: String],
+              codingPath: [CodingKey] = [],
+              dateFormatter: DateFormatter)
+  {
     self.metadata = metadata
     self.codingPath = codingPath
     self.dateFormatter = dateFormatter
@@ -69,19 +70,20 @@ private extension MetadataDecoder {
   struct KeyedContainer<Key: CodingKey>: KeyedDecodingContainerProtocol {
     var allKeys: [Key] { keys.all() }
 
-    let metadata: [String : String]
+    let metadata: [String: String]
     let keys: KeyMap<Key>
     let codingPath: [CodingKey]
     let prefix: String
     let dateFormatter: DateFormatter
 
-    init(metadata: [String : String],
+    init(metadata: [String: String],
          codingPath: [CodingKey],
-         dateFormatter: DateFormatter) {
+         dateFormatter: DateFormatter)
+    {
       self.metadata = metadata
-      self.keys = KeyMap(raw: metadata.keys, codingPath: codingPath)
+      keys = KeyMap(raw: metadata.keys, codingPath: codingPath)
       self.codingPath = codingPath
-      self.prefix = codingPath.asPrefix()
+      prefix = codingPath.asPrefix()
       self.dateFormatter = dateFormatter
     }
 
@@ -204,8 +206,8 @@ private extension MetadataDecoder {
         throw DecodingError.keyNotFound(key, DecodingError.Context(
           codingPath: codingPath.appending(key),
           debugDescription: """
-                    No value found for key '\(key.stringValue)'.
-                    """
+          No value found for key '\(key.stringValue)'.
+          """
         ))
       }
 
@@ -220,9 +222,9 @@ private extension MetadataDecoder {
           forKey: key,
           in: self,
           debugDescription: """
-                    Could not convert '\(string)' into a value\
-                    of type '\(String(describing: T.self))'.
-                    """
+          Could not convert '\(string)' into a value\
+          of type '\(String(describing: T.self))'.
+          """
         )
       }
 
@@ -330,9 +332,9 @@ private extension MetadataDecoder {
         DecodingError.Context(
           codingPath: codingPath,
           debugDescription: """
-                    Cannot obtain a keyed container while decoding\
-                    using an unkeyed metadata container.
-                    """
+          Cannot obtain a keyed container while decoding\
+          using an unkeyed metadata container.
+          """
         )
       )
     }
@@ -359,10 +361,9 @@ private extension MetadataDecoder {
                                           DecodingError.Context(
                                             codingPath: codingPath,
                                             debugDescription: """
-                        Index \(currentIndex) is out of bounds.
-                        """
-                                          )
-        )
+                                            Index \(currentIndex) is out of bounds.
+                                            """
+                                          ))
       }
 
       let next = components[currentIndex]
@@ -381,9 +382,9 @@ private extension MetadataDecoder {
         throw DecodingError.dataCorruptedError(
           in: self,
           debugDescription: """
-                    Could not convert '\(string)' into a value\
-                    of type '\(String(describing: T.self))'.
-                    """
+          Could not convert '\(string)' into a value\
+          of type '\(String(describing: T.self))'.
+          """
         )
       }
 
@@ -392,7 +393,7 @@ private extension MetadataDecoder {
   }
 
   struct UnkeyedDecoder: Decoder {
-    var userInfo: [CodingUserInfoKey : Any] { [:] }
+    var userInfo: [CodingUserInfoKey: Any] { [:] }
 
     let components: [Substring]
     var codingPath: [CodingKey]
@@ -491,9 +492,9 @@ private extension MetadataDecoder {
         throw DecodingError.dataCorruptedError(
           in: self,
           debugDescription: """
-                    Could not convert '\(value)' into a value\
-                    of type '\(String(describing: T.self))'.
-                    """
+          Could not convert '\(value)' into a value\
+          of type '\(String(describing: T.self))'.
+          """
         )
       }
 
@@ -502,7 +503,7 @@ private extension MetadataDecoder {
   }
 
   struct SingleValueDecoder: Decoder {
-    var userInfo: [CodingUserInfoKey : Any] { [:] }
+    var userInfo: [CodingUserInfoKey: Any] { [:] }
 
     let value: String
     let codingPath: [CodingKey]
@@ -536,7 +537,8 @@ private extension MetadataDecoder {
     private var evaluated: Evaluated?
 
     init(raw: Dictionary<String, String>.Keys,
-         codingPath: [CodingKey]) {
+         codingPath: [CodingKey])
+    {
       self.raw = raw
       self.codingPath = codingPath
     }
@@ -604,7 +606,8 @@ private extension Array where Element == CodingKey {
 private extension URL {
   static func decode(from string: String,
                      forKey key: CodingKey?,
-                     at codingPath: [CodingKey]) throws -> Self {
+                     at codingPath: [CodingKey]) throws -> Self
+  {
     guard let url = URL(string: string) else {
       throw DecodingError.dataCorrupted(
         DecodingError.Context(
@@ -622,7 +625,8 @@ private extension Date {
   static func decode(from string: String,
                      forKey key: CodingKey?,
                      at codingPath: [CodingKey],
-                     formatter: DateFormatter) throws -> Self {
+                     formatter: DateFormatter) throws -> Self
+  {
     guard let date = formatter.date(from: string) else {
       let formatDescription = formatter.dateFormat.map {
         " Expected format: \($0)."
@@ -632,8 +636,8 @@ private extension Date {
         DecodingError.Context(
           codingPath: key.map(codingPath.appending) ?? codingPath,
           debugDescription: """
-                    Invalid date string.\(formatDescription ?? "")
-                    """
+          Invalid date string.\(formatDescription ?? "")
+          """
         )
       )
     }
@@ -652,8 +656,8 @@ private extension DecodingError {
       DecodingError.Context(
         codingPath: path,
         debugDescription: """
-                Cannot obtain a keyed decoding container within this context.
-                """
+        Cannot obtain a keyed decoding container within this context.
+        """
       )
     )
   }
@@ -664,8 +668,8 @@ private extension DecodingError {
       DecodingError.Context(
         codingPath: path,
         debugDescription: """
-                Cannot obtain an unkeyed decoding container within this context.
-                """
+        Cannot obtain an unkeyed decoding container within this context.
+        """
       )
     )
   }
@@ -676,8 +680,8 @@ private extension DecodingError {
       DecodingError.Context(
         codingPath: path,
         debugDescription: """
-                Cannot obtain a single value decoding container within this context.
-                """
+        Cannot obtain a single value decoding container within this context.
+        """
       )
     )
   }
@@ -691,36 +695,36 @@ private extension Array {
   }
 }
 
-internal func makeMetadataDecoder(for metadata: [String: String]) -> MetadataDecoder {
+func makeMetadataDecoder(for metadata: [String: String]) -> MetadataDecoder {
   let dateFormatter = DateFormatter()
   dateFormatter.dateFormat = "yyyy-MM-dd"
   dateFormatter.timeZone = .current
-  
+
   return MetadataDecoder(
     metadata: metadata,
     dateFormatter: dateFormatter
   )
 }
 
-internal func resolveDate(from decoder: MetadataDecoder) throws -> Date? {
+func resolveDate(from decoder: MetadataDecoder) throws -> Date? {
   return try decoder.decodeIfPresent("date", as: Date.self)
 }
 
 private struct AnyCodingKey: CodingKey {
   var stringValue: String
   var intValue: Int?
-  
+
   init(_ string: String) {
     stringValue = string
   }
-  
+
   init?(stringValue: String) {
     self.stringValue = stringValue
   }
-  
+
   init?(intValue: Int) {
     self.intValue = intValue
-    self.stringValue = String(intValue)
+    stringValue = String(intValue)
   }
 }
 
@@ -730,7 +734,7 @@ private extension Decoder {
   func decodeIfPresent<T: Decodable>(_ key: String, as type: T.Type = T.self) throws -> T? {
     return try decodeIfPresent(AnyCodingKey(key), as: type)
   }
-  
+
   /// Decode an optional value for a given key, specified as a `CodingKey`. Throws an error if the
   /// specified key exists but is not able to be decoded as the inferred type.
   func decodeIfPresent<T: Decodable, K: CodingKey>(_ key: K, as type: T.Type = T.self) throws -> T? {
