@@ -37,7 +37,7 @@ public struct Reader {
   public typealias Converter = (_ absoluteSource: Path) async throws -> (title: String?, body: String, frontmatter: [String: String]?)
 
   /// The function that will do the actual work of reading and converting a file path into an ``Item``.
-  var convert: Converter
+  public var convert: Converter
 
   /// Initialize a new Reader
   public init(supportedExtensions: [String], convert: @escaping Converter) {
