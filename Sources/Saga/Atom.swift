@@ -17,8 +17,9 @@ import Foundation
 ///   - author: The author of the articles.
 ///   - baseURL: The base URL of your website, for example https://www.loopwerk.io.
 ///   - summary: An optional function which takes an `Item` and returns its summary.
+///   - dateKeyPath: A keypath to the date property to use for the <updated> field. Defaults to `\.lastModified`.
 /// - Returns: A function which takes a rendering context, and returns a string.
-public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: ((Item<M>) -> String?)? = nil) -> (_ context: Context) -> String where Context.M == M {
+public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: ((Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (_ context: Context) -> String where Context.M == M {
   let RFC3339_DF = ISO8601DateFormatter()
 
   return { context in
@@ -60,7 +61,7 @@ public func atomFeed<Context: AtomContext, M>(title: String, author: String? = n
 
       entryElement.addChild(idElement)
       entryElement.addChild(XMLElement(name: "title", stringValue: item.title))
-      entryElement.addChild(XMLElement(name: "updated", stringValue: RFC3339_DF.string(from: item.lastModified)))
+      entryElement.addChild(XMLElement(name: "updated", stringValue: RFC3339_DF.string(from: item[keyPath: dateKeyPath])))
 
       if let summary, let summaryString = summary(item) {
         let summaryElement = XMLElement(name: "summary", stringValue: summaryString)
