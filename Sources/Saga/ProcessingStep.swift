@@ -66,6 +66,7 @@ class AnyProcessStep {
                 title: partialItem.title ?? container.relativePath.lastComponentWithoutExtension,
                 body: partialItem.body,
                 date: date ?? fileIO.creationDate(container.path) ?? Date(),
+                created: fileIO.creationDate(container.path) ?? Date(),
                 lastModified: fileIO.modificationDate(container.path) ?? Date(),
                 metadata: metadata
               )
