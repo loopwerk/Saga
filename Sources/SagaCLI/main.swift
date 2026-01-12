@@ -1,36 +1,138 @@
+import ArgumentParser
+import CoreServices
 import Foundation
 import PathKit
 
 #if os(macOS)
   class FolderMonitor {
-    private let folderMonitorQueue = DispatchQueue(label: "FolderMonitorQueue", attributes: .concurrent)
-    private var folderMonitorSources: [URL: DispatchSourceFileSystemObject] = [:]
+    private var stream: FSEventStreamRef?
+    private let callback: () -> Void
+    private let ignoredPatterns: [String]
+    private let basePath: String
+    private var lastModificationTimes: [String: Date] = [:]
 
-    /// Listen for changes to the paths
-    init(urls: [URL], folderDidChange: @escaping () -> Void) {
-      for url in urls {
-        let monitoredFolderFileDescriptor = open(url.path, O_EVTONLY)
-        let folderMonitorSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: monitoredFolderFileDescriptor, eventMask: .all, queue: folderMonitorQueue)
-        folderMonitorSource.setEventHandler {
-          folderDidChange()
-        }
+    init(paths: [String], ignoredPatterns: [String] = [], folderDidChange: @escaping () -> Void) {
+      self.callback = folderDidChange
+      self.ignoredPatterns = ignoredPatterns
+      self.basePath = Path.current.string
 
-        folderMonitorSources[url] = folderMonitorSource
+      var context = FSEventStreamContext()
+      context.info = Unmanaged.passUnretained(self).toOpaque()
 
-        // Start monitoring the directory via the source.
-        folderMonitorSource.resume()
+      let flags = UInt32(
+        kFSEventStreamCreateFlagUseCFTypes |
+        kFSEventStreamCreateFlagFileEvents |
+        kFSEventStreamCreateFlagNoDefer
+      )
+
+      stream = FSEventStreamCreate(
+        nil,
+        { (_, info, numEvents, eventPaths, eventFlags, _) in
+          guard let info = info else { return }
+          let monitor = Unmanaged<FolderMonitor>.fromOpaque(info).takeUnretainedValue()
+
+          guard numEvents > 0,
+                let paths = unsafeBitCast(eventPaths, to: NSArray.self) as? [String] else {
+            return
+          }
+
+          // Only respond to actual content changes
+          let contentChangeFlags: UInt32 =
+            UInt32(kFSEventStreamEventFlagItemCreated) |
+            UInt32(kFSEventStreamEventFlagItemRemoved) |
+            UInt32(kFSEventStreamEventFlagItemRenamed) |
+            UInt32(kFSEventStreamEventFlagItemModified)
+
+          var hasRelevantChange = false
+          for i in 0..<numEvents {
+            let flags = eventFlags[i]
+            if (flags & contentChangeFlags) != 0 {
+              let path = paths[i]
+
+              // Check if this path matches any ignored patterns
+              if monitor.shouldIgnore(path: path) {
+                continue
+              }
+
+              // Only trigger if the file's modification time actually changed
+              if !monitor.hasFileActuallyChanged(path: path) {
+                continue
+              }
+
+              hasRelevantChange = true
+              print("  Changed: \(path)")
+            }
+          }
+
+          if hasRelevantChange {
+            monitor.callback()
+          }
+        },
+        &context,
+        paths as CFArray,
+        FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
+        0.3, // debounce delay in seconds
+        flags
+      )
+
+      if let stream = stream {
+        FSEventStreamSetDispatchQueue(stream, DispatchQueue(label: "FolderMonitorQueue"))
+        FSEventStreamStart(stream)
       }
+    }
+
+    private func hasFileActuallyChanged(path: String) -> Bool {
+      let fileManager = FileManager.default
+
+      guard let attributes = try? fileManager.attributesOfItem(atPath: path),
+            let modDate = attributes[.modificationDate] as? Date else {
+        // File doesn't exist or can't read - might be deleted, treat as changed
+        lastModificationTimes.removeValue(forKey: path)
+        return true
+      }
+
+      if let lastMod = lastModificationTimes[path] {
+        if modDate <= lastMod {
+          // Modification time hasn't changed - not a real modification
+          return false
+        }
+      }
+
+      lastModificationTimes[path] = modDate
+      return true
+    }
+
+    private func shouldIgnore(path: String) -> Bool {
+      guard !ignoredPatterns.isEmpty else { return false }
+
+      let relativePath: String
+      if path.hasPrefix(basePath) {
+        relativePath = String(path.dropFirst(basePath.count + 1))
+      } else {
+        relativePath = path
+      }
+
+      for pattern in ignoredPatterns {
+        if fnmatch(pattern, relativePath, FNM_PATHNAME) == 0 {
+          return true
+        }
+        if let filename = relativePath.split(separator: "/").last {
+          if fnmatch(pattern, String(filename), 0) == 0 {
+            return true
+          }
+        }
+      }
+
+      return false
     }
 
     deinit {
-      for folderMonitorSource in folderMonitorSources.values {
-        folderMonitorSource.cancel()
+      if let stream = stream {
+        FSEventStreamStop(stream)
+        FSEventStreamInvalidate(stream)
+        FSEventStreamRelease(stream)
       }
     }
-  }
-
-  enum WatcherError: Error {
-    case invalidArguments
   }
 
   private func runCommand(_ cmd: String, process: Process = Process()) -> String? {
@@ -43,39 +145,69 @@ import PathKit
     return String(data: fileHandle.readDataToEndOfFile(), encoding: .utf8)
   }
 
-  class Watcher {
-    let folderMonitor: FolderMonitor
+  struct Watch: ParsableCommand {
+    static let configuration = CommandConfiguration(
+      abstract: "Watch folders for changes and rebuild the site.",
+      discussion: """
+        Monitors the specified folders for file changes and automatically rebuilds the site.
+        Starts a local development server using browser-sync.
 
-    init() throws {
-      if CommandLine.arguments.count < 3 {
-        throw WatcherError.invalidArguments
+        Legacy usage:
+          watch <folders...> <output>
+
+        New usage:
+          watch --watch content --watch Sources --output deploy --ignore "*.tmp"
+        """
+    )
+
+    @Option(name: .shortAndLong, help: "Folder to watch for changes. Can be specified multiple times.")
+    var watch: [String] = []
+
+    @Option(name: .shortAndLong, help: "Output folder for the built site (also used by browser-sync).")
+    var output: String?
+
+    @Option(name: .shortAndLong, help: "Glob pattern for files/folders to ignore. Can be specified multiple times.")
+    var ignore: [String] = []
+
+    @Argument(help: "Legacy positional arguments: <folders...> <output>")
+    var legacyArgs: [String] = []
+
+    mutating func run() throws {
+      let watchFolders: [String]
+      let outputFolder: String
+
+      // Determine if we're using new-style or legacy arguments
+      if !watch.isEmpty, let out = output {
+        // New style: --watch and --output specified
+        watchFolders = watch
+        outputFolder = out
+      } else if !legacyArgs.isEmpty {
+        // Legacy style: positional arguments
+        if legacyArgs.count < 2 {
+          throw ValidationError("Legacy usage requires at least 2 arguments: <folders...> <output>")
+        }
+        var args = legacyArgs
+        outputFolder = args.removeLast()
+        watchFolders = args
+      } else {
+        throw ValidationError("Either use --watch and --output options, or provide legacy positional arguments.")
       }
 
       print("Building website, please wait...")
       _ = runCommand("swift run")
 
-      var folders = CommandLine.arguments.dropFirst()
-      let output = folders.removeLast()
-
-      // Turn the urls that were given as CLI arguments into full paths
-      var urls = folders
-        .map { folder in
-          Path.current + folder
-        }
-
-      // Add all their subfolders too
-      let subUrls = try urls
-        .flatMap { folder -> [Path] in
-          return try folder.recursiveChildren().filter { $0.isDirectory }
-        }
-      urls.append(contentsOf: subUrls)
-
-      let allUrls = urls
-        .compactMap { URL(string: $0.string) }
+      // Turn the folders into full paths
+      let paths = watchFolders.map { folder in
+        (Path.current + folder).string
+      }
 
       // Start monitoring!
       print("Monitoring for changes!")
-      folderMonitor = FolderMonitor(urls: allUrls) {
+      if !ignore.isEmpty {
+        print("Ignoring patterns: \(ignore.joined(separator: ", "))")
+      }
+
+      let folderMonitor = FolderMonitor(paths: paths, ignoredPatterns: ignore) {
         print("Detected change, rebuilding website...")
         _ = runCommand("swift run")
       }
@@ -88,24 +220,27 @@ import PathKit
       let sigintSrc = DispatchSource.makeSignalSource(signal: SIGINT, queue: signalsQueue)
       sigintSrc.setEventHandler {
         serverProcess.terminate()
-        exit(0)
+        Darwin.exit(0)
       }
       sigintSrc.resume()
       signal(SIGINT, SIG_IGN) // Make sure the signal does not terminate the application.
 
-      // Start web server, using lite-server (we just assume it's globally installed!)
+      // Start web server using browser-sync
       serverQueue.async {
-        _ = runCommand("browser-sync \"\(output)\" -w --no-notify", process: serverProcess)
+        _ = runCommand("browser-sync \"\(outputFolder)\" -w --no-notify", process: serverProcess)
         serverProcess.terminate()
-        exit(1)
+        Darwin.exit(1)
       }
 
       // Keep server running
       _ = readLine()
 
+      // Prevent folderMonitor from being deallocated
+      _ = folderMonitor
+
       serverProcess.terminate()
     }
   }
 
-  _ = try Watcher()
+  Watch.main()
 #endif

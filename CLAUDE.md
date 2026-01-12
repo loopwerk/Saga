@@ -15,7 +15,13 @@ swift test
 swift run
 
 # Start development server with file watching
-swift run watch [input-folders] [output-folder]
+swift run watch --watch content --watch Sources --output deploy
+
+# With ignore patterns
+swift run watch --watch content --output deploy --ignore "*.tmp"
+
+# Legacy syntax (still supported)
+swift run watch content Sources deploy
 
 # Generate documentation
 ./generate_docs.sh

@@ -206,17 +206,34 @@ struct Run {
 It's also easy to add your own readers and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
 
 ## Development server
-
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
 ```
-swift run watch [input-folders, separated by a space] [output-folder]
+$ swift run watch --watch [folder] --output [output-folder]
 ```
 
-Use the same relative input- and output folders as you gave to Saga. Example: `swift run watch content Sources deploy` to rebuild whenever you change your content or your Swift code.
-
-This functionality does depend on a globally installed [browser-sync](https://browsersync.io), and only works on macOS, not Linux.
+Use the same relative input- and output folders as you gave to Saga. The `--watch` option can be specified multiple times to watch multiple folders. Example:
 
 ```
-npm install -g browser-sync
+$ swift run watch --watch content --watch Sources --output deploy
+```
+
+This will rebuild whenever you change your content or your Swift code.
+
+You can also ignore certain files or folders using glob patterns:
+
+```
+$ swift run watch --watch content --output deploy --ignore "*.tmp" --ignore "drafts/*"
+```
+
+For backwards compatibility, the legacy positional argument syntax is also supported:
+
+```
+$ swift run watch content Sources deploy
+```
+
+This functionality depends on a globally installed [browser-sync](https://browsersync.io), and only works on macOS, not Linux.
+
+```
+$ pnpm install -g browser-sync
 ```
