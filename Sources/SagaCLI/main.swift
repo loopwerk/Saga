@@ -10,7 +10,7 @@ import PathKit
     init(urls: [URL], folderDidChange: @escaping () -> Void) {
       for url in urls {
         let monitoredFolderFileDescriptor = open(url.path, O_EVTONLY)
-        let folderMonitorSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: monitoredFolderFileDescriptor, eventMask: .write, queue: folderMonitorQueue)
+        let folderMonitorSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: monitoredFolderFileDescriptor, eventMask: .all, queue: folderMonitorQueue)
         folderMonitorSource.setEventHandler {
           folderDidChange()
         }
