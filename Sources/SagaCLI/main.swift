@@ -1,9 +1,10 @@
 import ArgumentParser
-import CoreServices
 import Foundation
 import PathKit
 
 #if os(macOS)
+  import CoreServices
+
   class FolderMonitor {
     private var stream: FSEventStreamRef?
     private let callback: () -> Void
