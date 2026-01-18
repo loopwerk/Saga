@@ -61,7 +61,6 @@ import PathKit
               }
 
               hasRelevantChange = true
-              print("  Changed: \(path)")
             }
           }
 
@@ -161,6 +160,8 @@ import PathKit
         """
     )
 
+    private static let defaultIgnorePatterns = [".DS_Store"]
+
     @Option(name: .shortAndLong, help: "Folder to watch for changes. Can be specified multiple times.")
     var watch: [String] = []
 
@@ -208,7 +209,7 @@ import PathKit
         print("Ignoring patterns: \(ignore.joined(separator: ", "))")
       }
 
-      let folderMonitor = FolderMonitor(paths: paths, ignoredPatterns: ignore) {
+      let folderMonitor = FolderMonitor(paths: paths, ignoredPatterns: Self.defaultIgnorePatterns + ignore) {
         print("Detected change, rebuilding website...")
         _ = runCommand("swift run")
       }
