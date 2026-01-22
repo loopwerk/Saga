@@ -23,7 +23,7 @@ swift package \
 
 # Restore Package.swift by commenting out the dependency again
 if grep -q "$DOCC_PLUGIN_LINE" "$PACKAGE_SWIFT"; then
-  sed -i '' "s|$DOCC_PLUGIN_LINE|//$DOCC_PLUGIN_LINE|" "$PACKAGE_SWIFT"
+  sed -i '' "s|$DOCC_PLUGIN_LINE|// $DOCC_PLUGIN_LINE|" "$PACKAGE_SWIFT"
 fi
 
 echo "Documentation generated successfully."

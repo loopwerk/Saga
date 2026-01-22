@@ -13,39 +13,40 @@ import PathKit
     private var lastModificationTimes: [String: Date] = [:]
 
     init(paths: [String], ignoredPatterns: [String] = [], folderDidChange: @escaping () -> Void) {
-      self.callback = folderDidChange
+      callback = folderDidChange
       self.ignoredPatterns = ignoredPatterns
-      self.basePath = Path.current.string
+      basePath = Path.current.string
 
       var context = FSEventStreamContext()
       context.info = Unmanaged.passUnretained(self).toOpaque()
 
       let flags = UInt32(
         kFSEventStreamCreateFlagUseCFTypes |
-        kFSEventStreamCreateFlagFileEvents |
-        kFSEventStreamCreateFlagNoDefer
+          kFSEventStreamCreateFlagFileEvents |
+          kFSEventStreamCreateFlagNoDefer
       )
 
       stream = FSEventStreamCreate(
         nil,
-        { (_, info, numEvents, eventPaths, eventFlags, _) in
+        { _, info, numEvents, eventPaths, eventFlags, _ in
           guard let info = info else { return }
           let monitor = Unmanaged<FolderMonitor>.fromOpaque(info).takeUnretainedValue()
 
           guard numEvents > 0,
-                let paths = unsafeBitCast(eventPaths, to: NSArray.self) as? [String] else {
+                let paths = unsafeBitCast(eventPaths, to: NSArray.self) as? [String]
+          else {
             return
           }
 
           // Only respond to actual content changes
-          let contentChangeFlags: UInt32 =
+          let contentChangeFlags =
             UInt32(kFSEventStreamEventFlagItemCreated) |
             UInt32(kFSEventStreamEventFlagItemRemoved) |
             UInt32(kFSEventStreamEventFlagItemRenamed) |
             UInt32(kFSEventStreamEventFlagItemModified)
 
           var hasRelevantChange = false
-          for i in 0..<numEvents {
+          for i in 0 ..< numEvents {
             let flags = eventFlags[i]
             if (flags & contentChangeFlags) != 0 {
               let path = paths[i]
@@ -85,7 +86,8 @@ import PathKit
       let fileManager = FileManager.default
 
       guard let attributes = try? fileManager.attributesOfItem(atPath: path),
-            let modDate = attributes[.modificationDate] as? Date else {
+            let modDate = attributes[.modificationDate] as? Date
+      else {
         // File doesn't exist or can't read - might be deleted, treat as changed
         lastModificationTimes.removeValue(forKey: path)
         return true
@@ -149,15 +151,15 @@ import PathKit
     static let configuration = CommandConfiguration(
       abstract: "Watch folders for changes and rebuild the site.",
       discussion: """
-        Monitors the specified folders for file changes and automatically rebuilds the site.
-        Starts a local development server using browser-sync.
+      Monitors the specified folders for file changes and automatically rebuilds the site.
+      Starts a local development server using browser-sync.
 
-        Legacy usage:
-          watch <folders...> <output>
+      Legacy usage:
+        watch <folders...> <output>
 
-        New usage:
-          watch --watch content --watch Sources --output deploy --ignore "*.tmp"
-        """
+      New usage:
+        watch --watch content --watch Sources --output deploy --ignore "*.tmp"
+      """
     )
 
     private static let defaultIgnorePatterns = [".DS_Store"]

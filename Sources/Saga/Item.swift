@@ -48,7 +48,7 @@ public class Item<M: Metadata>: AnyItem {
   /// The creation date of the item.
   /// Pleaae note that this value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
   public let created: Date
-  
+
   /// The last modified date of the item.
   /// Pleaae note that this value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
   public let lastModified: Date

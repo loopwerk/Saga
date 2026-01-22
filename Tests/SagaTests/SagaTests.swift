@@ -125,14 +125,14 @@ final class SagaTests: XCTestCase {
   func testFilterItems() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     var writtenPages: [WrittenPage] = []
-    
+
     var mock = FileIO.mock
     mock.write = { destination, content in
       writtenPagesQueue.sync(flags: .barrier) {
         writtenPages.append(.init(destination: destination, content: content))
       }
     }
-    
+
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
@@ -156,27 +156,27 @@ final class SagaTests: XCTestCase {
         ]
       )
       .run()
-    
+
     // The readers turn Markdown files into Items and store them in the fileStorage
     XCTAssertEqual(saga.fileStorage.count, 3)
-    
+
     // And when the writer runs, the Items get written to disk
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
     XCTAssertEqual(finalWrittenPages.count, 2)
     XCTAssertEqual(finalWrittenPages, [WrittenPage(destination: "root/output/list.html", content: ""), WrittenPage(destination: "root/output/list.html", content: "")])
   }
-  
+
   func testFilterButNotHandledItems() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     var writtenPages: [WrittenPage] = []
-    
+
     var mock = FileIO.mock
     mock.write = { destination, content in
       writtenPagesQueue.sync(flags: .barrier) {
         writtenPages.append(.init(destination: destination, content: content))
       }
     }
-    
+
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         metadata: EmptyMetadata.self,
@@ -201,10 +201,10 @@ final class SagaTests: XCTestCase {
         ]
       )
       .run()
-    
+
     // The readers turn Markdown files into Items and store them in the fileStorage
     XCTAssertEqual(saga.fileStorage.count, 3)
-    
+
     // And when the writer runs, the Items get written to disk
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
     XCTAssertEqual(finalWrittenPages.count, 4)
@@ -213,7 +213,7 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<p>test2.md</p>")))
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>")))
   }
-  
+
   // If the frontmatter contains a date property then this should be set to the item's date
   func testDateFromFrontMatter() async throws {
     let formatter = DateFormatter()

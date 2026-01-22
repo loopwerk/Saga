@@ -7,23 +7,23 @@
 import Foundation
 
 final class MetadataDecoder: Decoder {
-  public var userInfo: [CodingUserInfoKey: Any] { [:] }
-  public let codingPath: [CodingKey]
+  var userInfo: [CodingUserInfoKey: Any] { [:] }
+  let codingPath: [CodingKey]
 
   private let metadata: [String: String]
   private let dateFormatter: DateFormatter
   private lazy var keyedContainers = [ObjectIdentifier: Any]()
 
-  public init(metadata: [String: String],
-              codingPath: [CodingKey] = [],
-              dateFormatter: DateFormatter)
+  init(metadata: [String: String],
+       codingPath: [CodingKey] = [],
+       dateFormatter: DateFormatter)
   {
     self.metadata = metadata
     self.codingPath = codingPath
     self.dateFormatter = dateFormatter
   }
 
-  public func container<T: CodingKey>(
+  func container<T: CodingKey>(
     keyedBy type: T.Type
   ) throws -> KeyedDecodingContainer<T> {
     let typeID = ObjectIdentifier(type)
@@ -42,7 +42,7 @@ final class MetadataDecoder: Decoder {
     return KeyedDecodingContainer(container)
   }
 
-  public func unkeyedContainer() throws -> UnkeyedDecodingContainer {
+  func unkeyedContainer() throws -> UnkeyedDecodingContainer {
     let prefix = codingPath.asPrefix(includingTrailingSeparator: false)
 
     guard let string = metadata[prefix] else {
@@ -55,7 +55,7 @@ final class MetadataDecoder: Decoder {
     )
   }
 
-  public func singleValueContainer() throws -> SingleValueDecodingContainer {
+  func singleValueContainer() throws -> SingleValueDecodingContainer {
     let prefix = codingPath.asPrefix(includingTrailingSeparator: false)
 
     guard let string = metadata[prefix] else {

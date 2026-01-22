@@ -82,7 +82,7 @@ class AnyProcessStep {
                 container.item = item
                 return (index, item)
               } else {
-                if (step.filteredOutItemsAreHandled) {
+                if step.filteredOutItemsAreHandled {
                   container.handled = true
                 }
                 return (index, nil)
@@ -101,7 +101,7 @@ class AnyProcessStep {
 
         // Collect all successful items in deterministic order
         var indexedResults: [(Int, Item<M>)] = []
-        for try await (index, item) in group {
+        for try await(index, item) in group {
           if let item = item {
             indexedResults.append((index, item))
           }
