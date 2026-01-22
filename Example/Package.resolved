@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "c5d11a805e765f52ba34ec7284bd4fcd6ba68615",
+          "version": "1.7.0"
+        }
+      },
+      {
         "package": "swift-cmark-gfm",
         "repositoryURL": "https://github.com/stackotter/swift-cmark-gfm",
         "state": {

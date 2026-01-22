@@ -17,9 +17,10 @@ import Foundation
 ///   - author: The author of the articles.
 ///   - baseURL: The base URL of your website, for example https://www.loopwerk.io.
 ///   - summary: An optional function which takes an `Item` and returns its summary.
+///   - image: An optional function which takes an `Item` and returns its image URL (absolute or relative to baseURL).
 ///   - dateKeyPath: A keypath to the date property to use for the <updated> field. Defaults to `\.lastModified`.
 /// - Returns: A function which takes a rendering context, and returns a string.
-public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: ((Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (_ context: Context) -> String where Context.M == M {
+public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: ((Item<M>) -> String?)? = nil, image: ((Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (_ context: Context) -> String where Context.M == M {
   let RFC3339_DF = ISO8601DateFormatter()
 
   return { context in
@@ -27,7 +28,10 @@ public func atomFeed<Context: AtomContext, M>(title: String, author: String? = n
 
     // Create the root element
     let rootElement = XMLElement(name: "feed")
-    rootElement.setAttributesWith(["xmlns": "http://www.w3.org/2005/Atom"])
+    rootElement.setAttributesWith([
+      "xmlns": "http://www.w3.org/2005/Atom",
+      "xmlns:media": "http://search.yahoo.com/mrss/",
+    ])
 
     // Create the XML document
     let XML = XMLDocument(rootElement: rootElement)
@@ -75,6 +79,15 @@ public func atomFeed<Context: AtomContext, M>(title: String, author: String? = n
       let alternateElement = XMLElement(name: "link")
       alternateElement.setAttributesWith(["rel": "alternate", "href": baseURL.appendingPathComponent(item.url).absoluteString])
       entryElement.addChild(alternateElement)
+
+      if let image, let imagePath = image(item) {
+        let absoluteImageURL = imagePath.hasPrefix("http://") || imagePath.hasPrefix("https://")
+          ? imagePath
+          : baseURL.appendingPathComponent(imagePath).absoluteString
+        let imageElement = XMLElement(name: "media:content")
+        imageElement.setAttributesWith(["url": absoluteImageURL, "medium": "image"])
+        entryElement.addChild(imageElement)
+      }
 
       rootElement.addChild(entryElement)
     }
