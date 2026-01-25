@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" width="200" alt="tag-changelog" />
+  <img src="logo.png" width="200" alt="Saga" />
 </p>
 
 A static site generator, written in Swift, allowing you to supply your own metadata types for your items. Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, paginating, and strongly typed HTML templates.
