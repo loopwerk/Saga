@@ -1,5 +1,6 @@
 import Foundation
 import HTML
+import Moon
 import Saga
 import SagaSwimRenderer
 
@@ -21,8 +22,6 @@ func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConverti
       div(id: "content") {
         children()
       }
-      script(src: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/components/prism-core.min.js")
-      script(src: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/plugins/autoloader/prism-autoloader.min.js")
     }
   }
 }
@@ -50,7 +49,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
           }
         }
       }
-      Node.raw(context.item.body)
+      Node.raw(Moon.shared.highlightCodeBlocks(in: context.item.body))
     }
   }
 }
@@ -106,7 +105,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   baseHtml(title: context.item.title) {
     div(id: "page") {
       h1 { context.item.title }
-      Node.raw(context.item.body)
+      Node.raw(Moon.shared.highlightCodeBlocks(in: context.item.body))
 
       if context.item.relativeDestination == "about.html" {
         h1 { "Apps I've built" }

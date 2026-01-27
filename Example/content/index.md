@@ -10,7 +10,7 @@ New line
 
 > # Title in blockquote
 
-``` swift
+```swift
 struct ArticleMetadata: Metadata {
   let tags: [String]
   let summary: String?

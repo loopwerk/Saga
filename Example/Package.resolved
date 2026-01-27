@@ -2,6 +2,24 @@
   "object": {
     "pins": [
       {
+        "package": "JXKit",
+        "repositoryURL": "https://github.com/jectivex/JXKit",
+        "state": {
+          "branch": null,
+          "revision": "a4c1872d36036fe4ade4b1cadb268603e89e25f0",
+          "version": "3.6.0"
+        }
+      },
+      {
+        "package": "Moon",
+        "repositoryURL": "https://github.com/loopwerk/Moon",
+        "state": {
+          "branch": null,
+          "revision": "a7fc37ea83092707f54ff0f193996ebbed05a65e",
+          "version": "1.2.3"
+        }
+      },
+      {
         "package": "Parsley",
         "repositoryURL": "https://github.com/loopwerk/Parsley",
         "state": {
