@@ -232,7 +232,7 @@ For backwards compatibility, the legacy positional argument syntax is also suppo
 $ swift run watch content Sources deploy
 ```
 
-This functionality depends on a globally installed [browser-sync](https://browsersync.io), and only works on macOS, not Linux.
+This functionality depends on a globally installed [browser-sync](https://github.com/BrowserSync/browser-sync), and only works on macOS, not Linux.
 
 ```
 $ pnpm install -g browser-sync
