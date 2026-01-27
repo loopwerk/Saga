@@ -96,7 +96,7 @@ Your site is now in `deploy/`. Open `deploy/index.html` in a browser to see it.
 
 ### Development server
 
-For a better workflow, use the built-in dev server with live reload. First install [browser-sync](https://browsersync.io):
+For a better workflow, use the built-in dev server with live reload. First install [browser-sync](https://github.com/BrowserSync/browser-sync):
 
 ```bash
 $ pnpm install -g browser-sync
