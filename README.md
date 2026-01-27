@@ -146,7 +146,7 @@ Each content type can be indexed, paginated, or grouped independently.
 
 Few static site generators can model diverse content like this while keeping everything type-safe. Saga can.
 
-See the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a complete site with articles, tags, pagination, an app portfolio, and RSS feeds.
+See the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a complete site with articles, server-side syntax highlighting of code blocks, tags, pagination, an app portfolio, and RSS feeds.
 
 
 ## Documentation
