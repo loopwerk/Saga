@@ -2,113 +2,45 @@
   <img src="logo.png" width="200" alt="Saga" />
 </p>
 
-A static site generator written in Swift.
+A code-first static site generator in Swift. No config files, no implicit behavior, no magic conventions.
 
-Build websites using plain Swift code — no configuration files, no implicit behavior, no magic conventions. Start with a minimal setup that turns Markdown into HTML, then grow it into a structured site as your needs evolve.
-
-
-## Quick start
-
-Create a new Swift package:
-
-```bash
-$ mkdir MySite && cd MySite
-$ swift package init --type executable
-```
-
-Saga is modular: you pick a **reader** to parse your content and a **renderer** to generate HTML. For this guide, we'll use the recommended defaults: [Parsley](https://github.com/loopwerk/Parsley) for Markdown and [Swim](https://github.com/robb/Swim) for type-safe HTML. 
-
-Add them as dependencies in `Package.swift`:
+Your entire site pipeline is plain Swift code:
 
 ```swift
-// swift-tools-version:5.5
-
-import PackageDescription
-
-let package = Package(
-  name: "MySite",
-  platforms: [
-    .macOS(.v12)
-  ],
-  dependencies: [
-    .package(url: "https://github.com/loopwerk/Saga.git", from: "2.0.0"),
-    .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader.git", from: "1.0.0"),
-    .package(url: "https://github.com/loopwerk/SagaSwimRenderer.git", from: "1.0.0"),
-  ],
-  targets: [
-    .executableTarget(
-      name: "MySite",
-      dependencies: [
-        "Saga",
-        "SagaParsleyMarkdownReader",
-        "SagaSwimRenderer",
-      ]
-    ),
-  ]
-)
+try await Saga(input: "content", output: "deploy")
+  .register(
+    folder: "articles",
+    metadata: ArticleMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [
+      .itemWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles), paginate: 20),
+      .tagWriter(swim(renderTag), tags: \.metadata.tags),
+    ]
+  )
+  .run()
+  .staticFiles()
 ```
 
-Create a `content/` folder with a Markdown file:
+Typed metadata, pluggable readers, multiple writer types, pagination, tags — all defined in Swift, readable top to bottom, and enforced by the compiler. No hidden defaults. No template logic you can't debug.
 
-```bash
-$ mkdir content
-$ echo "# Hello world" > content/index.md
-```
 
-Replace the contents of `Sources/MySite/MySite.swift` with:
+## Who this is for
 
-```swift
-import Saga
-import SagaParsleyMarkdownReader
-import SagaSwimRenderer
-import HTML
+**Saga is for you if:**
+- You want your site generation logic in Swift, not YAML/TOML config files
+- You want compile-time safety for your content metadata
+- You've outgrown convention-based SSGs and want full control
 
-func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
-  html(lang: "en-US") {
-    body {
-      h1 { context.item.title }
-      Node.raw(context.item.body)
-    }
-  }
-}
+**Saga is not for you if:**
+- You want a CLI that scaffolds everything with zero code
+- You need a large ecosystem of themes and templates
+- You're not comfortable with Swift
 
-@main
-struct Run {
-  static func main() async throws {
-    try await Saga(input: "content", output: "deploy")
-      .register(
-        readers: [.parsleyMarkdownReader()],
-        writers: [.itemWriter(swim(renderPage))]
-      )
-      .run()
-      .staticFiles()
-  }
-}
-```
 
-Build your site:
+## Getting started
 
-```bash
-$ swift run
-```
-
-Your site is now in `deploy/`. Open `deploy/index.html` in a browser to see it.
-
-### Development server
-
-For a better workflow, use the built-in dev server with live reload. First install [browser-sync](https://github.com/BrowserSync/browser-sync):
-
-```bash
-$ pnpm install -g browser-sync
-```
-
-Then start the development server:
-
-```bash
-$ swift run watch --watch content --watch Sources --output deploy
-```
-
-This rebuilds your site whenever you change content or code, and automatically refreshes your browser.
+Getting started takes a few minutes if you're comfortable with Swift and SwiftPM. Follow the [installation guide](https://loopwerk.github.io/Saga/documentation/saga/installation) to set up your first site.
 
 
 ## Code over configuration
@@ -122,7 +54,7 @@ If something happens during a build, you can always point to the code that made 
 
 ## Growing beyond a simple site
 
-The quick start shows the simplest case: one type of content, one template. But Saga scales to handle complex sites with multiple content types.
+The example above shows a single content type, but Saga scales to handle complex sites with multiple content types.
 
 Saga allows you to:
 
