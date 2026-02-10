@@ -117,3 +117,7 @@ Saga requires Swift 5.5+ and runs on macOS 12+ and Linux. The development server
 - [spamusement.cc](https://www.spamusement.cc) ([source](https://github.com/kevinrenskers/spamusement.cc))
 
 Is your website built with Saga? Send a pull request to add it to the list!
+
+## Support
+
+Commercial support is available via [Loopwerk](https://www.loopwerk.io/open-source/support/).
