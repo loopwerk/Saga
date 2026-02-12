@@ -21,6 +21,9 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
+struct AlbumMetadata: Metadata {}
+struct PhotoMetadata: Metadata {}
+
 // An easy way to only get public articles, since ArticleMetadata.public is optional
 extension Item where M == ArticleMetadata {
   var `public`: Bool {
@@ -62,10 +65,25 @@ struct Run {
         writers: [.listWriter(swim(renderApps))]
       )
 
+      // Photo albums from markdown files
       .register(
         folder: "photos",
+        metadata: AlbumMetadata.self,
         readers: [.parsleyMarkdownReader],
-        writers: [.itemWriter(swim(renderPhotos))]
+        writers: [
+          .listWriter(swim(renderAlbums)),
+          .itemWriter(swim(renderAlbum)),
+        ]
+      )
+
+      // Individual photo pages from images
+      .register(
+        folder: "photos",
+        metadata: PhotoMetadata.self,
+        readers: [.imageReader()],
+        writers: [
+          .itemWriter(swim(renderPhoto)),
+        ]
       )
 
       // All the remaining markdown files will be parsed to html,
@@ -78,6 +96,7 @@ struct Run {
 
       // Run the steps we registered above
       .run()
+
       // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
       // are copied as-is to the output folder.
       .staticFiles()

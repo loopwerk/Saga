@@ -78,7 +78,7 @@ class AnyProcessStep {
 
               // Store the generated Item if it passes the filter
               if step.filter(item) {
-                container.handled = true
+                container.handled = !reader.copySourceFiles
                 container.item = item
                 return (index, item)
               } else {
