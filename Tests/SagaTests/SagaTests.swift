@@ -378,6 +378,42 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>|prev:<p>test2.md</p>|next:none")))
   }
 
+  func testCustomSorting() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          .mock(frontmatter: [:]),
+        ],
+        // Sort by date ascending instead of the default descending
+        sorting: { $0.date < $1.date },
+        writers: [
+          .itemWriter { context in
+            let prev = context.previous?.body ?? "none"
+            let next = context.next?.body ?? "none"
+            return "\(context.item.body)|prev:\(prev)|next:\(next)"
+          },
+        ]
+      )
+      .run()
+
+    // With date ascending: test.md (2024) comes first, test2.md (2025) second
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>|prev:none|next:<p>test2.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<p>test2.md</p>|prev:<p>test.md</p>|next:none")))
+  }
+
   func testFolderGlob() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     var writtenPages: [WrittenPage] = []

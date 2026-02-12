@@ -25,9 +25,7 @@ extension Item where M == ArticleMetadata {
 }
 
 func photosForAlbum(_ album: AnyItem, allItems: [AnyItem]) -> [AnyItem] {
-  allItems
-    .filter { $0 is Item<PhotoMetadata> && $0.relativeSource.parent() == album.relativeSource.parent() }
-    .sorted { $0.relativeSource.lastComponent < $1.relativeSource.lastComponent }
+  allItems.filter { $0 is Item<PhotoMetadata> && $0.relativeSource.parent() == album.relativeSource.parent() }
 }
 
 // MARK: - Base layout
