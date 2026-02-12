@@ -231,20 +231,12 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
     $0 is Item<AlbumMetadata> && $0.relativeSource.parent() == context.item.relativeSource.parent()
   }
 
-  let siblings = context.items
-    .filter { $0.relativeSource.parent() == context.item.relativeSource.parent() }
-    .sorted { $0.relativeSource.lastComponent < $1.relativeSource.lastComponent }
-  let currentIndex = siblings.firstIndex(where: { $0 === context.item })
-
-  let previous = currentIndex.flatMap { $0 > 0 ? siblings[$0 - 1] : nil }
-  let next = currentIndex.flatMap { $0 < siblings.count - 1 ? siblings[$0 + 1] : nil }
-
   let imageSrc = "../\(context.item.relativeSource.lastComponent)"
 
   return baseHtml(title: context.item.title) {
     div(class: "photo-page") {
       div(class: "photo-nav") {
-        if let previous = previous {
+        if let previous = context.previous {
           a(class: "nav-prev", href: previous.url) { "\u{2190}" }
         }
 
@@ -252,7 +244,7 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
           a(class: "nav-close", href: album.url) { "\u{2715}" }
         }
 
-        if let next = next {
+        if let next = context.next {
           a(class: "nav-next", href: next.url) { "\u{2192}" }
         }
       }

@@ -76,9 +76,9 @@ struct Run {
         ]
       )
 
-      // Individual photo pages from images
+      // Individual photo pages from images, one step per album subfolder
       .register(
-        folder: "photos",
+        folder: "photos/**",
         metadata: PhotoMetadata.self,
         readers: [.imageReader()],
         writers: [
