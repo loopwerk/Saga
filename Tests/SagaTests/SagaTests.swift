@@ -344,6 +344,40 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2.html", content: "<p>test2.md</p>")))
   }
 
+  func testItemWriterPreviousNext() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          .mock(frontmatter: [:]),
+        ],
+        writers: [
+          .itemWriter { context in
+            let prev = context.previous?.body ?? "none"
+            let next = context.next?.body ?? "none"
+            return "\(context.item.body)|prev:\(prev)|next:\(next)"
+          },
+        ]
+      )
+      .run()
+
+    // Items are sorted by date descending: test2.md (2025) comes first, test.md (2024) second
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<p>test2.md</p>|prev:none|next:<p>test.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>|prev:<p>test2.md</p>|next:none")))
+  }
+
   func testMetadataDecoder() throws {
     struct TestMetadata: Metadata {
       let tags: [String]
