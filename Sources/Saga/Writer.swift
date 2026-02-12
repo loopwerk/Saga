@@ -23,13 +23,15 @@ public extension Writer {
   static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M>) async throws -> String) -> Self {
     return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       try await withThrowingTaskGroup(of: Void.self) { group in
-        for item in items {
+        for (index, item) in items.enumerated() {
           group.addTask {
             // Resources are unhandled files in the same folder. These could be images for example, or other static files.
             let resources = fileStorage
               .filter { $0.relativePath.parent() == item.relativeSource.parent() && !$0.handled }
               .map { $0.path }
-            let context = ItemRenderingContext(item: item, items: items, allItems: allItems, resources: resources)
+            let previous = index > 0 ? items[index - 1] : nil
+            let next = index < items.count - 1 ? items[index + 1] : nil
+            let context = ItemRenderingContext(item: item, items: items, allItems: allItems, resources: resources, previous: previous, next: next)
             let stringToWrite = try await renderer(context)
             try fileIO.write(outputRoot + item.relativeDestination, stringToWrite)
           }

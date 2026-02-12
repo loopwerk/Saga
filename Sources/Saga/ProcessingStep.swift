@@ -7,15 +7,17 @@ class ProcessStep<M: Metadata> {
   let filter: (Item<M>) -> Bool
   let filteredOutItemsAreHandled: Bool
   let itemProcessor: ((Item<M>) async -> Void)?
+  let sorting: (Item<M>, Item<M>) -> Bool
   let writers: [Writer<M>]
   var items: [Item<M>]
 
-  init(folder: Path?, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, filteredOutItemsAreHandled: Bool, writers: [Writer<M>]) {
+  init(folder: Path?, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, filteredOutItemsAreHandled: Bool, sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>]) {
     self.folder = folder
     self.readers = readers
     self.itemProcessor = itemProcessor
     self.filter = filter
     self.filteredOutItemsAreHandled = filteredOutItemsAreHandled
+    self.sorting = sorting
     self.writers = writers
     items = []
   }
@@ -78,7 +80,7 @@ class AnyProcessStep {
 
               // Store the generated Item if it passes the filter
               if step.filter(item) {
-                container.handled = true
+                container.handled = !reader.copySourceFiles
                 container.item = item
                 return (index, item)
               } else {
@@ -111,7 +113,7 @@ class AnyProcessStep {
         return indexedResults.sorted(by: { $0.0 < $1.0 }).map(\.1)
       }
 
-      step.items = items.sorted(by: { left, right in left.date > right.date })
+      step.items = items.sorted(by: step.sorting)
     }
 
     runWriters = {

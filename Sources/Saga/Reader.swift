@@ -34,14 +34,19 @@ public struct Reader {
   /// Which file extensions can be handled by this reader? For example `md` or `rst`.
   var supportedExtensions: [String]
 
+  /// When true, the source files processed by this reader will still be copied to the output folder by ``Saga/staticFiles()``.
+  /// This is useful for readers that handle binary files like images, where the source file needs to exist in the output alongside any generated pages.
+  var copySourceFiles: Bool
+
   public typealias Converter = (_ absoluteSource: Path) async throws -> (title: String?, body: String, frontmatter: [String: String]?)
 
   /// The function that will do the actual work of reading and converting a file path into an ``Item``.
   public var convert: Converter
 
   /// Initialize a new Reader
-  public init(supportedExtensions: [String], convert: @escaping Converter) {
+  public init(supportedExtensions: [String], copySourceFiles: Bool = false, convert: @escaping Converter) {
     self.supportedExtensions = supportedExtensions
+    self.copySourceFiles = copySourceFiles
     self.convert = convert
   }
 }

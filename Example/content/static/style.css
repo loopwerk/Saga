@@ -1,10 +1,402 @@
-body {
-  font-family: Helvetica;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-* {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  box-sizing: border-box;
+body {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: #6cb4ee;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #fff;
+}
+
+/* Nav */
+header {
+  border-bottom: 1px solid #333;
+}
+
+nav {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.site-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  letter-spacing: 0.03em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.nav-links a:hover {
+  color: #fff;
+}
+
+/* Main */
+main {
+  flex: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  width: 100%;
+}
+
+main h1 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+main h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+/* Articles */
+.article-detail h1 {
+  margin-bottom: 0.5rem;
+}
+
+.article-meta {
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.article-meta a {
+  color: #888;
+}
+
+.article-meta a:hover {
+  color: #fff;
+}
+
+.tags {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.tags li a {
+  display: inline-block;
+  background: #2a2a2a;
+  color: #999;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.tags li a:hover {
+  background: #333;
+  color: #fff;
+}
+
+.article-body {
+  line-height: 1.8;
+}
+
+.article-body p {
+  margin-bottom: 1rem;
+}
+
+.article-body pre {
+  background: #252525;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.article-body code {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+}
+
+.article-body img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.article-card {
+  background: #252525;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.article-card a {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.article-card p {
+  color: #999;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #333;
+}
+
+.pagination-link {
+  color: #6cb4ee;
+}
+
+.pagination-info {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* Apps */
+.app-card {
+  background: #252525;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.app-card h2 {
+  margin-bottom: 0.75rem;
+}
+
+.app-images {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.app-images img {
+  max-height: 200px;
+  border-radius: 4px;
+}
+
+.button {
+  display: inline-block;
+  background: #333;
+  color: #e0e0e0;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+.button:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* Photos - Collections */
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.collection-card {
+  display: block;
+  background: #252525;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.collection-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.card-previews {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  aspect-ratio: 16 / 9;
+}
+
+.card-previews img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-info {
+  padding: 1rem;
+}
+
+.card-info h2 {
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.card-info p {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+/* Photos - Album */
+.album h1 {
+  margin-bottom: 0.5rem;
+}
+
+.album-description {
+  color: #999;
+  margin-bottom: 1.5rem;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 6px;
+}
+
+.photo-item {
+  display: block;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.photo-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.photo-item:hover img {
+  transform: scale(1.05);
+}
+
+.back-link {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #333;
+}
+
+.back-link a {
+  color: #888;
+}
+
+.back-link a:hover {
+  color: #fff;
+}
+
+/* Photos - Single photo page */
+.photo-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.photo-nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.photo-nav a {
+  color: #888;
+  transition: color 0.2s ease;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #444;
+}
+
+.photo-nav a:hover {
+  color: #fff;
+  border-color: #888;
+}
+
+.photo-full {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.photo-full img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* Generic pages */
+.page {
+  line-height: 1.8;
+}
+
+.page p {
+  margin-bottom: 1rem;
+}
+
+/* Footer */
+footer {
+  border-top: 1px solid #333;
+  text-align: center;
+  padding: 1.25rem 2rem;
+  color: #555;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .collections-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  main {
+    padding: 1.5rem 1rem;
+  }
 }

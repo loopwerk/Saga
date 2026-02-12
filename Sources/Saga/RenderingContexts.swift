@@ -5,6 +5,8 @@ public struct ItemRenderingContext<M: Metadata> {
   public let items: [Item<M>]
   public let allItems: [AnyItem]
   public let resources: [Path]
+  public let previous: Item<M>?
+  public let next: Item<M>?
 }
 
 public protocol AtomContext {
