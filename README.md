@@ -33,14 +33,36 @@ Typed metadata, pluggable readers, multiple writer types, pagination, tags — a
 - You've outgrown convention-based SSGs and want full control
 
 **Saga is not for you if:**
-- You want a CLI that scaffolds everything with zero code
 - You need a large ecosystem of themes and templates
 - You're not comfortable with Swift
 
 
+## Installing the CLI
+
+**Via [Homebrew](https://brew.sh):**
+```
+$ brew install loopwerk/tap/saga
+```
+
+**Via [Mint](https://github.com/yonaskolb/Mint):**
+```
+$ mint install loopwerk/Saga
+```
+
+
 ## Getting started
 
-Getting started takes a few minutes if you're comfortable with Swift and SwiftPM. Follow the [installation guide](https://loopwerk.github.io/Saga/documentation/saga/installation) to set up your first site.
+The fastest way to start a new site:
+
+```
+$ saga init mysite
+$ cd mysite
+$ saga dev
+```
+
+This scaffolds a complete project with articles, tags, templates, and a stylesheet — ready to build and serve.
+
+For manual setup or more detail, see the [installation guide](https://loopwerk.github.io/Saga/documentation/saga/installation).
 
 
 ## Code over configuration
@@ -107,7 +129,7 @@ Saga is modular. You compose it with readers and renderers that fit your needs.
 
 ## Requirements
 
-Saga requires Swift 5.5+ and runs on macOS 12+ and Linux. The development server requires [browser-sync](https://github.com/BrowserSync/browser-sync) and only works on macOS.
+Saga requires Swift 5.5+ and runs on macOS 12+ and Linux.
 
 
 ## Websites using Saga
