@@ -214,7 +214,7 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>")))
   }
 
-  // If the frontmatter contains a date property then this should be set to the item's date
+  /// If the frontmatter contains a date property then this should be set to the item's date
   func testDateFromFrontMatter() async throws {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy-MM-dd"
@@ -439,9 +439,9 @@ final class SagaTests: XCTestCase {
             let next = context.next?.body ?? "none"
             return "\(context.item.body)|prev:\(prev)|next:\(next)"
           },
-          .listWriter({ context in
+          .listWriter { context in
             context.items.map(\.body).joined(separator: ",")
-          }),
+          },
         ]
       )
       .run()
@@ -459,8 +459,8 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/folder/sub2/c/index.html", content: "<p>folder/sub2/c.md</p>|prev:none|next:none")))
 
     // a.md and b.md should reference each other (scoped to sub1), not c.md
-    let aPage = finalWrittenPages.first(where: { $0.destination == "root/output/folder/sub1/a/index.html" })!
-    let bPage = finalWrittenPages.first(where: { $0.destination == "root/output/folder/sub1/b/index.html" })!
+    let aPage = try XCTUnwrap(finalWrittenPages.first(where: { $0.destination == "root/output/folder/sub1/a/index.html" }))
+    let bPage = try XCTUnwrap(finalWrittenPages.first(where: { $0.destination == "root/output/folder/sub1/b/index.html" }))
     XCTAssertFalse(aPage.content.contains("sub2"))
     XCTAssertFalse(bPage.content.contains("sub2"))
 
@@ -486,10 +486,10 @@ final class SagaTests: XCTestCase {
     let decoded = try TestMetadata(from: decoder)
 
     XCTAssertEqual(decoded.tags, ["one", "two"])
-    XCTAssertEqual(decoded.url, URL(string: "https://www.example.com")!)
+    XCTAssertEqual(decoded.url, URL(string: "https://www.example.com"))
   }
 
-  func testSlugified() throws {
+  func testSlugified() {
     XCTAssertEqual("one two".slugified, "one-two")
     XCTAssertEqual("one - two".slugified, "one-two")
     XCTAssertEqual("One Two".slugified, "one-two")

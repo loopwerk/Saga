@@ -1,9 +1,9 @@
 import Foundation
 import HTML
 import Moon
+import PathKit
 import Saga
 import SagaSwimRenderer
-import PathKit
 
 // MARK: - Helpers
 
@@ -172,13 +172,13 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
   baseHtml(title: "Photos") {
     div(class: "collections") {
       h1 { "Photos" }
-      
+
       div(class: "collections-grid") {
         context.items.map { album in
           let photos = photosForAlbum(album, allItems: context.allItems)
           let previewPhotos = Array(photos.prefix(4))
           let folder = album.relativeSource.parent()
-          
+
           return a(class: "collection-card", href: album.url) {
             div(class: "card-previews") {
               previewPhotos.map { photo in

@@ -1,7 +1,7 @@
 import Foundation
 import NIOCore
-import NIOPosix
 import NIOHTTP1
+import NIOPosix
 
 final class DevServer {
   private let outputPath: String
@@ -13,7 +13,7 @@ final class DevServer {
   init(outputPath: String, port: Int) {
     self.outputPath = outputPath
     self.port = port
-    self.group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
   }
 
   func start() throws {
@@ -90,14 +90,14 @@ private final class HTTPHandler: ChannelInboundHandler {
     let part = unwrapInboundIn(data)
 
     switch part {
-    case .head(let request):
-      requestURI = request.uri
+      case .head(let request):
+        requestURI = request.uri
 
-    case .body:
-      break
+      case .body:
+        break
 
-    case .end:
-      handleRequest(uri: requestURI, context: context)
+      case .end:
+        handleRequest(uri: requestURI, context: context)
     }
   }
 
@@ -226,24 +226,24 @@ private final class HTTPHandler: ChannelInboundHandler {
       ext = ""
     }
     switch ext {
-    case "html", "htm": return "text/html"
-    case "css": return "text/css"
-    case "js": return "application/javascript"
-    case "json": return "application/json"
-    case "xml": return "application/xml"
-    case "png": return "image/png"
-    case "jpg", "jpeg": return "image/jpeg"
-    case "gif": return "image/gif"
-    case "svg": return "image/svg+xml"
-    case "webp": return "image/webp"
-    case "ico": return "image/x-icon"
-    case "woff": return "font/woff"
-    case "woff2": return "font/woff2"
-    case "ttf": return "font/ttf"
-    case "otf": return "font/otf"
-    case "pdf": return "application/pdf"
-    case "txt": return "text/plain"
-    default: return "application/octet-stream"
+      case "html", "htm": return "text/html"
+      case "css": return "text/css"
+      case "js": return "application/javascript"
+      case "json": return "application/json"
+      case "xml": return "application/xml"
+      case "png": return "image/png"
+      case "jpg", "jpeg": return "image/jpeg"
+      case "gif": return "image/gif"
+      case "svg": return "image/svg+xml"
+      case "webp": return "image/webp"
+      case "ico": return "image/x-icon"
+      case "woff": return "font/woff"
+      case "woff2": return "font/woff2"
+      case "ttf": return "font/ttf"
+      case "otf": return "font/otf"
+      case "pdf": return "application/pdf"
+      case "txt": return "text/plain"
+      default: return "application/octet-stream"
     }
   }
 }

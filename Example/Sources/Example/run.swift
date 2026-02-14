@@ -24,7 +24,7 @@ struct AppMetadata: Metadata {
 struct AlbumMetadata: Metadata {}
 struct PhotoMetadata: Metadata {}
 
-// An easy way to only get public articles, since ArticleMetadata.public is optional
+/// An easy way to only get public articles, since ArticleMetadata.public is optional
 extension Item where M == ArticleMetadata {
   var `public`: Bool {
     return metadata.public ?? true
@@ -96,7 +96,6 @@ struct Run {
 
       // Run the steps we registered above
       .run()
-
       // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
       // are copied as-is to the output folder.
       .staticFiles()

@@ -10,9 +10,9 @@ class FolderMonitor {
 
   init(paths: [String], ignoredPatterns: [String] = [], folderDidChange: @escaping () -> Void) {
     self.paths = paths
-    self.callback = folderDidChange
+    callback = folderDidChange
     self.ignoredPatterns = ignoredPatterns
-    self.basePath = FileManager.default.currentDirectoryPath
+    basePath = FileManager.default.currentDirectoryPath
 
     // Take initial snapshot
     knownFiles = scanFiles()
@@ -82,7 +82,8 @@ class FolderMonitor {
         }
 
         if let attributes = try? fileManager.attributesOfItem(atPath: fullPath),
-           let modDate = attributes[.modificationDate] as? Date {
+           let modDate = attributes[.modificationDate] as? Date
+        {
           result[fullPath] = modDate
         }
       }

@@ -135,12 +135,12 @@ struct Dev: ParsableCommand {
 
   private func openBrowser(url: String) {
     #if os(macOS)
-    Process.launchedProcess(launchPath: "/usr/bin/open", arguments: [url])
+      Process.launchedProcess(launchPath: "/usr/bin/open", arguments: [url])
     #elseif os(Linux)
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    process.arguments = ["xdg-open", url]
-    try? process.run()
+      let process = Process()
+      process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+      process.arguments = ["xdg-open", url]
+      try? process.run()
     #endif
   }
 }
