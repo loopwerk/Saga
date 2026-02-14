@@ -1,10 +1,39 @@
 # Installation
 
-How to set up your project with the right dependencies.
+How to set up a new Saga project.
 
 
-## Overview
-Create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see <doc:Architecture>), so that it looks something like this:
+## Installing the CLI
+
+**Via [Homebrew](https://brew.sh):**
+
+```
+$ brew install loopwerk/tap/saga
+```
+
+**Via [Mint](https://github.com/yonaskolb/Mint):**
+
+```
+$ mint install loopwerk/Saga
+```
+
+
+## Quick start
+
+The easiest way to create a new project is with the `saga` CLI:
+
+```
+$ saga init mysite
+$ cd mysite
+$ saga dev
+```
+
+This scaffolds a complete project with articles, tags, Swim templates, and a stylesheet. The `saga dev` command builds your site, starts a development server at `http://localhost:3000`, and auto-reloads the browser when you make changes.
+
+
+## Manual setup
+
+If you prefer to set things up yourself, create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see <doc:Architecture>), so that it looks something like this:
 
 ```swift
 // swift-tools-version:5.5
@@ -25,8 +54,8 @@ let package = Package(
     .executableTarget(
       name: "MyWebsite",
       dependencies: [
-        "Saga", 
-        "SagaParsleyMarkdownReader", 
+        "Saga",
+        "SagaParsleyMarkdownReader",
         "SagaSwimRenderer"
       ]
     )

@@ -209,31 +209,25 @@ It's also easy to add your own readers and renderers; search for [saga-plugin](h
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
 ```
-$ swift run watch --watch [folder] --output [output-folder]
+$ saga dev
 ```
 
-Use the same relative input- and output folders as you gave to Saga. The `--watch` option can be specified multiple times to watch multiple folders. Example:
+By default this watches the `content` and `Sources` folders, outputs to `deploy`, and serves on port 3000. All of these can be customized:
 
 ```
-$ swift run watch --watch content --watch Sources --output deploy
+$ saga dev --watch content --watch Sources --output deploy --port 3000
 ```
-
-This will rebuild whenever you change your content or your Swift code.
 
 You can also ignore certain files or folders using glob patterns:
 
 ```
-$ swift run watch --watch content --output deploy --ignore "*.tmp" --ignore "drafts/*"
+$ saga dev --ignore "*.tmp" --ignore "drafts/*"
 ```
 
-For backwards compatibility, the legacy positional argument syntax is also supported:
+To just build the site without starting a server:
 
 ```
-$ swift run watch content Sources deploy
+$ saga build
 ```
 
-This functionality depends on a globally installed [browser-sync](https://github.com/BrowserSync/browser-sync), and only works on macOS, not Linux.
-
-```
-$ pnpm install -g browser-sync
-```
+See <doc:Installation> for how to install the `saga` CLI.

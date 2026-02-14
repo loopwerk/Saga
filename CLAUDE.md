@@ -14,18 +14,32 @@ swift test
 # Run the example project
 swift run
 
-# Start development server with file watching
-swift run watch --watch content --watch Sources --output deploy
-
-# With ignore patterns
-swift run watch --watch content --output deploy --ignore "*.tmp"
-
-# Legacy syntax (still supported)
-swift run watch content Sources deploy
-
 # Generate documentation
 ./generate_docs.sh
 ```
+
+## CLI Commands (`saga`)
+
+```bash
+# Create a new Saga project
+saga init mysite
+
+# Build a site (runs `swift run` in current directory)
+saga build
+
+# Start dev server with file watching and auto-reload
+saga dev
+
+# Dev server with custom options
+saga dev --watch content --watch Sources --output deploy --port 3000
+
+# Ignore patterns
+saga dev --ignore "*.tmp" --ignore "drafts/*"
+```
+
+The `saga` CLI is built from `Sources/SagaCLI/`. Install via Homebrew (`brew install loopwerk/tap/saga`) or Mint (`mint install loopwerk/Saga`).
+
+The legacy `watch` command (`Sources/SagaWatch/`) is deprecated in favor of `saga dev`.
 
 ## Architecture Overview
 
@@ -58,7 +72,8 @@ Saga is designed for extensibility via external packages:
 ## Key Directories
 
 - `/Sources/Saga/` - Main library with core architecture
-- `/Sources/SagaCLI/` - Command line interface with development server
+- `/Sources/SagaCLI/` - `saga` CLI (init, dev, build commands)
+- `/Sources/SagaWatch/` - Legacy `watch` command (deprecated)
 - `/Tests/SagaTests/` - Unit tests with mock implementations
 - `/Example/` - Complete working example demonstrating usage patterns
 - `/Sources/Saga/Saga.docc/` - DocC documentation source

@@ -246,5 +246,6 @@ import PathKit
     }
   }
 
+  print("Warning: 'watch' is deprecated. Use 'saga dev' instead.")
   Watch.main()
 #endif

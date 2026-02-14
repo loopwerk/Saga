@@ -98,7 +98,8 @@ public class Saga: @unchecked Sendable {
             outputPath: outputPath,
             itemWriteMode: itemWriteMode,
             fileIO: fileIO
-          ))
+          )
+        )
       }
     } else {
       let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, filteredOutItemsAreHandled: filteredOutItemsAreHandled, sorting: sorting, writers: writers)
@@ -110,7 +111,8 @@ public class Saga: @unchecked Sendable {
           outputPath: outputPath,
           itemWriteMode: itemWriteMode,
           fileIO: fileIO
-        ))
+        )
+      )
     }
     return self
   }

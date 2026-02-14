@@ -1,4 +1,4 @@
-/**
+/*
  *  Publish
  *  Copyright (c) John Sundell 2019
  *  MIT license, see LICENSE file for details
@@ -7,7 +7,10 @@
 import Foundation
 
 final class MetadataDecoder: Decoder {
-  var userInfo: [CodingUserInfoKey: Any] { [:] }
+  var userInfo: [CodingUserInfoKey: Any] {
+    [:]
+  }
+
   let codingPath: [CodingKey]
 
   private let metadata: [String: String]
@@ -68,7 +71,9 @@ final class MetadataDecoder: Decoder {
 
 private extension MetadataDecoder {
   struct KeyedContainer<Key: CodingKey>: KeyedDecodingContainerProtocol {
-    var allKeys: [Key] { keys.all() }
+    var allKeys: [Key] {
+      keys.all()
+    }
 
     let metadata: [String: String]
     let keys: KeyMap<Key>
@@ -246,8 +251,13 @@ private extension MetadataDecoder {
   }
 
   struct UnkeyedContainer: UnkeyedDecodingContainer {
-    var count: Int? { components.count }
-    var isAtEnd: Bool { currentIndex == components.endIndex }
+    var count: Int? {
+      components.count
+    }
+
+    var isAtEnd: Bool {
+      currentIndex == components.endIndex
+    }
 
     let components: [Substring]
     let codingPath: [CodingKey]
@@ -393,7 +403,9 @@ private extension MetadataDecoder {
   }
 
   struct UnkeyedDecoder: Decoder {
-    var userInfo: [CodingUserInfoKey: Any] { [:] }
+    var userInfo: [CodingUserInfoKey: Any] {
+      [:]
+    }
 
     let components: [Substring]
     var codingPath: [CodingKey]
@@ -503,7 +515,9 @@ private extension MetadataDecoder {
   }
 
   struct SingleValueDecoder: Decoder {
-    var userInfo: [CodingUserInfoKey: Any] { [:] }
+    var userInfo: [CodingUserInfoKey: Any] {
+      [:]
+    }
 
     let value: String
     let codingPath: [CodingKey]
