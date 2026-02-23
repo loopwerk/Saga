@@ -65,6 +65,8 @@ public class Saga: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
+  ///     Append `/**` (e.g. `"photos/**"`) to create a separate processing step for each subfolder.
+  ///     Each subfolder gets its own scoped `items` array, `previous`/`next` navigation, and writers.
   ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.

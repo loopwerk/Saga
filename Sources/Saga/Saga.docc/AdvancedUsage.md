@@ -1,13 +1,52 @@
-# Programmatic Items
+# Advanced Usage
+
+Tips and techniques for more complex Saga setups.
+
+## Nested subfolder processing
+
+When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — append `/**` to the folder path:
+
+```swift
+try await Saga(input: "content", output: "deploy")
+  .register(
+    folder: "photos/**",
+    metadata: PhotoMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [
+      .listWriter(swim(renderPhotoList)),
+    ]
+  )
+  .run()
+  .staticFiles()
+```
+
+Given a directory layout like:
+
+```
+content/
+  photos/
+    vacation/
+      photo1.md
+      photo2.md
+    birthday/
+      photo3.md
+      photo4.md
+```
+
+Saga creates a separate processing step for `photos/vacation` and `photos/birthday`. Each step sees only its own items, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
+
+Without the `/**` suffix, `folder: "photos"` would treat every Markdown file under `photos/` as part of a single flat collection.
+
+## Programmatic Items
 
 Create items from APIs, databases, or any async data source — without files on disk.
 
-## Overview
+### Overview
 Saga's pipeline is traditionally file-driven: ``Reader``s parse files into ``Item`` instances. But sometimes your content doesn't live on disk. You might want to pull data from a REST API, a database, or generate items in code.
 
 The `register(fetch:writers:)` method lets you do exactly that. It takes an async closure that returns an array of items, and feeds them into the same writer pipeline as file-based items.
 
-## Creating items
+### Creating items
 
 Use the convenience initializer on ``Item`` to create items programmatically:
 
@@ -36,7 +75,7 @@ let item = Item(
 
 The `relativeDestination` controls both where the file is written and what ``Item/url`` returns, so set it to wherever you want the item to live in your site.
 
-## Fetching from an API
+### Fetching from an API
 
 Here's a complete example that fetches music videos from the iTunes API:
 
@@ -83,7 +122,7 @@ func fetchVideos() async throws -> [Item<MusicVideoMetadata>] {
 }
 ```
 
-## Registering the fetch step
+### Registering the fetch step
 
 Use `register(fetch:writers:)` just like you would a file-based `register` call:
 
@@ -103,7 +142,7 @@ try await Saga(input: "content", output: "deploy")
 
 You can freely mix file-based and fetch-based steps. All items — regardless of how they were created — are available via ``Saga/allItems`` and passed to every writer's `allItems` parameter.
 
-## Accessing all items
+### Accessing all items
 
 After `run()` completes, ``Saga/allItems`` contains every item from every registered step, sorted by date descending. This is useful when you need cross-step access, for example showing fetched items on a file-based page:
 
