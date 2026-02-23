@@ -27,7 +27,12 @@ class AnyProcessStep {
   let runReaders: () async throws -> Void
   let runWriters: () async throws -> Void
 
-  init<M: Metadata>(step: ProcessStep<M>, fileStorage: [FileContainer], inputPath: Path, outputPath: Path, itemWriteMode: ItemWriteMode, fileIO: FileIO) {
+  /// File-based processing step: reads files from disk, creates Items, appends to saga.allItems.
+  init<M: Metadata>(step: ProcessStep<M>, saga: Saga, itemWriteMode: ItemWriteMode) {
+    let fileStorage = saga.fileStorage
+    let outputPath = saga.outputPath
+    let fileIO = saga.fileIO
+
     runReaders = {
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
 
@@ -81,7 +86,7 @@ class AnyProcessStep {
               // Store the generated Item if it passes the filter
               if step.filter(item) {
                 container.handled = !reader.copySourceFiles
-                container.item = item
+                container._item = item
                 return (index, item)
               } else {
                 if step.filteredOutItemsAreHandled {
@@ -114,17 +119,38 @@ class AnyProcessStep {
       }
 
       step.items = items.sorted(by: step.sorting)
+      saga.allItems.append(contentsOf: step.items)
     }
 
     runWriters = {
-      let allItems = fileStorage
-        .compactMap(\.item)
-        .sorted(by: { left, right in left.date > right.date })
-
       try await withThrowingTaskGroup(of: Void.self) { group in
         for writer in step.writers {
           group.addTask {
-            try await writer.run(step.items, allItems, fileStorage, outputPath, step.folder ?? "", fileIO)
+            try await writer.run(step.items, saga.allItems, fileStorage, outputPath, step.folder ?? "", fileIO)
+          }
+        }
+        try await group.waitForAll()
+      }
+    }
+  }
+
+  /// Programmatic processing step: fetches items from an async closure, appends to saga.allItems.
+  init<M: Metadata>(fetch: @escaping () async throws -> [Item<M>], sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>], saga: Saga) {
+    var items: [Item<M>] = []
+
+    runReaders = {
+      items = try await fetch().sorted(by: sorting)
+      saga.allItems.append(contentsOf: items)
+    }
+
+    runWriters = {
+      let outputPath = saga.outputPath
+      let fileIO = saga.fileIO
+
+      try await withThrowingTaskGroup(of: Void.self) { group in
+        for writer in writers {
+          group.addTask {
+            try await writer.run(items, saga.allItems, saga.fileStorage, outputPath, "", fileIO)
           }
         }
         try await group.waitForAll()

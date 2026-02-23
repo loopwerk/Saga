@@ -84,6 +84,7 @@ Saga allows you to:
 - Define multiple content types with different metadata
 - Build archive pages, tag pages, feeds, and indexes
 - Swap in different readers and renderers
+- Load content programmatically and/or from disk
 - Keep everything enforced by the compiler
 
 ### Typed metadata (when you need it)
@@ -101,6 +102,27 @@ Each content type can be indexed, paginated, or grouped independently.
 Few static site generators can model diverse content like this while keeping everything type-safe. Saga can.
 
 See the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a complete site with articles, server-side syntax highlighting of code blocks, tags, pagination, an app portfolio, and RSS feeds.
+
+### Programmatic content
+
+Not all content lives on disk. Saga can fetch items from APIs, databases, or any async data source and feed them through the same writer pipeline:
+
+```swift
+try await Saga(input: "content", output: "deploy")
+  .register(
+    metadata: VideoMetadata.self,
+    fetch: fetchVideosFromAPI,
+    writers: [
+      .itemWriter(swim(renderVideo)),
+      .listWriter(swim(renderVideoList), output: "videos/index.html"),
+    ]
+  )
+  .run()
+```
+
+File-based and programmatic steps can be freely mixed. All items are available via `saga.allItems` after `run()` completes.
+
+The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includes a working iTunes API integration, and the [programmatic items guide](https://loopwerk.github.io/Saga/documentation/saga/programmaticitems) has a full walkthrough.
 
 
 ## Documentation

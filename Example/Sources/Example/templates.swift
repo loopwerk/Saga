@@ -47,6 +47,7 @@ func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConverti
             a(href: "/articles/") { "Articles" }
             a(href: "/apps/") { "Apps" }
             a(href: "/photos/") { "Photos" }
+            a(href: "/videos/") { "Videos" }
             a(href: "/about/") { "About" }
           }
         }
@@ -232,8 +233,8 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
   let imageSrc = "../\(context.item.relativeSource.lastComponent)"
 
   return baseHtml(title: context.item.title) {
-    div(class: "photo-page") {
-      div(class: "photo-nav") {
+    div(class: "detail-page") {
+      div(class: "detail-nav") {
         if let previous = context.previous {
           a(class: "nav-prev", href: previous.url) { "\u{2190}" }
         }
@@ -249,6 +250,56 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
 
       div(class: "photo-full") {
         img(alt: context.item.title, src: imageSrc)
+      }
+    }
+  }
+}
+
+// MARK: - Beatles music videos
+
+func renderBeatles(context: ItemsRenderingContext<MusicVideoMetadata>) -> Node {
+  baseHtml(title: "Beatles Videos") {
+    h1 { "Beatles Videos" }
+    div(class: "video-grid") {
+      context.items.map { video in
+        a(class: "video-card", href: video.url) {
+          img(alt: video.title, loading: "lazy", src: video.metadata.artworkUrl)
+          div(class: "video-info") {
+            h3 { video.title }
+            p { "\(video.metadata.artistName) (\(video.date.formatted("yyyy")))" }
+          }
+        }
+      }
+    }
+  }
+}
+
+func renderVideo(context: ItemRenderingContext<MusicVideoMetadata>) -> Node {
+  baseHtml(title: context.item.title) {
+    div(class: "detail-page") {
+      div(class: "detail-nav") {
+        if let previous = context.previous {
+          a(class: "nav-prev", href: previous.url) { "\u{2190}" }
+        }
+
+        a(class: "nav-close", href: "/videos/") { "\u{2715}" }
+
+        if let next = context.next {
+          a(class: "nav-next", href: next.url) { "\u{2192}" }
+        }
+      }
+
+      div(class: "video-detail") {
+        video(controls: true, preload: "metadata") {
+          source(src: context.item.metadata.previewUrl, type: "video/mp4")
+        }
+        h1 { context.item.title }
+        p(class: "video-meta") {
+          "\(context.item.metadata.artistName) (\(context.item.date.formatted("yyyy")))"
+        }
+        p {
+          a(href: context.item.metadata.trackViewUrl, target: "_blank") { "View on Apple Music" }
+        }
       }
     }
   }

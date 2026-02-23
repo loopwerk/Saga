@@ -4,13 +4,20 @@ import PathKit
 public class FileContainer {
   public let path: Path
   public let relativePath: Path
-  public internal(set) var item: AnyItem?
+
+  @available(*, deprecated, message: "Use saga.allItems instead")
+  public internal(set) var item: AnyItem? {
+    get { _item }
+    set { _item = newValue }
+  }
+  var _item: AnyItem?
+
   public var handled: Bool
 
   init(path: Path, relativePath: Path) {
     self.path = path
     self.relativePath = relativePath
-    item = nil
+    _item = nil
     handled = false
   }
 }

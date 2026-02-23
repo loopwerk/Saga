@@ -37,6 +37,9 @@ public class Saga: @unchecked Sendable {
   /// An array of all file containters.
   public let fileStorage: [FileContainer]
 
+  /// All items across all registered processing steps.
+  public internal(set) var allItems: [AnyItem] = []
+
   var processSteps = [AnyProcessStep]()
   let fileIO: FileIO
 
@@ -93,11 +96,8 @@ public class Saga: @unchecked Sendable {
         processSteps.append(
           .init(
             step: step,
-            fileStorage: fileStorage,
-            inputPath: inputPath,
-            outputPath: outputPath,
-            itemWriteMode: itemWriteMode,
-            fileIO: fileIO
+            saga: self,
+            itemWriteMode: itemWriteMode
           )
         )
       }
@@ -106,14 +106,27 @@ public class Saga: @unchecked Sendable {
       processSteps.append(
         .init(
           step: step,
-          fileStorage: fileStorage,
-          inputPath: inputPath,
-          outputPath: outputPath,
-          itemWriteMode: itemWriteMode,
-          fileIO: fileIO
+          saga: self,
+          itemWriteMode: itemWriteMode
         )
       )
     }
+    return self
+  }
+
+  /// Register a processing step that fetches items programmatically instead of reading from files.
+  ///
+  /// - Parameters:
+  ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - fetch: An async function that returns an array of items.
+  ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
+  ///   - writers: The writers that will be used by this step.
+  /// - Returns: The Saga instance itself, so you can chain further calls onto it.
+  @discardableResult
+  public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping () async throws -> [Item<M>], sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
+    processSteps.append(
+      .init(fetch: fetch, sorting: sorting, writers: writers, saga: self)
+    )
     return self
   }
 
@@ -132,6 +145,9 @@ public class Saga: @unchecked Sendable {
     let readEnd = DispatchTime.now()
     let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
     print("\(Date()) | Finished readers in \(Double(readTime) / 1_000_000_000)s")
+
+    // Sort all items by date descending
+    allItems.sort { $0.date > $1.date }
 
     // Clean the output folder
     try fileIO.deletePath(outputPath)

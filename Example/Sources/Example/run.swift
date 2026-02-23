@@ -21,6 +21,13 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
+struct MusicVideoMetadata: Metadata {
+  let artworkUrl: String
+  let previewUrl: String
+  let trackViewUrl: String
+  let artistName: String
+}
+
 struct AlbumMetadata: Metadata {}
 struct PhotoMetadata: Metadata {}
 
@@ -86,6 +93,16 @@ struct Run {
         ]
       )
 
+      // Fetch Beatles videos from iTunes and render them
+      .register(
+        metadata: MusicVideoMetadata.self,
+        fetch: fetchBeatlesVideos,
+        writers: [
+          .itemWriter(swim(renderVideo)),
+          .listWriter(swim(renderBeatles), output: "videos/index.html"),
+        ]
+      )
+
       // All the remaining markdown files will be parsed to html,
       // using the default EmptyMetadata as the Item's metadata type.
       .register(
@@ -96,6 +113,7 @@ struct Run {
 
       // Run the steps we registered above
       .run()
+
       // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
       // are copied as-is to the output folder.
       .staticFiles()
