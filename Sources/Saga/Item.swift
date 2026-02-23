@@ -68,6 +68,28 @@ public class Item<M: Metadata>: AnyItem {
     self.metadata = metadata
   }
 
+  /// Create an Item programmatically (without reading from a file).
+  ///
+  /// - Parameters:
+  ///   - title: The title of the item.
+  ///   - body: The body content. Defaults to an empty string.
+  ///   - date: The date of the item. Defaults to the current date.
+  ///   - relativeDestination: The output path relative to the site's output folder. Defaults to `title-slug/index.html`.
+  ///   - metadata: The parsed metadata.
+  public convenience init(title: String, body: String = "", date: Date = Date(), relativeDestination: Path? = nil, metadata: M) {
+    self.init(
+      absoluteSource: Path(""),
+      relativeSource: Path(""),
+      relativeDestination: relativeDestination ?? Path("\(title.slugified)/index.html"),
+      title: title,
+      body: body,
+      date: date,
+      created: date,
+      lastModified: date,
+      metadata: metadata
+    )
+  }
+
   public var filenameWithoutExtension: String {
     relativeSource.lastComponentWithoutExtension
   }

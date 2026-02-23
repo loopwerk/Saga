@@ -59,11 +59,12 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(saga.outputPath, "root/output")
     XCTAssertEqual(saga.fileStorage.count, 3)
     XCTAssertEqual(saga.fileStorage[0].path, "test.md")
-    XCTAssertNil(saga.fileStorage[0].item)
+    XCTAssertNil(saga.fileStorage[0]._item)
     XCTAssertEqual(saga.fileStorage[1].path, "test2.md")
-    XCTAssertNil(saga.fileStorage[1].item)
+    XCTAssertNil(saga.fileStorage[1]._item)
     XCTAssertEqual(saga.fileStorage[2].path, "style.css")
-    XCTAssertNil(saga.fileStorage[2].item)
+    XCTAssertNil(saga.fileStorage[2]._item)
+    XCTAssertEqual(saga.allItems.count, 0)
     XCTAssertEqual(deletePathCalled, false)
   }
 
@@ -103,14 +104,19 @@ final class SagaTests: XCTestCase {
       )
       .run()
 
-    // The readers turn Markdown files into Items and store them in the fileStorage
+    // The readers turn Markdown files into Items
+    XCTAssertEqual(saga.allItems.count, 2)
+    XCTAssertEqual(saga.allItems[0].body, "<p>test2.md</p>")
+    XCTAssertEqual(saga.allItems[1].body, "<p>test.md</p>")
+
+    // FileStorage still tracks handled state
     XCTAssertEqual(saga.fileStorage.count, 3)
     XCTAssertEqual(saga.fileStorage[0].path, "test.md")
-    XCTAssertEqual(saga.fileStorage[0].item?.body, "<p>test.md</p>")
+    XCTAssertNotNil(saga.fileStorage[0]._item)
     XCTAssertEqual(saga.fileStorage[1].path, "test2.md")
-    XCTAssertEqual(saga.fileStorage[1].item?.body, "<p>test2.md</p>")
+    XCTAssertNotNil(saga.fileStorage[1]._item)
     XCTAssertEqual(saga.fileStorage[2].path, "style.css")
-    XCTAssertNil(saga.fileStorage[2].item)
+    XCTAssertNil(saga.fileStorage[2]._item)
 
     XCTAssertEqual(deletePathCalled, true)
 
@@ -229,7 +235,7 @@ final class SagaTests: XCTestCase {
       )
       .run()
 
-    XCTAssertEqual(saga.fileStorage[0].item?.date, formatter.date(from: "2025-01-02"))
+    XCTAssertEqual(saga.allItems.first?.date, formatter.date(from: "2025-01-02"))
   }
 
   func testYearWriter() async throws {
@@ -338,8 +344,9 @@ final class SagaTests: XCTestCase {
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(saga.fileStorage[0].item?.relativeDestination, "test.html")
-    XCTAssertEqual(saga.fileStorage[1].item?.relativeDestination, "test2.html")
+    let items = saga.allItems
+    XCTAssertEqual(items.first(where: { $0.title == "Test" && $0.relativeSource == "test.md" })?.relativeDestination, "test.html")
+    XCTAssertEqual(items.first(where: { $0.title == "Test" && $0.relativeSource == "test2.md" })?.relativeDestination, "test2.html")
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test.html", content: "<p>test.md</p>")))
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2.html", content: "<p>test2.md</p>")))
   }
@@ -499,6 +506,89 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual("ONE-TWO".slugified, "one-two")
   }
 
+  func testRegisterFetch() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        fetch: {
+          [
+            Item(title: "Fetched One", body: "<p>one</p>", date: Date(timeIntervalSince1970: 1_704_106_800), metadata: EmptyMetadata()),
+            Item(title: "Fetched Two", body: "<p>two</p>", date: Date(timeIntervalSince1970: 1_735_729_200), metadata: EmptyMetadata()),
+          ]
+        },
+        writers: [
+          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "fetched/index.html"),
+        ]
+      )
+      .run()
+
+    // Items are sorted by date descending
+    XCTAssertEqual(saga.allItems.count, 2)
+    XCTAssertEqual(saga.allItems[0].title, "Fetched Two")
+    XCTAssertEqual(saga.allItems[1].title, "Fetched One")
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 1)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/fetched/index.html", content: "<p>two</p><p>one</p>")))
+  }
+
+  func testRegisterFetchWithFileBasedItems() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .register(
+        metadata: EmptyMetadata.self,
+        fetch: {
+          [
+            Item(title: "Remote Item", body: "<p>remote</p>", date: Date(timeIntervalSince1970: 1_720_000_000), metadata: EmptyMetadata()),
+          ]
+        },
+        writers: [
+          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "remote/index.html"),
+        ]
+      )
+      .run()
+
+    // allItems contains both file-based and fetched items, sorted by date descending
+    XCTAssertEqual(saga.allItems.count, 3)
+    XCTAssertEqual(saga.allItems[0].title, "Test") // test2.md 2025
+    XCTAssertEqual(saga.allItems[1].title, "Remote Item") // 2024-07
+    XCTAssertEqual(saga.allItems[2].title, "Test") // test.md 2024
+
+    // Writers for both steps should have run
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 3)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<p>test2.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/remote/index.html", content: "<p>remote</p>")))
+  }
+
   static var allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
@@ -507,5 +597,7 @@ final class SagaTests: XCTestCase {
     ("testTagWriter", testTagWriter),
     ("testWriteMode", testWriteMode),
     ("testSlugified", testSlugified),
+    ("testRegisterFetch", testRegisterFetch),
+    ("testRegisterFetchWithFileBasedItems", testRegisterFetchWithFileBasedItems),
   ]
 }

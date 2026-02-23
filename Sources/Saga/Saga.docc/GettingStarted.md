@@ -164,7 +164,7 @@ It's very easy to add your own step to Saga where you can access the items and r
 extension Saga {
   @discardableResult
   func createArticleImages() -> Self {
-    let articles = fileStorage.compactMap { $0.item as? Item<ArticleMetadata> }
+    let articles = allItems.compactMap { $0 as? Item<ArticleMetadata> }
 
     for article in articles {
       let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
