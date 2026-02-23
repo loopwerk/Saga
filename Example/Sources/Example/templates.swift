@@ -255,7 +255,7 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
   }
 }
 
-// MARK: - Beatles music videos
+// MARK: - Beatles videos
 
 func renderBeatles(context: ItemsRenderingContext<MusicVideoMetadata>) -> Node {
   baseHtml(title: "Beatles Videos") {
