@@ -77,11 +77,10 @@ public class Item<M: Metadata>: AnyItem {
   ///   - relativeDestination: The output path relative to the site's output folder. Defaults to `title-slug/index.html`.
   ///   - metadata: The parsed metadata.
   public convenience init(title: String, body: String = "", date: Date = Date(), relativeDestination: Path? = nil, metadata: M) {
-    let slug = title.slugified
     self.init(
       absoluteSource: Path(""),
       relativeSource: Path(""),
-      relativeDestination: relativeDestination ?? Path("\(slug)/index.html"),
+      relativeDestination: relativeDestination ?? Path("\(title.slugified)/index.html"),
       title: title,
       body: body,
       date: date,
