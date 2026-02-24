@@ -205,6 +205,7 @@ public class Saga: @unchecked Sendable {
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
+    let totalStart = DispatchTime.now()
     print("\(Date()) | Starting run")
 
     // Run all the readers for all the steps sequentially to ensure proper order,
@@ -216,7 +217,7 @@ public class Saga: @unchecked Sendable {
 
     let readEnd = DispatchTime.now()
     let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
-    print("\(Date()) | Finished readers in \(Double(readTime) / 1_000_000_000)s")
+    print("\(Date()) | Finished read phase in \(Double(readTime) / 1_000_000_000)s")
 
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
@@ -224,22 +225,8 @@ public class Saga: @unchecked Sendable {
     // Clean the output folder
     try fileIO.deletePath(outputPath)
 
-    // And run all the writers for all the steps, using those stored Items.
-    let writeStart = DispatchTime.now()
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      for step in processSteps {
-        group.addTask {
-          try await step.runWriters()
-        }
-      }
-      try await group.waitForAll()
-    }
-
-    let writeEnd = DispatchTime.now()
-    let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
-    print("\(Date()) | Finished writers in \(Double(writeTime) / 1_000_000_000)s")
-
-    // Copy all unhandled files as-is to the output folder
+    // Copy all unhandled files as-is to the output folder first,
+    // so that the directory structure exists for the write phase.
     let copyStart = DispatchTime.now()
 
     let unhandledPaths = fileStorage
@@ -262,6 +249,25 @@ public class Saga: @unchecked Sendable {
     let copyEnd = DispatchTime.now()
     let copyTime = copyEnd.uptimeNanoseconds - copyStart.uptimeNanoseconds
     print("\(Date()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
+
+    // And run all the writers for all the steps, using those stored Items.
+    let writeStart = DispatchTime.now()
+    try await withThrowingTaskGroup(of: Void.self) { group in
+      for step in processSteps {
+        group.addTask {
+          try await step.runWriters()
+        }
+      }
+      try await group.waitForAll()
+    }
+
+    let writeEnd = DispatchTime.now()
+    let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
+    print("\(Date()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
+
+    let totalEnd = DispatchTime.now()
+    let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds
+    print("\(Date()) | All done in \(Double(totalTime) / 1_000_000_000)s")
 
     return self
   }
