@@ -129,6 +129,31 @@ public class Saga: @unchecked Sendable {
     return self
   }
 
+  /// Create a template-driven page without needing an ``Item`` or markdown file.
+  ///
+  /// Use this for pages that are purely driven by a template, such as a homepage showing the latest articles,
+  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
+  /// across all processing steps.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(
+  ///     folder: "articles",
+  ///     metadata: ArticleMetadata.self,
+  ///     readers: [.parsleyMarkdownReader],
+  ///     writers: [.listWriter(swim(renderArticles))]
+  ///   )
+  ///   .createPage("index.html", using: swim(renderHome))
+  ///   .run()
+  /// ```
+  @discardableResult
+  public func createPage(_ output: Path, using renderer: @escaping (PageRenderingContext) async throws -> String) -> Self {
+    processSteps.append(
+      .init(output: output, renderer: renderer, saga: self)
+    )
+    return self
+  }
+  
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
@@ -190,31 +215,6 @@ public class Saga: @unchecked Sendable {
     let copyTime = copyEnd.uptimeNanoseconds - copyStart.uptimeNanoseconds
     print("\(Date()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
 
-    return self
-  }
-
-  /// Create a template-driven page without needing an ``Item`` or markdown file.
-  ///
-  /// Use this for pages that are purely driven by a template, such as a homepage showing the latest articles,
-  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
-  /// across all processing steps.
-  ///
-  /// ```swift
-  /// try await Saga(input: "content", output: "deploy")
-  ///   .register(
-  ///     folder: "articles",
-  ///     metadata: ArticleMetadata.self,
-  ///     readers: [.parsleyMarkdownReader],
-  ///     writers: [.listWriter(swim(renderArticles))]
-  ///   )
-  ///   .createPage("index.html", using: swim(renderHome))
-  ///   .run()
-  /// ```
-  @discardableResult
-  public func createPage(_ output: Path, using renderer: @escaping (PageRenderingContext) async throws -> String) -> Self {
-    processSteps.append(
-      .init(output: output, renderer: renderer, saga: self)
-    )
     return self
   }
 
