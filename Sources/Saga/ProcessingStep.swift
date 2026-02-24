@@ -134,38 +134,13 @@ class AnyProcessStep {
     }
   }
 
-  /// Template-driven page step: no items, just renders a template to an output path.
-  init(output: Path, renderer: @escaping (PageRenderingContext) async throws -> String, saga: Saga) {
-    runReaders = { }
-
-    runWriters = {
-      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
-      let stringToWrite = try await renderer(context)
-      try saga.fileIO.write(saga.outputPath + output, stringToWrite)
-    }
-  }
-
-  /// Programmatic processing step: fetches items from an async closure, appends to saga.allItems.
-  init<M: Metadata>(fetch: @escaping () async throws -> [Item<M>], sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>], saga: Saga) {
-    var items: [Item<M>] = []
-
+  /// Custom processing step with user-provided read and write closures.
+  init(read: @escaping (Saga) async throws -> Void, write: @escaping (Saga) async throws -> Void, saga: Saga) {
     runReaders = {
-      items = try await fetch().sorted(by: sorting)
-      saga.allItems.append(contentsOf: items)
+      try await read(saga)
     }
-
     runWriters = {
-      let outputPath = saga.outputPath
-      let fileIO = saga.fileIO
-
-      try await withThrowingTaskGroup(of: Void.self) { group in
-        for writer in writers {
-          group.addTask {
-            try await writer.run(items, saga.allItems, saga.fileStorage, outputPath, "", fileIO)
-          }
-        }
-        try await group.waitForAll()
-      }
+      try await write(saga)
     }
   }
 }

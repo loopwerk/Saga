@@ -2,39 +2,118 @@
 
 Tips and techniques for more complex Saga setups.
 
-## Nested subfolder processing
+## Item processors
 
-When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — append `/**` to the folder path:
+Use an `itemProcessor` to modify items after they are read but before they are written. This is useful for transforming titles, adjusting dates, setting metadata, or any per-item logic.
+
+```swift
+func addExclamationToTitle(item: Item<EmptyMetadata>) async {
+  // Do whatever you want with the Item - you can even use async functions and await them!
+  item.title.append("!")
+}
+
+@main
+struct Run {
+  static func main() async throws {
+    try await Saga(input: "content", output: "deploy")
+      .register(
+        readers: [.parsleyMarkdownReader],
+        itemProcessor: addExclamationToTitle,
+        writers: [.itemWriter(swim(renderItem))]
+      )
+      .run()
+  }
+}
+```
+
+
+## Template-driven pages
+
+Create pages that are purely template-driven — no markdown file or ``Item`` needed.
+
+### Overview
+
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
+
+### Basic usage
+
+Use ``Saga/createPage(_:using:)`` to render a template to a specific output path:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
   .register(
-    folder: "photos/**",
-    metadata: PhotoMetadata.self,
+    folder: "articles",
+    metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [
-      .listWriter(swim(renderPhotoList)),
+      .itemWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles)),
     ]
   )
+  .createPage("index.html", using: swim(renderHome))
+  .createPage("404.html", using: swim(render404))
   .run()
 ```
 
-Given a directory layout like:
+The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingContext/allItems`` (all items across all processing steps) and ``PageRenderingContext/outputPath``.
 
+### When to use createPage vs. register
+
+Use ``Saga/createPage(_:using:)`` when:
+- The page has no corresponding content file (no markdown, no frontmatter)
+- The page is purely template-driven, possibly pulling in items from other steps
+- You want to render a page like a homepage, search page, sitemap, or 404 page
+
+Use `register` when:
+- Content comes from files on disk or a programmatic data source
+- You need the full ``Item`` pipeline (readers, processors, filters, writers)
+
+
+## Custom processing steps
+
+Register custom logic as part of Saga's pipeline, running alongside the built-in steps.
+
+### Write-only steps
+
+The most common use case is running custom code during the [write phase](doc:Architecture), after all items have been read and sorted. Use `register` with a trailing closure:
+
+```swift
+try await Saga(input: "content", output: "deploy")
+  .register(
+    folder: "articles",
+    metadata: ArticleMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [.itemWriter(swim(renderArticle))]
+  )
+  .register { saga in
+    let articles = saga.allItems.compactMap { $0 as? Item<ArticleMetadata> }
+    for article in articles {
+      let destination = (saga.outputPath + article.relativeDestination.parent()).string + ".png"
+      // generate an image and write it to `destination`
+    }
+  }
+  .run()
 ```
-content/
-  photos/
-    vacation/
-      photo1.md
-      photo2.md
-    birthday/
-      photo3.md
-      photo4.md
+
+The closure receives the ``Saga`` instance with access to ``Saga/allItems``, ``Saga/outputPath``, and everything else you need.
+
+### Read and write steps
+
+If your custom step needs to run code during both the read phase and the write phase, provide both closures:
+
+```swift
+.register(
+  read: { saga in
+    // runs during the read phase, before items are sorted
+  },
+  write: { saga in
+    // runs during the write phase, after all readers have finished
+  }
+)
 ```
 
-Saga creates a separate processing step for `photos/vacation` and `photos/birthday`. Each step sees only its own items, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
+> tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io) for more inspiration.
 
-Without the `/**` suffix, `folder: "photos"` would treat every Markdown file under `photos/` as part of a single flat collection.
 
 ## Programmatic Items
 
@@ -141,43 +220,36 @@ try await Saga(input: "content", output: "deploy")
 You can freely mix file-based and fetch-based steps. All items — regardless of how they were created — are available via ``Saga/allItems`` and passed to every writer's `allItems` parameter.
 
 
-## Template-driven pages
+## Nested subfolder processing
 
-Create pages that are purely template-driven — no markdown file or ``Item`` needed.
-
-### Overview
-
-Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
-
-### Basic usage
-
-Use ``Saga/createPage(_:using:)`` to render a template to a specific output path:
+When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — append `/**` to the folder path:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
   .register(
-    folder: "articles",
-    metadata: ArticleMetadata.self,
+    folder: "photos/**",
+    metadata: PhotoMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [
-      .itemWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles)),
+      .listWriter(swim(renderPhotoList)),
     ]
   )
-  .createPage("index.html", using: swim(renderHome))
-  .createPage("404.html", using: swim(render404))
   .run()
 ```
 
-The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingContext/allItems`` (all items across all processing steps) and ``PageRenderingContext/outputPath``.
+Given a directory layout like:
 
-### When to use createPage vs. register
+```
+content/
+  photos/
+    vacation/
+      photo1.md
+      photo2.md
+    birthday/
+      photo3.md
+      photo4.md
+```
 
-Use ``Saga/createPage(_:using:)`` when:
-- The page has no corresponding content file (no markdown, no frontmatter)
-- The page is purely template-driven, possibly pulling in items from other steps
-- You want to render a page like a homepage, search page, sitemap, or 404 page
+Saga creates a separate processing step for `photos/vacation` and `photos/birthday`. Each step sees only its own items, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
 
-Use `register` when:
-- Content comes from files on disk or a programmatic data source
-- You need the full ``Item`` pipeline (readers, processors, filters, writers)
+Without the `/**` suffix, `folder: "photos"` would treat every Markdown file under `photos/` as part of a single flat collection.
