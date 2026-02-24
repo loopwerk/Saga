@@ -15,12 +15,9 @@ import PathKit
 ///         writers: [.itemWriter(swim(renderPage))]
 ///       )
 ///
-///       // Run the step we registered above
+///       // Run the steps we registered above.
+///       // Static files (images, css, etc.) are copied automatically.
 ///       .run()
-///
-///       // All the remaining files that were not parsed to markdown, so for example images, raw html files and css,
-///       // are copied as-is to the output folder.
-///       .staticFiles()
 ///   }
 /// }
 /// ```
@@ -169,41 +166,8 @@ public class Saga: @unchecked Sendable {
     let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
     print("\(Date()) | Finished writers in \(Double(writeTime) / 1_000_000_000)s")
 
-    return self
-  }
-
-  /// Create a template-driven page without needing an ``Item`` or markdown file.
-  ///
-  /// Use this for pages that are purely driven by a template, such as a homepage showing the latest articles,
-  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
-  /// across all processing steps.
-  ///
-  /// This method should be called after ``run()`` so that all items are available.
-  ///
-  /// ```swift
-  /// try await Saga(input: "content", output: "deploy")
-  ///   .register(
-  ///     folder: "articles",
-  ///     metadata: ArticleMetadata.self,
-  ///     readers: [.parsleyMarkdownReader],
-  ///     writers: [.listWriter(swim(renderArticles))]
-  ///   )
-  ///   .run()
-  ///   .createPage("index.html", using: swim(renderHome))
-  ///   .staticFiles()
-  /// ```
-  @discardableResult
-  public func createPage(_ output: Path, using renderer: @escaping (PageRenderingContext) async throws -> String) async throws -> Self {
-    let context = PageRenderingContext(allItems: allItems, outputPath: output)
-    let stringToWrite = try await renderer(context)
-    try fileIO.write(outputPath + output, stringToWrite)
-    return self
-  }
-
-  /// Copy all unhandled files as-is to the output folder.
-  @discardableResult
-  public func staticFiles() async throws -> Self {
-    let start = DispatchTime.now()
+    // Copy all unhandled files as-is to the output folder
+    let copyStart = DispatchTime.now()
 
     let unhandledPaths = fileStorage
       .filter { $0.handled == false }
@@ -222,10 +186,42 @@ public class Saga: @unchecked Sendable {
       try await group.waitForAll()
     }
 
-    let end = DispatchTime.now()
-    let time = end.uptimeNanoseconds - start.uptimeNanoseconds
-    print("\(Date()) | Finished copying static files in \(Double(time) / 1_000_000_000)s")
+    let copyEnd = DispatchTime.now()
+    let copyTime = copyEnd.uptimeNanoseconds - copyStart.uptimeNanoseconds
+    print("\(Date()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
 
+    return self
+  }
+
+  /// Create a template-driven page without needing an ``Item`` or markdown file.
+  ///
+  /// Use this for pages that are purely driven by a template, such as a homepage showing the latest articles,
+  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
+  /// across all processing steps.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(
+  ///     folder: "articles",
+  ///     metadata: ArticleMetadata.self,
+  ///     readers: [.parsleyMarkdownReader],
+  ///     writers: [.listWriter(swim(renderArticles))]
+  ///   )
+  ///   .createPage("index.html", using: swim(renderHome))
+  ///   .run()
+  /// ```
+  @discardableResult
+  public func createPage(_ output: Path, using renderer: @escaping (PageRenderingContext) async throws -> String) -> Self {
+    processSteps.append(
+      .init(output: output, renderer: renderer, saga: self)
+    )
+    return self
+  }
+
+  /// Deprecated: static files are now copied automatically by ``run()``.
+  @available(*, deprecated, message: "Static files are now copied automatically by run(). You can remove this call.")
+  @discardableResult
+  public func staticFiles() async throws -> Self {
     return self
   }
 }

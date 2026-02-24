@@ -65,7 +65,6 @@ enum ProjectTemplate {
             writers: [.itemWriter(swim(renderPage))]
           )
           .run()
-          .staticFiles()
       }
     }
     """

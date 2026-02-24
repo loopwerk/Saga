@@ -297,11 +297,14 @@ final class SagaTests: XCTestCase {
   }
 
   func testStaticFiles() async throws {
+    let writtenFilesQueue = DispatchQueue(label: "writtenFiles", attributes: .concurrent)
     var writtenFiles: [Path] = []
 
     var mock = FileIO.mock
     mock.copy = { origin, destination in
-      writtenFiles.append(destination)
+      writtenFilesQueue.sync(flags: .barrier) {
+        writtenFiles.append(destination)
+      }
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
@@ -314,9 +317,9 @@ final class SagaTests: XCTestCase {
         ]
       )
       .run()
-      .staticFiles()
 
-    XCTAssertEqual(writtenFiles, ["root/output/style.css"])
+    let finalWrittenFiles = writtenFilesQueue.sync { writtenFiles }
+    XCTAssertEqual(finalWrittenFiles, ["root/output/style.css"])
   }
 
   func testWriteMode() async throws {
@@ -608,7 +611,6 @@ final class SagaTests: XCTestCase {
           .itemWriter { context in context.item.body },
         ]
       )
-      .run()
       .createPage("index.html") { context in
         let titles = context.allItems.map(\.title).joined(separator: ", ")
         return "<h1>Home</h1><p>\(titles)</p>"
@@ -616,6 +618,7 @@ final class SagaTests: XCTestCase {
       .createPage("404.html") { _ in
         "<h1>Not Found</h1>"
       }
+      .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
 
@@ -639,10 +642,10 @@ final class SagaTests: XCTestCase {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .run()
       .createPage("search/index.html") { context in
         "\(context.outputPath)"
       }
+      .run()
 
     XCTAssertEqual(writtenPages.count, 1)
     XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/search/index.html", content: "search/index.html")))

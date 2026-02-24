@@ -17,7 +17,6 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .run()
-  .staticFiles()
 ```
 
 Given a directory layout like:
@@ -137,7 +136,6 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .run()
-  .staticFiles()
 ```
 
 You can freely mix file-based and fetch-based steps. All items — regardless of how they were created — are available via ``Saga/allItems`` and passed to every writer's `allItems` parameter.
@@ -152,11 +150,11 @@ Create pages that are purely template-driven — no markdown file or ``Item`` ne
 
 ### Overview
 
-Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages directly after `run()` completes.
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
 
 ### Basic usage
 
-Call ``Saga/createPage(_:using:)`` after ``Saga/run()`` to render a template to a specific output path:
+Call ``Saga/createPage(_:using:)`` alongside your `register` calls. Like `register`, it's declarative — it registers the page to be rendered when ``Saga/run()`` is called:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -169,7 +167,6 @@ try await Saga(input: "content", output: "deploy")
       .listWriter(swim(renderArticles)),
     ]
   )
-  .run()
   .createPage("index.html") { context in
     let articles = context.allItems.compactMap { $0 as? Item<ArticleMetadata> }
     return swim(renderHome)(articles)
@@ -177,7 +174,7 @@ try await Saga(input: "content", output: "deploy")
   .createPage("404.html") { _ in
     swim(render404)()
   }
-  .staticFiles()
+  .run()
 ```
 
 The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingContext/allItems`` (all items across all processing steps) and ``PageRenderingContext/outputPath``.
