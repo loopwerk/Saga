@@ -134,6 +134,17 @@ class AnyProcessStep {
     }
   }
 
+  /// Template-driven page step: no items, just renders a template to an output path.
+  init(output: Path, renderer: @escaping (PageRenderingContext) async throws -> String, saga: Saga) {
+    runReaders = { }
+
+    runWriters = {
+      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
+      let stringToWrite = try await renderer(context)
+      try saga.fileIO.write(saga.outputPath + output, stringToWrite)
+    }
+  }
+
   /// Programmatic processing step: fetches items from an async closure, appends to saga.allItems.
   init<M: Metadata>(fetch: @escaping () async throws -> [Item<M>], sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>], saga: Saga) {
     var items: [Item<M>] = []

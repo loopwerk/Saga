@@ -19,7 +19,6 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .run()
-  .staticFiles()
 ```
 
 Typed metadata, pluggable readers, multiple writer types, pagination, tags — all defined in Swift, readable top to bottom, and enforced by the compiler. No hidden defaults. No template logic you can't debug.

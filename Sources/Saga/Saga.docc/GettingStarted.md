@@ -33,12 +33,9 @@ struct Run {
         writers: [.itemWriter(swim(renderPage))]
       )
 
-      // Run the step we registered above
+      // Run the step we registered above.
+      // Static files (images, css, etc.) are copied automatically.
       .run()
-
-      // All the remaining files that were not parsed from markdown, so for example 
-      // images, raw html files and css, are copied as-is to the output folder.
-      .staticFiles()
   }
 }
 ```
@@ -125,12 +122,9 @@ struct Run {
         writers: [.itemWriter(swim(renderItem))]
       )
 
-      // Run the steps we registered above
+      // Run the steps we registered above.
+      // Static files (images, css, etc.) are copied automatically.
       .run()
-
-      // All the remaining files that were not parsed to markdown, so for example images,
-      // raw html files and css, are copied as-is to the output folder.
-      .staticFiles()
   }
 }
 ```

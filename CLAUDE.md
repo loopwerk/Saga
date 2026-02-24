@@ -102,5 +102,4 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .run()
-  .staticFiles()
 ```

@@ -17,7 +17,6 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .run()
-  .staticFiles()
 ```
 
 Given a directory layout like:
@@ -137,22 +136,48 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .run()
-  .staticFiles()
 ```
 
 You can freely mix file-based and fetch-based steps. All items — regardless of how they were created — are available via ``Saga/allItems`` and passed to every writer's `allItems` parameter.
 
-### Accessing all items
 
-After `run()` completes, ``Saga/allItems`` contains every item from every registered step, sorted by date descending. This is useful when you need cross-step access, for example showing fetched items on a file-based page:
+## Template-driven pages
+
+Create pages that are purely template-driven — no markdown file or ``Item`` needed.
+
+### Overview
+
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
+
+### Basic usage
+
+Use ``Saga/createPage(_:using:)`` to render a template to a specific output path:
 
 ```swift
-extension Saga {
-  @discardableResult
-  func createHomepage() -> Self {
-    let videos = allItems.compactMap { $0 as? Item<MusicVideoMetadata> }
-    // Use `videos` to generate a homepage section
-    return self
-  }
-}
+try await Saga(input: "content", output: "deploy")
+  .register(
+    folder: "articles",
+    metadata: ArticleMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [
+      .itemWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles)),
+    ]
+  )
+  .createPage("index.html", using: swim(renderHome))
+  .createPage("404.html", using: swim(render404))
+  .run()
 ```
+
+The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingContext/allItems`` (all items across all processing steps) and ``PageRenderingContext/outputPath``.
+
+### When to use createPage vs. register
+
+Use ``Saga/createPage(_:using:)`` when:
+- The page has no corresponding content file (no markdown, no frontmatter)
+- The page is purely template-driven, possibly pulling in items from other steps
+- You want to render a page like a homepage, search page, sitemap, or 404 page
+
+Use `register` when:
+- Content comes from files on disk or a programmatic data source
+- You need the full ``Item`` pipeline (readers, processors, filters, writers)
