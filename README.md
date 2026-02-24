@@ -84,6 +84,7 @@ Saga allows you to:
 - Build archive pages, tag pages, feeds, and indexes
 - Swap in different readers and renderers
 - Load content programmatically and/or from disk
+- Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build
 - Keep everything enforced by the compiler
 
 ### Typed metadata (when you need it)
@@ -121,7 +122,7 @@ try await Saga(input: "content", output: "deploy")
 
 File-based and programmatic steps can be freely mixed. All items are available via `saga.allItems` after `run()` completes.
 
-The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includes a working iTunes API integration, and the [programmatic items guide](https://loopwerk.github.io/Saga/documentation/saga/programmaticitems) has a full walkthrough.
+The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includes a working iTunes API integration, and the [programmatic items guide](https://loopwerk.github.io/Saga/documentation/saga/advancedusage#Programmatic-Items) has a full walkthrough.
 
 
 ## Documentation
