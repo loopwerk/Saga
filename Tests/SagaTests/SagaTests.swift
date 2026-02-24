@@ -589,6 +589,65 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/remote/index.html", content: "<p>remote</p>")))
   }
 
+  func testCreatePage() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+      .createPage("index.html") { context in
+        let titles = context.allItems.map(\.title).joined(separator: ", ")
+        return "<h1>Home</h1><p>\(titles)</p>"
+      }
+      .createPage("404.html") { _ in
+        "<h1>Not Found</h1>"
+      }
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // itemWriter wrote 2 items + createPage wrote 2 pages
+    XCTAssertEqual(finalWrittenPages.count, 4)
+
+    // The homepage has access to allItems
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/index.html", content: "<h1>Home</h1><p>Test, Test</p>")))
+
+    // The 404 page was written
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/404.html", content: "<h1>Not Found</h1>")))
+  }
+
+  func testCreatePageOutputPath() async throws {
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [] }
+    mock.write = { destination, content in
+      writtenPages.append(.init(destination: destination, content: content))
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .run()
+      .createPage("search/index.html") { context in
+        "\(context.outputPath)"
+      }
+
+    XCTAssertEqual(writtenPages.count, 1)
+    XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/search/index.html", content: "search/index.html")))
+  }
+
   static var allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
