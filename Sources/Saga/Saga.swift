@@ -123,12 +123,59 @@ public class Saga: @unchecked Sendable {
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
   public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping () async throws -> [Item<M>], sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
+    var items: [Item<M>] = []
+    return register(
+      read: { saga in
+        items = try await fetch().sorted(by: sorting)
+        saga.allItems.append(contentsOf: items)
+      },
+      write: { saga in
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          for writer in writers {
+            group.addTask {
+              try await writer.run(items, saga.allItems, saga.fileStorage, saga.outputPath, "", saga.fileIO)
+            }
+          }
+          try await group.waitForAll()
+        }
+      }
+    )
+  }
+
+  /// Register a custom write-only processing step.
+  ///
+  /// Use this for custom logic that doesn't fit the standard reader/writer pipeline.
+  /// The closure runs during the write phase, after all readers have finished and items are sorted.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(...)
+  ///   .register { saga in
+  ///     // custom write logic with access to saga.allItems
+  ///   }
+  ///   .run()
+  /// ```
+  @discardableResult
+  public func register(write: @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
-      .init(fetch: fetch, sorting: sorting, writers: writers, saga: self)
+      .init(read: { _ in }, write: write, saga: self)
     )
     return self
   }
 
+  /// Register a custom processing step with user-provided read and write closures.
+  ///
+  /// Use this for custom logic that doesn't fit the standard reader/writer pipeline.
+  /// The read closure runs during the read phase (before items are sorted),
+  /// and the write closure runs during the write phase (after all readers have finished).
+  @discardableResult
+  public func register(read: @escaping (Saga) async throws -> Void, write: @escaping (Saga) async throws -> Void) -> Self {
+    processSteps.append(
+      .init(read: read, write: write, saga: self)
+    )
+    return self
+  }
+  
   /// Create a template-driven page without needing an ``Item`` or markdown file.
   ///
   /// Use this for pages that are purely driven by a template, such as a homepage showing the latest articles,
@@ -148,10 +195,11 @@ public class Saga: @unchecked Sendable {
   /// ```
   @discardableResult
   public func createPage(_ output: Path, using renderer: @escaping (PageRenderingContext) async throws -> String) -> Self {
-    processSteps.append(
-      .init(output: output, renderer: renderer, saga: self)
-    )
-    return self
+    register(write: { saga in
+      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
+      let stringToWrite = try await renderer(context)
+      try saga.fileIO.write(saga.outputPath + output, stringToWrite)
+    })
   }
   
   /// Execute all the registered steps.

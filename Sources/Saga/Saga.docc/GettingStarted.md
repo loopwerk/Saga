@@ -151,54 +151,6 @@ The four different writers are all used for different purposes:
 For more information, please check out ``Writer``.
 
 
-## Extending Saga
-It's very easy to add your own step to Saga where you can access the items and run your own code:
-
-```swift
-extension Saga {
-  @discardableResult
-  func createArticleImages() -> Self {
-    let articles = allItems.compactMap { $0 as? Item<ArticleMetadata> }
-
-    for article in articles {
-      let destination = (self.outputPath + article.relativeDestination.parent()).string + ".png"
-      // generate an image and write it to `destination`
-    }
-
-    return self
-  }
-}
-
-try await Saga(input: "content", output: "deploy")
- // ...register and run steps...
- .createArticleImages()
-```
-
-But probably more common and useful is to use an `itemProcessor`:
-
-```swift
-func addExclamationToTitle(item: Item<EmptyMetadata>) async {
-  // Do whatever you want with the Item - you can even use async functions and await them!
-  item.title.append("!")
-}
-
-@main
-struct Run {
-  static func main() async throws {
-    try await Saga(input: "content", output: "deploy")
-      .register(
-        readers: [.parsleyMarkdownReader],
-        itemProcessor: addExclamationToTitle,
-        writers: [.itemWriter(swim(renderItem))]
-      )
-  }
-}
-```
-
-> tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which uses a custom item processors and a custom processing step, for more inspiration.
-
-It's also easy to add your own readers and renderers; search for [saga-plugin](https://github.com/topics/saga-plugin) on Github. For example, [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) adds an `.inkMarkdownReader` that uses Ink and Splash.
-
 ## Development server
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
