@@ -167,13 +167,8 @@ try await Saga(input: "content", output: "deploy")
       .listWriter(swim(renderArticles)),
     ]
   )
-  .createPage("index.html") { context in
-    let articles = context.allItems.compactMap { $0 as? Item<ArticleMetadata> }
-    return swim(renderHome)(articles)
-  }
-  .createPage("404.html") { _ in
-    swim(render404)()
-  }
+  .createPage("index.html", using: swim(renderHome))
+  .createPage("404.html", using: swim(render404))
   .run()
 ```
 
