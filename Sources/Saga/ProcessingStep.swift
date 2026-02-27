@@ -5,18 +5,18 @@ class ProcessStep<M: Metadata> {
   let folder: Path?
   let readers: [Reader]
   let filter: (Item<M>) -> Bool
-  let filteredOutItemsAreHandled: Bool
+  let claimExcludedItems: Bool
   let itemProcessor: ((Item<M>) async -> Void)?
   let sorting: (Item<M>, Item<M>) -> Bool
   let writers: [Writer<M>]
   var items: [Item<M>]
 
-  init(folder: Path?, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, filteredOutItemsAreHandled: Bool, sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>]) {
+  init(folder: Path?, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, claimExcludedItems: Bool, sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>]) {
     self.folder = folder
     self.readers = readers
     self.itemProcessor = itemProcessor
     self.filter = filter
-    self.filteredOutItemsAreHandled = filteredOutItemsAreHandled
+    self.claimExcludedItems = claimExcludedItems
     self.sorting = sorting
     self.writers = writers
     items = []
@@ -89,7 +89,7 @@ class AnyProcessStep {
                 container._item = item
                 return (index, item)
               } else {
-                if step.filteredOutItemsAreHandled {
+                if step.claimExcludedItems {
                   container.handled = true
                 }
                 return (index, nil)

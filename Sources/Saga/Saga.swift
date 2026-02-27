@@ -59,6 +59,13 @@ public class Saga: @unchecked Sendable {
   }
 
   /// Register a new processing step.
+  @available(*, deprecated, renamed: "register(folder:metadata:readers:itemProcessor:filter:claimExcludedItems:itemWriteMode:sorting:writers:)")
+  @discardableResult
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, filteredOutItemsAreHandled: Bool, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
+    try register(folder: folder, metadata: metadata, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: filteredOutItemsAreHandled, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
+  }
+  
+  /// Register a new processing step.
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
@@ -68,13 +75,13 @@ public class Saga: @unchecked Sendable {
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
   ///   - filter: A filter to only include certain items from the input folder.
-  ///   - filteredOutItemsAreHandled: When an item is ignored by the `filter`, is it then marked as handled? If true, it won't be handled by subsequent processing steps.
+  ///   - claimExcludedItems: When an item is excluded by the `filter`, should this step claim it? If true (the default), excluded items won't be available to subsequent processing steps.
   ///   - itemWriteMode: The ``ItemWriteMode`` used by this step.
   ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, filteredOutItemsAreHandled: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
     // When folder ends with "/**", create one ProcessStep per subfolder
     if let folder = folder, folder.string.hasSuffix("/**") {
       let baseFolder = Path(String(folder.string.dropLast(3)))
@@ -91,7 +98,7 @@ public class Saga: @unchecked Sendable {
       )
 
       for subFolder in subFolders.sorted(by: { $0.string < $1.string }) {
-        let step = ProcessStep(folder: subFolder, readers: readers, itemProcessor: itemProcessor, filter: filter, filteredOutItemsAreHandled: filteredOutItemsAreHandled, sorting: sorting, writers: writers)
+        let step = ProcessStep(folder: subFolder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, sorting: sorting, writers: writers)
         processSteps.append(
           .init(
             step: step,
@@ -101,7 +108,7 @@ public class Saga: @unchecked Sendable {
         )
       }
     } else {
-      let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, filteredOutItemsAreHandled: filteredOutItemsAreHandled, sorting: sorting, writers: writers)
+      let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, sorting: sorting, writers: writers)
       processSteps.append(
         .init(
           step: step,

@@ -190,7 +190,7 @@ final class SagaTests: XCTestCase {
           .mock(frontmatter: [:]),
         ],
         filter: { _ in return false },
-        filteredOutItemsAreHandled: false,
+        claimExcludedItems: false,
         writers: [
           .itemWriter { context in context.item.body },
           .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "list.html"),

@@ -13,7 +13,7 @@ enum SiteMetadata {
 struct ArticleMetadata: Metadata {
   let tags: [String]
   var summary: String?
-  let `public`: Bool?
+  let archived: Bool?
 }
 
 struct AppMetadata: Metadata {
@@ -31,10 +31,10 @@ struct MusicVideoMetadata: Metadata {
 struct AlbumMetadata: Metadata {}
 struct PhotoMetadata: Metadata {}
 
-/// An easy way to only get public articles, since ArticleMetadata.public is optional
+/// An easy way to check if an article is archived, since ArticleMetadata.archived is optional
 extension Item where M == ArticleMetadata {
-  var `public`: Bool {
-    return metadata.public ?? true
+  var archived: Bool {
+    return metadata.archived ?? false
   }
 }
 
@@ -42,15 +42,16 @@ extension Item where M == ArticleMetadata {
 struct Run {
   static func main() async throws {
     try await Saga(input: "content", output: "deploy")
-      // All markdown files within the "articles" subfolder will be parsed to html,
-      // using ArticleMetadata as the Item's metadata type.
-      // Furthermore we are only interested in public articles.
+      // All non-archived articles are included in lists and feeds.
+      // Using claimExcludedItems: false so the archived articles remain available
+      // for the next step, which renders their individual pages.
       .register(
         folder: "articles",
         metadata: ArticleMetadata.self,
         readers: [.parsleyMarkdownReader],
         itemProcessor: publicationDateInFilename,
-        filter: \.public,
+        filter: { !$0.archived },
+        claimExcludedItems: false,
         writers: [
           .itemWriter(swim(renderArticle)),
           .listWriter(swim(renderArticles), paginate: 5),
@@ -60,6 +61,17 @@ struct Run {
           // Atom feed for all articles, and a feed per tag
           .listWriter(atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.metadata.summary), output: "feed.xml"),
           .tagWriter(atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.metadata.summary), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
+        ]
+      )
+
+      // Archived articles still get their own page, but are not in any lists or feeds.
+      .register(
+        folder: "articles",
+        metadata: ArticleMetadata.self,
+        readers: [.parsleyMarkdownReader],
+        itemProcessor: publicationDateInFilename,
+        writers: [
+          .itemWriter(swim(renderArticle)),
         ]
       )
 

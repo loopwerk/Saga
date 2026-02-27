@@ -1,7 +1,7 @@
 ---
 tags: article
-public: false
+archived: true
 date: 2020-02-01
 ---
 #  Second post!
-This one is not public and should not be rendered anywhere.
+This one is archived. It still has its own page, but it won't show up in lists or feeds.
