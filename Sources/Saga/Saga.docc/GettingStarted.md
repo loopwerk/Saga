@@ -176,4 +176,6 @@ To just build the site without starting a server:
 $ saga build
 ```
 
+When running under `saga dev`, Saga sets the `SAGA_DEV` environment variable and exposes it as ``isDev``. Use this to skip expensive work during development, such as image generation or HTML minification.
+
 See <doc:Installation> for how to install the `saga` CLI.

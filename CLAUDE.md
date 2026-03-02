@@ -69,6 +69,12 @@ Saga is designed for extensibility via external packages:
 - `tagWriter`: Items grouped by tags
 - `yearWriter`: Items grouped by publication year
 
+### Build Helpers
+
+- `hashed(_:)`: Global function for cache-busting asset URLs (e.g. `hashed("/static/style.css")` → `/static/style-a1b2c3d4.css`). Skipped in dev mode.
+- `postProcess(_:)`: Apply transforms (e.g. HTML minification) to every written file.
+- `isDev`: `true` when running under `saga dev` or the legacy `watch` command (checks `SAGA_DEV` env var).
+
 ## Key Directories
 
 - `/Sources/Saga/` - Main library with core architecture

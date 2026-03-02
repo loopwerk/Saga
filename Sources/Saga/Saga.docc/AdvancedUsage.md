@@ -253,3 +253,65 @@ content/
 Saga creates a separate processing step for `photos/vacation` and `photos/birthday`. Each step sees only its own items, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
 
 Without the `/**` suffix, `folder: "photos"` would treat every Markdown file under `photos/` as part of a single flat collection.
+
+
+## Post-processing output
+
+Apply transforms to every file Saga writes, such as HTML minification.
+
+### Overview
+
+Use ``Saga/postProcess(_:)`` to transform every file before it's written. Multiple calls stack.
+
+### Basic usage
+
+```swift
+try await Saga(input: "content", output: "deploy")
+  .register(
+    metadata: EmptyMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [.itemWriter(swim(renderPage))]
+  )
+  .postProcess { html, path in
+    guard !isDev else { return html }
+    return minifyHTML(html)
+  }
+  .run()
+```
+
+The transform receives the rendered content and the relative output path (e.g. `articles/my-post/index.html`). The path lets you selectively transform only certain files:
+
+```swift
+.postProcess { content, path in
+  guard !isDev, path.extension == "html" else { return content }
+  return minifyHTML(content)
+}
+```
+
+
+## Cache-busting with hashed()
+
+Insert content-based hashes into asset filenames for cache-busting.
+
+### Overview
+
+The ``hashed(_:)`` function takes a path like `/static/output.css` and returns `/static/output-a1b2c3d4.css`, where the hash is derived from the file's contents. Saga automatically copies the hashed file to the output folder.
+
+### Basic usage
+
+Call ``hashed(_:)`` from any renderer to produce fingerprinted asset URLs:
+
+```swift
+func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
+  html {
+    head {
+      link(href: hashed("/static/style.css"), rel: "stylesheet")
+    }
+    body {
+      Node.raw(context.item.body)
+    }
+  }
+}
+```
+
+> note: In dev mode (when using `saga dev`), ``hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload. See <doc:GettingStarted> for more on dev mode.
