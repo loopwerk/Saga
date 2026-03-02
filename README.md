@@ -148,6 +148,9 @@ Saga is modular. You compose it with readers and renderers that fit your needs.
 - [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) — type-safe HTML using [Swim](https://github.com/robb/Swim)
 - [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer) — templates using [Stencil](https://github.com/stencilproject/Stencil)
 
+**Utilities**
+
+- [SagaUtils](https://github.com/loopwerk/SagaUtils) — composable HTML transformations (via [SwiftSoup](https://github.com/scinfu/SwiftSoup)) and useful String extensions
 
 ## Requirements
 
