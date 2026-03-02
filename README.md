@@ -28,7 +28,7 @@ Typed metadata, pluggable readers, multiple writer types, pagination, tags — a
 
 **Saga is for you if:**
 - You want your site generation logic in Swift, not YAML/TOML config files
-- You want compile-time safety for your content metadata
+- You want compile-time safety for your HTML templates and content metadata
 - You've outgrown convention-based SSGs and want full control
 
 **Saga is not for you if:**
