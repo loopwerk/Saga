@@ -31,7 +31,6 @@ class AnyProcessStep {
   init<M: Metadata>(step: ProcessStep<M>, saga: Saga, itemWriteMode: ItemWriteMode) {
     let fileStorage = saga.fileStorage
     let outputPath = saga.outputPath
-    let fileIO = saga.fileIO
 
     runReaders = {
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
@@ -72,9 +71,9 @@ class AnyProcessStep {
                 relativeDestination: container.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
                 title: partialItem.title ?? container.relativePath.lastComponentWithoutExtension,
                 body: partialItem.body,
-                date: date ?? fileIO.creationDate(container.path) ?? Date(),
-                created: fileIO.creationDate(container.path) ?? Date(),
-                lastModified: fileIO.modificationDate(container.path) ?? Date(),
+                date: date ?? saga.fileIO.creationDate(container.path) ?? Date(),
+                created: saga.fileIO.creationDate(container.path) ?? Date(),
+                lastModified: saga.fileIO.modificationDate(container.path) ?? Date(),
                 metadata: metadata
               )
 
@@ -126,7 +125,7 @@ class AnyProcessStep {
       try await withThrowingTaskGroup(of: Void.self) { group in
         for writer in step.writers {
           group.addTask {
-            try await writer.run(step.items, saga.allItems, fileStorage, outputPath, step.folder ?? "", fileIO)
+            try await writer.run(step.items, saga.allItems, fileStorage, outputPath, step.folder ?? "", saga.fileIO)
           }
         }
         try await group.waitForAll()

@@ -651,6 +651,83 @@ final class SagaTests: XCTestCase {
     XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/search/index.html", content: "search/index.html")))
   }
 
+  func testPostProcess() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .postProcess { content, _ in
+        content.uppercased()
+      }
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<P>TEST.MD</P>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<P>TEST2.MD</P>")))
+  }
+
+  func testPostProcessWithCreatePage() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .createPage("index.html") { _ in "<h1>Home</h1>" }
+      .postProcess { content, _ in
+        content.uppercased()
+      }
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/index.html", content: "<H1>HOME</H1>")))
+  }
+
+  func testPostProcessReceivesRelativePath() async throws {
+    var receivedPaths: [Path] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [] }
+    mock.write = { _, _ in }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .createPage("search/index.html") { _ in "content" }
+      .postProcess { content, path in
+        receivedPaths.append(path)
+        return content
+      }
+      .run()
+
+    XCTAssertEqual(receivedPaths, [Path("search/index.html")])
+  }
+
   static var allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),

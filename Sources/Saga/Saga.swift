@@ -38,7 +38,7 @@ public class Saga: @unchecked Sendable {
   public internal(set) var allItems: [AnyItem] = []
 
   var processSteps = [AnyProcessStep]()
-  let fileIO: FileIO
+  var fileIO: FileIO
 
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
@@ -183,6 +183,31 @@ public class Saga: @unchecked Sendable {
     return self
   }
   
+  /// Apply a transform to every file written by Saga.
+  ///
+  /// The transform receives the rendered content and relative output path.
+  /// Multiple calls stack: each wraps the previous write.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(...)
+  ///   .postProcess { html, path in
+  ///     minifyHTML(html)
+  ///   }
+  ///   .run()
+  /// ```
+  @discardableResult
+  public func postProcess(_ transform: @escaping (String, Path) throws -> String) -> Self {
+    let originalWrite = fileIO.write
+    let outputPath = self.outputPath
+    fileIO.write = { destination, content in
+      let relativePath = try destination.relativePath(from: outputPath)
+      let transformed = try transform(content, relativePath)
+      try originalWrite(destination, transformed)
+    }
+    return self
+  }
+
   /// Create a template-driven page without needing an ``Item`` or markdown file.
   ///
   /// Use this for pages that are purely driven by a template, such as a homepage showing the latest articles,
