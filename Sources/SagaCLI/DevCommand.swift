@@ -113,6 +113,10 @@ struct Dev: ParsableCommand {
     process.arguments = ["swift", "run"]
     process.currentDirectoryURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 
+    var env = ProcessInfo.processInfo.environment
+    env["SAGA_DEV"] = "1"
+    process.environment = env
+
     let pipe = Pipe()
     process.standardOutput = pipe
     process.standardError = pipe

@@ -1,6 +1,17 @@
 import Foundation
 import PathKit
 
+/// Whether the site is being served by `saga dev`.
+///
+/// This is `true` when the `SAGA_DEV` environment variable is set (which `saga dev` does
+/// automatically). Use it to skip expensive work during development:
+/// ```swift
+/// .postProcess { html, _ in
+///   isDev ? html : minifyHTML(html)
+/// }
+/// ```
+public let isDev = ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
+
 /// The main Saga class, used to configure and build your website.
 ///
 /// ```swift

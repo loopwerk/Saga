@@ -198,7 +198,7 @@ import PathKit
       }
 
       print("Building website, please wait...")
-      _ = runCommand("swift run")
+      _ = runCommand("SAGA_DEV=1 swift run")
 
       // Turn the folders into full paths
       let paths = watchFolders.map { folder in
@@ -213,7 +213,7 @@ import PathKit
 
       let folderMonitor = FolderMonitor(paths: paths, ignoredPatterns: Self.defaultIgnorePatterns + ignore) {
         print("Detected change, rebuilding website...")
-        _ = runCommand("swift run")
+        _ = runCommand("SAGA_DEV=1 swift run")
       }
 
       let serverQueue = DispatchQueue(label: "Saga.WebServer")
