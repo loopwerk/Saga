@@ -8,6 +8,7 @@ public struct FileIO {
   var deletePath: (Path) throws -> Void
   var write: (Path, String) throws -> Void
   var mkpath: (Path) throws -> Void
+  var read: (Path) throws -> Data
   var copy: (Path, Path) throws -> Void
   var creationDate: (Path) -> Date?
   var modificationDate: (Path) -> Date?
@@ -29,6 +30,9 @@ public extension FileIO {
     },
     mkpath: { path in
       try path.mkpath()
+    },
+    read: { path in
+      try path.read()
     },
     copy: { origin, destination in
       try origin.copy(destination)

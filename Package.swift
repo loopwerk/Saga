@@ -14,6 +14,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
+    .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
     .package(url: "https://github.com/apple/swift-nio", from: "2.65.0"),
     // .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),
@@ -21,7 +22,10 @@ let package = Package(
   targets: [
     .target(
       name: "Saga",
-      dependencies: ["PathKit"]
+      dependencies: [
+        "PathKit",
+        .product(name: "Crypto", package: "swift-crypto"),
+      ]
     ),
     .executableTarget(
       name: "SagaCLI",

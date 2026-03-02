@@ -1,5 +1,22 @@
+import Crypto
 import Foundation
 import PathKit
+
+private var _hashFunction: ((String) -> String)?
+private let _hashLock = NSLock()
+
+/// Returns a cache-busted file path by inserting a content hash into the filename.
+///
+/// Call this from any renderer to produce fingerprinted asset URLs:
+/// ```swift
+/// link(rel: "stylesheet", href: hashed("/static/output.css"))
+/// // → "/static/output-a1b2c3d4.css"
+/// ```
+public func hashed(_ path: String) -> String {
+  _hashLock.lock()
+  defer { _hashLock.unlock() }
+  return _hashFunction?(path) ?? path
+}
 
 /// Whether the site is being served by `saga dev`.
 ///
@@ -293,6 +310,45 @@ public class Saga: @unchecked Sendable {
     let copyTime = copyEnd.uptimeNanoseconds - copyStart.uptimeNanoseconds
     print("\(Date()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
 
+    // Set up the hash function so renderers can call hashed() during the write phase.
+    // In dev mode, skip hashing so filenames stay stable for auto-reload.
+    let fileStorageRef = fileStorage
+    let inputPathRef = inputPath
+    let fileIORef = fileIO
+
+    // The closure runs under _hashLock (acquired by the global hashed() function),
+    // so container.contentHash access is thread-safe without additional locking.
+    _hashLock.withLock {
+      guard !isDev else { return }
+      _hashFunction = { path in
+        let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
+        guard let container = fileStorageRef.first(where: { $0.relativePath.string == stripped }) else {
+          return path
+        }
+
+        if let cached = container.contentHash {
+          let p = Path(stripped)
+          let ext = p.extension ?? ""
+          let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + cached + (ext.isEmpty ? "" : ".\(ext)"))
+          return (path.hasPrefix("/") ? "/" : "") + name.string
+        }
+
+        do {
+          let data = try fileIORef.read(container.path)
+          let digest = Insecure.MD5.hash(data: data)
+          let hashString = String(digest.map { String(format: "%02x", $0) }.joined().prefix(8))
+          container.contentHash = hashString
+
+          let p = Path(stripped)
+          let ext = p.extension ?? ""
+          let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + hashString + (ext.isEmpty ? "" : ".\(ext)"))
+          return (path.hasPrefix("/") ? "/" : "") + name.string
+        } catch {
+          return path
+        }
+      }
+    }
+
     // And run all the writers for all the steps, using those stored Items.
     let writeStart = DispatchTime.now()
     try await withThrowingTaskGroup(of: Void.self) { group in
@@ -307,6 +363,23 @@ public class Saga: @unchecked Sendable {
     let writeEnd = DispatchTime.now()
     let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
     print("\(Date()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
+
+    // Copy hashed versions of files that were referenced via hashed()
+    for container in fileStorage where container.contentHash != nil && container.handled == false {
+      let relativePath = container.relativePath
+      let ext = relativePath.extension ?? ""
+      let hashedName = relativePath.lastComponentWithoutExtension + "-" + container.contentHash! + (ext.isEmpty ? "" : ".\(ext)")
+      let hashedRelativePath = relativePath.parent() + Path(hashedName)
+      let source = inputPathRef + relativePath
+      let destination = outputPath + hashedRelativePath
+      try fileIO.mkpath(destination.parent())
+      try fileIO.copy(source, destination)
+    }
+
+    // Reset the hash function
+    _hashLock.withLock {
+      _hashFunction = nil
+    }
 
     let totalEnd = DispatchTime.now()
     let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds

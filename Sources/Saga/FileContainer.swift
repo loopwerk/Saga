@@ -13,11 +13,13 @@ public class FileContainer {
   var _item: AnyItem?
 
   public var handled: Bool
+  var contentHash: String?
 
   init(path: Path, relativePath: Path) {
     self.path = path
     self.relativePath = relativePath
     _item = nil
     handled = false
+    contentHash = nil
   }
 }

@@ -1,3 +1,4 @@
+import Foundation
 import PathKit
 @testable import Saga
 import XCTest
@@ -9,6 +10,7 @@ extension FileIO {
     deletePath: { _ in },
     write: { _, _ in },
     mkpath: { _ in },
+    read: { _ in Data("mock-content".utf8) },
     copy: { _, _ in },
     creationDate: { path in
       if path == "test2.md" {
@@ -649,6 +651,91 @@ final class SagaTests: XCTestCase {
 
     XCTAssertEqual(writtenPages.count, 1)
     XCTAssertTrue(writtenPages.contains(WrittenPage(destination: "root/output/search/index.html", content: "search/index.html")))
+  }
+
+  func testHash() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    var copiedFiles: [(Path, Path)] = []
+    let copiedFilesQueue = DispatchQueue(label: "copiedFiles", attributes: .concurrent)
+    mock.copy = { origin, destination in
+      copiedFilesQueue.sync(flags: .barrier) {
+        copiedFiles.append((origin, destination))
+      }
+    }
+
+    // read returns fixed content so the hash is deterministic
+    mock.read = { _ in Data("hello".utf8) }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in
+            let hashed = hashed("/style.css")
+            return "<link href=\"\(hashed)\">"
+          },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    // The hash of "hello" via MD5 is 5d41402abc4b2a76b9719d911017c592, first 8 chars: 5d41402a
+    let expectedPath = "/style-5d41402a.css"
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.content == "<link href=\"\(expectedPath)\">" }))
+
+    // The hashed copy should have been created
+    let finalCopiedFiles = copiedFilesQueue.sync { copiedFiles }
+    XCTAssertTrue(finalCopiedFiles.contains(where: { $0.1 == Path("root/output/style-5d41402a.css") }))
+  }
+
+  func testHashWithoutLeadingSlash() async throws {
+    var mock = FileIO.mock
+    mock.read = { _ in Data("hello".utf8) }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { _ in
+            let hashed = hashed("style.css")
+            // Without leading slash, result should also have no leading slash
+            XCTAssertEqual(hashed, "style-5d41402a.css")
+            return ""
+          },
+        ]
+      )
+      .run()
+  }
+
+  func testHashUnknownFile() async throws {
+    var mock = FileIO.mock
+    mock.read = { _ in Data() }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { _ in
+            let hashed = hashed("/nonexistent.css")
+            // Unknown file should return path unchanged
+            XCTAssertEqual(hashed, "/nonexistent.css")
+            return ""
+          },
+        ]
+      )
+      .run()
   }
 
   func testPostProcess() async throws {
