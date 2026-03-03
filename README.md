@@ -79,13 +79,15 @@ The example above shows a single content type, but Saga scales to handle complex
 
 Saga allows you to:
 
-- Add strongly typed metadata to your content
-- Define multiple content types with different metadata
-- Build archive pages, tag pages, feeds, and indexes
-- Swap in different readers and renderers
-- Load content programmatically and/or from disk
-- Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build
-- Keep everything enforced by the compiler
+- Add strongly typed metadata to your content.
+- Define multiple content types with different metadata.
+- Build archive pages, tag pages, feeds, and indexes.
+- Swap in different readers and renderers.
+- Load content programmatically and/or from disk.
+- Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build.
+- Process the generated HTML content right before it's written to disk. For example to [minify it](https://github.com/loopwerk/Bonsai).
+- Easily created cache-busting hashed filenames for static assets.
+- Keep everything enforced by the compiler.
 
 ### Typed metadata (when you need it)
 
