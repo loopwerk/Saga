@@ -24,7 +24,7 @@ let package = Package(
       name: "Saga",
       dependencies: [
         "PathKit",
-        .product(name: "Crypto", package: "swift-crypto"),
+        .product(name: "Crypto", package: "swift-crypto", condition: .when(platforms: [.linux])),
       ]
     ),
     .executableTarget(

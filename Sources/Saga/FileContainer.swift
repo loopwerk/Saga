@@ -10,6 +10,7 @@ public class FileContainer {
     get { _item }
     set { _item = newValue }
   }
+
   var _item: AnyItem?
 
   public var handled: Bool

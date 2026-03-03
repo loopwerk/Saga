@@ -1,4 +1,8 @@
-import Crypto
+#if canImport(CryptoKit)
+  import CryptoKit
+#else
+  import Crypto
+#endif
 import Foundation
 import PathKit
 
@@ -92,7 +96,7 @@ public class Saga: @unchecked Sendable {
   public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, filteredOutItemsAreHandled: Bool, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
     try register(folder: folder, metadata: metadata, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: filteredOutItemsAreHandled, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
   }
-  
+
   /// Register a new processing step.
   ///
   /// - Parameters:
@@ -210,7 +214,7 @@ public class Saga: @unchecked Sendable {
     )
     return self
   }
-  
+
   /// Apply a transform to every file written by Saga.
   ///
   /// The transform receives the rendered content and relative output path.
@@ -261,7 +265,7 @@ public class Saga: @unchecked Sendable {
       try saga.fileIO.write(saga.outputPath + output, stringToWrite)
     })
   }
-  
+
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
