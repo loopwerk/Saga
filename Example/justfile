@@ -1,2 +1,5 @@
 run:
   saga dev
+
+build:
+  saga build

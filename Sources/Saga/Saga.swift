@@ -265,8 +265,14 @@ public class Saga: @unchecked Sendable {
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
+    let logDateFormatter = DateFormatter()
+    logDateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    func logTimestamp() -> String {
+      logDateFormatter.string(from: Date())
+    }
+
     let totalStart = DispatchTime.now()
-    print("\(Date()) | Starting run")
+    print("\(logTimestamp()) | Starting run")
 
     // Run all the readers for all the steps sequentially to ensure proper order,
     // which turns raw content into Items, and stores them within the step.
@@ -277,7 +283,7 @@ public class Saga: @unchecked Sendable {
 
     let readEnd = DispatchTime.now()
     let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
-    print("\(Date()) | Finished read phase in \(Double(readTime) / 1_000_000_000)s")
+    print("\(logTimestamp()) | Finished read phase in \(Double(readTime) / 1_000_000_000)s")
 
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
@@ -308,7 +314,7 @@ public class Saga: @unchecked Sendable {
 
     let copyEnd = DispatchTime.now()
     let copyTime = copyEnd.uptimeNanoseconds - copyStart.uptimeNanoseconds
-    print("\(Date()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
+    print("\(logTimestamp()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
 
     // Set up the hash function so renderers can call hashed() during the write phase.
     // In dev mode, skip hashing so filenames stay stable for auto-reload.
@@ -362,7 +368,7 @@ public class Saga: @unchecked Sendable {
 
     let writeEnd = DispatchTime.now()
     let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
-    print("\(Date()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
+    print("\(logTimestamp()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
 
     // Copy hashed versions of files that were referenced via hashed()
     for container in fileStorage where container.contentHash != nil && container.handled == false {
@@ -383,7 +389,7 @@ public class Saga: @unchecked Sendable {
 
     let totalEnd = DispatchTime.now()
     let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds
-    print("\(Date()) | All done in \(Double(totalTime) / 1_000_000_000)s")
+    print("\(logTimestamp()) | All done in \(Double(totalTime) / 1_000_000_000)s")
 
     return self
   }

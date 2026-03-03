@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/loopwerk/Parsley",
         "state": {
           "branch": null,
-          "revision": "ad35091c7a790f04fc5a912c8bde8963eba753d2",
-          "version": "0.9.1"
+          "revision": "e7c825b00846c3006a1ed2d75d9674ee69cadbf6",
+          "version": "1.1.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaParsleyMarkdownReader",
         "state": {
           "branch": null,
-          "revision": "9605b14aa43e32eec454d2dff26bcaf95a1a1a93",
-          "version": "1.0.0"
+          "revision": "5a9fa57a5b123afa4acdb0800e348aef549bceba",
+          "version": "1.1.0"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/loopwerk/SagaSwimRenderer",
         "state": {
           "branch": null,
-          "revision": "b6186c767689768c5d1efc21b169947ede16c1d0",
-          "version": "1.0.0"
+          "revision": "3ae2675d1a7feedb92b72796198c74956e5671f6",
+          "version": "1.0.1"
         }
       },
       {
@@ -92,12 +92,12 @@
         }
       },
       {
-        "package": "swift-cmark-gfm",
-        "repositoryURL": "https://github.com/stackotter/swift-cmark-gfm",
+        "package": "cmark-gfm",
+        "repositoryURL": "https://github.com/swiftlang/swift-cmark.git",
         "state": {
           "branch": null,
-          "revision": "7ec44e7384793e507cf046336aef68586719a24e",
-          "version": "1.0.2"
+          "revision": "5d9bdaa4228b381639fff09403e39a04926e2dbe",
+          "version": "0.7.1"
         }
       },
       {
@@ -123,8 +123,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio",
         "state": {
           "branch": null,
-          "revision": "9b92dcd5c22ae17016ad867852e0850f1f9f93ed",
-          "version": "2.94.1"
+          "revision": "e932d3c4d8f77433c8f7093b5ebcbf91463948a0",
+          "version": "2.95.0"
         }
       },
       {
