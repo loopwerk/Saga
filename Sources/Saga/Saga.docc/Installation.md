@@ -14,13 +14,13 @@ $ brew install loopwerk/tap/saga
 **Via [Mint](https://github.com/yonaskolb/Mint):**
 
 ```
-$ mint install loopwerk/Saga
+$ mint install loopwerk/saga-cli
 ```
 
 
 ## Quick start
 
-The easiest way to create a new project is with the `saga` CLI:
+The easiest way to create a new project is with the `saga` [CLI](https://github.com/loopwerk/saga-cli):
 
 ```
 $ saga init mysite

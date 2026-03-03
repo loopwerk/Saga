@@ -45,7 +45,7 @@ $ brew install loopwerk/tap/saga
 
 **Via [Mint](https://github.com/yonaskolb/Mint):**
 ```
-$ mint install loopwerk/Saga
+$ mint install loopwerk/saga-cli
 ```
 
 
