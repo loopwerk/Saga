@@ -154,25 +154,25 @@ For more information, please check out ``Writer``.
 ## Development server
 From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
 
-```
+```shell-session
 $ saga dev
 ```
 
 By default this watches the `content` and `Sources` folders, outputs to `deploy`, and serves on port 3000. All of these can be customized:
 
-```
+```shell-session
 $ saga dev --watch content --watch Sources --output deploy --port 3000
 ```
 
 You can also ignore certain files or folders using glob patterns:
 
-```
+```shell-session
 $ saga dev --ignore "*.tmp" --ignore "drafts/*"
 ```
 
 To just build the site without starting a server:
 
-```
+```shell-session
 $ saga build
 ```
 

@@ -7,13 +7,13 @@ How to set up a new Saga project.
 
 **Via [Homebrew](https://brew.sh):**
 
-```
+```shell-session
 $ brew install loopwerk/tap/saga
 ```
 
 **Via [Mint](https://github.com/yonaskolb/Mint):**
 
-```
+```shell-session
 $ mint install loopwerk/saga-cli
 ```
 
@@ -22,7 +22,7 @@ $ mint install loopwerk/saga-cli
 
 The easiest way to create a new project is with the `saga` [CLI](https://github.com/loopwerk/saga-cli):
 
-```
+```shell-session
 $ saga init mysite
 $ cd mysite
 $ saga dev
