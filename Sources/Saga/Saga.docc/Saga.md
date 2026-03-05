@@ -1,4 +1,4 @@
-# ``Saga``
+# Saga
 A static site generator, written in Swift, allowing you to supply your own metadata types for your items.
 
 

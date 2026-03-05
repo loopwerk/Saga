@@ -157,15 +157,21 @@ public class Saga: @unchecked Sendable {
   /// - Parameters:
   ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - fetch: An async function that returns an array of items.
+  ///   - itemProcessor: A function to modify each fetched ``Item`` as you see fit.
   ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping () async throws -> [Item<M>], sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
+  public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping () async throws -> [Item<M>], itemProcessor: ((Item<M>) async -> Void)? = nil, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
     var items: [Item<M>] = []
     return register(
       read: { saga in
         items = try await fetch().sorted(by: sorting)
+        if let itemProcessor = itemProcessor {
+          for item in items {
+            await itemProcessor(item)
+          }
+        }
         saga.allItems.append(contentsOf: items)
       },
       write: { saga in
