@@ -19,7 +19,7 @@ private extension Array {
 }
 
 public extension Writer {
-  /// Writes a single ``Item`` to a single output file, using `Item.destination` as the destination path.
+  /// Writes a single ``Item`` to a single output file, using `Item.relativeDestination` as the destination path.
   static func itemWriter(_ renderer: @escaping (ItemRenderingContext<M>) async throws -> String) -> Self {
     return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, fileIO in
       try await withThrowingTaskGroup(of: Void.self) { group in

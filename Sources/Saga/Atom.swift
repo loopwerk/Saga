@@ -10,7 +10,7 @@ import Foundation
   import FoundationXML
 #endif
 
-/// A rendered which creates an Atom feed for Items
+/// A renderer which creates an Atom feed for Items
 ///
 /// - Parameters:
 ///   - title: The title of the feed, usually your site title. Example: Loopwerk.io.

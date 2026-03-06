@@ -58,10 +58,10 @@ public class Saga: @unchecked Sendable {
   /// The path that Saga will write the rendered website to, relative to the `rootPath`. For example "deploy".
   public let outputPath: Path
 
-  /// An array of all file containters.
+  /// An array of all ``FileContainer``s.
   public let fileStorage: [FileContainer]
 
-  /// All items across all registered processing steps.
+  /// All ``Item``s across all registered processing steps.
   public internal(set) var allItems: [AnyItem] = []
 
   var processSteps = [AnyProcessStep]()

@@ -22,7 +22,7 @@ public protocol AnyItem: AnyObject {
   var url: String { get }
 }
 
-/// A model reprenting an item.
+/// A model representing an item.
 ///
 /// An item can be any text file (like a Markdown or RestructedText file). ``Reader``s will turn the file into an ``Item``, and ``Writer``s will turn the ``Item`` into a `String` (for example HTML or RSS) to be written to disk.
 public class Item<M: Metadata>: AnyItem {
@@ -42,15 +42,15 @@ public class Item<M: Metadata>: AnyItem {
   public var body: String
 
   /// The date of the item. Will be taken from the metadata if available, defaults to the creation date otherwise.
-  /// Pleaae note that the creation date value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
+  /// Please note that the creation date value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
   public var date: Date
 
   /// The creation date of the item.
-  /// Pleaae note that this value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
+  /// Please note that this value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
   public let created: Date
 
   /// The last modified date of the item.
-  /// Pleaae note that this value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
+  /// Please note that this value can be inconsistent when cloning or pulling from git, see https://github.com/loopwerk/Saga/issues/21.
   public let lastModified: Date
 
   /// The parsed metadata. ``Metadata`` can be any `Codable` object.

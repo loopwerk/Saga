@@ -7,7 +7,7 @@ import PathKit
 /// .register(
 ///   metadata: EmptyMetadata.self,
 ///   readers: [.parsleyMarkdownReader],
-///   itemProcessor: sequence(publicationDateInFilename, addExclamationPointToTitle)
+///   itemProcessor: sequence(publicationDateInFilename, addExclamationPointToTitle),
 ///   writers: [.itemWriter(swim(renderPage))]
 /// )
 /// ```
