@@ -23,21 +23,16 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   }
 }
 
-@main
-struct Run {
-  static func main() async throws {
-    try await Saga(input: "content", output: "deploy")
-      // All Markdown files within the `input` folder will be parsed to html.
-      .register(
-        readers: [.parsleyMarkdownReader],
-        writers: [.itemWriter(swim(renderPage))]
-      )
+try await Saga(input: "content", output: "deploy")
+  // All Markdown files within the `input` folder will be parsed to html.
+  .register(
+    readers: [.parsleyMarkdownReader],
+    writers: [.itemWriter(swim(renderPage))]
+  )
 
-      // Run the step we registered above.
-      // Static files (images, css, etc.) are copied automatically.
-      .run()
-  }
-}
+  // Run the step we registered above.
+  // Static files (images, css, etc.) are copied automatically.
+  .run()
 ```
 
 > Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer). The <doc:Architecture> document has more information on how Saga works. 
@@ -84,49 +79,44 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
-@main
-struct Run {
-  static func main() async throws {
-    try await Saga(input: "content", output: "deploy")
-      // All markdown files within the "articles" subfolder will be parsed to html,
-      // using `ArticleMetadata` as the item's metadata type.
-      .register(
-        folder: "articles",
-        metadata: ArticleMetadata.self,
-        readers: [.parsleyMarkdownReader],
-        writers: [
-          .itemWriter(swim(renderArticle)),
-          .listWriter(swim(renderArticles), paginate: 20),
-          .tagWriter(swim(renderTag), tags: \.metadata.tags),
-          .yearWriter(swim(renderYear)),
+try await Saga(input: "content", output: "deploy")
+  // All markdown files within the "articles" subfolder will be parsed to html,
+  // using `ArticleMetadata` as the item's metadata type.
+  .register(
+    folder: "articles",
+    metadata: ArticleMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [
+      .itemWriter(swim(renderArticle)),
+      .listWriter(swim(renderArticles), paginate: 20),
+      .tagWriter(swim(renderTag), tags: \.metadata.tags),
+      .yearWriter(swim(renderYear)),
 
-          // Atom feed for all articles, and a feed per tag
-          .listWriter(swim(renderFeed), output: "feed.xml"),
-          .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
-        ]
-      )
+      // Atom feed for all articles, and a feed per tag
+      .listWriter(swim(renderFeed), output: "feed.xml"),
+      .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
+    ]
+  )
 
-      // All markdown files within the "apps" subfolder will be parsed to html,
-      // using `AppMetadata` as the item's metadata type.
-      .register(
-        folder: "apps",
-        metadata: AppMetadata.self,
-        readers: [.parsleyMarkdownReader],
-        writers: [.listWriter(swim(renderApps))]
-      )
+  // All markdown files within the "apps" subfolder will be parsed to html,
+  // using `AppMetadata` as the item's metadata type.
+  .register(
+    folder: "apps",
+    metadata: AppMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [.listWriter(swim(renderApps))]
+  )
 
-      // All the remaining markdown files will be parsed to html,
-      // using the default `EmptyMetadata` as the item's metadata type.
-      .register(
-        readers: [.parsleyMarkdownReader],
-        writers: [.itemWriter(swim(renderItem))]
-      )
+  // All the remaining markdown files will be parsed to html,
+  // using the default `EmptyMetadata` as the item's metadata type.
+  .register(
+    readers: [.parsleyMarkdownReader],
+    writers: [.itemWriter(swim(renderItem))]
+  )
 
-      // Run the steps we registered above.
-      // Static files (images, css, etc.) are copied automatically.
-      .run()
-  }
-}
+  // Run the steps we registered above.
+  // Static files (images, css, etc.) are copied automatically.
+  .run()
 ```
 
 While that might look a bit overwhelming, it should be easy to follow what each `register` step does, each operating on a set of files in a subfolder and processing them in different ways.

@@ -12,18 +12,13 @@ func addExclamationToTitle(item: Item<EmptyMetadata>) async {
   item.title.append("!")
 }
 
-@main
-struct Run {
-  static func main() async throws {
-    try await Saga(input: "content", output: "deploy")
-      .register(
-        readers: [.parsleyMarkdownReader],
-        itemProcessor: addExclamationToTitle,
-        writers: [.itemWriter(swim(renderItem))]
-      )
-      .run()
-  }
-}
+try await Saga(input: "content", output: "deploy")
+  .register(
+    readers: [.parsleyMarkdownReader],
+    itemProcessor: addExclamationToTitle,
+    writers: [.itemWriter(swim(renderItem))]
+  )
+  .run()
 ```
 
 

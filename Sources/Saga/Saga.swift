@@ -36,22 +36,17 @@ public let isDev = ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
 /// The main Saga class, used to configure and build your website.
 ///
 /// ```swift
-/// @main
-/// struct Run {
-///   static func main() async throws {
-///     try await Saga(input: "content", output: "deploy")
-///       // All files in the input folder will be parsed to html, and written to the output folder.
-///       .register(
-///         metadata: EmptyMetadata.self,
-///         readers: [.parsleyMarkdownReader],
-///         writers: [.itemWriter(swim(renderPage))]
-///       )
+/// try await Saga(input: "content", output: "deploy")
+///   // All files in the input folder will be parsed to html, and written to the output folder.
+///   .register(
+///     metadata: EmptyMetadata.self,
+///     readers: [.parsleyMarkdownReader],
+///     writers: [.itemWriter(swim(renderPage))]
+///   )
 ///
-///       // Run the steps we registered above.
-///       // Static files (images, css, etc.) are copied automatically.
-///       .run()
-///   }
-/// }
+///   // Run the steps we registered above.
+///   // Static files (images, css, etc.) are copied automatically.
+///   .run()
 /// ```
 public class Saga: @unchecked Sendable {
   /// The root working path. This is automatically set to the same folder that holds `Package.swift`.
