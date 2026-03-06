@@ -61,7 +61,7 @@ $ saga dev
 
 This scaffolds a complete project with articles, tags, templates, and a stylesheet — ready to build and serve.
 
-For manual setup or more detail, see the [installation guide](https://loopwerk.github.io/Saga/documentation/saga/installation).
+For manual setup or more detail, see the [installation guide](https://getsaga.dev/docs/installation/).
 
 
 ## Code over configuration
@@ -124,7 +124,7 @@ try await Saga(input: "content", output: "deploy")
 
 File-based and programmatic steps can be freely mixed. All items are available via `saga.allItems` after `run()` completes.
 
-The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includes a working iTunes API integration, and the [programmatic items guide](https://loopwerk.github.io/Saga/documentation/saga/advancedusage#Programmatic-Items) has a full walkthrough.
+The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includes a working iTunes API integration, and the [programmatic items guide](https://getsaga.dev/docs/advancedusage/#programmatic-items) has a full walkthrough.
 
 
 ## Documentation
@@ -132,7 +132,7 @@ The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includ
 Full documentation covering installation, getting started, metadata modeling, and advanced usage is available:
 
 - In Xcode via Product → Build Documentation
-- Online at [loopwerk.github.io/Saga/documentation/saga/](https://loopwerk.github.io/Saga/documentation/saga/)
+- Online at [getsaga.dev/docs/](https://getsaga.dev/docs/)
 
 
 ## Plugins
@@ -164,6 +164,7 @@ Saga requires Swift 5.5+ and runs on macOS 12+ and Linux.
 - [loopwerk.io](https://loopwerk.io) ([source](https://github.com/loopwerk/loopwerk.io))
 - [mhoush.com](https://mhoush.com) ([source](https://github.com/m-housh/mhoush.com))
 - [spamusement.cc](https://www.spamusement.cc) ([source](https://github.com/kevinrenskers/spamusement.cc))
+- [getsaga.dev](https://getsaga.dev) ([source](https://github.com/loopwerk/getsaga.dev))
 
 Is your website built with Saga? Send a pull request to add it to the list!
 
