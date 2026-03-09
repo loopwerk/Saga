@@ -20,8 +20,8 @@ import Foundation
 ///   - image: An optional function which takes an `Item` and returns its image URL (absolute or relative to baseURL).
 ///   - dateKeyPath: A keypath to the date property to use for the <updated> field. Defaults to `\.lastModified`.
 /// - Returns: A function which takes a rendering context, and returns a string.
-public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: ((Item<M>) -> String?)? = nil, image: ((Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (_ context: Context) -> String where Context.M == M {
-  let RFC3339_DF = ISO8601DateFormatter()
+public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: (@Sendable (Item<M>) -> String?)? = nil, image: (@Sendable (Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) where Context.M == M {
+  nonisolated(unsafe) let RFC3339_DF = ISO8601DateFormatter()
 
   return { context in
     let feedPath = context.outputPath.string
