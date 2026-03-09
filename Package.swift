@@ -12,7 +12,7 @@ let package = Package(
     .executable(name: "watch", targets: ["SagaWatch"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
+    .package(url: "https://github.com/loopwerk/PathKit", from: "1.3.0"),
     .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
     // Cap swift-asn1 (transitive dep of swift-crypto) to versions that support Swift 5.10
     .package(url: "https://github.com/apple/swift-asn1.git", "1.0.0"..<"1.5.0"),
