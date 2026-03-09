@@ -57,10 +57,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Trigger getsaga.dev rebuild
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.DOCS_SITE_PAT }}
-          repository: loopwerk/getsaga.dev
-          event-type: saga-release

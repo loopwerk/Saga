@@ -1,0 +1,18 @@
+name: Trigger GetSaga.dev update
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  trigger-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger GetSaga.dev update
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DOCS_SITE_PAT }}
+          repository: loopwerk/getsaga.dev
+          event-type: saga-release
