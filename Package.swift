@@ -13,8 +13,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/kylef/PathKit", from: "1.0.1"),
-    .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
-    .package(url: "https://github.com/apple/swift-asn1.git", "1.0.0"..<"1.5.0"),
+    .package(url: "https://github.com/apple/swift-crypto", "3.0.0"..<"4.0.0"),
     .package(url: "https://github.com/apple/swift-argument-parser", "1.3.0"..<"1.7.0"),
     // .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),
   ],
