@@ -798,7 +798,7 @@ final class SagaTests: XCTestCase {
   }
 
   func testPostProcessReceivesRelativePath() async throws {
-    var receivedPaths: [Path] = []
+    nonisolated(unsafe) var receivedPaths: [Path] = []
 
     var mock = FileIO.mock
     mock.findFiles = { _ in [] }

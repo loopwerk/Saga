@@ -9,6 +9,10 @@ import PathKit
 private var _hashFunction: ((String) -> String)?
 private let _hashLock = NSLock()
 
+private class ItemBox<M: Metadata>: @unchecked Sendable {
+  var items: [Item<M>] = []
+}
+
 private func setHashFunction(_ fn: ((String) -> String)?) {
   _hashLock.lock()
   _hashFunction = fn
@@ -164,19 +168,21 @@ public class Saga: @unchecked Sendable {
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
   public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping () async throws -> [Item<M>], itemProcessor: ((Item<M>) async -> Void)? = nil, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
-    var items: [Item<M>] = []
+    // Use a reference type to share items between the read and write closures
+    // without capturing a mutable variable in the @Sendable write closure.
+    let box = ItemBox<M>()
     return register(
       read: { saga in
-        items = try await fetch().sorted(by: sorting)
+        box.items = try await fetch().sorted(by: sorting)
         if let itemProcessor = itemProcessor {
-          for item in items {
+          for item in box.items {
             await itemProcessor(item)
           }
         }
-        saga.allItems.append(contentsOf: items)
+        saga.allItems.append(contentsOf: box.items)
       },
       write: { saga in
-        let capturedItems = items
+        let capturedItems = box.items
         try await withThrowingTaskGroup(of: Void.self) { group in
           for writer in writers {
             group.addTask {
@@ -203,7 +209,7 @@ public class Saga: @unchecked Sendable {
   ///   .run()
   /// ```
   @discardableResult
-  public func register(write: @escaping (Saga) async throws -> Void) -> Self {
+  public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
       .init(read: { _ in }, write: write, saga: self)
     )
@@ -216,7 +222,7 @@ public class Saga: @unchecked Sendable {
   /// The read closure runs during the read phase (before items are sorted),
   /// and the write closure runs during the write phase (after all readers have finished).
   @discardableResult
-  public func register(read: @escaping (Saga) async throws -> Void, write: @escaping (Saga) async throws -> Void) -> Self {
+  public func register(read: @escaping (Saga) async throws -> Void, write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
       .init(read: read, write: write, saga: self)
     )
@@ -237,7 +243,7 @@ public class Saga: @unchecked Sendable {
   ///   .run()
   /// ```
   @discardableResult
-  public func postProcess(_ transform: @escaping (String, Path) throws -> String) -> Self {
+  public func postProcess(_ transform: @Sendable @escaping (String, Path) throws -> String) -> Self {
     let originalWrite = fileIO.write
     let outputPath = self.outputPath
     fileIO.write = { destination, content in
@@ -266,7 +272,7 @@ public class Saga: @unchecked Sendable {
   ///   .run()
   /// ```
   @discardableResult
-  public func createPage(_ output: Path, using renderer: @escaping (PageRenderingContext) async throws -> String) -> Self {
+  public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
     register(write: { saga in
       let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
       let stringToWrite = try await renderer(context)

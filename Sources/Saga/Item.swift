@@ -9,7 +9,7 @@ public struct EmptyMetadata: Metadata {
 }
 
 /// A type-erased version of ``Item``.
-public protocol AnyItem: AnyObject {
+public protocol AnyItem: AnyObject, Sendable {
   var absoluteSource: Path { get }
   var relativeSource: Path { get }
   var filenameWithoutExtension: String { get }

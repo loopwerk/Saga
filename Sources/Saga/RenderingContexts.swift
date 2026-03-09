@@ -5,7 +5,7 @@ import PathKit
 /// Contains the single item being rendered, along with all items from the same processing step,
 /// all items across all steps, neighboring items for navigation, and any unhandled files (resources)
 /// in the same folder as the item.
-public struct ItemRenderingContext<M: Metadata> {
+public struct ItemRenderingContext<M: Metadata>: @unchecked Sendable {
   /// The item being rendered.
   public let item: Item<M>
 
@@ -39,7 +39,7 @@ public protocol AtomContext {
 /// The rendering context passed to a ``Writer/listWriter(_:output:paginate:paginatedOutput:)`` renderer.
 ///
 /// Contains all items from the processing step, optionally paginated.
-public struct ItemsRenderingContext<M: Metadata>: AtomContext {
+public struct ItemsRenderingContext<M: Metadata>: AtomContext, @unchecked Sendable {
   /// All items from the same processing step (or the current page's slice when paginated), in sorted order.
   public let items: [Item<M>]
 
@@ -61,7 +61,7 @@ public typealias ContextKey = Comparable & CustomStringConvertible
 /// and ``Writer/yearWriter(_:output:paginate:paginatedOutput:)`` renderers.
 ///
 /// Contains items grouped by a partition key (such as a tag or year), optionally paginated.
-public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomContext {
+public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomContext, @unchecked Sendable {
   /// The partition key for this group of items.
   public let key: T
 
@@ -82,7 +82,7 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 ///
 /// Unlike other rendering contexts, this is not associated with any ``Item``. It's for pages
 /// that are purely template-driven, such as a homepage, search page, or 404 page.
-public struct PageRenderingContext {
+public struct PageRenderingContext: @unchecked Sendable {
   /// All items across all registered processing steps.
   public let allItems: [AnyItem]
 
@@ -96,7 +96,7 @@ public struct PageRenderingContext {
 /// The rendering context will be given a `Paginator` which can be used to include links to previous and next pages in your website.
 ///
 /// This is very common for blogs, where the archive of all articles is paginated: 20 articles per page for example.
-public struct Paginator {
+public struct Paginator: @unchecked Sendable {
   /// The current index.
   /// > Note: The first page has index 1.
   public let index: Int
