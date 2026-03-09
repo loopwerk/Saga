@@ -25,7 +25,7 @@ public protocol AnyItem: AnyObject {
 /// A model representing an item.
 ///
 /// An item can be any text file (like a Markdown or RestructedText file). ``Reader``s will turn the file into an ``Item``, and ``Writer``s will turn the ``Item`` into a `String` (for example HTML or RSS) to be written to disk.
-public class Item<M: Metadata>: AnyItem {
+public class Item<M: Metadata>: AnyItem, @unchecked Sendable {
   /// The absolute path of the file
   public let absoluteSource: Path
 

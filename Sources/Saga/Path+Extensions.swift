@@ -40,7 +40,7 @@ public extension Path {
   }
 }
 
-#if swift(>=6.0)
+#if compiler(>=6.0)
   extension Path: @retroactive Decodable {
     public init(from decoder: Decoder) throws {
       let container = try decoder.singleValueContainer()
