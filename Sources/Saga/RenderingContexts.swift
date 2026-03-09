@@ -80,7 +80,7 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 
 /// The rendering context for template-driven pages created with ``Saga/createPage(_:using:)``.
 ///
-/// Unlike other rendering contexts, this is not associated with any ``Item`` — it's for pages
+/// Unlike other rendering contexts, this is not associated with any ``Item``. It's for pages
 /// that are purely template-driven, such as a homepage, search page, or 404 page.
 public struct PageRenderingContext {
   /// All items across all registered processing steps.
