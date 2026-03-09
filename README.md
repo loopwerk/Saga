@@ -156,7 +156,7 @@ Saga is modular. You compose it with readers and renderers that fit your needs.
 
 ## Requirements
 
-Saga requires Swift 5.5+ and runs on macOS 12+ and Linux.
+Saga requires Swift 5.10+ and runs on macOS 14+ and Linux.
 
 
 ## Websites using Saga
