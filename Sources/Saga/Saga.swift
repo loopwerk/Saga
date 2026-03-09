@@ -7,6 +7,8 @@ import Foundation
 import PathKit
 
 private var _hashFunction: ((String) -> String)?
+// TODO: Replace manual lock()/unlock() calls with NSLock.withLock once we require Swift 6+
+// (withLock is not available on Linux with Swift 5.10)
 private let _hashLock = NSLock()
 
 /// Returns a cache-busted file path by inserting a content hash into the filename.
@@ -170,10 +172,11 @@ public class Saga: @unchecked Sendable {
         saga.allItems.append(contentsOf: items)
       },
       write: { saga in
+        let capturedItems = items
         try await withThrowingTaskGroup(of: Void.self) { group in
           for writer in writers {
             group.addTask {
-              try await writer.run(items, saga.allItems, saga.fileStorage, saga.outputPath, "", saga.fileIO)
+              try await writer.run(capturedItems, saga.allItems, saga.fileStorage, saga.outputPath, "", saga.fileIO)
             }
           }
           try await group.waitForAll()
@@ -329,8 +332,8 @@ public class Saga: @unchecked Sendable {
 
     // The closure runs under _hashLock (acquired by the global hashed() function),
     // so container.contentHash access is thread-safe without additional locking.
-    _hashLock.withLock {
-      guard !isDev else { return }
+    _hashLock.lock()
+    if !isDev {
       _hashFunction = { path in
         let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
         guard let container = fileStorageRef.first(where: { $0.relativePath.string == stripped }) else {
@@ -359,6 +362,7 @@ public class Saga: @unchecked Sendable {
         }
       }
     }
+    _hashLock.unlock()
 
     // And run all the writers for all the steps, using those stored Items.
     let writeStart = DispatchTime.now()
@@ -388,9 +392,9 @@ public class Saga: @unchecked Sendable {
     }
 
     // Reset the hash function
-    _hashLock.withLock {
-      _hashFunction = nil
-    }
+    _hashLock.lock()
+    _hashFunction = nil
+    _hashLock.unlock()
 
     let totalEnd = DispatchTime.now()
     let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds
