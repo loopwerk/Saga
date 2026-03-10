@@ -30,7 +30,7 @@ import PathKit
 /// ```
 ///
 /// > Note: Instead of constructing your own `Reader` from scratch for your website, you should probably install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
-public struct Reader {
+public struct Reader: Sendable {
   /// Which file extensions can be handled by this reader? For example `md` or `rst`.
   var supportedExtensions: [String]
 
@@ -38,7 +38,7 @@ public struct Reader {
   /// This is useful for readers that handle binary files like images, where the source file needs to exist in the output alongside any generated pages.
   var copySourceFiles: Bool
 
-  public typealias Converter = (_ absoluteSource: Path) async throws -> (title: String?, body: String, frontmatter: [String: String]?)
+  public typealias Converter = @Sendable (_ absoluteSource: Path) async throws -> (title: String?, body: String, frontmatter: [String: String]?)
 
   /// The function that will do the actual work of reading and converting a file path into an ``Item``.
   public var convert: Converter

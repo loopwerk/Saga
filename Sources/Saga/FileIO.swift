@@ -2,16 +2,16 @@ import Foundation
 import PathKit
 
 /// A wrapper around file operations used by Saga, to abstract away the PathKit dependency.
-public struct FileIO {
-  var resolveSwiftPackageFolder: (Path) throws -> Path
-  var findFiles: (Path) throws -> [Path]
-  var deletePath: (Path) throws -> Void
-  var write: (Path, String) throws -> Void
-  var mkpath: (Path) throws -> Void
-  var read: (Path) throws -> Data
-  var copy: (Path, Path) throws -> Void
-  var creationDate: (Path) -> Date?
-  var modificationDate: (Path) -> Date?
+public struct FileIO: Sendable {
+  var resolveSwiftPackageFolder: @Sendable (Path) throws -> Path
+  var findFiles: @Sendable (Path) throws -> [Path]
+  var deletePath: @Sendable (Path) throws -> Void
+  var write: @Sendable (Path, String) throws -> Void
+  var mkpath: @Sendable (Path) throws -> Void
+  var read: @Sendable (Path) throws -> Data
+  var copy: @Sendable (Path, Path) throws -> Void
+  var creationDate: @Sendable (Path) -> Date?
+  var modificationDate: @Sendable (Path) -> Date?
 }
 
 public extension FileIO {

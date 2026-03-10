@@ -1,36 +1,25 @@
 import Foundation
 import PathKit
 
-class ProcessStep<M: Metadata> {
+struct ProcessStep<M: Metadata> {
   let folder: Path?
   let readers: [Reader]
-  let filter: (Item<M>) -> Bool
+  let filter: @Sendable (Item<M>) -> Bool
   let claimExcludedItems: Bool
-  let itemProcessor: ((Item<M>) async -> Void)?
-  let sorting: (Item<M>, Item<M>) -> Bool
+  let itemProcessor: (@Sendable (Item<M>) async -> Void)?
+  let sorting: @Sendable (Item<M>, Item<M>) -> Bool
   let writers: [Writer<M>]
-  var items: [Item<M>]
-
-  init(folder: Path?, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)?, filter: @escaping (Item<M>) -> Bool, claimExcludedItems: Bool, sorting: @escaping (Item<M>, Item<M>) -> Bool, writers: [Writer<M>]) {
-    self.folder = folder
-    self.readers = readers
-    self.itemProcessor = itemProcessor
-    self.filter = filter
-    self.claimExcludedItems = claimExcludedItems
-    self.sorting = sorting
-    self.writers = writers
-    items = []
-  }
 }
 
-class AnyProcessStep {
-  let runReaders: () async throws -> Void
-  let runWriters: () async throws -> Void
+final class AnyProcessStep: Sendable {
+  let runReaders: @Sendable () async throws -> [AnyItem]
+  let runWriters: @Sendable () async throws -> Void
 
-  /// File-based processing step: reads files from disk, creates Items, appends to saga.allItems.
+  /// File-based processing step: reads files from disk, creates Items, returns them.
   init<M: Metadata>(step: ProcessStep<M>, saga: Saga, itemWriteMode: ItemWriteMode) {
+    let box = ItemBox<M>()
     let fileStorage = saga.fileStorage
-    let outputPath = saga.outputPath
+    let fileIO = saga.fileIO
 
     runReaders = {
       let unhandledFileContainers = fileStorage.filter { $0.handled == false }
@@ -71,9 +60,9 @@ class AnyProcessStep {
                 relativeDestination: container.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
                 title: partialItem.title ?? container.relativePath.lastComponentWithoutExtension,
                 body: partialItem.body,
-                date: date ?? saga.fileIO.creationDate(container.path) ?? Date(),
-                created: saga.fileIO.creationDate(container.path) ?? Date(),
-                lastModified: saga.fileIO.modificationDate(container.path) ?? Date(),
+                date: date ?? fileIO.creationDate(container.path) ?? Date(),
+                created: fileIO.creationDate(container.path) ?? Date(),
+                lastModified: fileIO.modificationDate(container.path) ?? Date(),
                 metadata: metadata
               )
 
@@ -107,7 +96,7 @@ class AnyProcessStep {
 
         // Collect all successful items in deterministic order
         var indexedResults: [(Int, Item<M>)] = []
-        for try await(index, item) in group {
+        for try await (index, item) in group {
           if let item = item {
             indexedResults.append((index, item))
           }
@@ -117,15 +106,16 @@ class AnyProcessStep {
         return indexedResults.sorted(by: { $0.0 < $1.0 }).map(\.1)
       }
 
-      step.items = items.sorted(by: step.sorting)
-      saga.allItems.append(contentsOf: step.items)
+      box.items = items.sorted(by: step.sorting)
+      return box.items
     }
 
     runWriters = {
+      let stepItems = box.items
       try await withThrowingTaskGroup(of: Void.self) { group in
         for writer in step.writers {
           group.addTask {
-            try await writer.run(step.items, saga.allItems, fileStorage, outputPath, step.folder ?? "", saga.fileIO)
+            try await writer.run(stepItems, saga.allItems, fileStorage, saga.outputPath, step.folder ?? "") { try saga.processedWrite($0, $1) }
           }
         }
         try await group.waitForAll()
@@ -134,7 +124,7 @@ class AnyProcessStep {
   }
 
   /// Custom processing step with user-provided read and write closures.
-  init(read: @escaping (Saga) async throws -> Void, write: @escaping (Saga) async throws -> Void, saga: Saga) {
+  init(read: @Sendable @escaping (Saga) async throws -> [AnyItem], write: @Sendable @escaping (Saga) async throws -> Void, saga: Saga) {
     runReaders = {
       try await read(saga)
     }

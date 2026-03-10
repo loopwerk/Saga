@@ -1,7 +1,7 @@
 import PathKit
 
 /// A wrapper around a `Path`, used to keep track if got handled by one of the registered processing steps.
-public class FileContainer {
+public class FileContainer: @unchecked Sendable {
   public let path: Path
   public let relativePath: Path
 

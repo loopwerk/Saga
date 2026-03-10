@@ -9,7 +9,7 @@ import PathKit
 private var _hashFunction: ((String) -> String)?
 private let _hashLock = NSLock()
 
-private class ItemBox<M: Metadata>: @unchecked Sendable {
+class ItemBox<M: Metadata>: @unchecked Sendable {
   var items: [Item<M>] = []
 }
 
@@ -75,7 +75,20 @@ public class Saga: @unchecked Sendable {
   public internal(set) var allItems: [AnyItem] = []
 
   var processSteps = [AnyProcessStep]()
-  var fileIO: FileIO
+  let fileIO: FileIO
+  var postProcessors: [@Sendable (String, Path) throws -> String] = []
+
+  /// Write content to a file, applying any registered post-processors.
+  func processedWrite(_ destination: Path, _ content: String) throws {
+    var result = content
+    if !postProcessors.isEmpty {
+      let relativePath = try destination.relativePath(from: outputPath)
+      for transform in postProcessors {
+        result = try transform(result, relativePath)
+      }
+    }
+    try fileIO.write(destination, result)
+  }
 
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
     let originFile = Path("\(originFilePath)")
@@ -98,7 +111,7 @@ public class Saga: @unchecked Sendable {
   /// Register a new processing step.
   @available(*, deprecated, renamed: "register(folder:metadata:readers:itemProcessor:filter:claimExcludedItems:itemWriteMode:sorting:writers:)")
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, filteredOutItemsAreHandled: Bool, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, filteredOutItemsAreHandled: Bool, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
     try register(folder: folder, metadata: metadata, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: filteredOutItemsAreHandled, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
   }
 
@@ -118,7 +131,7 @@ public class Saga: @unchecked Sendable {
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: ((Item<M>) async -> Void)? = nil, filter: @escaping ((Item<M>) -> Bool) = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
+  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
     // When folder ends with "/**", create one ProcessStep per subfolder
     if let folder = folder, folder.string.hasSuffix("/**") {
       let baseFolder = Path(String(folder.string.dropLast(3)))
@@ -135,23 +148,15 @@ public class Saga: @unchecked Sendable {
       )
 
       for subFolder in subFolders.sorted(by: { $0.string < $1.string }) {
-        let step = ProcessStep(folder: subFolder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, sorting: sorting, writers: writers)
+        let step = ProcessStep(folder: subFolder, readers: readers, filter: filter, claimExcludedItems: claimExcludedItems, itemProcessor: itemProcessor, sorting: sorting, writers: writers)
         processSteps.append(
-          .init(
-            step: step,
-            saga: self,
-            itemWriteMode: itemWriteMode
-          )
+          .init(step: step, saga: self, itemWriteMode: itemWriteMode)
         )
       }
     } else {
-      let step = ProcessStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, sorting: sorting, writers: writers)
+      let step = ProcessStep(folder: folder, readers: readers, filter: filter, claimExcludedItems: claimExcludedItems, itemProcessor: itemProcessor, sorting: sorting, writers: writers)
       processSteps.append(
-        .init(
-          step: step,
-          saga: self,
-          itemWriteMode: itemWriteMode
-        )
+        .init(step: step, saga: self, itemWriteMode: itemWriteMode)
       )
     }
     return self
@@ -167,26 +172,26 @@ public class Saga: @unchecked Sendable {
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
-  public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping () async throws -> [Item<M>], itemProcessor: ((Item<M>) async -> Void)? = nil, sorting: @escaping (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
+  public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping @Sendable () async throws -> [Item<M>], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
     // Use a reference type to share items between the read and write closures
     // without capturing a mutable variable in the @Sendable write closure.
     let box = ItemBox<M>()
     return register(
-      read: { saga in
+      read: { _ in
         box.items = try await fetch().sorted(by: sorting)
         if let itemProcessor = itemProcessor {
           for item in box.items {
             await itemProcessor(item)
           }
         }
-        saga.allItems.append(contentsOf: box.items)
+        return box.items
       },
       write: { saga in
         let capturedItems = box.items
         try await withThrowingTaskGroup(of: Void.self) { group in
           for writer in writers {
             group.addTask {
-              try await writer.run(capturedItems, saga.allItems, saga.fileStorage, saga.outputPath, "", saga.fileIO)
+              try await writer.run(capturedItems, saga.allItems, saga.fileStorage, saga.outputPath, "") { try saga.processedWrite($0, $1) }
             }
           }
           try await group.waitForAll()
@@ -211,7 +216,7 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
-      .init(read: { _ in }, write: write, saga: self)
+      .init(read: { _ in [] }, write: write, saga: self)
     )
     return self
   }
@@ -219,10 +224,10 @@ public class Saga: @unchecked Sendable {
   /// Register a custom processing step with user-provided read and write closures.
   ///
   /// Use this for custom logic that doesn't fit the standard reader/writer pipeline.
-  /// The read closure runs during the read phase (before items are sorted),
+  /// The read closure runs during the read phase (before items are sorted) and returns items,
   /// and the write closure runs during the write phase (after all readers have finished).
   @discardableResult
-  public func register(read: @escaping (Saga) async throws -> Void, write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
+  public func register(read: @Sendable @escaping (Saga) async throws -> [AnyItem], write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
       .init(read: read, write: write, saga: self)
     )
@@ -244,13 +249,7 @@ public class Saga: @unchecked Sendable {
   /// ```
   @discardableResult
   public func postProcess(_ transform: @Sendable @escaping (String, Path) throws -> String) -> Self {
-    let originalWrite = fileIO.write
-    let outputPath = self.outputPath
-    fileIO.write = { destination, content in
-      let relativePath = try destination.relativePath(from: outputPath)
-      let transformed = try transform(content, relativePath)
-      try originalWrite(destination, transformed)
-    }
+    postProcessors.append(transform)
     return self
   }
 
@@ -276,7 +275,7 @@ public class Saga: @unchecked Sendable {
     register(write: { saga in
       let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
       let stringToWrite = try await renderer(context)
-      try saga.fileIO.write(saga.outputPath + output, stringToWrite)
+      try saga.processedWrite(saga.outputPath + output, stringToWrite)
     })
   }
 
@@ -296,7 +295,8 @@ public class Saga: @unchecked Sendable {
     // which turns raw content into Items, and stores them within the step.
     let readStart = DispatchTime.now()
     for step in processSteps {
-      try await step.runReaders()
+      let newItems = try await step.runReaders()
+      allItems.append(contentsOf: newItems)
     }
 
     let readEnd = DispatchTime.now()
@@ -336,10 +336,6 @@ public class Saga: @unchecked Sendable {
 
     // Set up the hash function so renderers can call hashed() during the write phase.
     // In dev mode, skip hashing so filenames stay stable for auto-reload.
-    let fileStorageRef = fileStorage
-    let inputPathRef = inputPath
-    let fileIORef = fileIO
-
     // The closure runs under _hashLock (acquired by the global hashed() function),
     // so container.contentHash access is thread-safe without additional locking.
     // TODO: Replace manual lock()/unlock() calls with NSLock.withLock once we require Swift 6+
@@ -347,7 +343,7 @@ public class Saga: @unchecked Sendable {
     if !isDev {
       setHashFunction { path in
         let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
-        guard let container = fileStorageRef.first(where: { $0.relativePath.string == stripped }) else {
+        guard let container = self.fileStorage.first(where: { $0.relativePath.string == stripped }) else {
           return path
         }
 
@@ -359,7 +355,7 @@ public class Saga: @unchecked Sendable {
         }
 
         do {
-          let data = try fileIORef.read(container.path)
+          let data = try self.fileIO.read(container.path)
           let digest = Insecure.MD5.hash(data: data)
           let hashString = String(digest.map { String(format: "%02x", $0) }.joined().prefix(8))
           container.contentHash = hashString
@@ -395,7 +391,7 @@ public class Saga: @unchecked Sendable {
       let ext = relativePath.extension ?? ""
       let hashedName = relativePath.lastComponentWithoutExtension + "-" + container.contentHash! + (ext.isEmpty ? "" : ".\(ext)")
       let hashedRelativePath = relativePath.parent() + Path(hashedName)
-      let source = inputPathRef + relativePath
+      let source = inputPath + relativePath
       let destination = outputPath + hashedRelativePath
       try fileIO.mkpath(destination.parent())
       try fileIO.copy(source, destination)
