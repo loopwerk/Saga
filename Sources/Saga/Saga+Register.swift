@@ -1,8 +1,23 @@
 import Foundation
 import SagaPathKit
 
+private struct FileReadResult<M: Metadata> {
+  let filePath: Path
+  let item: Item<M>?
+  let claimFile: Bool
+}
+
 extension Saga {
-  func addFileStep<M: Metadata>(folder: Path?, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)?, filter: @escaping @Sendable (Item<M>) -> Bool, claimExcludedItems: Bool, itemWriteMode: ItemWriteMode, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool, writers: [Writer<M>]) {
+  func addFileStep<M: Metadata>(
+    folder: Path?,
+    readers: [Reader],
+    itemProcessor: (@Sendable (Item<M>) async -> Void)?,
+    filter: @escaping @Sendable (Item<M>) -> Bool,
+    claimExcludedItems: Bool,
+    itemWriteMode: ItemWriteMode,
+    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool,
+    writers: [Writer<M>]
+  ) {
     let read: ReadStep = { [self] in
       // Filter to only files that match the folder (if any) and have a supported reader
       let relevant = unhandledFiles.filter { file in
@@ -13,12 +28,12 @@ extension Saga {
       }
 
       // Process files in parallel with deterministic result ordering
-      let items = try await withThrowingTaskGroup(of: (Int, Item<M>?, Bool).self) { group in
-        for (index, file) in relevant.enumerated() {
+      let items = try await withThrowingTaskGroup(of: FileReadResult<M>.self) { group in
+        for file in relevant {
           group.addTask {
             // Pick the first reader that is able to work on this file, based on file extension
             guard let reader = readers.first(where: { $0.supportedExtensions.contains(file.path.extension ?? "") }) else {
-              return (index, nil, false)
+              return FileReadResult(filePath: file.path, item: nil, claimFile: false)
             }
 
             do {
@@ -48,11 +63,10 @@ extension Saga {
                 await itemProcessor(item)
               }
 
-              // Return the Item if it passes the filter, along with whether to mark the file as handled
               if filter(item) {
-                return (index, item, !reader.copySourceFiles)
+                return FileReadResult(filePath: file.path, item: item, claimFile: !reader.copySourceFiles)
               } else {
-                return (index, nil, claimExcludedItems)
+                return FileReadResult(filePath: file.path, item: nil, claimFile: claimExcludedItems)
               }
             } catch {
               // Couldn't convert the file into an Item, probably because of missing metadata.
@@ -60,24 +74,24 @@ extension Saga {
               // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
               // which is probably not what you want.
               print("❕File \(file.relativePath) failed conversion to Item<\(M.self)>, error: ", error)
-              return (index, nil, true)
+              return FileReadResult(filePath: file.path, item: nil, claimFile: true)
             }
           }
         }
 
         // Collect results serially — safe to update handledPaths here
-        var indexed: [(Int, Item<M>)] = []
-        for try await (index, item, shouldHandle) in group {
-          if shouldHandle {
-            self.handledPaths.insert(relevant[index].path)
+        var items: [Item<M>] = []
+        for try await result in group {
+          if result.claimFile {
+            self.handledPaths.insert(result.filePath)
           }
-          if let item {
-            indexed.append((index, item))
+
+          if let item = result.item {
+            items.append(item)
           }
         }
 
-        // Sort by original index to maintain deterministic order before date sorting
-        return indexed.sorted { $0.0 < $1.0 }.map(\.1)
+        return items
       }
 
       return items.sorted(by: sorting)
@@ -93,6 +107,7 @@ extension Saga {
         write: { try self.processedWrite($0, $1) },
         resourcesByFolder: resourcesByFolder()
       )
+
       try await withThrowingTaskGroup(of: Void.self) { group in
         for writer in writers {
           group.addTask { try await writer.run(context) }

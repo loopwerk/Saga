@@ -141,7 +141,17 @@ public class Saga: @unchecked Sendable {
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
   @preconcurrency
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
+  public func register<M: Metadata>(
+    folder: Path? = nil,
+    metadata: M.Type = EmptyMetadata.self,
+    readers: [Reader],
+    itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
+    filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true },
+    claimExcludedItems: Bool = true,
+    itemWriteMode: ItemWriteMode = .moveToSubfolder,
+    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
+    writers: [Writer<M>]
+  ) throws -> Self {
     // When folder ends with "/**", create one step per subfolder
     if let folder, folder.string.hasSuffix("/**") {
       let baseFolder = Path(String(folder.string.dropLast(3)))
@@ -180,7 +190,13 @@ public class Saga: @unchecked Sendable {
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
   @preconcurrency
-  public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping @Sendable () async throws -> [Item<M>], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
+  public func register<M: Metadata>(
+    metadata: M.Type = EmptyMetadata.self,
+    fetch: @escaping @Sendable () async throws -> [Item<M>],
+    itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
+    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
+    writers: [Writer<M>]
+  ) -> Self {
     let read: ReadStep = {
       let items = try await fetch().sorted(by: sorting)
       if let itemProcessor {
@@ -245,7 +261,10 @@ public class Saga: @unchecked Sendable {
   /// and the write closure runs during the write phase (after all readers have finished).
   @discardableResult
   @preconcurrency
-  public func register(read: @Sendable @escaping (Saga) async throws -> [AnyItem], write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
+  public func register(
+    read: @Sendable @escaping (Saga) async throws -> [AnyItem],
+    write: @Sendable @escaping (Saga) async throws -> Void
+  ) -> Self {
     processSteps.append((
       read: { [self] in try await read(self) },
       write: { [self] _ in try await write(self) }

@@ -455,8 +455,6 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
 
     // itemWriter: a.md and b.md are scoped to sub1, c.md is alone in sub2
-    // Both a.md and b.md have same date from mock, so their order depends on deterministic index ordering
-    // a.md comes before b.md by index, but sorted by date descending they keep index order when dates are equal
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/a/index.html" }))
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/b/index.html" }))
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub2/c/index.html" }))
