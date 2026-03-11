@@ -3,7 +3,7 @@ import Foundation
 extension String {
   var numberOfWords: Int {
     let characterSet = CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters)
-    let components = self.components(separatedBy: characterSet)
+    let components = components(separatedBy: characterSet)
     return components.filter { !$0.isEmpty }.count
   }
 

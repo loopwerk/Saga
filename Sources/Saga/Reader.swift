@@ -1,4 +1,4 @@
-import PathKit
+import SagaPathKit
 
 /// Readers are responsible for turning text files into ``Item`` instances.
 ///
@@ -34,7 +34,7 @@ public struct Reader: Sendable {
   /// Which file extensions can be handled by this reader? For example `md` or `rst`.
   var supportedExtensions: [String]
 
-  /// When true, the source files processed by this reader will still be copied to the output folder by ``Saga/staticFiles()``.
+  /// When true, the source files processed by this reader will still be copied to the output folder.
   /// This is useful for readers that handle binary files like images, where the source file needs to exist in the output alongside any generated pages.
   var copySourceFiles: Bool
 

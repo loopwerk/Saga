@@ -566,7 +566,7 @@ private extension MetadataDecoder {
     }
 
     private func evaluateIfNeeded() -> Evaluated {
-      if let evaluated = evaluated {
+      if let evaluated {
         return evaluated
       }
 
@@ -595,7 +595,7 @@ private extension MetadataDecoder {
   }
 }
 
-private extension Array where Element == CodingKey {
+private extension [CodingKey] {
   func asPrefix(includingTrailingSeparator addTrailingSeparator: Bool = true) -> String {
     var isFirstKey = true
 
@@ -752,7 +752,7 @@ private extension Decoder {
   /// Decode an optional value for a given key, specified as a `CodingKey`. Throws an error if the
   /// specified key exists but is not able to be decoded as the inferred type.
   func decodeIfPresent<T: Decodable, K: CodingKey>(_ key: K, as type: T.Type = T.self) throws -> T? {
-    let container = try self.container(keyedBy: K.self)
+    let container = try container(keyedBy: K.self)
     return try container.decodeIfPresent(type, forKey: key)
   }
 }

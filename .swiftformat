@@ -3,3 +3,4 @@
 --patternlet inline
 --disable unusedArguments
 --disable redundantReturn
+--disable opaqueGenericParameters

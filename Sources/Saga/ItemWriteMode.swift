@@ -1,5 +1,5 @@
 /// A value that represents item writing modes.
-public enum ItemWriteMode {
+public enum ItemWriteMode: Sendable {
   /// This will write a file like `content/about.md` as `deploy/about.html`
   case keepAsFile
 

@@ -36,7 +36,7 @@ This scaffolds a complete project with articles, tags, Swim templates, and a sty
 If you prefer to set things up yourself, create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see <doc:Architecture>), so that it looks something like this:
 
 ```swift
-// swift-tools-version:5.10
+// swift-tools-version:6.0
 
 import PackageDescription
 
@@ -67,4 +67,4 @@ Now you can `import Saga` and use it. You can continue with the <doc:GettingStar
 
 
 ## System requirements
-Saga requires at least Swift 5.10, and runs on both Mac (macOS 14) and Linux.
+Saga requires at least Swift 6.0, and runs on both Mac (macOS 14) and Linux.

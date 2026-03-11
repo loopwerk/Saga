@@ -1,6 +1,6 @@
 import Foundation
-import PathKit
 import Saga
+import SagaPathKit
 
 struct ITunesResponse: Decodable {
   let results: [ITunesResult]

@@ -1,13 +1,13 @@
 import Foundation
-import PathKit
+import SagaPathKit
 
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
 ///
 /// To turn an ``Item`` into a `String`, a `Writer` uses a "renderer"; a function that knows how to turn a rendering context such as ``ItemRenderingContext`` into a `String`.
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
-public struct Writer<M: Metadata> {
-  let run: (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer], _ outputRoot: Path, _ outputPrefix: Path, _ write: @escaping @Sendable (Path, String) throws -> Void) async throws -> Void
+public struct Writer<M: Metadata>: Sendable {
+  let run: @Sendable (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer], _ outputRoot: Path, _ outputPrefix: Path, _ write: @escaping @Sendable (Path, String) throws -> Void) async throws -> Void
 }
 
 private extension Array {
@@ -28,7 +28,7 @@ public extension Writer {
             // Resources are unhandled files in the same folder. These could be images for example, or other static files.
             let resources = fileStorage
               .filter { $0.relativePath.parent() == item.relativeSource.parent() && !$0.handled }
-              .map { $0.path }
+              .map(\.path)
             let previous = index > 0 ? items[index - 1] : nil
             let next = index < items.count - 1 ? items[index + 1] : nil
             let context = ItemRenderingContext(item: item, items: items, allItems: allItems, resources: resources, previous: previous, next: next)
@@ -99,7 +99,7 @@ public extension Writer {
 }
 
 private extension Writer {
-  static func writePages<Context>(renderer: @escaping (Context) async throws -> String, items: [Item<M>], allItems: [AnyItem], outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, write: @escaping @Sendable (Path, String) throws -> Void, getContext: @escaping ([Item<M>], [AnyItem], Paginator?, Path) -> Context) async throws {
+  static func writePages<Context>(renderer: @escaping @Sendable (Context) async throws -> String, items: [Item<M>], allItems: [AnyItem], outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, write: @escaping @Sendable (Path, String) throws -> Void, getContext: @escaping @Sendable ([Item<M>], [AnyItem], Paginator?, Path) -> Context) async throws {
     if let perPage = paginate {
       let ranges = items.chunked(into: perPage)
       let numberOfPages = ranges.count

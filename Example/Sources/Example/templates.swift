@@ -1,8 +1,8 @@
 import Foundation
 import HTML
 import Moon
-import PathKit
 import Saga
+import SagaPathKit
 import SagaSwimRenderer
 
 // MARK: - Helpers
@@ -105,7 +105,7 @@ func articleInList(_ article: Item<ArticleMetadata>) -> Node {
 
 @NodeBuilder
 func renderPagination(_ paginator: Paginator?) -> Node {
-  if let paginator = paginator, paginator.numberOfPages > 1 {
+  if let paginator, paginator.numberOfPages > 1 {
     div(class: "pagination") {
       if let previous = paginator.previous {
         a(class: "pagination-link", href: previous.url) { "\u{2190} Previous" }
@@ -128,7 +128,7 @@ func renderArticles(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
   }
 }
 
-func renderPartition<T>(context: PartitionedRenderingContext<T, ArticleMetadata>) -> Node {
+func renderPartition(context: PartitionedRenderingContext<some Any, ArticleMetadata>) -> Node {
   baseHtml(title: "Articles in \(context.key)") {
     h1 { "Articles in \(context.key)" }
     context.items.map(articleInList)
@@ -239,7 +239,7 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
           a(class: "nav-prev", href: previous.url) { "\u{2190}" }
         }
 
-        if let album = album {
+        if let album {
           a(class: "nav-close", href: album.url) { "\u{2715}" }
         }
 

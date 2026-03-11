@@ -1,7 +1,7 @@
 import Foundation
-import PathKit
+import SagaPathKit
 
-struct ProcessStep<M: Metadata> {
+struct ProcessStep<M: Metadata>: Sendable {
   let folder: Path?
   let readers: [Reader]
   let filter: @Sendable (Item<M>) -> Bool
@@ -74,7 +74,7 @@ final class AnyProcessStep: Sendable {
               // Store the generated Item if it passes the filter
               if step.filter(item) {
                 container.handled = !reader.copySourceFiles
-                container._item = item
+
                 return (index, item)
               } else {
                 if step.claimExcludedItems {
@@ -97,7 +97,7 @@ final class AnyProcessStep: Sendable {
         // Collect all successful items in deterministic order
         var indexedResults: [(Int, Item<M>)] = []
         for try await (index, item) in group {
-          if let item = item {
+          if let item {
             indexedResults.append((index, item))
           }
         }

@@ -22,6 +22,7 @@ import Foundation
 /// - Returns: A function which takes a rendering context, and returns a string.
 public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: (@Sendable (Item<M>) -> String?)? = nil, image: (@Sendable (Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) where Context.M == M {
   nonisolated(unsafe) let RFC3339_DF = ISO8601DateFormatter()
+  nonisolated(unsafe) let dateKeyPath = dateKeyPath
 
   return { context in
     let feedPath = context.outputPath.string
@@ -42,7 +43,7 @@ public func atomFeed<Context: AtomContext, M>(title: String, author: String? = n
 
     rootElement.addChild(XMLElement(name: "title", stringValue: title))
 
-    if let author = author {
+    if let author {
       let authorElement = XMLElement(name: "author")
       authorElement.addChild(XMLElement(name: "name", stringValue: author))
       rootElement.addChild(authorElement)

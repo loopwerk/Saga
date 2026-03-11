@@ -1,7 +1,7 @@
 import Foundation
-import PathKit
+import SagaPathKit
 
-/// A wrapper around file operations used by Saga, to abstract away the PathKit dependency.
+/// A wrapper around file operations used by Saga, to abstract away the SagaPathKit dependency.
 public struct FileIO: Sendable {
   var resolveSwiftPackageFolder: @Sendable (Path) throws -> Path
   var findFiles: @Sendable (Path) throws -> [Path]
@@ -15,8 +15,8 @@ public struct FileIO: Sendable {
 }
 
 public extension FileIO {
-  /// The default version of `FileIO`, which uses PathKit.
-  static var diskAccess = Self(
+  /// The default version of `FileIO`, which uses SagaPathKit.
+  static let diskAccess = Self(
     resolveSwiftPackageFolder: { path in try path.resolveSwiftPackageFolder() },
     findFiles: { try $0.recursiveChildren().filter(\.isFile) },
     deletePath: { path in

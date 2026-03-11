@@ -1,5 +1,5 @@
 import Foundation
-import PathKit
+import SagaPathKit
 
 /// Run multiple item processors in sequence.
 ///
@@ -28,7 +28,7 @@ private let publicationDateFormatter: DateFormatter = {
 
 /// An item processor that takes files such as "2021-01-27-post-with-date-in-filename"
 /// and uses the date within the filename as the publication date.
-public func publicationDateInFilename<M>(item: Item<M>) async {
+@Sendable public func publicationDateInFilename<M>(item: Item<M>) async {
   // If the filename starts with a valid date, use that as the Page's date and strip it from the destination path
   let first10 = String(item.filenameWithoutExtension.prefix(10))
   guard first10.count == 10, let date = publicationDateFormatter.date(from: first10) else {

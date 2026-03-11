@@ -135,7 +135,7 @@ let item = Item(
 By default, the item's output path is derived from the slugified title: `my-article/index.html`. You can set a custom output path using the `relativeDestination` parameter:
 
 ```swift
-import PathKit
+import SagaPathKit
 
 let item = Item(
   title: "My Article",
@@ -154,7 +154,7 @@ Here's a complete example that fetches music videos from the iTunes API:
 
 ```swift
 import Foundation
-import PathKit
+import SagaPathKit
 import Saga
 
 struct MusicVideoMetadata: Metadata {

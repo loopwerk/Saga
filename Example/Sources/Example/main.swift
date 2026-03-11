@@ -1,7 +1,7 @@
 import Foundation
-import PathKit
 import Saga
 import SagaParsleyMarkdownReader
+import SagaPathKit
 import SagaSwimRenderer
 
 enum SiteMetadata {

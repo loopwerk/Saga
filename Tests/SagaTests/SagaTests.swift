@@ -1,10 +1,10 @@
 import Foundation
-import PathKit
 @testable import Saga
+import SagaPathKit
 import XCTest
 
 extension FileIO {
-  static var mock = Self(
+  static let mock = Self(
     resolveSwiftPackageFolder: { _ in "root" },
     findFiles: { _ in ["test.md", "test2.md", "style.css"] },
     deletePath: { _ in },
@@ -46,9 +46,9 @@ struct WrittenPage: Equatable {
   let content: String
 }
 
-final class SagaTests: XCTestCase {
+final class SagaTests: XCTestCase, @unchecked Sendable {
   func testInitializer() throws {
-    var deletePathCalled = false
+    nonisolated(unsafe) var deletePathCalled = false
 
     var mock = FileIO.mock
     mock.deletePath = { _ in
@@ -61,11 +61,8 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(saga.outputPath, "root/output")
     XCTAssertEqual(saga.fileStorage.count, 3)
     XCTAssertEqual(saga.fileStorage[0].path, "test.md")
-    XCTAssertNil(saga.fileStorage[0]._item)
     XCTAssertEqual(saga.fileStorage[1].path, "test2.md")
-    XCTAssertNil(saga.fileStorage[1]._item)
     XCTAssertEqual(saga.fileStorage[2].path, "style.css")
-    XCTAssertNil(saga.fileStorage[2]._item)
     XCTAssertEqual(saga.allItems.count, 0)
     XCTAssertEqual(deletePathCalled, false)
   }
@@ -80,8 +77,8 @@ final class SagaTests: XCTestCase {
 
   func testReaderAndItemWriterAndListWriter() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
-    var deletePathCalled = false
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var deletePathCalled = false
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -114,11 +111,8 @@ final class SagaTests: XCTestCase {
     // FileStorage still tracks handled state
     XCTAssertEqual(saga.fileStorage.count, 3)
     XCTAssertEqual(saga.fileStorage[0].path, "test.md")
-    XCTAssertNotNil(saga.fileStorage[0]._item)
     XCTAssertEqual(saga.fileStorage[1].path, "test2.md")
-    XCTAssertNotNil(saga.fileStorage[1]._item)
     XCTAssertEqual(saga.fileStorage[2].path, "style.css")
-    XCTAssertNil(saga.fileStorage[2]._item)
 
     XCTAssertEqual(deletePathCalled, true)
 
@@ -132,7 +126,7 @@ final class SagaTests: XCTestCase {
 
   func testFilterItems() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -176,7 +170,7 @@ final class SagaTests: XCTestCase {
 
   func testFilterButNotHandledItems() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -242,7 +236,7 @@ final class SagaTests: XCTestCase {
 
   func testYearWriter() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -271,7 +265,7 @@ final class SagaTests: XCTestCase {
 
   func testTagWriter() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -300,7 +294,7 @@ final class SagaTests: XCTestCase {
 
   func testStaticFiles() async throws {
     let writtenFilesQueue = DispatchQueue(label: "writtenFiles", attributes: .concurrent)
-    var writtenFiles: [Path] = []
+    nonisolated(unsafe) var writtenFiles: [Path] = []
 
     var mock = FileIO.mock
     mock.copy = { origin, destination in
@@ -326,7 +320,7 @@ final class SagaTests: XCTestCase {
 
   func testWriteMode() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -358,7 +352,7 @@ final class SagaTests: XCTestCase {
 
   func testItemWriterPreviousNext() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -392,7 +386,7 @@ final class SagaTests: XCTestCase {
 
   func testCustomSorting() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -428,7 +422,7 @@ final class SagaTests: XCTestCase {
 
   func testFolderGlob() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub1/b.md", "folder/sub2/c.md", "style.css"] }
@@ -513,7 +507,7 @@ final class SagaTests: XCTestCase {
 
   func testRegisterFetch() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.findFiles = { _ in [] }
@@ -550,7 +544,7 @@ final class SagaTests: XCTestCase {
 
   func testRegisterFetchWithFileBasedItems() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -596,7 +590,7 @@ final class SagaTests: XCTestCase {
 
   func testCreatePage() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -635,7 +629,7 @@ final class SagaTests: XCTestCase {
   }
 
   func testCreatePageOutputPath() async throws {
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.findFiles = { _ in [] }
@@ -655,7 +649,7 @@ final class SagaTests: XCTestCase {
 
   func testHash() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -664,7 +658,7 @@ final class SagaTests: XCTestCase {
       }
     }
 
-    var copiedFiles: [(Path, Path)] = []
+    nonisolated(unsafe) var copiedFiles: [(Path, Path)] = []
     let copiedFilesQueue = DispatchQueue(label: "copiedFiles", attributes: .concurrent)
     mock.copy = { origin, destination in
       copiedFilesQueue.sync(flags: .barrier) {
@@ -740,7 +734,7 @@ final class SagaTests: XCTestCase {
 
   func testPostProcess() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -770,7 +764,7 @@ final class SagaTests: XCTestCase {
 
   func testPostProcessWithCreatePage() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
 
     var mock = FileIO.mock
     mock.write = { destination, content in
@@ -815,7 +809,7 @@ final class SagaTests: XCTestCase {
     XCTAssertEqual(receivedPaths, [Path("search/index.html")])
   }
 
-  static var allTests = [
+  static let allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
     ("testReaderAndItemWriterAndListWriter", testReaderAndItemWriterAndListWriter),

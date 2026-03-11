@@ -4,9 +4,9 @@
   import Crypto
 #endif
 import Foundation
-import PathKit
+import SagaPathKit
 
-private var _hashFunction: ((String) -> String)?
+private nonisolated(unsafe) var _hashFunction: ((String) -> String)?
 private let _hashLock = NSLock()
 
 class ItemBox<M: Metadata>: @unchecked Sendable {
@@ -14,9 +14,9 @@ class ItemBox<M: Metadata>: @unchecked Sendable {
 }
 
 private func setHashFunction(_ fn: ((String) -> String)?) {
-  _hashLock.lock()
-  _hashFunction = fn
-  _hashLock.unlock()
+  _hashLock.withLock {
+    _hashFunction = fn
+  }
 }
 
 /// Returns a cache-busted file path by inserting a content hash into the filename.
@@ -27,9 +27,9 @@ private func setHashFunction(_ fn: ((String) -> String)?) {
 /// // → "/static/output-a1b2c3d4.css"
 /// ```
 public func hashed(_ path: String) -> String {
-  _hashLock.lock()
-  defer { _hashLock.unlock() }
-  return _hashFunction?(path) ?? path
+  _hashLock.withLock {
+    _hashFunction?(path) ?? path
+  }
 }
 
 /// Whether the site is being served by `saga dev`.
@@ -90,7 +90,7 @@ public class Saga: @unchecked Sendable {
     try fileIO.write(destination, result)
   }
 
-  public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #file) throws {
+  public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #filePath) throws {
     let originFile = Path("\(originFilePath)")
     rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
     inputPath = rootPath + input
@@ -106,13 +106,6 @@ public class Saga: @unchecked Sendable {
       let relativePath = (try? path.relativePath(from: ip)) ?? Path("")
       return FileContainer(path: path, relativePath: relativePath)
     }
-  }
-
-  /// Register a new processing step.
-  @available(*, deprecated, renamed: "register(folder:metadata:readers:itemProcessor:filter:claimExcludedItems:itemWriteMode:sorting:writers:)")
-  @discardableResult
-  public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, filteredOutItemsAreHandled: Bool, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
-    try register(folder: folder, metadata: metadata, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: filteredOutItemsAreHandled, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
   }
 
   /// Register a new processing step.
@@ -133,7 +126,7 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
     // When folder ends with "/**", create one ProcessStep per subfolder
-    if let folder = folder, folder.string.hasSuffix("/**") {
+    if let folder, folder.string.hasSuffix("/**") {
       let baseFolder = Path(String(folder.string.dropLast(3)))
       let baseFolderPrefix = baseFolder.string + "/"
       let supportedExtensions = Set(readers.flatMap(\.supportedExtensions))
@@ -179,7 +172,7 @@ public class Saga: @unchecked Sendable {
     return register(
       read: { _ in
         box.items = try await fetch().sorted(by: sorting)
-        if let itemProcessor = itemProcessor {
+        if let itemProcessor {
           for item in box.items {
             await itemProcessor(item)
           }
@@ -338,8 +331,7 @@ public class Saga: @unchecked Sendable {
     // In dev mode, skip hashing so filenames stay stable for auto-reload.
     // The closure runs under _hashLock (acquired by the global hashed() function),
     // so container.contentHash access is thread-safe without additional locking.
-    // TODO: Replace manual lock()/unlock() calls with NSLock.withLock once we require Swift 6+
-    // (withLock is not available on Linux with Swift 5.10)
+
     if !isDev {
       setHashFunction { path in
         let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
@@ -404,13 +396,6 @@ public class Saga: @unchecked Sendable {
     let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds
     print("\(logTimestamp()) | All done in \(Double(totalTime) / 1_000_000_000)s")
 
-    return self
-  }
-
-  /// Deprecated: static files are now copied automatically by ``run()``.
-  @available(*, deprecated, message: "Static files are now copied automatically by run(). You can remove this call.")
-  @discardableResult
-  public func staticFiles() async throws -> Self {
     return self
   }
 }

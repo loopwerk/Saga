@@ -1,7 +1,11 @@
 import Foundation
-import PathKit
+import SagaPathKit
 
-public protocol Metadata: Decodable {}
+#if compiler(>=6.2)
+  public protocol Metadata: Decodable, SendableMetatype {}
+#else
+  public protocol Metadata: Decodable {}
+#endif
 
 /// A convenience version of ``Metadata`` that's just empty. This can be used, for example, when you don't have custom item metadata.
 public struct EmptyMetadata: Metadata {
