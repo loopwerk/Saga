@@ -124,6 +124,7 @@ public class Saga: @unchecked Sendable {
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
+  @preconcurrency
   public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
     // When folder ends with "/**", create one ProcessStep per subfolder
     if let folder, folder.string.hasSuffix("/**") {
@@ -165,6 +166,7 @@ public class Saga: @unchecked Sendable {
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The Saga instance itself, so you can chain further calls onto it.
   @discardableResult
+  @preconcurrency
   public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping @Sendable () async throws -> [Item<M>], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
     // Use a reference type to share items between the read and write closures
     // without capturing a mutable variable in the @Sendable write closure.
@@ -207,6 +209,7 @@ public class Saga: @unchecked Sendable {
   ///   .run()
   /// ```
   @discardableResult
+  @preconcurrency
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
       .init(read: { _ in [] }, write: write, saga: self)
@@ -220,6 +223,7 @@ public class Saga: @unchecked Sendable {
   /// The read closure runs during the read phase (before items are sorted) and returns items,
   /// and the write closure runs during the write phase (after all readers have finished).
   @discardableResult
+  @preconcurrency
   public func register(read: @Sendable @escaping (Saga) async throws -> [AnyItem], write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     processSteps.append(
       .init(read: read, write: write, saga: self)
@@ -241,6 +245,7 @@ public class Saga: @unchecked Sendable {
   ///   .run()
   /// ```
   @discardableResult
+  @preconcurrency
   public func postProcess(_ transform: @Sendable @escaping (String, Path) throws -> String) -> Self {
     postProcessors.append(transform)
     return self
@@ -264,6 +269,7 @@ public class Saga: @unchecked Sendable {
   ///   .run()
   /// ```
   @discardableResult
+  @preconcurrency
   public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
     register(write: { saga in
       let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)

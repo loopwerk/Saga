@@ -11,6 +11,7 @@ import SagaPathKit
 ///   writers: [.itemWriter(swim(renderPage))]
 /// )
 /// ```
+@preconcurrency
 public func sequence<M>(_ processors: (@Sendable (Item<M>) async -> Void)...) -> @Sendable (Item<M>) async -> Void {
   return { item in
     for processor in processors {

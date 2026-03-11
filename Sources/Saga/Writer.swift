@@ -20,6 +20,7 @@ private extension Array {
 
 public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.relativeDestination` as the destination path.
+  @preconcurrency
   static func itemWriter(_ renderer: @Sendable @escaping (ItemRenderingContext<M>) async throws -> String) -> Self {
     return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
       try await withThrowingTaskGroup(of: Void.self) { group in
@@ -42,6 +43,7 @@ public extension Writer {
   }
 
   /// Writes an array of items into a single output file.
+  @preconcurrency
   static func listWriter(_ renderer: @Sendable @escaping (ItemsRenderingContext<M>) async throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
     return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
       try await writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, write: write) {
@@ -56,6 +58,7 @@ public extension Writer {
   ///
   /// The `output` path is a template where `[key]` will be replaced with the key used for the partition.
   /// Example: `articles/[key]/index.html`
+  @preconcurrency
   static func partitionedWriter<T>(_ renderer: @Sendable @escaping (PartitionedRenderingContext<T, M>) async throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @Sendable @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
     return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
       let partitions = partitioner(items)
@@ -76,6 +79,7 @@ public extension Writer {
   }
 
   /// A convenience version of `partitionedWriter` that splits items based on year.
+  @preconcurrency
   static func yearWriter(_ renderer: @Sendable @escaping (PartitionedRenderingContext<Int, M>) async throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html") -> Self {
     return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: {
       Dictionary(grouping: $0, by: { $0.date.year })
@@ -85,6 +89,7 @@ public extension Writer {
   /// A convenience version of `partitionedWriter` that splits items based on tags.
   ///
   /// Tags can be any `[String]` array.
+  @preconcurrency
   static func tagWriter(_ renderer: @Sendable @escaping (PartitionedRenderingContext<String, M>) async throws -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @Sendable @escaping (Item<M>) -> [String]) -> Self {
     return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: { items in
       var itemsPerTag = [String: [Item<M>]]()

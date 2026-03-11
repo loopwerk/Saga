@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/SagaSwimRenderer",
       "state" : {
-        "revision" : "b14e06fa8f0549c385f89d4e5debd2656e47167d",
-        "version" : "1.2.1"
+        "revision" : "a6eee7dec6cc360a5e363d731566a96bd6d42b49",
+        "version" : "1.3.0"
       }
     },
     {
