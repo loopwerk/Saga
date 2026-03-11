@@ -1,13 +1,22 @@
 import Foundation
 import SagaPathKit
 
+struct WriterContext<M: Metadata> {
+  let items: [Item<M>]
+  let allItems: [AnyItem]
+  let outputRoot: Path
+  let outputPrefix: Path
+  let write: @Sendable (Path, String) throws -> Void
+  let resourcesByFolder: [Path: [Path]]
+}
+
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
 ///
 /// To turn an ``Item`` into a `String`, a `Writer` uses a "renderer"; a function that knows how to turn a rendering context such as ``ItemRenderingContext`` into a `String`.
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 public struct Writer<M: Metadata>: Sendable {
-  let run: @Sendable (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer], _ outputRoot: Path, _ outputPrefix: Path, _ write: @escaping @Sendable (Path, String) throws -> Void) async throws -> Void
+  let run: @Sendable (WriterContext<M>) async throws -> Void
 }
 
 private extension Array {
@@ -22,34 +31,55 @@ public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.relativeDestination` as the destination path.
   @preconcurrency
   static func itemWriter(_ renderer: @Sendable @escaping (ItemRenderingContext<M>) async throws -> String) -> Self {
-    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
+    Writer { writerContext in
       try await withThrowingTaskGroup(of: Void.self) { group in
-        for (index, item) in items.enumerated() {
+        for (index, item) in writerContext.items.enumerated() {
           group.addTask {
             // Resources are unhandled files in the same folder. These could be images for example, or other static files.
-            let resources = fileStorage
-              .filter { $0.relativePath.parent() == item.relativeSource.parent() && !$0.handled }
-              .map(\.path)
-            let previous = index > 0 ? items[index - 1] : nil
-            let next = index < items.count - 1 ? items[index + 1] : nil
-            let context = ItemRenderingContext(item: item, items: items, allItems: allItems, resources: resources, previous: previous, next: next)
-            let stringToWrite = try await renderer(context)
-            try write(outputRoot + item.relativeDestination, stringToWrite)
+            let resources = writerContext.resourcesByFolder[item.relativeSource.parent()] ?? []
+            let previous = index > 0 ? writerContext.items[index - 1] : nil
+            let next = index < writerContext.items.count - 1 ? writerContext.items[index + 1] : nil
+            let renderingContext = ItemRenderingContext(
+              item: item,
+              items: writerContext.items,
+              allItems: writerContext.allItems,
+              resources: resources,
+              previous: previous,
+              next: next
+            )
+            let stringToWrite = try await renderer(renderingContext)
+
+            try writerContext.write(
+              writerContext.outputRoot + item.relativeDestination,
+              stringToWrite
+            )
           }
         }
+
         try await group.waitForAll()
       }
-    })
+    }
   }
 
   /// Writes an array of items into a single output file.
   @preconcurrency
-  static func listWriter(_ renderer: @Sendable @escaping (ItemsRenderingContext<M>) async throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
-    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
-      try await writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, write: write) {
+  static func listWriter(
+    _ renderer: @Sendable @escaping (ItemsRenderingContext<M>) async throws -> String,
+    output: Path = "index.html",
+    paginate: Int? = nil,
+    paginatedOutput: Path = "page/[page]/index.html"
+  ) -> Self {
+    Writer { writerContext in
+      try await writePages(
+        writerContext: writerContext,
+        renderer: renderer,
+        output: output,
+        paginate: paginate,
+        paginatedOutput: paginatedOutput
+      ) {
         ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
       }
-    })
+    }
   }
 
   /// Writes an array of items into multiple output files.
@@ -59,38 +89,83 @@ public extension Writer {
   /// The `output` path is a template where `[key]` will be replaced with the key used for the partition.
   /// Example: `articles/[key]/index.html`
   @preconcurrency
-  static func partitionedWriter<T>(_ renderer: @Sendable @escaping (PartitionedRenderingContext<T, M>) async throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @Sendable @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
-    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
-      let partitions = partitioner(items)
+  static func partitionedWriter<T>(
+    _ renderer: @Sendable @escaping (PartitionedRenderingContext<T, M>) async throws -> String,
+    output: Path = "[key]/index.html",
+    paginate: Int? = nil,
+    paginatedOutput: Path = "[key]/page/[page]/index.html",
+    partitioner: @Sendable @escaping ([Item<M>]) -> [T: [Item<M>]]
+  ) -> Self {
+    Writer { writerContext in
+      let partitions = partitioner(writerContext.items)
 
       try await withThrowingTaskGroup(of: Void.self) { group in
         for (key, itemsInPartition) in Array(partitions).sorted(by: { $0.0 < $1.0 }) {
           group.addTask {
             let finishedOutputPath = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
             let finishedPaginatedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
-            try await writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutputPath, paginate: paginate, paginatedOutput: finishedPaginatedOutputPath, write: write) {
+            let partitionContext = WriterContext(
+              items: itemsInPartition,
+              allItems: writerContext.allItems,
+              outputRoot: writerContext.outputRoot,
+              outputPrefix: writerContext.outputPrefix,
+              write: writerContext.write,
+              resourcesByFolder: writerContext.resourcesByFolder
+            )
+
+            try await writePages(
+              writerContext: partitionContext,
+              renderer: renderer,
+              output: finishedOutputPath,
+              paginate: paginate,
+              paginatedOutput: finishedPaginatedOutputPath
+            ) {
               PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
             }
           }
         }
+
         try await group.waitForAll()
       }
+    }
+  }
+
+  /// A convenience version of `partitionedWriter` that groups items by a key path.
+  @preconcurrency
+  static func groupedWriter<T: Hashable>(
+    _ renderer: @Sendable @escaping (PartitionedRenderingContext<T, M>) async throws -> String,
+    by keyPath: @Sendable @escaping (Item<M>) -> T,
+    output: Path = "[key]/index.html",
+    paginate: Int? = nil,
+    paginatedOutput: Path = "[key]/page/[page]/index.html"
+  ) -> Self {
+    return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: {
+      Dictionary(grouping: $0, by: keyPath)
     })
   }
 
-  /// A convenience version of `partitionedWriter` that splits items based on year.
+  /// A convenience version of `groupedWriter` that splits items based on year.
   @preconcurrency
-  static func yearWriter(_ renderer: @Sendable @escaping (PartitionedRenderingContext<Int, M>) async throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html") -> Self {
-    return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: {
-      Dictionary(grouping: $0, by: { $0.date.year })
-    })
+  static func yearWriter(
+    _ renderer: @Sendable @escaping (PartitionedRenderingContext<Int, M>) async throws -> String,
+    output: Path = "[key]/index.html",
+    paginate: Int? = nil,
+    paginatedOutput: Path = "[key]/page/[page]/index.html"
+  ) -> Self {
+    return groupedWriter(renderer, by: \.date.year, output: output, paginate: paginate, paginatedOutput: paginatedOutput)
   }
 
   /// A convenience version of `partitionedWriter` that splits items based on tags.
   ///
   /// Tags can be any `[String]` array.
   @preconcurrency
-  static func tagWriter(_ renderer: @Sendable @escaping (PartitionedRenderingContext<String, M>) async throws -> String, output: Path = "tag/[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "tag/[key]/page/[page]/index.html", tags: @Sendable @escaping (Item<M>) -> [String]) -> Self {
+  static func tagWriter(
+    _ renderer: @Sendable @escaping (PartitionedRenderingContext<String, M>) async throws -> String,
+    output: Path = "tag/[key]/index.html",
+    paginate: Int? = nil,
+    paginatedOutput: Path = "tag/[key]/page/[page]/index.html",
+    tags: @Sendable @escaping (Item<M>) -> [String]
+  ) -> Self {
     return partitionedWriter(renderer, output: output, paginate: paginate, paginatedOutput: paginatedOutput, partitioner: { items in
       var itemsPerTag = [String: [Item<M>]]()
       for item in items {
@@ -98,15 +173,23 @@ public extension Writer {
           itemsPerTag[tag, default: []].append(item)
         }
       }
+
       return itemsPerTag
     })
   }
 }
 
 private extension Writer {
-  static func writePages<Context>(renderer: @escaping @Sendable (Context) async throws -> String, items: [Item<M>], allItems: [AnyItem], outputRoot: Path, outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path, write: @escaping @Sendable (Path, String) throws -> Void, getContext: @escaping @Sendable ([Item<M>], [AnyItem], Paginator?, Path) -> Context) async throws {
+  static func writePages<RenderContext>(
+    writerContext: WriterContext<M>,
+    renderer: @escaping @Sendable (RenderContext) async throws -> String,
+    output: Path,
+    paginate: Int?,
+    paginatedOutput: Path,
+    getRenderContext: @escaping @Sendable ([Item<M>], [AnyItem], Paginator?, Path) -> RenderContext
+  ) async throws {
     if let perPage = paginate {
-      let ranges = items.chunked(into: perPage)
+      let ranges = writerContext.items.chunked(into: perPage)
       let numberOfPages = ranges.count
 
       // First we write the first page to the "main" destination, for example /articles/index.html
@@ -118,12 +201,12 @@ private extension Writer {
           itemsPerPage: perPage,
           numberOfPages: numberOfPages,
           previous: nil,
-          next: numberOfPages > 1 ? (outputPrefix + nextPage) : nil
+          next: numberOfPages > 1 ? (writerContext.outputPrefix + nextPage) : nil
         )
 
-        let context = getContext(firstItems, allItems, paginator, outputPrefix + output)
-        let stringToWrite = try await renderer(context)
-        try write(outputRoot + outputPrefix + output, stringToWrite)
+        let renderContext = getRenderContext(firstItems, writerContext.allItems, paginator, writerContext.outputPrefix + output)
+        let stringToWrite = try await renderer(renderContext)
+        try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
       }
 
       // Then we write all the pages to their paginated paths, for example /articles/page/[page]/index.html
@@ -138,22 +221,23 @@ private extension Writer {
               index: currentPage,
               itemsPerPage: perPage,
               numberOfPages: numberOfPages,
-              previous: currentPage == 1 ? nil : (outputPrefix + previousPage),
-              next: currentPage == numberOfPages ? nil : (outputPrefix + nextPage)
+              previous: currentPage == 1 ? nil : (writerContext.outputPrefix + previousPage),
+              next: currentPage == numberOfPages ? nil : (writerContext.outputPrefix + nextPage)
             )
 
             let finishedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
-            let context = getContext(items, allItems, paginator, outputPrefix + finishedOutputPath)
-            let stringToWrite = try await renderer(context)
-            try write(outputRoot + outputPrefix + finishedOutputPath, stringToWrite)
+            let renderContext = getRenderContext(items, writerContext.allItems, paginator, writerContext.outputPrefix + finishedOutputPath)
+            let stringToWrite = try await renderer(renderContext)
+            try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + finishedOutputPath, stringToWrite)
           }
         }
         try await group.waitForAll()
       }
     } else {
-      let context = getContext(items, allItems, nil, outputPrefix + output)
-      let stringToWrite = try await renderer(context)
-      try write(outputRoot + outputPrefix + output, stringToWrite)
+      // No pagination
+      let renderContext = getRenderContext(writerContext.items, writerContext.allItems, nil, writerContext.outputPrefix + output)
+      let stringToWrite = try await renderer(renderContext)
+      try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
     }
   }
 }
