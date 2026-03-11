@@ -59,10 +59,10 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(saga.rootPath, "root")
     XCTAssertEqual(saga.inputPath, "root/input")
     XCTAssertEqual(saga.outputPath, "root/output")
-    XCTAssertEqual(saga.fileStorage.count, 3)
-    XCTAssertEqual(saga.fileStorage[0].path, "test.md")
-    XCTAssertEqual(saga.fileStorage[1].path, "test2.md")
-    XCTAssertEqual(saga.fileStorage[2].path, "style.css")
+    XCTAssertEqual(saga.files.count, 3)
+    XCTAssertEqual(saga.files[0].path, "test.md")
+    XCTAssertEqual(saga.files[1].path, "test2.md")
+    XCTAssertEqual(saga.files[2].path, "style.css")
     XCTAssertEqual(saga.allItems.count, 0)
     XCTAssertEqual(deletePathCalled, false)
   }
@@ -108,11 +108,11 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(saga.allItems[0].body, "<p>test2.md</p>")
     XCTAssertEqual(saga.allItems[1].body, "<p>test.md</p>")
 
-    // FileStorage still tracks handled state
-    XCTAssertEqual(saga.fileStorage.count, 3)
-    XCTAssertEqual(saga.fileStorage[0].path, "test.md")
-    XCTAssertEqual(saga.fileStorage[1].path, "test2.md")
-    XCTAssertEqual(saga.fileStorage[2].path, "style.css")
+    // File tracking
+    XCTAssertEqual(saga.files.count, 3)
+    XCTAssertEqual(saga.files[0].path, "test.md")
+    XCTAssertEqual(saga.files[1].path, "test2.md")
+    XCTAssertEqual(saga.files[2].path, "style.css")
 
     XCTAssertEqual(deletePathCalled, true)
 
@@ -159,8 +159,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    // The readers turn Markdown files into Items and store them in the fileStorage
-    XCTAssertEqual(saga.fileStorage.count, 3)
+    // The readers turn Markdown files into Items and track them in files
+    XCTAssertEqual(saga.files.count, 3)
 
     // And when the writer runs, the Items get written to disk
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
@@ -204,8 +204,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    // The readers turn Markdown files into Items and store them in the fileStorage
-    XCTAssertEqual(saga.fileStorage.count, 3)
+    // The readers turn Markdown files into Items and track them in files
+    XCTAssertEqual(saga.files.count, 3)
 
     // And when the writer runs, the Items get written to disk
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }

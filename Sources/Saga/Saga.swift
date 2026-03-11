@@ -9,10 +9,6 @@ import SagaPathKit
 private nonisolated(unsafe) var _hashFunction: ((String) -> String)?
 private let _hashLock = NSLock()
 
-class ItemBox<M: Metadata>: @unchecked Sendable {
-  var items: [Item<M>] = []
-}
-
 private func setHashFunction(_ fn: ((String) -> String)?) {
   _hashLock.withLock {
     _hashFunction = fn
@@ -68,14 +64,20 @@ public class Saga: @unchecked Sendable {
   /// The path that Saga will write the rendered website to, relative to the `rootPath`. For example "deploy".
   public let outputPath: Path
 
-  /// An array of all ``FileContainer``s.
-  public let fileStorage: [FileContainer]
-
   /// All ``Item``s across all registered processing steps.
   public internal(set) var allItems: [AnyItem] = []
 
-  var processSteps = [AnyProcessStep]()
   let fileIO: FileIO
+
+  // Internal file tracking
+  let files: [(path: Path, relativePath: Path)]
+  var handledPaths: Set<Path> = []
+  var contentHashes: [String: String] = [:]
+
+  // Pipeline steps
+  typealias ReadStep = @Sendable () async throws -> [AnyItem]
+  typealias WriteStep = @Sendable (_ stepItems: [AnyItem]) async throws -> Void
+  var processSteps: [(read: ReadStep, write: WriteStep)] = []
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
   /// Write content to a file, applying any registered post-processors.
@@ -97,16 +99,30 @@ public class Saga: @unchecked Sendable {
     outputPath = rootPath + output
     self.fileIO = fileIO
 
-    // 1. Find all files in the source folder (filter out .DS_Store)
-    let files = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
-
-    // 2. Turn the files into FileContainers so we can keep track if they're handled or not
+    // Find all files in the source folder (filter out .DS_Store)
     let ip = inputPath
-    fileStorage = files.map { path in
+    let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
+    files = allFound.map { path in
       let relativePath = (try? path.relativePath(from: ip)) ?? Path("")
-      return FileContainer(path: path, relativePath: relativePath)
+      return (path: path, relativePath: relativePath)
     }
   }
+
+  /// Files not claimed by any processing step.
+  var unhandledFiles: [(path: Path, relativePath: Path)] {
+    files.filter { !handledPaths.contains($0.path) }
+  }
+
+  /// Unhandled files grouped by their relative parent folder.
+  func resourcesByFolder() -> [Path: [Path]] {
+    var result: [Path: [Path]] = [:]
+    for file in unhandledFiles {
+      result[file.relativePath.parent(), default: []].append(file.path)
+    }
+    return result
+  }
+
+  // MARK: - Register (file-based)
 
   /// Register a new processing step.
   ///
@@ -126,35 +142,32 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register<M: Metadata>(folder: Path? = nil, metadata: M.Type = EmptyMetadata.self, readers: [Reader], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true }, claimExcludedItems: Bool = true, itemWriteMode: ItemWriteMode = .moveToSubfolder, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) throws -> Self {
-    // When folder ends with "/**", create one ProcessStep per subfolder
+    // When folder ends with "/**", create one step per subfolder
     if let folder, folder.string.hasSuffix("/**") {
       let baseFolder = Path(String(folder.string.dropLast(3)))
       let baseFolderPrefix = baseFolder.string + "/"
       let supportedExtensions = Set(readers.flatMap(\.supportedExtensions))
 
       let subFolders = Set(
-        fileStorage
-          .filter { container in
-            guard container.relativePath.string.hasPrefix(baseFolderPrefix) else { return false }
-            return supportedExtensions.contains(container.path.extension ?? "")
+        files
+          .filter { file in
+            guard file.relativePath.string.hasPrefix(baseFolderPrefix) else { return false }
+            return supportedExtensions.contains(file.path.extension ?? "")
           }
           .map { $0.relativePath.parent() }
       )
 
       for subFolder in subFolders.sorted(by: { $0.string < $1.string }) {
-        let step = ProcessStep(folder: subFolder, readers: readers, filter: filter, claimExcludedItems: claimExcludedItems, itemProcessor: itemProcessor, sorting: sorting, writers: writers)
-        processSteps.append(
-          .init(step: step, saga: self, itemWriteMode: itemWriteMode)
-        )
+        addFileStep(folder: subFolder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
       }
     } else {
-      let step = ProcessStep(folder: folder, readers: readers, filter: filter, claimExcludedItems: claimExcludedItems, itemProcessor: itemProcessor, sorting: sorting, writers: writers)
-      processSteps.append(
-        .init(step: step, saga: self, itemWriteMode: itemWriteMode)
-      )
+      addFileStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
     }
+
     return self
   }
+
+  // MARK: - Register (fetch-based)
 
   /// Register a processing step that fetches items programmatically instead of reading from files.
   ///
@@ -168,32 +181,39 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register<M: Metadata>(metadata: M.Type = EmptyMetadata.self, fetch: @escaping @Sendable () async throws -> [Item<M>], itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil, sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date }, writers: [Writer<M>]) -> Self {
-    // Use a reference type to share items between the read and write closures
-    // without capturing a mutable variable in the @Sendable write closure.
-    let box = ItemBox<M>()
-    return register(
-      read: { _ in
-        box.items = try await fetch().sorted(by: sorting)
-        if let itemProcessor {
-          for item in box.items {
-            await itemProcessor(item)
-          }
-        }
-        return box.items
-      },
-      write: { saga in
-        let capturedItems = box.items
-        try await withThrowingTaskGroup(of: Void.self) { group in
-          for writer in writers {
-            group.addTask {
-              try await writer.run(capturedItems, saga.allItems, saga.fileStorage, saga.outputPath, "") { try saga.processedWrite($0, $1) }
-            }
-          }
-          try await group.waitForAll()
+    let read: ReadStep = {
+      let items = try await fetch().sorted(by: sorting)
+      if let itemProcessor {
+        for item in items {
+          await itemProcessor(item)
         }
       }
-    )
+      return items
+    }
+
+    let write: WriteStep = { [self] stepItems in
+      let items = stepItems.compactMap { $0 as? Item<M> }
+      let context = WriterContext(
+        items: items,
+        allItems: allItems,
+        outputRoot: outputPath,
+        outputPrefix: Path(""),
+        write: { try self.processedWrite($0, $1) },
+        resourcesByFolder: [:]
+      )
+      try await withThrowingTaskGroup(of: Void.self) { group in
+        for writer in writers {
+          group.addTask { try await writer.run(context) }
+        }
+        try await group.waitForAll()
+      }
+    }
+
+    processSteps.append((read: read, write: write))
+    return self
   }
+
+  // MARK: - Register (custom)
 
   /// Register a custom write-only processing step.
   ///
@@ -211,9 +231,10 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
-    processSteps.append(
-      .init(read: { _ in [] }, write: write, saga: self)
-    )
+    processSteps.append((
+      read: { [] },
+      write: { [self] _ in try await write(self) }
+    ))
     return self
   }
 
@@ -225,11 +246,14 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register(read: @Sendable @escaping (Saga) async throws -> [AnyItem], write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
-    processSteps.append(
-      .init(read: read, write: write, saga: self)
-    )
+    processSteps.append((
+      read: { [self] in try await read(self) },
+      write: { [self] _ in try await write(self) }
+    ))
     return self
   }
+
+  // MARK: - Post-processing & pages
 
   /// Apply a transform to every file written by Saga.
   ///
@@ -278,6 +302,8 @@ public class Saga: @unchecked Sendable {
     })
   }
 
+  // MARK: - Run
+
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
@@ -293,9 +319,11 @@ public class Saga: @unchecked Sendable {
     // Run all the readers for all the steps sequentially to ensure proper order,
     // which turns raw content into Items, and stores them within the step.
     let readStart = DispatchTime.now()
+    var stepResults: [[AnyItem]] = []
     for step in processSteps {
-      let newItems = try await step.runReaders()
-      allItems.append(contentsOf: newItems)
+      let items = try await step.read()
+      stepResults.append(items)
+      allItems.append(contentsOf: items)
     }
 
     let readEnd = DispatchTime.now()
@@ -312,18 +340,12 @@ public class Saga: @unchecked Sendable {
     // so that the directory structure exists for the write phase.
     let copyStart = DispatchTime.now()
 
-    let unhandledPaths = fileStorage
-      .filter { $0.handled == false }
-      .map(\.path)
-
     try await withThrowingTaskGroup(of: Void.self) { group in
-      for path in unhandledPaths {
+      for file in unhandledFiles {
         group.addTask {
-          let relativePath = try path.relativePath(from: self.inputPath)
-          let input = path
-          let output = self.outputPath + relativePath
+          let output = self.outputPath + file.relativePath
           try self.fileIO.mkpath(output.parent())
-          try self.fileIO.copy(input, output)
+          try self.fileIO.copy(file.path, output)
         }
       }
       try await group.waitForAll()
@@ -336,16 +358,16 @@ public class Saga: @unchecked Sendable {
     // Set up the hash function so renderers can call hashed() during the write phase.
     // In dev mode, skip hashing so filenames stay stable for auto-reload.
     // The closure runs under _hashLock (acquired by the global hashed() function),
-    // so container.contentHash access is thread-safe without additional locking.
+    // so contentHashes access is thread-safe without additional locking.
 
     if !isDev {
       setHashFunction { path in
         let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
-        guard let container = self.fileStorage.first(where: { $0.relativePath.string == stripped }) else {
+        guard let file = self.files.first(where: { $0.relativePath.string == stripped }) else {
           return path
         }
 
-        if let cached = container.contentHash {
+        if let cached = self.contentHashes[stripped] {
           let p = Path(stripped)
           let ext = p.extension ?? ""
           let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + cached + (ext.isEmpty ? "" : ".\(ext)"))
@@ -353,10 +375,10 @@ public class Saga: @unchecked Sendable {
         }
 
         do {
-          let data = try self.fileIO.read(container.path)
+          let data = try self.fileIO.read(file.path)
           let digest = Insecure.MD5.hash(data: data)
           let hashString = String(digest.map { String(format: "%02x", $0) }.joined().prefix(8))
-          container.contentHash = hashString
+          self.contentHashes[stripped] = hashString
 
           let p = Path(stripped)
           let ext = p.extension ?? ""
@@ -371,9 +393,10 @@ public class Saga: @unchecked Sendable {
     // And run all the writers for all the steps, using those stored Items.
     let writeStart = DispatchTime.now()
     try await withThrowingTaskGroup(of: Void.self) { group in
-      for step in processSteps {
+      for (index, step) in processSteps.enumerated() {
+        let items = stepResults[index]
         group.addTask {
-          try await step.runWriters()
+          try await step.write(items)
         }
       }
       try await group.waitForAll()
@@ -384,15 +407,14 @@ public class Saga: @unchecked Sendable {
     print("\(logTimestamp()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
 
     // Copy hashed versions of files that were referenced via hashed()
-    for container in fileStorage where container.contentHash != nil && container.handled == false {
-      let relativePath = container.relativePath
+    for file in unhandledFiles where contentHashes[file.relativePath.string] != nil {
+      let relativePath = file.relativePath
       let ext = relativePath.extension ?? ""
-      let hashedName = relativePath.lastComponentWithoutExtension + "-" + container.contentHash! + (ext.isEmpty ? "" : ".\(ext)")
+      let hashedName = relativePath.lastComponentWithoutExtension + "-" + contentHashes[relativePath.string]! + (ext.isEmpty ? "" : ".\(ext)")
       let hashedRelativePath = relativePath.parent() + Path(hashedName)
-      let source = inputPath + relativePath
       let destination = outputPath + hashedRelativePath
       try fileIO.mkpath(destination.parent())
-      try fileIO.copy(source, destination)
+      try fileIO.copy(file.path, destination)
     }
 
     // Reset the hash function

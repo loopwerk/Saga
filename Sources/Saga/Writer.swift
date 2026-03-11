@@ -1,13 +1,22 @@
 import Foundation
 import SagaPathKit
 
+struct WriterContext<M: Metadata>: Sendable {
+  let items: [Item<M>]
+  let allItems: [AnyItem]
+  let outputRoot: Path
+  let outputPrefix: Path
+  let write: @Sendable (Path, String) throws -> Void
+  let resourcesByFolder: [Path: [Path]]
+}
+
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
 ///
 /// To turn an ``Item`` into a `String`, a `Writer` uses a "renderer"; a function that knows how to turn a rendering context such as ``ItemRenderingContext`` into a `String`.
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 public struct Writer<M: Metadata>: Sendable {
-  let run: @Sendable (_ items: [Item<M>], _ allItems: [AnyItem], _ fileStorage: [FileContainer], _ outputRoot: Path, _ outputPrefix: Path, _ write: @escaping @Sendable (Path, String) throws -> Void) async throws -> Void
+  let run: @Sendable (WriterContext<M>) async throws -> Void
 }
 
 private extension Array {
@@ -22,34 +31,32 @@ public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.relativeDestination` as the destination path.
   @preconcurrency
   static func itemWriter(_ renderer: @Sendable @escaping (ItemRenderingContext<M>) async throws -> String) -> Self {
-    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
+    Writer { context in
       try await withThrowingTaskGroup(of: Void.self) { group in
-        for (index, item) in items.enumerated() {
+        for (index, item) in context.items.enumerated() {
           group.addTask {
             // Resources are unhandled files in the same folder. These could be images for example, or other static files.
-            let resources = fileStorage
-              .filter { $0.relativePath.parent() == item.relativeSource.parent() && !$0.handled }
-              .map(\.path)
-            let previous = index > 0 ? items[index - 1] : nil
-            let next = index < items.count - 1 ? items[index + 1] : nil
-            let context = ItemRenderingContext(item: item, items: items, allItems: allItems, resources: resources, previous: previous, next: next)
-            let stringToWrite = try await renderer(context)
-            try write(outputRoot + item.relativeDestination, stringToWrite)
+            let resources = context.resourcesByFolder[item.relativeSource.parent()] ?? []
+            let previous = index > 0 ? context.items[index - 1] : nil
+            let next = index < context.items.count - 1 ? context.items[index + 1] : nil
+            let renderingContext = ItemRenderingContext(item: item, items: context.items, allItems: context.allItems, resources: resources, previous: previous, next: next)
+            let stringToWrite = try await renderer(renderingContext)
+            try context.write(context.outputRoot + item.relativeDestination, stringToWrite)
           }
         }
         try await group.waitForAll()
       }
-    })
+    }
   }
 
   /// Writes an array of items into a single output file.
   @preconcurrency
   static func listWriter(_ renderer: @Sendable @escaping (ItemsRenderingContext<M>) async throws -> String, output: Path = "index.html", paginate: Int? = nil, paginatedOutput: Path = "page/[page]/index.html") -> Self {
-    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
-      try await writePages(renderer: renderer, items: items, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, write: write) {
+    Writer { context in
+      try await writePages(renderer: renderer, items: context.items, allItems: context.allItems, outputRoot: context.outputRoot, outputPrefix: context.outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput, write: context.write) {
         ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
       }
-    })
+    }
   }
 
   /// Writes an array of items into multiple output files.
@@ -60,22 +67,22 @@ public extension Writer {
   /// Example: `articles/[key]/index.html`
   @preconcurrency
   static func partitionedWriter<T>(_ renderer: @Sendable @escaping (PartitionedRenderingContext<T, M>) async throws -> String, output: Path = "[key]/index.html", paginate: Int? = nil, paginatedOutput: Path = "[key]/page/[page]/index.html", partitioner: @Sendable @escaping ([Item<M>]) -> [T: [Item<M>]]) -> Self {
-    return Writer(run: { items, allItems, fileStorage, outputRoot, outputPrefix, write in
-      let partitions = partitioner(items)
+    Writer { context in
+      let partitions = partitioner(context.items)
 
       try await withThrowingTaskGroup(of: Void.self) { group in
         for (key, itemsInPartition) in Array(partitions).sorted(by: { $0.0 < $1.0 }) {
           group.addTask {
             let finishedOutputPath = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
             let finishedPaginatedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
-            try await writePages(renderer: renderer, items: itemsInPartition, allItems: allItems, outputRoot: outputRoot, outputPrefix: outputPrefix, output: finishedOutputPath, paginate: paginate, paginatedOutput: finishedPaginatedOutputPath, write: write) {
+            try await writePages(renderer: renderer, items: itemsInPartition, allItems: context.allItems, outputRoot: context.outputRoot, outputPrefix: context.outputPrefix, output: finishedOutputPath, paginate: paginate, paginatedOutput: finishedPaginatedOutputPath, write: context.write) {
               PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
             }
           }
         }
         try await group.waitForAll()
       }
-    })
+    }
   }
 
   /// A convenience version of `partitionedWriter` that splits items based on year.
