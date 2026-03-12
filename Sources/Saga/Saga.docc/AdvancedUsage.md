@@ -66,11 +66,7 @@ Use `register` when:
 
 ## Custom processing steps
 
-Register custom logic as part of Saga's pipeline, running alongside the built-in steps.
-
-### Write-only steps
-
-The most common use case is running custom code during the [write phase](doc:Architecture), after all items have been read and sorted. Use `register` with a trailing closure:
+Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build. The closure runs during the [write phase](doc:Architecture), after all items have been read and sorted. Use `register` with a trailing closure:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -91,21 +87,6 @@ try await Saga(input: "content", output: "deploy")
 ```
 
 The closure receives the ``Saga`` instance with access to ``Saga/allItems``, ``Saga/outputPath``, and everything else you need.
-
-### Read and write steps
-
-If your custom step needs to run code during both the read phase and the write phase, provide both closures:
-
-```swift
-.register(
-  read: { saga in
-    // runs during the read phase, before items are sorted
-  },
-  write: { saga in
-    // runs during the write phase, after all readers have finished
-  }
-)
-```
 
 > tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io) for more inspiration.
 

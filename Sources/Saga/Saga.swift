@@ -197,43 +197,42 @@ public class Saga: @unchecked Sendable {
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
     writers: [Writer<M>]
   ) -> Self {
-    let read: ReadStep = {
-      let items = try await fetch().sorted(by: sorting)
-      if let itemProcessor {
-        for item in items {
-          await itemProcessor(item)
+    register(
+      read: { _ in
+        let items = try await fetch().sorted(by: sorting)
+        if let itemProcessor {
+          for item in items {
+            await itemProcessor(item)
+          }
+        }
+        return items
+      },
+      write: { saga, stepItems in
+        let items = stepItems.compactMap { $0 as? Item<M> }
+        let context = WriterContext(
+          items: items,
+          allItems: saga.allItems,
+          outputRoot: saga.outputPath,
+          outputPrefix: Path(""),
+          write: { try saga.processedWrite($0, $1) },
+          resourcesByFolder: [:]
+        )
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          for writer in writers {
+            group.addTask { try await writer.run(context) }
+          }
+          try await group.waitForAll()
         }
       }
-      return items
-    }
-
-    let write: WriteStep = { [self] stepItems in
-      let items = stepItems.compactMap { $0 as? Item<M> }
-      let context = WriterContext(
-        items: items,
-        allItems: allItems,
-        outputRoot: outputPath,
-        outputPrefix: Path(""),
-        write: { try self.processedWrite($0, $1) },
-        resourcesByFolder: [:]
-      )
-      try await withThrowingTaskGroup(of: Void.self) { group in
-        for writer in writers {
-          group.addTask { try await writer.run(context) }
-        }
-        try await group.waitForAll()
-      }
-    }
-
-    processSteps.append((read: read, write: write))
-    return self
+    )
   }
 
   // MARK: - Register (custom)
 
-  /// Register a custom write-only processing step.
+  /// Register a custom write-only step.
   ///
-  /// Use this for custom logic that doesn't fit the standard reader/writer pipeline.
+  /// Register a custom write-only steps for logic outside the standard pipeline:
+  /// generate images, build a search index, or run any custom logic as part of your build.
   /// The closure runs during the write phase, after all readers have finished and items are sorted.
   ///
   /// ```swift
@@ -247,29 +246,10 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
-    processSteps.append((
-      read: { [] },
-      write: { [self] _ in try await write(self) }
-    ))
-    return self
-  }
-
-  /// Register a custom processing step with user-provided read and write closures.
-  ///
-  /// Use this for custom logic that doesn't fit the standard reader/writer pipeline.
-  /// The read closure runs during the read phase (before items are sorted) and returns items,
-  /// and the write closure runs during the write phase (after all readers have finished).
-  @discardableResult
-  @preconcurrency
-  public func register(
-    read: @Sendable @escaping (Saga) async throws -> [AnyItem],
-    write: @Sendable @escaping (Saga) async throws -> Void
-  ) -> Self {
-    processSteps.append((
-      read: { [self] in try await read(self) },
-      write: { [self] _ in try await write(self) }
-    ))
-    return self
+    register(
+      read: { _ in [] },
+      write: { saga, _ in try await write(saga) }
+    )
   }
 
   // MARK: - Post-processing & pages
@@ -302,12 +282,7 @@ public class Saga: @unchecked Sendable {
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
-  ///   .register(
-  ///     folder: "articles",
-  ///     metadata: ArticleMetadata.self,
-  ///     readers: [.parsleyMarkdownReader],
-  ///     writers: [.listWriter(swim(renderArticles))]
-  ///   )
+  ///   .register(...)
   ///   .createPage("index.html", using: swim(renderHome))
   ///   .run()
   /// ```
