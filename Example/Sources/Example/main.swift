@@ -96,7 +96,7 @@ try await Saga(input: "content", output: "deploy")
   .register(
     folder: "photos/**",
     metadata: PhotoMetadata.self,
-    readers: [.imageReader()],
+    readers: [.imageReader],
     writers: [
       .itemWriter(swim(renderPhoto)),
     ]
