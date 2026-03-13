@@ -24,3 +24,14 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 - <doc:GettingStarted>
 - <doc:Architecture>
 - <doc:AdvancedUsage>
+
+### Guides
+
+- <doc:ReusableHTMLLayouts>
+- <doc:FetchingFromAPIs>
+- <doc:PhotoGalleries>
+- <doc:AddingSearch>
+- <doc:TailwindCSS>
+- <doc:HTMLMinification>
+- <doc:GeneratingSitemaps>
+- <doc:Shortcodes>
