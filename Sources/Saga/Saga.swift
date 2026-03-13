@@ -400,8 +400,7 @@ public class Saga: @unchecked Sendable {
     // Run all writers sequentially
     // processedWrite tracks generated paths automatically.
     let writeStart = DispatchTime.now()
-    for (index, step) in processSteps.enumerated() {
-      let items = stepResults[index]
+    for (step, items) in zip(processSteps, stepResults) {
       try await step.write(items)
     }
 
