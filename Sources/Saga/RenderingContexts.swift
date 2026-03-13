@@ -101,8 +101,22 @@ public struct PageRenderingContext: Sendable {
   /// The output path of the page being rendered.
   public let outputPath: Path
 
-  /// Relative paths of all pages written by writers and ``Saga/createPage(_:using:)`` before this page.
+  /// Relative paths of all pages written by writers and earlier ``Saga/createPage(_:using:)`` calls.
   public let generatedPages: [Path]
+}
+
+/// A page renderer that runs after all writers have finished, so it can access
+/// the complete ``Saga/generatedPages`` list. Use this for renderers like ``sitemap(baseURL:filter:)``
+/// that need to know every page on the site.
+///
+/// When passed to ``Saga/createPage(_:using:)-3kp3q``, the step is automatically deferred
+/// until all other writers and `createPage` calls have completed.
+public struct DeferredPageRenderer: Sendable {
+  let render: @Sendable (PageRenderingContext) throws -> String
+
+  public init(_ render: @Sendable @escaping (PageRenderingContext) throws -> String) {
+    self.render = render
+  }
 }
 
 /// A model representing a paginator.

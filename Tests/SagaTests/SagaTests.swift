@@ -853,11 +853,11 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         ]
       )
       .createPage("404.html") { _ in "<h1>Not Found</h1>" }
-    try .createPage("sitemap.xml", using: sitemap(
-      baseURL: XCTUnwrap(URL(string: "https://example.com")),
-      filter: { $0 != "404.html" }
-    ))
-    .run()
+      .createPage("sitemap.xml", using: sitemap(
+        baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+        filter: { $0 != "404.html" }
+      ))
+      .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
     let sitemapPage = finalWrittenPages.first(where: { $0.destination == "root/output/sitemap.xml" })

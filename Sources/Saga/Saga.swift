@@ -74,21 +74,24 @@ public class Saga: @unchecked Sendable {
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
 
-  /// Relative paths of all pages that will be written by writers and ``createPage(_:using:)``.
+  /// Relative paths of all pages written by writers and ``createPage(_:using:)``.
   public internal(set) var generatedPages: [Path] = []
 
   // Pipeline steps
   typealias ReadStep = @Sendable () async throws -> [AnyItem]
-  typealias PlanStep = @Sendable (_ stepItems: [AnyItem]) -> [Path]
   typealias WriteStep = @Sendable (_ stepItems: [AnyItem]) async throws -> Void
-  var processSteps: [(read: ReadStep, plan: PlanStep, write: WriteStep)] = []
+  var processSteps: [(read: ReadStep, write: WriteStep, deferred: Bool)] = []
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
+  private let generatedPagesLock = NSLock()
 
   /// Write content to a file, applying any registered post-processors.
+  /// Also tracks the relative path in ``generatedPages``.
   func processedWrite(_ destination: Path, _ content: String) throws {
+    let relativePath = try destination.relativePath(from: outputPath)
+    generatedPagesLock.withLock { generatedPages.append(relativePath) }
+
     var result = content
     if !postProcessors.isEmpty {
-      let relativePath = try destination.relativePath(from: outputPath)
       for transform in postProcessors {
         result = try transform(result, relativePath)
       }
@@ -211,11 +214,6 @@ public class Saga: @unchecked Sendable {
         }
         return items
       },
-      plan: { stepItems in
-        let items = stepItems.compactMap { $0 as? Item<M> }
-        let planContext = PlanContext(items: items, outputPrefix: Path(""))
-        return writers.flatMap { $0.plan(planContext) }
-      },
       write: { saga, stepItems in
         let items = stepItems.compactMap { $0 as? Item<M> }
         let context = WriterContext(
@@ -300,12 +298,35 @@ public class Saga: @unchecked Sendable {
   public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
     register(
       read: { _ in [] },
-      plan: { _ in [output] },
       write: { saga, _ in
         let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
         let stringToWrite = try await renderer(context)
         try saga.processedWrite(saga.outputPath + output, stringToWrite)
       }
+    )
+  }
+
+  /// Create a template-driven page that runs after all other writers have finished.
+  ///
+  /// Use this overload with renderers like ``sitemap(baseURL:filter:)`` that need access to the
+  /// complete ``generatedPages`` list. The step is automatically deferred until all other writers
+  /// and non-deferred `createPage` calls have completed.
+  ///
+  /// ```swift
+  /// .createPage("sitemap.xml", using: sitemap(
+  ///   baseURL: URL(string: "https://example.com")!
+  /// ))
+  /// ```
+  @discardableResult
+  public func createPage(_ output: Path, using renderer: DeferredPageRenderer) -> Self {
+    register(
+      read: { _ in [] },
+      write: { saga, _ in
+        let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
+        let stringToWrite = try renderer.render(context)
+        try saga.processedWrite(saga.outputPath + output, stringToWrite)
+      },
+      deferred: true
     )
   }
 
@@ -339,11 +360,6 @@ public class Saga: @unchecked Sendable {
 
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
-
-    // Plan phase: collect all output paths from every step's writers.
-    for (index, step) in processSteps.enumerated() {
-      generatedPages.append(contentsOf: step.plan(stepResults[index]))
-    }
 
     // Clean the output folder
     try fileIO.deletePath(outputPath)
@@ -402,16 +418,22 @@ public class Saga: @unchecked Sendable {
       }
     }
 
-    // And run all the writers for all the steps, using those stored Items.
+    // Run all non-deferred writers in parallel.
+    // processedWrite tracks generated paths automatically.
     let writeStart = DispatchTime.now()
     try await withThrowingTaskGroup(of: Void.self) { group in
-      for (index, step) in processSteps.enumerated() {
+      for (index, step) in processSteps.enumerated() where !step.deferred {
         let items = stepResults[index]
         group.addTask {
           try await step.write(items)
         }
       }
       try await group.waitForAll()
+    }
+
+    // Then run deferred steps sequentially — they can see all generatedPages.
+    for (index, step) in processSteps.enumerated() where step.deferred {
+      try await step.write(stepResults[index])
     }
 
     let writeEnd = DispatchTime.now()
