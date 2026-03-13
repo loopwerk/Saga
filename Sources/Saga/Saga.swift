@@ -78,7 +78,7 @@ public class Saga: @unchecked Sendable {
   // Pipeline steps
   typealias ReadStep = @Sendable () async throws -> [AnyItem]
   typealias WriteStep = @Sendable (_ stepItems: [AnyItem]) async throws -> Void
-  var processSteps: [(read: ReadStep, write: WriteStep, deferred: Bool)] = []
+  var processSteps: [(read: ReadStep, write: WriteStep)] = []
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
   private let generatedPagesLock = NSLock()
 
@@ -300,15 +300,11 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
-    register(
-      read: { _ in [] },
-      write: { saga, _ in
-        let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
-        let stringToWrite = try await renderer(context)
-        try saga.processedWrite(saga.outputPath + output, stringToWrite)
-      },
-      deferred: true
-    )
+    register { saga in
+      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
+      let stringToWrite = try await renderer(context)
+      try saga.processedWrite(saga.outputPath + output, stringToWrite)
+    }
   }
 
   // MARK: - Run
@@ -399,22 +395,12 @@ public class Saga: @unchecked Sendable {
       }
     }
 
-    // Run all non-deferred writers in parallel.
+    // Run all writers sequentially
     // processedWrite tracks generated paths automatically.
     let writeStart = DispatchTime.now()
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      for (index, step) in processSteps.enumerated() where !step.deferred {
-        let items = stepResults[index]
-        group.addTask {
-          try await step.write(items)
-        }
-      }
-      try await group.waitForAll()
-    }
-
-    // Then run deferred steps sequentially — they can see all generatedPages.
-    for (index, step) in processSteps.enumerated() where step.deferred {
-      try await step.write(stepResults[index])
+    for (index, step) in processSteps.enumerated() {
+      let items = stepResults[index]
+      try await step.write(items)
     }
 
     let writeEnd = DispatchTime.now()

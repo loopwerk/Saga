@@ -12,13 +12,11 @@ extension Saga {
   @preconcurrency
   func register(
     read: @Sendable @escaping (Saga) async throws -> [AnyItem],
-    write: @Sendable @escaping (Saga, _ stepItems: [AnyItem]) async throws -> Void,
-    deferred: Bool = false
+    write: @Sendable @escaping (Saga, _ stepItems: [AnyItem]) async throws -> Void
   ) -> Self {
     processSteps.append((
       read: { [self] in try await read(self) },
-      write: { [self] stepItems in try await write(self, stepItems) },
-      deferred: deferred
+      write: { [self] stepItems in try await write(self, stepItems) }
     ))
     return self
   }
