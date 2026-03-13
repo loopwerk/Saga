@@ -52,7 +52,7 @@ Saga is a static site generator written in Swift that follows a **Reader → Pro
 ### Core Components
 
 - **Item System**: `Item<M: Metadata>` provides compile-time type safety for content metadata, with `AnyItem` for heterogeneous collections
-- **Processing Pipeline**: `Saga` class orchestrates the pipeline with `ProcessingStep` stages and `FileContainer` tracking
+- **Processing Pipeline**: `Saga` class orchestrates the read → write pipeline with `processSteps` stages
 - **I/O Abstraction**: `FileIO` protocol enables mocking for tests, with `Path+Extensions` providing file system utilities
 - **Rendering Contexts**: Different contexts for single items, paginated lists, partitioned content (tags/years), and Atom feeds
 
@@ -73,6 +73,8 @@ Saga is designed for extensibility via external packages:
 
 - `hashed(_:)`: Global function for cache-busting asset URLs (e.g. `hashed("/static/style.css")` → `/static/style-a1b2c3d4.css`). Skipped in dev mode.
 - `postProcess(_:)`: Apply transforms (e.g. HTML minification) to every written file.
+- `sitemap(baseURL:filter:)`: Built-in renderer that generates an XML sitemap from `generatedPages`. Use with `createPage`.
+- `atomFeed(title:author:baseURL:...)`: Built-in renderer that generates an Atom feed from items.
 - `isDev`: `true` when running under `saga dev` or the legacy `watch` command (checks `SAGA_DEV` env var).
 
 ## Key Directories

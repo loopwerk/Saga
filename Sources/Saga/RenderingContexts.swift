@@ -100,6 +100,9 @@ public struct PageRenderingContext: Sendable {
 
   /// The output path of the page being rendered.
   public let outputPath: Path
+
+  /// Relative paths of all pages written by writers and earlier ``Saga/createPage(_:using:)`` calls.
+  let generatedPages: [Path]
 }
 
 /// A model representing a paginator.

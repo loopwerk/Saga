@@ -74,17 +74,24 @@ public class Saga: @unchecked Sendable {
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
 
+  // Generated page tracking, for the sitemap
+  var generatedPages: [Path] = []
+  private let generatedPagesLock = NSLock()
+  
   // Pipeline steps
   typealias ReadStep = @Sendable () async throws -> [AnyItem]
   typealias WriteStep = @Sendable (_ stepItems: [AnyItem]) async throws -> Void
   var processSteps: [(read: ReadStep, write: WriteStep)] = []
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
-  /// Write content to a file, applying any registered post-processors.
+  // Write content to a file, applying any registered post-processors.
+  // Also tracks the relative path in ``generatedPages``.
   func processedWrite(_ destination: Path, _ content: String) throws {
+    let relativePath = try destination.relativePath(from: outputPath)
+    generatedPagesLock.withLock { generatedPages.append(relativePath) }
+
     var result = content
     if !postProcessors.isEmpty {
-      let relativePath = try destination.relativePath(from: outputPath)
       for transform in postProcessors {
         result = try transform(result, relativePath)
       }
@@ -280,20 +287,26 @@ public class Saga: @unchecked Sendable {
   /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
   /// across all processing steps.
   ///
+  /// Pages created with `createPage` run after all registered writers have finished. This means
+  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
+  /// from earlier `createPage` calls. **Order matters**: place the sitemap last if it needs to
+  /// see all other pages.
+  ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
   ///   .register(...)
   ///   .createPage("index.html", using: swim(renderHome))
+  ///   .createPage("sitemap.xml", using: sitemap(baseURL: siteURL))
   ///   .run()
   /// ```
   @discardableResult
   @preconcurrency
   public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
-    register(write: { saga in
-      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
+    register { saga in
+      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
       let stringToWrite = try await renderer(context)
       try saga.processedWrite(saga.outputPath + output, stringToWrite)
-    })
+    }
   }
 
   // MARK: - Run
@@ -384,16 +397,11 @@ public class Saga: @unchecked Sendable {
       }
     }
 
-    // And run all the writers for all the steps, using those stored Items.
+    // Run all writers sequentially
+    // processedWrite tracks generated paths automatically.
     let writeStart = DispatchTime.now()
-    try await withThrowingTaskGroup(of: Void.self) { group in
-      for (index, step) in processSteps.enumerated() {
-        let items = stepResults[index]
-        group.addTask {
-          try await step.write(items)
-        }
-      }
-      try await group.waitForAll()
+    for (step, items) in zip(processSteps, stepResults) {
+      try await step.write(items)
     }
 
     let writeEnd = DispatchTime.now()
