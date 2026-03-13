@@ -26,7 +26,9 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-The sitemap includes every page: individual articles, list pages, and the homepage.
+The sitemap includes every page: individual articles, list pages, and the homepage. The sitemap automatically excludes itself.
+
+> important: `createPage` steps run after all writers, in the order they are registered. The sitemap reads ``PageRenderingContext/generatedPages``, so it should be the **last** `createPage` call to see every page.
 
 ## Filtering pages
 

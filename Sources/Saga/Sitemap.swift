@@ -8,7 +8,8 @@ import SagaPathKit
 ///   - filter: An optional filter to exclude certain paths from the sitemap.
 ///     The filter receives the relative output path (e.g. `"404.html"` or `"search/index.html"`).
 ///     Return `true` to include the path, `false` to exclude it.
-/// - Returns: A ``DeferredPageRenderer`` that automatically runs after all writers have finished.
+/// - Returns: A renderer for use with ``Saga/createPage(_:using:)``. Place the sitemap as the last
+///   `createPage` call so it can see all generated pages.
 ///
 /// ```swift
 /// .createPage("sitemap.xml", using: sitemap(
@@ -17,11 +18,11 @@ import SagaPathKit
 /// ))
 /// ```
 @preconcurrency
-public func sitemap(baseURL: URL, filter: (@Sendable (Path) -> Bool)? = nil) -> DeferredPageRenderer {
+public func sitemap(baseURL: URL, filter: (@Sendable (Path) -> Bool)? = nil) -> @Sendable (PageRenderingContext) -> String {
   let absString = baseURL.absoluteString
   let base = absString.hasSuffix("/") ? String(absString.dropLast()) : absString
 
-  return DeferredPageRenderer { context in
+  return { context in
     var paths = context.generatedPages.filter { $0 != context.outputPath }
     if let filter {
       paths = paths.filter(filter)

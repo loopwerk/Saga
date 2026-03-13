@@ -287,10 +287,16 @@ public class Saga: @unchecked Sendable {
   /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
   /// across all processing steps.
   ///
+  /// Pages created with `createPage` run after all registered writers have finished. This means
+  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
+  /// from earlier `createPage` calls. **Order matters**: place the sitemap last if it needs to
+  /// see all other pages.
+  ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
   ///   .register(...)
   ///   .createPage("index.html", using: swim(renderHome))
+  ///   .createPage("sitemap.xml", using: sitemap(baseURL: siteURL))
   ///   .run()
   /// ```
   @discardableResult
@@ -301,29 +307,6 @@ public class Saga: @unchecked Sendable {
       write: { saga, _ in
         let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
         let stringToWrite = try await renderer(context)
-        try saga.processedWrite(saga.outputPath + output, stringToWrite)
-      }
-    )
-  }
-
-  /// Create a template-driven page that runs after all other writers have finished.
-  ///
-  /// Use this overload with renderers like ``sitemap(baseURL:filter:)`` that need access to the
-  /// complete ``generatedPages`` list. The step is automatically deferred until all other writers
-  /// and non-deferred `createPage` calls have completed.
-  ///
-  /// ```swift
-  /// .createPage("sitemap.xml", using: sitemap(
-  ///   baseURL: URL(string: "https://example.com")!
-  /// ))
-  /// ```
-  @discardableResult
-  public func createPage(_ output: Path, using renderer: DeferredPageRenderer) -> Self {
-    register(
-      read: { _ in [] },
-      write: { saga, _ in
-        let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
-        let stringToWrite = try renderer.render(context)
         try saga.processedWrite(saga.outputPath + output, stringToWrite)
       },
       deferred: true
