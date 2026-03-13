@@ -73,9 +73,7 @@ public class Saga: @unchecked Sendable {
   let files: [(path: Path, relativePath: Path)]
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
-
-  /// Relative paths of all pages written by writers and ``createPage(_:using:)``.
-  public internal(set) var generatedPages: [Path] = []
+  var generatedPages: [Path] = []
 
   // Pipeline steps
   typealias ReadStep = @Sendable () async throws -> [AnyItem]
