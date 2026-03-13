@@ -74,10 +74,14 @@ public class Saga: @unchecked Sendable {
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
 
+  /// Relative paths of all pages that will be written by writers and ``createPage(_:using:)``.
+  public internal(set) var generatedPages: [Path] = []
+
   // Pipeline steps
   typealias ReadStep = @Sendable () async throws -> [AnyItem]
+  typealias PlanStep = @Sendable (_ stepItems: [AnyItem]) -> [Path]
   typealias WriteStep = @Sendable (_ stepItems: [AnyItem]) async throws -> Void
-  var processSteps: [(read: ReadStep, write: WriteStep)] = []
+  var processSteps: [(read: ReadStep, plan: PlanStep, write: WriteStep)] = []
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
   /// Write content to a file, applying any registered post-processors.
@@ -207,6 +211,11 @@ public class Saga: @unchecked Sendable {
         }
         return items
       },
+      plan: { stepItems in
+        let items = stepItems.compactMap { $0 as? Item<M> }
+        let planContext = PlanContext(items: items, outputPrefix: Path(""))
+        return writers.flatMap { $0.plan(planContext) }
+      },
       write: { saga, stepItems in
         let items = stepItems.compactMap { $0 as? Item<M> }
         let context = WriterContext(
@@ -289,11 +298,15 @@ public class Saga: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
-    register(write: { saga in
-      let context = PageRenderingContext(allItems: saga.allItems, outputPath: output)
-      let stringToWrite = try await renderer(context)
-      try saga.processedWrite(saga.outputPath + output, stringToWrite)
-    })
+    register(
+      read: { _ in [] },
+      plan: { _ in [output] },
+      write: { saga, _ in
+        let context = PageRenderingContext(allItems: saga.allItems, outputPath: output, generatedPages: saga.generatedPages)
+        let stringToWrite = try await renderer(context)
+        try saga.processedWrite(saga.outputPath + output, stringToWrite)
+      }
+    )
   }
 
   // MARK: - Run
@@ -326,6 +339,11 @@ public class Saga: @unchecked Sendable {
 
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
+
+    // Plan phase: collect all output paths from every step's writers.
+    for (index, step) in processSteps.enumerated() {
+      generatedPages.append(contentsOf: step.plan(stepResults[index]))
+    }
 
     // Clean the output folder
     try fileIO.deletePath(outputPath)

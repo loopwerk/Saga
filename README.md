@@ -87,6 +87,7 @@ Saga allows you to:
 - Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build.
 - Process the generated HTML content right before it's written to disk. For example to [minify it](https://github.com/loopwerk/Bonsai).
 - Easily created cache-busting hashed filenames for static assets.
+- Create a sitemap with one line of code.
 - Keep everything enforced by the compiler.
 
 ### Typed metadata (when you need it)

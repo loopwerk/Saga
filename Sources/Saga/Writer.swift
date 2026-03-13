@@ -1,6 +1,11 @@
 import Foundation
 import SagaPathKit
 
+struct PlanContext<M: Metadata> {
+  let items: [Item<M>]
+  let outputPrefix: Path
+}
+
 struct WriterContext<M: Metadata> {
   let items: [Item<M>]
   let allItems: [AnyItem]
@@ -16,6 +21,7 @@ struct WriterContext<M: Metadata> {
 ///
 /// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 public struct Writer<M: Metadata>: Sendable {
+  let plan: @Sendable (PlanContext<M>) -> [Path]
   let run: @Sendable (WriterContext<M>) async throws -> Void
 }
 
@@ -31,34 +37,39 @@ public extension Writer {
   /// Writes a single ``Item`` to a single output file, using `Item.relativeDestination` as the destination path.
   @preconcurrency
   static func itemWriter(_ renderer: @Sendable @escaping (ItemRenderingContext<M>) async throws -> String) -> Self {
-    Writer { writerContext in
-      try await withThrowingTaskGroup(of: Void.self) { group in
-        for (index, item) in writerContext.items.enumerated() {
-          group.addTask {
-            // Resources are unhandled files in the same folder. These could be images for example, or other static files.
-            let resources = writerContext.resourcesByFolder[item.relativeSource.parent()] ?? []
-            let previous = index > 0 ? writerContext.items[index - 1] : nil
-            let next = index < writerContext.items.count - 1 ? writerContext.items[index + 1] : nil
-            let renderingContext = ItemRenderingContext(
-              item: item,
-              items: writerContext.items,
-              allItems: writerContext.allItems,
-              resources: resources,
-              previous: previous,
-              next: next
-            )
-            let stringToWrite = try await renderer(renderingContext)
+    Writer(
+      plan: { planContext in
+        planContext.items.map(\.relativeDestination)
+      },
+      run: { writerContext in
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          for (index, item) in writerContext.items.enumerated() {
+            group.addTask {
+              // Resources are unhandled files in the same folder. These could be images for example, or other static files.
+              let resources = writerContext.resourcesByFolder[item.relativeSource.parent()] ?? []
+              let previous = index > 0 ? writerContext.items[index - 1] : nil
+              let next = index < writerContext.items.count - 1 ? writerContext.items[index + 1] : nil
+              let renderingContext = ItemRenderingContext(
+                item: item,
+                items: writerContext.items,
+                allItems: writerContext.allItems,
+                resources: resources,
+                previous: previous,
+                next: next
+              )
+              let stringToWrite = try await renderer(renderingContext)
 
-            try writerContext.write(
-              writerContext.outputRoot + item.relativeDestination,
-              stringToWrite
-            )
+              try writerContext.write(
+                writerContext.outputRoot + item.relativeDestination,
+                stringToWrite
+              )
+            }
           }
-        }
 
-        try await group.waitForAll()
+          try await group.waitForAll()
+        }
       }
-    }
+    )
   }
 
   /// Writes an array of items into a single output file.
@@ -69,17 +80,22 @@ public extension Writer {
     paginate: Int? = nil,
     paginatedOutput: Path = "page/[page]/index.html"
   ) -> Self {
-    Writer { writerContext in
-      try await writePages(
-        writerContext: writerContext,
-        renderer: renderer,
-        output: output,
-        paginate: paginate,
-        paginatedOutput: paginatedOutput
-      ) {
-        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
+    Writer(
+      plan: { planContext in
+        planPaths(items: planContext.items, outputPrefix: planContext.outputPrefix, output: output, paginate: paginate, paginatedOutput: paginatedOutput)
+      },
+      run: { writerContext in
+        try await writePages(
+          writerContext: writerContext,
+          renderer: renderer,
+          output: output,
+          paginate: paginate,
+          paginatedOutput: paginatedOutput
+        ) {
+          ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
+        }
       }
-    }
+    )
   }
 
   /// Writes an array of items into multiple output files.
@@ -96,38 +112,48 @@ public extension Writer {
     paginatedOutput: Path = "[key]/page/[page]/index.html",
     partitioner: @Sendable @escaping ([Item<M>]) -> [T: [Item<M>]]
   ) -> Self {
-    Writer { writerContext in
-      let partitions = partitioner(writerContext.items)
+    Writer(
+      plan: { planContext in
+        let partitions = partitioner(planContext.items)
+        return partitions.flatMap { key, itemsInPartition in
+          let finishedOutput = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
+          let finishedPaginatedOutput = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
+          return planPaths(items: itemsInPartition, outputPrefix: planContext.outputPrefix, output: finishedOutput, paginate: paginate, paginatedOutput: finishedPaginatedOutput)
+        }
+      },
+      run: { writerContext in
+        let partitions = partitioner(writerContext.items)
 
-      try await withThrowingTaskGroup(of: Void.self) { group in
-        for (key, itemsInPartition) in Array(partitions).sorted(by: { $0.0 < $1.0 }) {
-          group.addTask {
-            let finishedOutputPath = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
-            let finishedPaginatedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
-            let partitionContext = WriterContext(
-              items: itemsInPartition,
-              allItems: writerContext.allItems,
-              outputRoot: writerContext.outputRoot,
-              outputPrefix: writerContext.outputPrefix,
-              write: writerContext.write,
-              resourcesByFolder: writerContext.resourcesByFolder
-            )
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          for (key, itemsInPartition) in Array(partitions).sorted(by: { $0.0 < $1.0 }) {
+            group.addTask {
+              let finishedOutputPath = Path(output.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
+              let finishedPaginatedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[key]", with: "\(key.slugified)"))
+              let partitionContext = WriterContext(
+                items: itemsInPartition,
+                allItems: writerContext.allItems,
+                outputRoot: writerContext.outputRoot,
+                outputPrefix: writerContext.outputPrefix,
+                write: writerContext.write,
+                resourcesByFolder: writerContext.resourcesByFolder
+              )
 
-            try await writePages(
-              writerContext: partitionContext,
-              renderer: renderer,
-              output: finishedOutputPath,
-              paginate: paginate,
-              paginatedOutput: finishedPaginatedOutputPath
-            ) {
-              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
+              try await writePages(
+                writerContext: partitionContext,
+                renderer: renderer,
+                output: finishedOutputPath,
+                paginate: paginate,
+                paginatedOutput: finishedPaginatedOutputPath
+              ) {
+                PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
+              }
             }
           }
-        }
 
-        try await group.waitForAll()
+          try await group.waitForAll()
+        }
       }
-    }
+    )
   }
 
   /// A convenience version of `partitionedWriter` that groups items by a key path.
@@ -180,6 +206,25 @@ public extension Writer {
 }
 
 private extension Writer {
+  static func planPaths(items: [Item<M>], outputPrefix: Path, output: Path, paginate: Int?, paginatedOutput: Path) -> [Path] {
+    var paths: [Path] = []
+
+    if let perPage = paginate {
+      let numberOfPages = max(1, (items.count + perPage - 1) / perPage)
+      // First page
+      paths.append(outputPrefix + output)
+      // Paginated pages
+      for page in 1 ... numberOfPages {
+        let finishedPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(page)"))
+        paths.append(outputPrefix + finishedPath)
+      }
+    } else {
+      paths.append(outputPrefix + output)
+    }
+
+    return paths
+  }
+
   static func writePages<RenderContext>(
     writerContext: WriterContext<M>,
     renderer: @escaping @Sendable (RenderContext) async throws -> String,

@@ -807,6 +807,69 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(receivedPaths, [Path("search/index.html")])
   }
 
+  func testGeneratedPages() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["articles/test.md", "articles/test2.md", "style.css"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+          .listWriter({ context in "" }, output: "list.html"),
+        ]
+      )
+      .createPage("index.html") { _ in "<h1>Home</h1>" }
+      .createPage("404.html") { _ in "<h1>Not Found</h1>" }
+      .run()
+
+    let pages = saga.generatedPages.map(\.string).sorted()
+    XCTAssertEqual(pages, ["404.html", "articles/list.html", "articles/test/index.html", "articles/test2/index.html", "index.html"])
+  }
+
+  func testSitemap() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    mock.findFiles = { _ in ["articles/test.md", "articles/test2.md", "style.css"] }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .createPage("404.html") { _ in "<h1>Not Found</h1>" }
+    try .createPage("sitemap.xml", using: sitemap(
+      baseURL: XCTUnwrap(URL(string: "https://example.com")),
+      filter: { $0 != "404.html" }
+    ))
+    .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let sitemapPage = finalWrittenPages.first(where: { $0.destination == "root/output/sitemap.xml" })
+    XCTAssertNotNil(sitemapPage)
+
+    let content = try XCTUnwrap(sitemapPage?.content)
+    XCTAssertTrue(content.contains("<loc>https://example.com/articles/test/</loc>"))
+    XCTAssertTrue(content.contains("<loc>https://example.com/articles/test2/</loc>"))
+    XCTAssertFalse(content.contains("sitemap.xml"))
+    XCTAssertFalse(content.contains("404.html"))
+  }
+
   static let allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),

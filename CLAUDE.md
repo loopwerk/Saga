@@ -43,16 +43,16 @@ The legacy `watch` command (`Sources/SagaWatch/`) is deprecated in favor of `sag
 
 ## Architecture Overview
 
-Saga is a static site generator written in Swift that follows a **Reader → Processor → Writer** pipeline pattern:
+Saga is a static site generator written in Swift that follows a **Read → Plan → Write** pipeline pattern:
 
-1. **Readers** parse content files (Markdown, etc.) into strongly typed `Item<M: Metadata>` objects
-2. **Processors** transform items with custom logic and filtering
-3. **Writers** generate output files using various rendering contexts
+1. **Read**: Readers parse content files (Markdown, etc.) into strongly typed `Item<M: Metadata>` objects
+2. **Plan**: Each writer computes the output paths it will produce, populating `generatedPages` before any writing begins
+3. **Write**: Writers render items to files using various rendering contexts (runs in parallel)
 
 ### Core Components
 
 - **Item System**: `Item<M: Metadata>` provides compile-time type safety for content metadata, with `AnyItem` for heterogeneous collections
-- **Processing Pipeline**: `Saga` class orchestrates the pipeline with `ProcessingStep` stages and `FileContainer` tracking
+- **Processing Pipeline**: `Saga` class orchestrates the read → plan → write pipeline with `processSteps` stages
 - **I/O Abstraction**: `FileIO` protocol enables mocking for tests, with `Path+Extensions` providing file system utilities
 - **Rendering Contexts**: Different contexts for single items, paginated lists, partitioned content (tags/years), and Atom feeds
 
@@ -73,6 +73,8 @@ Saga is designed for extensibility via external packages:
 
 - `hashed(_:)`: Global function for cache-busting asset URLs (e.g. `hashed("/static/style.css")` → `/static/style-a1b2c3d4.css`). Skipped in dev mode.
 - `postProcess(_:)`: Apply transforms (e.g. HTML minification) to every written file.
+- `sitemap(baseURL:filter:)`: Built-in renderer that generates an XML sitemap from `generatedPages`. Use with `createPage`.
+- `atomFeed(title:author:baseURL:...)`: Built-in renderer that generates an Atom feed from items.
 - `isDev`: `true` when running under `saga dev` or the legacy `watch` command (checks `SAGA_DEV` env var).
 
 ## Key Directories

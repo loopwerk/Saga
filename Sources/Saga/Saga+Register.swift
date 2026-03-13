@@ -12,10 +12,12 @@ extension Saga {
   @preconcurrency
   func register(
     read: @Sendable @escaping (Saga) async throws -> [AnyItem],
+    plan: @Sendable @escaping (_ stepItems: [AnyItem]) -> [Path] = { _ in [] },
     write: @Sendable @escaping (Saga, _ stepItems: [AnyItem]) async throws -> Void
   ) -> Self {
     processSteps.append((
       read: { [self] in try await read(self) },
+      plan: plan,
       write: { [self] stepItems in try await write(self, stepItems) }
     ))
     return self
@@ -109,6 +111,11 @@ extension Saga {
         }
 
         return items.sorted(by: sorting)
+      },
+      plan: { stepItems in
+        let items = stepItems.compactMap { $0 as? Item<M> }
+        let planContext = PlanContext(items: items, outputPrefix: folder ?? Path(""))
+        return writers.flatMap { $0.plan(planContext) }
       },
       write: { saga, stepItems in
         let items = stepItems.compactMap { $0 as? Item<M> }

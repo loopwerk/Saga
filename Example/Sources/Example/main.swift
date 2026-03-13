@@ -120,6 +120,8 @@ try await Saga(input: "content", output: "deploy")
     writers: [.itemWriter(swim(renderPage))]
   )
 
+  // Sitemap including all generated pages
+  .createPage("sitemap.xml", using: sitemap(baseURL: SiteMetadata.url))
   // Run the steps we registered above.
   // Static files (images, css, etc.) are copied automatically.
   .run()
