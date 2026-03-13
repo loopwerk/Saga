@@ -43,16 +43,15 @@ The legacy `watch` command (`Sources/SagaWatch/`) is deprecated in favor of `sag
 
 ## Architecture Overview
 
-Saga is a static site generator written in Swift that follows a **Read → Write → Pages** pipeline pattern:
+Saga is a static site generator written in Swift that follows a **Read → Write** pipeline pattern:
 
 1. **Read**: Readers parse content files (Markdown, etc.) into strongly typed `Item<M: Metadata>` objects
-2. **Write**: Writers render items to files using various rendering contexts (runs in parallel). Every written file is tracked in `generatedPages`.
-3. **Pages**: `createPage` steps run after all writers, so renderers like `sitemap()` can access the complete list of generated pages.
+2. **Write**: Steps run sequentially in registration order; within each step, writers run in parallel. Every written file is tracked in `generatedPages`, so later steps (like `sitemap()` via `createPage`) can see all pages from earlier steps.
 
 ### Core Components
 
 - **Item System**: `Item<M: Metadata>` provides compile-time type safety for content metadata, with `AnyItem` for heterogeneous collections
-- **Processing Pipeline**: `Saga` class orchestrates the read → plan → write pipeline with `processSteps` stages
+- **Processing Pipeline**: `Saga` class orchestrates the read → write pipeline with `processSteps` stages
 - **I/O Abstraction**: `FileIO` protocol enables mocking for tests, with `Path+Extensions` providing file system utilities
 - **Rendering Contexts**: Different contexts for single items, paginated lists, partitioned content (tags/years), and Atom feeds
 

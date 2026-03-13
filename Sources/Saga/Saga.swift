@@ -73,17 +73,19 @@ public class Saga: @unchecked Sendable {
   let files: [(path: Path, relativePath: Path)]
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
-  var generatedPages: [Path] = []
 
+  // Generated page tracking, for the sitemap
+  var generatedPages: [Path] = []
+  private let generatedPagesLock = NSLock()
+  
   // Pipeline steps
   typealias ReadStep = @Sendable () async throws -> [AnyItem]
   typealias WriteStep = @Sendable (_ stepItems: [AnyItem]) async throws -> Void
   var processSteps: [(read: ReadStep, write: WriteStep)] = []
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
-  private let generatedPagesLock = NSLock()
 
-  /// Write content to a file, applying any registered post-processors.
-  /// Also tracks the relative path in ``generatedPages``.
+  // Write content to a file, applying any registered post-processors.
+  // Also tracks the relative path in ``generatedPages``.
   func processedWrite(_ destination: Path, _ content: String) throws {
     let relativePath = try destination.relativePath(from: outputPath)
     generatedPagesLock.withLock { generatedPages.append(relativePath) }
