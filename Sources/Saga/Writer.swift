@@ -35,6 +35,7 @@ public extension Writer {
       try await withThrowingTaskGroup(of: Void.self) { group in
         for (index, item) in writerContext.items.enumerated() {
           group.addTask {
+            // Resources are unhandled files in the same folder. These could be images for example, or other static files.
             let resources = writerContext.resourcesByFolder[item.relativeSource.parent()] ?? []
             let previous = index > 0 ? writerContext.items[index - 1] : nil
             let next = index < writerContext.items.count - 1 ? writerContext.items[index + 1] : nil
@@ -194,6 +195,7 @@ private extension Writer {
       // First we write the first page to the "main" destination, for example /articles/index.html
       if let firstItems = ranges.first {
         let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "2")).makeOutputPath(itemWriteMode: .keepAsFile)
+
         let paginator = Paginator(
           index: 1,
           itemsPerPage: perPage,
@@ -201,6 +203,7 @@ private extension Writer {
           previous: nil,
           next: numberOfPages > 1 ? (writerContext.outputPrefix + nextPage) : nil
         )
+
         let renderContext = getRenderContext(firstItems, writerContext.allItems, paginator, writerContext.outputPrefix + output)
         let stringToWrite = try await renderer(renderContext)
         try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
@@ -211,10 +214,9 @@ private extension Writer {
         for (index, items) in ranges.enumerated() {
           group.addTask {
             let currentPage = index + 1
-            let finishedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
-
             let previousPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage - 1)")).makeOutputPath(itemWriteMode: .keepAsFile)
             let nextPage = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage + 1)")).makeOutputPath(itemWriteMode: .keepAsFile)
+
             let paginator = Paginator(
               index: currentPage,
               itemsPerPage: perPage,
@@ -222,9 +224,10 @@ private extension Writer {
               previous: currentPage == 1 ? nil : (writerContext.outputPrefix + previousPage),
               next: currentPage == numberOfPages ? nil : (writerContext.outputPrefix + nextPage)
             )
+
+            let finishedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
             let renderContext = getRenderContext(items, writerContext.allItems, paginator, writerContext.outputPrefix + finishedOutputPath)
             let stringToWrite = try await renderer(renderContext)
-
             try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + finishedOutputPath, stringToWrite)
           }
         }
