@@ -54,7 +54,7 @@ public let isDev = ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
 ///   // Static files (images, css, etc.) are copied automatically.
 ///   .run()
 /// ```
-public class Saga: @unchecked Sendable, StepCollecting {
+public class Saga: StepBuilder, @unchecked Sendable {
   /// The root working path. This is automatically set to the same folder that holds `Package.swift`.
   public let rootPath: Path
 
@@ -77,9 +77,8 @@ public class Saga: @unchecked Sendable, StepCollecting {
   // Generated page tracking, for the sitemap
   var generatedPages: [Path] = []
   private let generatedPagesLock = NSLock()
-  
-  // Pipeline steps
-  public var steps: [PipelineStep] = []
+
+  // Post processors
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
   // Write content to a file, applying any registered post-processors.
@@ -88,12 +87,7 @@ public class Saga: @unchecked Sendable, StepCollecting {
     let relativePath = try destination.relativePath(from: outputPath)
     generatedPagesLock.withLock { generatedPages.append(relativePath) }
 
-    var result = content
-    if !postProcessors.isEmpty {
-      for transform in postProcessors {
-        result = try transform(result, relativePath)
-      }
-    }
+    let result = try postProcessors.reduce(content) { content, transform in try transform(content, relativePath) }
     try fileIO.write(destination, result)
   }
 

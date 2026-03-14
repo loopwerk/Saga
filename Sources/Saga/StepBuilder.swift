@@ -1,17 +1,12 @@
 import Foundation
 import SagaPathKit
 
-/// Combines a folder override from a parent step with a step's own folder.
-/// When both exist, appends the step folder to the override (relative scoping).
-/// When only one exists, uses that one. Returns nil when both are nil.
 private func resolveFolder(_ folderOverride: Path?, _ folder: Path?) -> Path? {
-  if let folderOverride {
-    if let folder {
-      return folderOverride + folder
-    }
-    return folderOverride
+  switch (folderOverride, folder) {
+    case let (a?, b?): return a + b
+    case let (a?, nil): return a
+    case let (nil, b): return b
   }
-  return folder
 }
 
 public struct PipelineStep: @unchecked Sendable {
@@ -20,20 +15,10 @@ public struct PipelineStep: @unchecked Sendable {
   let write: @Sendable (Saga, _ stepItems: [AnyItem], _ outputPrefix: Path, _ subfolder: Path?) async throws -> Void
 }
 
-/// A type that collects pipeline steps for building a Saga site.
-///
-/// Both ``Saga`` and ``SubStepBuilder`` conform to this protocol, which provides
-/// the `register`, `createPage`, and related methods used to configure the build pipeline.
-public protocol StepCollecting: AnyObject {
-  var steps: [PipelineStep] { get set }
-}
+/// A builder that collects pipeline steps.
+public class StepBuilder: @unchecked Sendable {
+  var steps: [PipelineStep] = []
 
-/// A builder used inside the `nested:` closure of ``StepCollecting/register(folder:metadata:readers:itemProcessor:filter:claimExcludedItems:itemWriteMode:sorting:writers:nested:)`` to register substeps that run within each subfolder.
-public class SubStepBuilder: @unchecked Sendable, StepCollecting {
-  public var steps: [PipelineStep] = []
-}
-
-public extension StepCollecting {
   /// Register a new processing step.
   ///
   /// - Parameters:
@@ -50,7 +35,7 @@ public extension StepCollecting {
   /// - Returns: The instance itself, so you can chain further calls onto it.
   @discardableResult
   @preconcurrency
-  func register<M: Metadata>(
+  public func register<M: Metadata>(
     folder: Path? = nil,
     metadata: M.Type = EmptyMetadata.self,
     readers: [Reader] = [],
@@ -60,7 +45,7 @@ public extension StepCollecting {
     itemWriteMode: ItemWriteMode = .moveToSubfolder,
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
     writers: [Writer<M>] = [],
-    nested: ((SubStepBuilder) -> Void)? = nil
+    nested: ((StepBuilder) -> Void)? = nil
   ) -> Self {
     // When folder ends with "/**", treat as nested with a deprecation warning.
     if let folder, folder.string.hasSuffix("/**") {
@@ -82,7 +67,7 @@ public extension StepCollecting {
     }
 
     if let nested {
-      let builder = SubStepBuilder()
+      let builder = StepBuilder()
       nested(builder)
 
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
@@ -243,44 +228,6 @@ public extension StepCollecting {
     return self
   }
 
-  /// Create a page that is driven purely by a template.
-  ///
-  /// Use this for pages such as a homepage showing the latest articles,
-  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
-  /// across all processing steps.
-  ///
-  /// Pages created with `createPage` run after all registered writers have finished. This means
-  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
-  /// from earlier `createPage` calls. **Order matters**: place the sitemap last if it needs to
-  /// see all other pages.
-  ///
-  /// ```swift
-  /// try await Saga(input: "content", output: "deploy")
-  ///   .register(...)
-  ///   .createPage("index.html", using: swim(renderHome))
-  ///   .createPage("sitemap.xml", using: sitemap(baseURL: siteURL))
-  ///   .run()
-  /// ```
-  @discardableResult
-  @preconcurrency
-  func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
-    steps.append(PipelineStep(
-      outputPrefix: Path(""),
-      read: { _, _ in [] },
-      write: { saga, _, outputPrefix, _ in
-        let fullOutput = outputPrefix + output
-        let context = PageRenderingContext(
-          allItems: saga.allItems,
-          outputPath: fullOutput,
-          generatedPages: saga.generatedPages
-        )
-        let string = try await renderer(context)
-        try saga.processedWrite(saga.outputPath + fullOutput, string)
-      }
-    ))
-    return self
-  }
-
   /// Register a processing step that fetches items programmatically instead of reading from files.
   ///
   /// - Parameters:
@@ -292,7 +239,7 @@ public extension StepCollecting {
   /// - Returns: The instance itself, so you can chain further calls onto it.
   @discardableResult
   @preconcurrency
-  func register<M: Metadata>(
+  public func register<M: Metadata>(
     metadata: M.Type = EmptyMetadata.self,
     fetch: @escaping @Sendable () async throws -> [Item<M>],
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
@@ -348,11 +295,49 @@ public extension StepCollecting {
   /// ```
   @discardableResult
   @preconcurrency
-  func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
+  public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     steps.append(PipelineStep(
       outputPrefix: Path(""),
       read: { _, _ in [] },
       write: { saga, _, _, _ in try await write(saga) }
+    ))
+    return self
+  }
+  
+  /// Create a page that is driven purely by a template.
+  ///
+  /// Use this for pages such as a homepage showing the latest articles,
+  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
+  /// across all processing steps.
+  ///
+  /// Pages created with `createPage` run after all registered writers have finished. This means
+  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
+  /// from earlier `createPage` calls. **Order matters**: place the sitemap last if it needs to
+  /// see all other pages.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(...)
+  ///   .createPage("index.html", using: swim(renderHome))
+  ///   .createPage("sitemap.xml", using: sitemap(baseURL: siteURL))
+  ///   .run()
+  /// ```
+  @discardableResult
+  @preconcurrency
+  public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
+    steps.append(PipelineStep(
+      outputPrefix: Path(""),
+      read: { _, _ in [] },
+      write: { saga, _, outputPrefix, _ in
+        let fullOutput = outputPrefix + output
+        let context = PageRenderingContext(
+          allItems: saga.allItems,
+          outputPath: fullOutput,
+          generatedPages: saga.generatedPages
+        )
+        let string = try await renderer(context)
+        try saga.processedWrite(saga.outputPath + fullOutput, string)
+      }
     ))
     return self
   }
