@@ -99,7 +99,7 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
   public let subfolder: Path?
 }
 
-/// The rendering context for template-driven pages created with ``Saga/createPage(_:using:)``.
+/// The rendering context for template-driven pages created with ``StepBuilder/createPage(_:using:)``.
 ///
 /// Unlike other rendering contexts, this is not associated with any ``Item``. It's for pages
 /// that are purely template-driven, such as a homepage, search page, or 404 page.
@@ -110,8 +110,8 @@ public struct PageRenderingContext: Sendable {
   /// The output path of the page being rendered.
   public let outputPath: Path
 
-  /// Relative paths of all pages written by writers and earlier ``Saga/createPage(_:using:)`` calls.
-  let generatedPages: [Path]
+  /// Relative paths of all pages written by writers and earlier ``StepBuilder/createPage(_:using:)`` calls.
+  public let generatedPages: [Path]
 }
 
 /// A model representing a paginator.

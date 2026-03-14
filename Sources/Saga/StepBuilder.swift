@@ -9,7 +9,7 @@ private func resolveFolder(_ folderOverride: Path?, _ folder: Path?) -> Path? {
   }
 }
 
-public struct PipelineStep: @unchecked Sendable {
+struct PipelineStep: @unchecked Sendable {
   let outputPrefix: Path
   let read: @Sendable (Saga, _ folderOverride: Path?) async throws -> [AnyItem]
   let write: @Sendable (Saga, _ stepItems: [AnyItem], _ outputPrefix: Path, _ subfolder: Path?) async throws -> Void
@@ -19,15 +19,15 @@ public struct PipelineStep: @unchecked Sendable {
 public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
 
-  /// Register a new processing step.
+  /// Register a new pipeline step.
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
-  ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
   ///   - filter: A filter to only include certain items from the input folder.
-  ///   - claimExcludedItems: When an item is excluded by the `filter`, should this step claim it? If true (the default), excluded items won't be available to subsequent processing steps.
+  ///   - claimExcludedItems: When an item is excluded by the `filter`, should this step claim it? If true (the default), excluded items won't be available to subsequent pipeline steps.
   ///   - itemWriteMode: The ``ItemWriteMode`` used by this step.
   ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
   ///   - writers: The writers that will be used by this step.
@@ -228,10 +228,10 @@ public class StepBuilder: @unchecked Sendable {
     return self
   }
 
-  /// Register a processing step that fetches items programmatically instead of reading from files.
+  /// Register a pipeline step that fetches items programmatically instead of reading from files.
   ///
   /// - Parameters:
-  ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - fetch: An async function that returns an array of items.
   ///   - itemProcessor: A function to modify each fetched ``Item`` as you see fit.
   ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
@@ -308,7 +308,7 @@ public class StepBuilder: @unchecked Sendable {
   ///
   /// Use this for pages such as a homepage showing the latest articles,
   /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
-  /// across all processing steps.
+  /// across all pipeline steps.
   ///
   /// Pages created with `createPage` run after all registered writers have finished. This means
   /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages

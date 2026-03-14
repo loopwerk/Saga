@@ -40,7 +40,7 @@ Since items are classes, mutations in processors are visible to all subsequent s
 
 Create pages that are purely template-driven — no markdown file or ``Item`` needed.
 
-Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``StepBuilder/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -60,7 +60,7 @@ try await Saga(input: "content", output: "deploy")
 
 The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingContext/allItems`` (all items across all processing steps) and ``PageRenderingContext/outputPath``.
 
-Use ``Saga/createPage(_:using:)`` when the page has no corresponding content file and is purely template-driven. Use `register` when content comes from files on disk or a programmatic data source and you need the full ``Item`` pipeline.
+Use ``StepBuilder/createPage(_:using:)`` when the page has no corresponding content file and is purely template-driven. Use `register` when content comes from files on disk or a programmatic data source and you need the full ``Item`` pipeline.
 
 > tip: See <doc:GeneratingSitemaps> and <doc:AddingSearch> for practical examples of template-driven pages.
 
