@@ -47,20 +47,10 @@ struct TrackMetadata: Metadata {
   let youtube: String?
 }
 
-/// An item processor that extracts the track number from filenames like "07-here-comes-the-sun"
-/// and strips it from the destination path.
-@Sendable func trackNumberInFilename(item: Item<TrackMetadata>) async {
-  let filename = item.filenameWithoutExtension
-  guard filename.count >= 3,
-        filename[filename.index(filename.startIndex, offsetBy: 2)] == "-",
-        let number = Int(filename.prefix(2))
-  else { return }
-
-  item.metadata.trackNumber = number
-
-  if item.title == item.filenameWithoutExtension {
-    let stripped = String(filename.dropFirst(3))
-    item.title = stripped.replacingOccurrences(of: "-", with: " ")
+/// An easy way to check if an article is archived, since ArticleMetadata.archived is optional
+extension Item where M == ArticleMetadata {
+  var archived: Bool {
+    return metadata.archived ?? false
   }
 }
 
@@ -70,10 +60,14 @@ extension Item where M == TrackMetadata {
   }
 }
 
-/// An easy way to check if an article is archived, since ArticleMetadata.archived is optional
-extension Item where M == ArticleMetadata {
-  var archived: Bool {
-    return metadata.archived ?? false
+/// An item processor that extracts the track number from filenames like "07-here-comes-the-sun"
+/// and strips it from the destination path.
+@Sendable func trackNumberInFilename(item: Item<TrackMetadata>) async {
+  item.metadata.trackNumber = Int(item.filenameWithoutExtension.prefix(2))
+
+  if item.title == item.filenameWithoutExtension {
+    let stripped = String(item.filenameWithoutExtension.dropFirst(3))
+    item.title = stripped.replacingOccurrences(of: "-", with: " ")
   }
 }
 

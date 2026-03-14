@@ -366,10 +366,10 @@ func renderTrack(context: ItemRenderingContext<TrackMetadata>) -> Node {
       div(class: "track-detail") {
         h1 { context.item.title }
         p(class: "subtitle") {
-          "Track \(context.item.trackNumber) · \(context.item.metadata.duration)"
+          context.item.metadata.duration
         }
         p {
-          "On "
+          "Track \(context.item.trackNumber) on"
           a(href: album.url) { album.title }
           " by "
           a(href: artist.url) { artist.title }
