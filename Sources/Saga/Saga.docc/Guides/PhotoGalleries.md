@@ -1,6 +1,6 @@
 # Building Photo Galleries
 
-Use nested registrations to create photo galleries with per-album navigation.
+Use nested processing steps to create photo galleries with per-album navigation.
 
 ## Overview
 

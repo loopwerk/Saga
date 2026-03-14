@@ -1,5 +1,6 @@
 import Foundation
 import Saga
+import SagaImageReader
 import SagaParsleyMarkdownReader
 import SagaPathKit
 import SagaSwimRenderer
