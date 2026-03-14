@@ -58,6 +58,7 @@ public class StepBuilder: @unchecked Sendable {
             readers: readers,
             itemProcessor: itemProcessor,
             filter: filter,
+            claimExcludedItems: claimExcludedItems,
             itemWriteMode: itemWriteMode,
             sorting: sorting,
             writers: writers
@@ -72,6 +73,10 @@ public class StepBuilder: @unchecked Sendable {
 
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
       let substeps = builder.steps
+
+      // Captured by both closures so the write phase can identify parent items
+      // without fragile filtering heuristics.
+      nonisolated(unsafe) var capturedParentItems: [Item<M>] = []
 
       steps.append(PipelineStep(
         outputPrefix: folder ?? Path(""),
@@ -128,7 +133,7 @@ public class StepBuilder: @unchecked Sendable {
               parentItem = first
             } else {
               parentItem = Item<M>(
-                absoluteSource: Path(""),
+                absoluteSource: saga.inputPath + subFolder,
                 relativeSource: subFolder,
                 relativeDestination: (subFolder + Path("index.html")),
                 title: subfolderName.lastComponent,
@@ -149,14 +154,19 @@ public class StepBuilder: @unchecked Sendable {
             allParentItems.append(parentItem)
           }
 
+          let sortedParents = allParentItems.sorted(by: sorting)
+          capturedParentItems.append(contentsOf: sortedParents)
+
           // Return all items: parents + all nested children
-          var allItems: [AnyItem] = allParentItems.sorted(by: sorting)
+          var allItems: [AnyItem] = sortedParents
           allItems.append(contentsOf: allSubstepItems)
           return allItems
         },
         write: { saga, stepItems, outputPrefix, _ in
-          // Parent items are the ones with children wired by the read closure
-          let parentItems = stepItems.compactMap { $0 as? Item<M> }.filter { !$0.children.isEmpty }
+          // Scope to only the parents present in stepItems (important for nested-in-nested,
+          // where the outer write passes a subset of children per subfolder).
+          let stepItemSet = Set(stepItems.map { ObjectIdentifier($0) })
+          let parentItems = capturedParentItems.filter { stepItemSet.contains(ObjectIdentifier($0)) }
 
           // Run outer (parent) writers
           if !writers.isEmpty {
