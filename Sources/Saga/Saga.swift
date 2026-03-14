@@ -135,8 +135,6 @@ public class Saga: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
-  ///     Append `/**` (e.g. `"photos/**"`) to create a separate processing step for each subfolder.
-  ///     Each subfolder gets its own scoped `items` array, `previous`/`next` navigation, and writers.
   ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
@@ -159,27 +157,88 @@ public class Saga: @unchecked Sendable {
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
     writers: [Writer<M>]
   ) throws -> Self {
-    // When folder ends with "/**", create one step per subfolder
+    // When folder ends with "/**", treat as nested with a deprecation warning.
+    // This is purely about scoping (no parent/child), so use the fake-parents overload.
     if let folder, folder.string.hasSuffix("/**") {
-      let baseFolder = Path(String(folder.string.dropLast(3)))
-      let baseFolderPrefix = baseFolder.string + "/"
-      let supportedExtensions = Set(readers.flatMap(\.supportedExtensions))
-
-      let subFolders = Set(
-        files
-          .filter { file in
-            guard file.relativePath.string.hasPrefix(baseFolderPrefix) else { return false }
-            return supportedExtensions.contains(file.path.extension ?? "")
-          }
-          .map { $0.relativePath.parent() }
+      print("❕The '/**' folder suffix is deprecated. Use 'nested:' instead.")
+      return try register(
+        folder: folder.parent(), // removes `/**`
+        nested: {
+          .register(
+            metadata: M.self,
+            readers: readers,
+            itemProcessor: itemProcessor,
+            filter: filter,
+            itemWriteMode: itemWriteMode,
+            sorting: sorting,
+            writers: writers
+          )
+        }
       )
-
-      for subFolder in subFolders.sorted(by: { $0.string < $1.string }) {
-        addFileStep(folder: subFolder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
-      }
-    } else {
-      addFileStep(folder: folder, readers: readers, itemProcessor: itemProcessor, filter: filter, claimExcludedItems: claimExcludedItems, itemWriteMode: itemWriteMode, sorting: sorting, writers: writers)
     }
+
+    addFileStep(
+      folder: folder,
+      readers: readers,
+      itemProcessor: itemProcessor,
+      filter: filter,
+      claimExcludedItems: claimExcludedItems,
+      itemWriteMode: itemWriteMode,
+      sorting: sorting,
+      writers: writers
+    )
+
+    return self
+  }
+
+  // MARK: - Register (nested)
+
+  /// Register a processing step with nested per-subfolder processing.
+  ///
+  /// Each immediate subfolder under `folder` is processed independently. Nested items are read
+  /// from the nested registration's readers, with writers scoped per subfolder.
+  ///
+  /// When `readers` is provided, parent items are read from those readers and parent/child
+  /// relationships are wired automatically. When `readers` is empty (the default), Saga creates
+  /// a synthetic `Item<EmptyMetadata>` per subfolder with `title` set to the subfolder name
+  /// and `children` wired to the nested items.
+  ///
+  /// - Parameters:
+  ///   - folder: The folder (relative to `input`) to operate on.
+  ///   - metadata: The metadata type for parent items.
+  ///   - readers: The readers for parent items. Defaults to `[]` (synthetic parents).
+  ///   - itemProcessor: A function to modify parent items.
+  ///   - filter: A filter for parent items.
+  ///   - claimExcludedItems: Whether excluded parent items should be claimed.
+  ///   - itemWriteMode: The ``ItemWriteMode`` for parent items.
+  ///   - sorting: Sort order for parent items.
+  ///   - writers: Writers for parent items (receive items with `children` populated).
+  ///   - nested: A closure returning a ``NestedRegistration`` for per-subfolder child items.
+  @discardableResult
+  @preconcurrency
+  public func register<M: Metadata, C: Metadata>(
+    folder: Path,
+    metadata: M.Type = EmptyMetadata.self,
+    readers: [Reader] = [],
+    itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
+    filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true },
+    claimExcludedItems: Bool = true,
+    itemWriteMode: ItemWriteMode = .moveToSubfolder,
+    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
+    writers: [Writer<M>] = [],
+    nested: () -> NestedRegistration<C>
+  ) throws -> Self {
+    addNestedStep(
+      folder: folder,
+      parentReaders: readers.isEmpty ? nil : readers,
+      parentItemProcessor: itemProcessor,
+      parentFilter: filter,
+      claimExcludedItems: claimExcludedItems,
+      parentItemWriteMode: itemWriteMode,
+      parentSorting: sorting,
+      parentWriters: writers,
+      nested: nested()
+    )
 
     return self
   }
@@ -222,7 +281,8 @@ public class Saga: @unchecked Sendable {
           outputRoot: saga.outputPath,
           outputPrefix: Path(""),
           write: { try saga.processedWrite($0, $1) },
-          resourcesByFolder: [:]
+          resourcesByFolder: [:],
+          subfolder: nil
         )
         try await withThrowingTaskGroup(of: Void.self) { group in
           for writer in writers {

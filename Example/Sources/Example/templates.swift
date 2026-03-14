@@ -24,10 +24,6 @@ extension Item where M == ArticleMetadata {
   }
 }
 
-func photosForAlbum(_ album: AnyItem, allItems: [AnyItem]) -> [AnyItem] {
-  allItems.filter { $0 is Item<PhotoMetadata> && $0.relativeSource.parent() == album.relativeSource.parent() }
-}
-
 // MARK: - Base layout
 
 func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
@@ -176,7 +172,7 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
 
       div(class: "collections-grid") {
         context.items.map { album in
-          let photos = photosForAlbum(album, allItems: context.allItems)
+          let photos = album.children(as: PhotoMetadata.self)
           let previewPhotos = Array(photos.prefix(4))
           let folder = album.relativeSource.parent()
 
@@ -198,7 +194,7 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
 }
 
 func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
-  let photos = photosForAlbum(context.item, allItems: context.allItems)
+  let photos = context.item.children(as: PhotoMetadata.self)
 
   return baseHtml(title: context.item.title) {
     div(class: "album") {
@@ -226,9 +222,7 @@ func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
 }
 
 func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
-  let album = context.allItems.first {
-    $0 is Item<AlbumMetadata> && $0.relativeSource.parent() == context.item.relativeSource.parent()
-  }
+  let album = context.item.parent(as: AlbumMetadata.self)
 
   let imageSrc = "../\(context.item.relativeSource.lastComponent)"
 
@@ -239,9 +233,7 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
           a(class: "nav-prev", href: previous.url) { "\u{2190}" }
         }
 
-        if let album {
-          a(class: "nav-close", href: album.url) { "\u{2715}" }
-        }
+        a(class: "nav-close", href: album.url) { "\u{2715}" }
 
         if let next = context.next {
           a(class: "nav-next", href: next.url) { "\u{2192}" }

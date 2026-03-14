@@ -35,6 +35,12 @@ extension Reader {
       (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: frontmatter)
     }
   }
+
+  static var mockImage: Self {
+    Self(supportedExtensions: ["jpg", "jpeg", "png"], copySourceFiles: true) { absoluteSource in
+      (title: absoluteSource.lastComponentWithoutExtension, body: "", frontmatter: nil)
+    }
+  }
 }
 
 struct TaggedMetadata: Metadata {
@@ -471,6 +477,231 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // listWriter: generates one index per subfolder
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/index.html" && $0.content.contains("sub1/a.md") && $0.content.contains("sub1/b.md") }))
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/folder/sub2/index.html", content: "<p>folder/sub2/c.md</p>")))
+  }
+
+  func testNestedSimple() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub1/b.md", "folder/sub2/c.md", "style.css"] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "folder",
+        nested: {
+          .register(
+            metadata: EmptyMetadata.self,
+            readers: [.mock(frontmatter: [:])],
+            writers: [
+              .itemWriter { context in
+                let prev = context.previous?.body ?? "none"
+                let next = context.next?.body ?? "none"
+                return "\(context.item.body)|prev:\(prev)|next:\(next)"
+              },
+              .listWriter { context in
+                let prefix = context.subfolder ?? "none"
+                return "\(prefix):" + context.items.map(\.body).joined(separator: ",")
+              },
+            ]
+          )
+        }
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // itemWriter: a.md and b.md are scoped to sub1, c.md is alone in sub2
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/a/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/b/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub2/c/index.html" }))
+
+    // c.md is the only item in sub2, so it has no previous or next
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/folder/sub2/c/index.html", content: "<p>folder/sub2/c.md</p>|prev:none|next:none")))
+
+    // a.md and b.md should reference each other (scoped to sub1), not c.md
+    let aPage = try XCTUnwrap(finalWrittenPages.first(where: { $0.destination == "root/output/folder/sub1/a/index.html" }))
+    let bPage = try XCTUnwrap(finalWrittenPages.first(where: { $0.destination == "root/output/folder/sub1/b/index.html" }))
+    XCTAssertFalse(aPage.content.contains("sub2"))
+    XCTAssertFalse(bPage.content.contains("sub2"))
+
+    // listWriter: generates one index per subfolder, with subfolder name available
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/index.html" && $0.content.hasPrefix("sub1:") }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub2/index.html" && $0.content.hasPrefix("sub2:") }))
+  }
+
+  func testNestedWithOuterWriters() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub1/b.md", "folder/sub2/c.md", "style.css"] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "folder",
+        writers: [
+          .listWriter { context in
+            context.items.map { item in
+              "\(item.title):\(item.children.count)"
+            }.joined(separator: ",")
+          },
+        ],
+        nested: {
+          .register(
+            metadata: EmptyMetadata.self,
+            readers: [.mock(frontmatter: [:])],
+            writers: [
+              .itemWriter { context in context.item.body },
+            ]
+          )
+        }
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Outer listWriter should see fake parent items with children
+    let listPage = finalWrittenPages.first(where: { $0.destination == "root/output/folder/index.html" })
+    XCTAssertNotNil(listPage)
+    XCTAssertTrue(listPage!.content.contains("sub1:2"))
+    XCTAssertTrue(listPage!.content.contains("sub2:1"))
+
+    // Nested items should be in allItems
+    XCTAssertTrue(saga.allItems.count >= 3) // At least the 3 nested items + 2 fake parents
+  }
+
+  func testNestedDifferentReaders() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    struct AlbumMetadata: Metadata {}
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["photos/dogs/index.md", "photos/dogs/a.jpg", "photos/dogs/b.jpg", "photos/cats/index.md", "photos/cats/c.jpg"] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "photos",
+        metadata: AlbumMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .listWriter({ context in
+            context.items.map { "\($0.title):\($0.children.count)" }.joined(separator: ",")
+          }, output: "index.html"),
+        ],
+        nested: {
+          .register(
+            metadata: EmptyMetadata.self,
+            readers: [.mockImage],
+            writers: [
+              .itemWriter { context in
+                let parentTitle = context.item.parent?.title ?? "none"
+                return "\(context.item.title)|parent:\(parentTitle)"
+              },
+            ]
+          )
+        }
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Parent listWriter should see albums with children
+    let listPage = finalWrittenPages.first(where: { $0.destination == "root/output/photos/index.html" })
+    XCTAssertNotNil(listPage)
+    XCTAssertTrue(listPage!.content.contains(":2")) // dogs has 2 photos
+    XCTAssertTrue(listPage!.content.contains(":1")) // cats has 1 photo
+
+    // Nested itemWriter should see parent
+    let photoPages = finalWrittenPages.filter { $0.destination.string.contains(".jpg") || $0.content.contains("parent:") }
+    for page in photoPages {
+      XCTAssertTrue(page.content.contains("parent:Test"))
+    }
+
+    // Both parents and children should be in allItems
+    let albumItems = saga.allItems.filter { $0 is Item<AlbumMetadata> }
+    XCTAssertEqual(albumItems.count, 2)
+  }
+
+  func testNestedChildrenAccessor() async throws {
+    struct PhotoMeta: Metadata {}
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["folder/sub1/a.jpg", "folder/sub1/b.jpg"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "folder",
+        writers: [],
+        nested: {
+          .register(
+            metadata: PhotoMeta.self,
+            readers: [.mockImage],
+            writers: []
+          )
+        }
+      )
+      .run()
+
+    // Find the fake parent
+    let parents = saga.allItems.filter { $0 is Item<EmptyMetadata> }
+    XCTAssertEqual(parents.count, 1)
+    let parent = parents[0] as! Item<EmptyMetadata>
+
+    // Typed children accessor
+    let typedChildren = parent.children(as: PhotoMeta.self)
+    XCTAssertEqual(typedChildren.count, 2)
+
+    // Parent accessor from child
+    let child = typedChildren[0]
+    let typedParent = child.parent(as: EmptyMetadata.self)
+    XCTAssertEqual(typedParent.title, "sub1")
+  }
+
+  func testSubfolderIsNilWithoutNesting() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          .mock(frontmatter: [:]),
+        ],
+        writers: [
+          .listWriter { context in
+            context.subfolder?.string ?? "nil"
+          },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/index.html", content: "nil")))
   }
 
   func testMetadataDecoder() throws {

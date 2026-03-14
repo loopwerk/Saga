@@ -24,6 +24,8 @@ public protocol AnyItem: AnyObject, Sendable {
   var created: Date { get }
   var lastModified: Date { get }
   var url: String { get }
+  var children: [AnyItem] { get set }
+  var parent: AnyItem? { get set }
 }
 
 /// A model representing an item.
@@ -59,6 +61,22 @@ public class Item<M: Metadata>: AnyItem, @unchecked Sendable {
 
   /// The parsed metadata. ``Metadata`` can be any `Codable` object.
   public var metadata: M
+
+  /// Type-erased children. Populated automatically by nested registrations.
+  public var children: [AnyItem] = []
+
+  /// Type-erased parent. Populated automatically by nested registrations.
+  public var parent: AnyItem? = nil
+
+  /// Typed accessor for children.
+  public func children<C: Metadata>(as type: C.Type) -> [Item<C>] {
+    children.compactMap { $0 as? Item<C> }
+  }
+
+  /// Typed accessor for parent.
+  public func parent<P: Metadata>(as type: P.Type) -> Item<P> {
+    parent as! Item<P>
+  }
 
   public init(absoluteSource: Path, relativeSource: Path, relativeDestination: Path, title: String, body: String, date: Date, created: Date, lastModified: Date, metadata: M) {
     self.absoluteSource = absoluteSource

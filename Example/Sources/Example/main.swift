@@ -81,7 +81,7 @@ try await Saga(input: "content", output: "deploy")
     writers: [.listWriter(swim(renderApps))]
   )
 
-  // Photo albums from markdown files
+  // Photo albums from markdown files, with nested photo pages per album
   .register(
     folder: "photos",
     metadata: AlbumMetadata.self,
@@ -89,17 +89,16 @@ try await Saga(input: "content", output: "deploy")
     writers: [
       .listWriter(swim(renderAlbums)),
       .itemWriter(swim(renderAlbum)),
-    ]
-  )
-
-  // Individual photo pages from images, one step per album subfolder
-  .register(
-    folder: "photos/**",
-    metadata: PhotoMetadata.self,
-    readers: [.imageReader],
-    writers: [
-      .itemWriter(swim(renderPhoto)),
-    ]
+    ],
+    nested: {
+      .register(
+        metadata: PhotoMetadata.self,
+        readers: [.imageReader],
+        writers: [
+          .itemWriter(swim(renderPhoto)),
+        ]
+      )
+    }
   )
 
   // Fetch Beatles videos from iTunes and render them

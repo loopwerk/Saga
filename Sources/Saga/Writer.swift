@@ -8,6 +8,7 @@ struct WriterContext<M: Metadata> {
   let outputPrefix: Path
   let write: @Sendable (Path, String) throws -> Void
   let resourcesByFolder: [Path: [Path]]
+  let subfolder: Path?
 }
 
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
@@ -45,7 +46,8 @@ public extension Writer {
               allItems: writerContext.allItems,
               resources: resources,
               previous: previous,
-              next: next
+              next: next,
+              subfolder: writerContext.subfolder
             )
             let stringToWrite = try await renderer(renderingContext)
 
@@ -77,7 +79,7 @@ public extension Writer {
         paginate: paginate,
         paginatedOutput: paginatedOutput
       ) {
-        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3)
+        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder)
       }
     }
   }
@@ -110,7 +112,8 @@ public extension Writer {
               outputRoot: writerContext.outputRoot,
               outputPrefix: writerContext.outputPrefix,
               write: writerContext.write,
-              resourcesByFolder: writerContext.resourcesByFolder
+              resourcesByFolder: writerContext.resourcesByFolder,
+              subfolder: writerContext.subfolder
             )
 
             try await writePages(
@@ -120,7 +123,7 @@ public extension Writer {
               paginate: paginate,
               paginatedOutput: finishedPaginatedOutputPath
             ) {
-              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3)
+              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder)
             }
           }
         }

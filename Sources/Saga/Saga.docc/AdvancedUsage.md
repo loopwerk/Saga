@@ -128,17 +128,22 @@ You can freely mix file-based and fetch-based steps. All items — regardless of
 
 ## Nested subfolder processing
 
-When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — append `/**` to the folder path:
+When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — use the `nested:` parameter:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
   .register(
-    folder: "photos/**",
-    metadata: PhotoMetadata.self,
-    readers: [.parsleyMarkdownReader],
-    writers: [
-      .listWriter(swim(renderPhotoList)),
-    ]
+    folder: "photos",
+    nested: {
+      .register(
+        metadata: PhotoMetadata.self,
+        readers: [.parsleyMarkdownReader],
+        writers: [
+          .listWriter(swim(renderPhotoList)),
+          .itemWriter(swim(renderPhoto)),
+        ]
+      )
+    }
   )
   .run()
 ```
@@ -156,9 +161,82 @@ content/
       photo4.md
 ```
 
-Saga creates a separate processing step for `photos/vacation` and `photos/birthday`. Each step sees only its own items, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
+Saga processes `photos/vacation` and `photos/birthday` independently. Each subfolder gets its own scoped `items` array, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
 
-Without the `/**` suffix, `folder: "photos"` would treat every Markdown file under `photos/` as part of a single flat collection.
+Without `nested:`, `folder: "photos"` would treat every file under `photos/` as part of a single flat collection.
+
+### Accessing subfolders from outer writers
+
+Saga creates a synthetic ``Item`` per subfolder, with `title` set to the subfolder name and `children` wired to the nested items. Add outer `writers` to render an overview page:
+
+```swift
+.register(
+  folder: "photos",
+  writers: [
+    .listWriter(swim(renderAlbumIndex)),
+  ],
+  nested: {
+    .register(
+      metadata: PhotoMetadata.self,
+      readers: [.parsleyMarkdownReader],
+      writers: [
+        .listWriter(swim(renderPhotoList)),
+      ]
+    )
+  }
+)
+```
+
+In the template, use `children()` to access the nested items:
+
+```swift
+func renderAlbumIndex(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
+  context.items.map { album in
+    let photos: [Item<PhotoMetadata>] = album.children()
+    a(href: album.url) {
+      h2 { album.title }
+      p { "\(photos.count) photos" }
+    }
+  }
+}
+```
+
+### Parent/child with different readers
+
+When the parent and child items use different readers and metadata types, specify `readers` and `metadata` on both the outer and nested registrations:
+
+```swift
+.register(
+  folder: "photos",
+  metadata: AlbumMetadata.self,
+  readers: [.parsleyMarkdownReader],
+  writers: [
+    .listWriter(swim(renderAlbums)),
+    .itemWriter(swim(renderAlbum)),
+  ],
+  nested: {
+    .register(
+      metadata: PhotoMetadata.self,
+      readers: [.imageReader],
+      writers: [
+        .itemWriter(swim(renderPhoto)),
+      ]
+    )
+  }
+)
+```
+
+Here the outer readers create real parent items from `index.md` files, and `children`/`parent` relationships are wired automatically:
+
+```swift
+// In a nested item's template
+let album: Item<AlbumMetadata>? = context.item.parent()
+
+// In a parent item's template
+let photos: [Item<PhotoMetadata>] = context.item.children()
+```
+
+> Note: The deprecated `/**` folder suffix still works but prints a warning directing you to use `nested:` instead.
 
 > tip: See <doc:PhotoGalleries> for a complete photo gallery example with album pages and per-album navigation.
 

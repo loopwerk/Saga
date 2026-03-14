@@ -23,6 +23,9 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
 
   /// The next item in sorted order, or `nil` if this is the last item.
   public let next: Item<M>?
+
+  /// The subfolder name when using `nested:`. Nil otherwise.
+  public let subfolder: Path?
 }
 
 // A protocol for rendering contexts that can be used to generate Atom feeds.
@@ -63,6 +66,9 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext, Sendable {
 
   /// The output path of the page being rendered.
   public let outputPath: Path
+
+  /// The subfolder name when using `nested:`. Nil otherwise.
+  public let subfolder: Path?
 }
 
 /// A type constraint for partition keys used in ``PartitionedRenderingContext``.
@@ -88,6 +94,9 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 
   /// The output path of the page being rendered.
   public let outputPath: Path
+
+  /// The subfolder name when using `nested:`. Nil otherwise.
+  public let subfolder: Path?
 }
 
 /// The rendering context for template-driven pages created with ``Saga/createPage(_:using:)``.
