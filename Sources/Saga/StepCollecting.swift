@@ -20,15 +20,34 @@ public struct PipelineStep: @unchecked Sendable {
   let write: @Sendable (Saga, _ stepItems: [AnyItem], _ outputPrefix: Path, _ subfolder: Path?) async throws -> Void
 }
 
+/// A type that collects pipeline steps for building a Saga site.
+///
+/// Both ``Saga`` and ``SubStepBuilder`` conform to this protocol, which provides
+/// the `register`, `createPage`, and related methods used to configure the build pipeline.
 public protocol StepCollecting: AnyObject {
   var steps: [PipelineStep] { get set }
 }
 
+/// A builder used inside the `nested:` closure of ``StepCollecting/register(folder:metadata:readers:itemProcessor:filter:claimExcludedItems:itemWriteMode:sorting:writers:nested:)`` to register substeps that run within each subfolder.
 public class SubStepBuilder: @unchecked Sendable, StepCollecting {
   public var steps: [PipelineStep] = []
 }
 
 public extension StepCollecting {
+  /// Register a new processing step.
+  ///
+  /// - Parameters:
+  ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
+  ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - readers: The readers that will be used by this step.
+  ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
+  ///   - filter: A filter to only include certain items from the input folder.
+  ///   - claimExcludedItems: When an item is excluded by the `filter`, should this step claim it? If true (the default), excluded items won't be available to subsequent processing steps.
+  ///   - itemWriteMode: The ``ItemWriteMode`` used by this step.
+  ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
+  ///   - writers: The writers that will be used by this step.
+  ///   - nested: An optional closure to register nested substeps that run within each subfolder.
+  /// - Returns: The instance itself, so you can chain further calls onto it.
   @discardableResult
   @preconcurrency
   func register<M: Metadata>(
@@ -224,6 +243,24 @@ public extension StepCollecting {
     return self
   }
 
+  /// Create a page that is driven purely by a template.
+  ///
+  /// Use this for pages such as a homepage showing the latest articles,
+  /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
+  /// across all processing steps.
+  ///
+  /// Pages created with `createPage` run after all registered writers have finished. This means
+  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
+  /// from earlier `createPage` calls. **Order matters**: place the sitemap last if it needs to
+  /// see all other pages.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(...)
+  ///   .createPage("index.html", using: swim(renderHome))
+  ///   .createPage("sitemap.xml", using: sitemap(baseURL: siteURL))
+  ///   .run()
+  /// ```
   @discardableResult
   @preconcurrency
   func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
@@ -244,6 +281,15 @@ public extension StepCollecting {
     return self
   }
 
+  /// Register a processing step that fetches items programmatically instead of reading from files.
+  ///
+  /// - Parameters:
+  ///   - metadata: The metadata type used for the processing step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - fetch: An async function that returns an array of items.
+  ///   - itemProcessor: A function to modify each fetched ``Item`` as you see fit.
+  ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
+  ///   - writers: The writers that will be used by this step.
+  /// - Returns: The instance itself, so you can chain further calls onto it.
   @discardableResult
   @preconcurrency
   func register<M: Metadata>(
@@ -286,6 +332,20 @@ public extension StepCollecting {
     return self
   }
 
+  /// Register a custom write-only step.
+  ///
+  /// Use this for logic outside the standard pipeline:
+  /// generate images, build a search index, or run any custom logic as part of your build.
+  /// The closure runs during the write phase, after all readers have finished and items are sorted.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(...)
+  ///   .register { saga in
+  ///     // custom write logic with access to saga.allItems
+  ///   }
+  ///   .run()
+  /// ```
   @discardableResult
   @preconcurrency
   func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
