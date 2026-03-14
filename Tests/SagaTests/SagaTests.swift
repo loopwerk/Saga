@@ -75,10 +75,10 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
 
   func testRegister() throws {
     let saga = try Saga(input: "input", output: "output", fileIO: .mock)
-    XCTAssertEqual(saga.processSteps.count, 0)
+    XCTAssertEqual(saga.steps.count, 0)
 
-    try saga.register(metadata: EmptyMetadata.self, readers: [], writers: [])
-    XCTAssertEqual(saga.processSteps.count, 1)
+    saga.register(metadata: EmptyMetadata.self, readers: [], writers: [])
+    XCTAssertEqual(saga.steps.count, 1)
   }
 
   func testReaderAndItemWriterAndListWriter() async throws {
@@ -494,8 +494,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "folder",
-        nested: {
-          .register(
+        nested: { nested in
+          nested.register(
             metadata: EmptyMetadata.self,
             readers: [.mock(frontmatter: [:])],
             writers: [
@@ -557,8 +557,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
             }.joined(separator: ",")
           },
         ],
-        nested: {
-          .register(
+        nested: { nested in
+          nested.register(
             metadata: EmptyMetadata.self,
             readers: [.mock(frontmatter: [:])],
             writers: [
@@ -605,8 +605,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
             context.items.map { "\($0.title):\($0.children.count)" }.joined(separator: ",")
           }, output: "index.html"),
         ],
-        nested: {
-          .register(
+        nested: { nested in
+          nested.register(
             metadata: EmptyMetadata.self,
             readers: [.mockImage],
             writers: [
@@ -650,8 +650,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       .register(
         folder: "folder",
         writers: [],
-        nested: {
-          .register(
+        nested: { nested in
+          nested.register(
             metadata: PhotoMeta.self,
             readers: [.mockImage],
             writers: []
@@ -673,6 +673,213 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let child = typedChildren[0]
     let typedParent = child.parent(as: EmptyMetadata.self)
     XCTAssertEqual(typedParent.title, "sub1")
+  }
+
+  func testNestedInNested() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "courses/math/algebra/lesson1.md",
+      "courses/math/algebra/lesson2.md",
+      "courses/math/calculus/lesson3.md",
+      "courses/science/physics/lesson4.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "courses",
+        writers: [
+          .listWriter { context in
+            // Outer: list of courses (math, science)
+            context.items.map { "\($0.title):\($0.children.count)" }.joined(separator: ",")
+          },
+        ],
+        nested: { nested in
+          nested.register(
+            // Middle level: topics (algebra, calculus, physics)
+            writers: [
+              .listWriter { context in
+                context.items.map { "\($0.title):\($0.children.count)" }.joined(separator: ",")
+              },
+            ],
+            nested: { nested2 in
+              nested2.register(
+                // Leaf level: lessons
+                metadata: EmptyMetadata.self,
+                readers: [.mock(frontmatter: [:])],
+                writers: [
+                  .itemWriter { context in context.item.body },
+                ]
+              )
+            }
+          )
+        }
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Leaf lessons should be written
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/courses/math/algebra/lesson1/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/courses/math/algebra/lesson2/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/courses/math/calculus/lesson3/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/courses/science/physics/lesson4/index.html" }))
+
+    // Middle-level listWriter: one per course subfolder (math, science)
+    let mathTopics = finalWrittenPages.first(where: { $0.destination == "root/output/courses/math/index.html" })
+    XCTAssertNotNil(mathTopics)
+    XCTAssertTrue(mathTopics!.content.contains("algebra:2"))
+    XCTAssertTrue(mathTopics!.content.contains("calculus:1"))
+
+    let scienceTopics = finalWrittenPages.first(where: { $0.destination == "root/output/courses/science/index.html" })
+    XCTAssertNotNil(scienceTopics)
+    XCTAssertTrue(scienceTopics!.content.contains("physics:1"))
+
+    // Outer listWriter: courses overview
+    let coursesPage = finalWrittenPages.first(where: { $0.destination == "root/output/courses/index.html" })
+    XCTAssertNotNil(coursesPage)
+    XCTAssertTrue(coursesPage!.content.contains("math:2"))
+    XCTAssertTrue(coursesPage!.content.contains("science:1"))
+
+    // All items should be in allItems
+    XCTAssertTrue(saga.allItems.count >= 4) // At least the 4 lessons
+  }
+
+  func testNestedInNestedWithDifferentMetadata() async throws {
+    struct ArtistMetadata: Metadata {}
+    struct AlbumMetadata: Metadata {}
+    struct TrackMetadata: Metadata {}
+
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "artists/beatles/index.md",
+      "artists/beatles/abbey-road/index.md",
+      "artists/beatles/abbey-road/tracks/come-together.md",
+      "artists/beatles/abbey-road/tracks/something.md",
+      "artists/beatles/let-it-be/index.md",
+      "artists/beatles/let-it-be/tracks/get-back.md",
+      "artists/radiohead/index.md",
+      "artists/radiohead/ok-computer/index.md",
+      "artists/radiohead/ok-computer/tracks/paranoid-android.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "artists",
+        metadata: ArtistMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .listWriter({ context in
+            context.items.map { "\($0.title):\($0.children.count)albums" }.joined(separator: ",")
+          }, output: "index.html"),
+        ],
+        nested: { artists in
+          artists.register(
+            metadata: AlbumMetadata.self,
+            readers: [.mock(frontmatter: [:])],
+            writers: [
+              .itemWriter { context in
+                let artist = context.item.parent?.title ?? "none"
+                let tracks = context.item.children.count
+                return "album:\(context.item.title)|artist:\(artist)|tracks:\(tracks)"
+              },
+            ],
+            nested: { albums in
+              albums.register(
+                folder: "tracks",
+                metadata: TrackMetadata.self,
+                readers: [.mock(frontmatter: [:])],
+                writers: [
+                  .itemWriter { context in
+                    let album = context.item.parent?.title ?? "none"
+                    return "track:\(context.item.title)|album:\(album)"
+                  },
+                ]
+              )
+            }
+          )
+        }
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // === Item counts by type ===
+    let artistItems = saga.allItems.compactMap { $0 as? Item<ArtistMetadata> }
+    let albumItems = saga.allItems.compactMap { $0 as? Item<AlbumMetadata> }
+    let trackItems = saga.allItems.compactMap { $0 as? Item<TrackMetadata> }
+    XCTAssertEqual(artistItems.count, 2, "Expected 2 artists (beatles, radiohead)")
+    XCTAssertEqual(albumItems.count, 3, "Expected 3 albums (abbey-road, let-it-be, ok-computer)")
+    XCTAssertEqual(trackItems.count, 4, "Expected 4 tracks")
+    XCTAssertEqual(saga.allItems.count, 9, "Expected 9 total items (2 artists + 3 albums + 4 tracks)")
+
+    // === Parent/child wiring ===
+    // Artists should have albums as direct children (not tracks)
+    let beatles = try XCTUnwrap(artistItems.first(where: { $0.relativeSource.string.contains("beatles") }))
+    let radiohead = try XCTUnwrap(artistItems.first(where: { $0.relativeSource.string.contains("radiohead") }))
+    XCTAssertEqual(beatles.children.count, 2, "Beatles should have 2 album children")
+    XCTAssertEqual(radiohead.children.count, 1, "Radiohead should have 1 album child")
+
+    // Albums should have tracks as direct children
+    let abbeyRoad = try XCTUnwrap(albumItems.first(where: { $0.relativeSource.string.contains("abbey-road") }))
+    let letItBe = try XCTUnwrap(albumItems.first(where: { $0.relativeSource.string.contains("let-it-be") }))
+    let okComputer = try XCTUnwrap(albumItems.first(where: { $0.relativeSource.string.contains("ok-computer") }))
+    XCTAssertEqual(abbeyRoad.children.count, 2, "Abbey Road should have 2 tracks")
+    XCTAssertEqual(letItBe.children.count, 1, "Let It Be should have 1 track")
+    XCTAssertEqual(okComputer.children.count, 1, "OK Computer should have 1 track")
+
+    // Albums should have artist as parent
+    XCTAssertTrue(abbeyRoad.parent === beatles)
+    XCTAssertTrue(letItBe.parent === beatles)
+    XCTAssertTrue(okComputer.parent === radiohead)
+
+    // Tracks should have album as parent
+    for track in trackItems {
+      XCTAssertNotNil(track.parent, "Every track should have a parent album")
+      XCTAssertTrue(albumItems.contains(where: { $0 === track.parent }), "Track parent should be an album")
+    }
+
+    // === Writers at every level ===
+    // Artist listWriter
+    let artistList = try XCTUnwrap(finalWrittenPages.first(where: { $0.destination == "root/output/artists/index.html" }))
+    XCTAssertEqual(artistList.content, "Test:2albums,Test:1albums")
+
+    // Album itemWriter — one page per album
+    let albumPages = finalWrittenPages.filter { $0.content.hasPrefix("album:") }
+    XCTAssertEqual(albumPages.count, 3, "Expected 3 album pages")
+    XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/beatles/abbey-road/index.html", content: "album:Test|artist:Test|tracks:2")))
+    XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/beatles/let-it-be/index.html", content: "album:Test|artist:Test|tracks:1")))
+    XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/radiohead/ok-computer/index.html", content: "album:Test|artist:Test|tracks:1")))
+
+    // Track itemWriter — one page per track
+    let trackPages = finalWrittenPages.filter { $0.content.hasPrefix("track:") }
+    XCTAssertEqual(trackPages.count, 4, "Expected 4 track pages")
+    XCTAssertTrue(trackPages.contains(where: { $0.destination == "root/output/artists/beatles/abbey-road/tracks/come-together/index.html" }))
+    XCTAssertTrue(trackPages.contains(where: { $0.destination == "root/output/artists/beatles/abbey-road/tracks/something/index.html" }))
+    XCTAssertTrue(trackPages.contains(where: { $0.destination == "root/output/artists/beatles/let-it-be/tracks/get-back/index.html" }))
+    XCTAssertTrue(trackPages.contains(where: { $0.destination == "root/output/artists/radiohead/ok-computer/tracks/paranoid-android/index.html" }))
+    // Every track page should reference its parent album (mock reader gives title "Test")
+    for page in trackPages {
+      XCTAssertTrue(page.content.contains("|album:Test"), "Track page should reference parent album: \(page.content)")
+    }
+
+    // Total written pages: 1 artist list + 3 album pages + 4 track pages = 8
+    XCTAssertEqual(finalWrittenPages.count, 8)
   }
 
   func testSubfolderIsNilWithoutNesting() async throws {

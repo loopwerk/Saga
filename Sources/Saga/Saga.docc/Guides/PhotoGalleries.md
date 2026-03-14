@@ -34,8 +34,8 @@ try await Saga(input: "content", output: "deploy")
     writers: [
       .listWriter(swim(renderAlbums)),
     ],
-    nested: {
-      .register(
+    nested: { nested in
+      nested.register(
         metadata: PhotoMetadata.self,
         readers: [.imageReader],
         writers: [
@@ -103,8 +103,8 @@ try await Saga(input: "content", output: "deploy")
       .listWriter(swim(renderAlbums)),
       .itemWriter(swim(renderAlbum)),
     ],
-    nested: {
-      .register(
+    nested: { nested in
+      nested.register(
         metadata: PhotoMetadata.self,
         readers: [.imageReader],
         writers: [

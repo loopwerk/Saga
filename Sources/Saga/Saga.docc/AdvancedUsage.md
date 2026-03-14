@@ -134,8 +134,8 @@ When you have content organized into subfolders and want each subfolder processe
 try await Saga(input: "content", output: "deploy")
   .register(
     folder: "photos",
-    nested: {
-      .register(
+    nested: { nested in
+      nested.register(
         metadata: PhotoMetadata.self,
         readers: [.parsleyMarkdownReader],
         writers: [
@@ -175,8 +175,8 @@ Saga creates a synthetic ``Item`` per subfolder, with `title` set to the subfold
   writers: [
     .listWriter(swim(renderAlbumIndex)),
   ],
-  nested: {
-    .register(
+  nested: { nested in
+    nested.register(
       metadata: PhotoMetadata.self,
       readers: [.parsleyMarkdownReader],
       writers: [
@@ -214,8 +214,8 @@ When the parent and child items use different readers and metadata types, specif
     .listWriter(swim(renderAlbums)),
     .itemWriter(swim(renderAlbum)),
   ],
-  nested: {
-    .register(
+  nested: { nested in
+    nested.register(
       metadata: PhotoMetadata.self,
       readers: [.imageReader],
       writers: [
@@ -235,8 +235,6 @@ let album: Item<AlbumMetadata>? = context.item.parent()
 // In a parent item's template
 let photos: [Item<PhotoMetadata>] = context.item.children()
 ```
-
-> Note: The deprecated `/**` folder suffix still works but prints a warning directing you to use `nested:` instead.
 
 > tip: See <doc:PhotoGalleries> for a complete photo gallery example with album pages and per-album navigation.
 
