@@ -64,7 +64,7 @@ extension Saga {
                   absoluteSource: file.path,
                   relativeSource: file.relativePath,
                   relativeDestination: file.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
-                  title: partial.title ?? file.relativePath.lastComponentWithoutExtension,
+                  title: partial.title ?? partial.frontmatter?["title"] ?? file.relativePath.lastComponentWithoutExtension,
                   body: partial.body,
                   date: date ?? saga.fileIO.creationDate(file.path) ?? Date(),
                   created: saga.fileIO.creationDate(file.path) ?? Date(),
