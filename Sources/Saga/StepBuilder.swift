@@ -12,12 +12,13 @@ private func resolveFolder(_ folderOverride: Path?, _ folder: Path?) -> Path? {
 struct PipelineStep: @unchecked Sendable {
   let outputPrefix: Path
   let read: @Sendable (Saga, _ folderOverride: Path?) async throws -> [AnyItem]
-  let write: @Sendable (Saga, _ stepItems: [AnyItem], _ outputPrefix: Path, _ subfolder: Path?) async throws -> Void
+  let write: @Sendable (Saga, _ outputPrefix: Path, _ subfolder: Path?) async throws -> Void
 }
 
 /// A builder that collects pipeline steps.
 public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
+  var folder: Path?
 
   /// Register a new pipeline step.
   ///
@@ -70,10 +71,10 @@ public class StepBuilder: @unchecked Sendable {
     if let nested {
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
 
-      // Shared between read and write closures.
-      // Each subfolder gets its own fresh step instances from the nested template.
+      // The tree is built during read: one child StepBuilder per discovered subfolder,
+      // each with its own steps, items, and (recursively) children.
       nonisolated(unsafe) var items: [Item<M>] = []
-      nonisolated(unsafe) var subfolderData: [(parent: Item<M>, steps: [PipelineStep], stepResults: [[AnyItem]])] = []
+      nonisolated(unsafe) var children: [StepBuilder] = []
 
       steps.append(PipelineStep(
         outputPrefix: folder ?? Path(""),
@@ -97,24 +98,22 @@ public class StepBuilder: @unchecked Sendable {
           )
           .sorted(by: { $0.string < $1.string })
 
-          var allItems: [AnyItem] = []
+          var allDescendants: [AnyItem] = []
 
           for subFolder in subFolders {
             let subfolderName = try subFolder.relativePath(from: effectiveFolder)
 
             // Instantiate fresh substeps for this subfolder from the template
-            let subBuilder = StepBuilder()
-            nested(subBuilder)
+            let child = StepBuilder()
+            nested(child)
 
             // Run substeps first (deepest-first) so they claim their files
             // before the parent reader runs on the same folder tree.
             var directChildren: [AnyItem] = []
-            var stepResults: [[AnyItem]] = []
-            for step in subBuilder.steps {
-              let items = try await step.read(saga, subFolder)
-              directChildren.append(contentsOf: items.filter { $0.parent == nil })
-              stepResults.append(items)
-              allItems.append(contentsOf: items)
+            for step in child.steps {
+              let stepItems = try await step.read(saga, subFolder)
+              directChildren.append(contentsOf: stepItems.filter { $0.parent == nil })
+              allDescendants.append(contentsOf: stepItems)
             }
 
             // Read or create parent item for this subfolder
@@ -151,19 +150,20 @@ public class StepBuilder: @unchecked Sendable {
               child.parent = parentItem
             }
 
+            child.folder = subfolderName
             items.append(parentItem)
-            subfolderData.append((parent: parentItem, steps: subBuilder.steps, stepResults: stepResults))
+            children.append(child)
           }
 
           items.sort(by: sorting)
 
-          // Return all items: parents + all nested descendants (for saga.allItems)
+          // Return all items: this level + all descendants (for saga.allItems)
           var result: [AnyItem] = items
-          result.append(contentsOf: allItems)
+          result.append(contentsOf: allDescendants)
           return result
         },
-        write: { saga, _, outputPrefix, _ in
-          // Run outer (parent) writers
+        write: { saga, outputPrefix, _ in
+          // Run outer writers with this level's items
           if !writers.isEmpty {
             let context = WriterContext(
               items: items,
@@ -182,13 +182,12 @@ public class StepBuilder: @unchecked Sendable {
             }
           }
 
-          // Each subfolder has its own steps with its own items — just run them
-          for data in subfolderData {
-            let subfolderName = try data.parent.relativeSource.relativePath(from: outputPrefix)
-            let subOutputPrefix = outputPrefix + subfolderName
+          // Each child StepBuilder has its own steps with its own items
+          for child in children {
+            let subOutputPrefix = outputPrefix + child.folder!
 
-            for (step, items) in zip(data.steps, data.stepResults) {
-              try await step.write(saga, items, subOutputPrefix, subfolderName)
+            for step in child.steps {
+              try await step.write(saga, subOutputPrefix, child.folder!)
             }
           }
         }
@@ -196,10 +195,12 @@ public class StepBuilder: @unchecked Sendable {
       return self
     }
 
+    nonisolated(unsafe) var items: [Item<M>] = []
+
     steps.append(PipelineStep(
       outputPrefix: folder ?? Path(""),
       read: { saga, folderOverride in
-        try await saga.readItems(
+        items = try await saga.readItems(
           folder: resolveFolder(folderOverride, folder),
           readers: readers,
           itemProcessor: itemProcessor,
@@ -208,9 +209,9 @@ public class StepBuilder: @unchecked Sendable {
           itemWriteMode: itemWriteMode,
           sorting: sorting
         )
+        return items
       },
-      write: { saga, stepItems, outputPrefix, subfolder in
-        let items = stepItems.compactMap { $0 as? Item<M> }
+      write: { saga, outputPrefix, subfolder in
         let context = WriterContext(
           items: items,
           allItems: saga.allItems,
@@ -250,10 +251,12 @@ public class StepBuilder: @unchecked Sendable {
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
     writers: [Writer<M>]
   ) -> Self {
+    nonisolated(unsafe) var items: [Item<M>] = []
+
     steps.append(PipelineStep(
       outputPrefix: Path(""),
       read: { _, _ in
-        let items = try await fetch().sorted(by: sorting)
+        items = try await fetch().sorted(by: sorting)
         if let itemProcessor {
           for item in items {
             await itemProcessor(item)
@@ -261,8 +264,7 @@ public class StepBuilder: @unchecked Sendable {
         }
         return items
       },
-      write: { saga, stepItems, outputPrefix, subfolder in
-        let items = stepItems.compactMap { $0 as? Item<M> }
+      write: { saga, outputPrefix, subfolder in
         let context = WriterContext(
           items: items,
           allItems: saga.allItems,
@@ -303,7 +305,7 @@ public class StepBuilder: @unchecked Sendable {
     steps.append(PipelineStep(
       outputPrefix: Path(""),
       read: { _, _ in [] },
-      write: { saga, _, _, _ in try await write(saga) }
+      write: { saga, _, _ in try await write(saga) }
     ))
     return self
   }
@@ -332,7 +334,7 @@ public class StepBuilder: @unchecked Sendable {
     steps.append(PipelineStep(
       outputPrefix: Path(""),
       read: { _, _ in [] },
-      write: { saga, _, outputPrefix, _ in
+      write: { saga, outputPrefix, _ in
         let fullOutput = outputPrefix + output
         let context = PageRenderingContext(
           allItems: saga.allItems,

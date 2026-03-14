@@ -160,10 +160,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // Run all the readers for all the steps sequentially to ensure proper order,
     // which turns raw content into Items, and stores them within the step.
     let readStart = DispatchTime.now()
-    var stepResults: [[AnyItem]] = []
     for step in steps {
       let items = try await step.read(self, nil)
-      stepResults.append(items)
       allItems.append(contentsOf: items)
     }
 
@@ -234,8 +232,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // Run all writers sequentially
     // processedWrite tracks generated paths automatically.
     let writeStart = DispatchTime.now()
-    for (step, items) in zip(steps, stepResults) {
-      try await step.write(self, items, step.outputPrefix, nil)
+    for step in steps {
+      try await step.write(self, step.outputPrefix, nil)
     }
 
     let writeEnd = DispatchTime.now()
