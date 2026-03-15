@@ -8,8 +8,7 @@ import SagaPathKit
 ///   - filter: An optional filter to exclude certain paths from the sitemap.
 ///     The filter receives the relative output path (e.g. `"404.html"` or `"search/index.html"`).
 ///     Return `true` to include the path, `false` to exclude it.
-/// - Returns: A renderer for use with ``StepBuilder/createPage(_:using:)``. Place the sitemap as the last
-///   `createPage` call so it can see all generated pages.
+/// - Returns: A renderer for use with ``StepBuilder/createPage(_:using:)``. Place the sitemap as the last `createPage` call so it can see all generated pages before it.
 ///
 /// ```swift
 /// .createPage("sitemap.xml", using: sitemap(

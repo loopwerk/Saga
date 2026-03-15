@@ -37,7 +37,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-Since `output.css` is written into the `content/static/` folder, Saga copies it to the output automatically.
+Since `output.css` is written into the `content` folder, Saga copies it to the `deploy` folder automatically.
 
 ## Option 2: Shell command
 

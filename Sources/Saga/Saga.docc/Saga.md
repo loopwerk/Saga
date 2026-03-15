@@ -1,9 +1,9 @@
 # ``Saga``
-A static site generator, written in Swift, allowing you to supply your own metadata types for your items.
+A code-first static site generator in Swift. No config files, no implicit behavior, no magic conventions.
 
 
 ## Overview
-Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, paginating, and strongly typed HTML templates.
+Saga uses a system of extendible readers, renderers, and writers, supporting things like Atom feeds, sitemaps, paginating, and strongly typed HTML templates.
 
 Saga is quite flexible: for example you can have one set of metadata for the articles on your blog, and another set of metadata for the apps in your portfolio. At the same time it's quite easy to configure.
 

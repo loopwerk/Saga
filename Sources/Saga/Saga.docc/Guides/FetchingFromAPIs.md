@@ -65,7 +65,7 @@ func fetchRepos() async throws -> [Item<RepoMetadata>] {
 
 ## Register the fetch step
 
-Use `register(fetch:writers:)` just like a file-based registration:
+Use ``StepBuilder/register(metadata:fetch:cacheKey:itemProcessor:sorting:writers:)`` just like a file-based registration:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -79,6 +79,8 @@ try await Saga(input: "content", output: "deploy")
   )
   .run()
 ```
+
+> Note: The async closure is cached for the duration of the `saga dev` command; set `cacheKey` to `nil` to disable the cache.
 
 ## Mixing file-based and API content
 

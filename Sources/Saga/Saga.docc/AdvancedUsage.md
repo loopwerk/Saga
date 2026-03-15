@@ -33,7 +33,7 @@ Chain multiple processors with `sequence()`:
 
 Since items are classes, mutations in processors are visible to all subsequent steps and writers.
 
-> tip: See <doc:Shortcodes> for a practical example of using item processors to implement shortcode expansion.
+> Tip: See <doc:Shortcodes> for a practical example of using item processors to implement shortcode expansion.
 
 
 ## Template-driven pages
@@ -62,7 +62,7 @@ The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingC
 
 Use ``StepBuilder/createPage(_:using:)`` when the page has no corresponding content file and is purely template-driven. Use `register` when content comes from files on disk or a programmatic data source and you need the full ``Item`` pipeline.
 
-> tip: See <doc:GeneratingSitemaps> and <doc:AddingSearch> for practical examples of template-driven pages.
+> Tip: See <doc:GeneratingSitemaps> and <doc:AddingSearch> for practical examples of template-driven pages.
 
 
 ## Custom processing steps
@@ -89,175 +89,21 @@ try await Saga(input: "content", output: "deploy")
 
 The closure receives the ``Saga`` instance with access to ``Saga/allItems``, ``Saga/outputPath``, and everything else you need.
 
-> tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io) for more inspiration.
+> Tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io) for more inspiration.
 
 
 ## Programmatic items
 
-Saga's pipeline is traditionally file-driven: ``Reader``s parse files into ``Item`` instances. But sometimes your content doesn't live on disk. The `register(fetch:writers:)` method takes an async closure that returns an array of items, feeding them into the same writer pipeline as file-based items.
+Not all content lives on disk. The ``StepBuilder/register(metadata:fetch:cacheKey:itemProcessor:sorting:writers:)`` method takes an async closure that returns an array of items, feeding them into the same writer pipeline as file-based content. You can freely mix file-based and fetch-based steps.
 
-Use the convenience initializer on ``Item`` to create items programmatically:
-
-```swift
-let item = Item(
-  title: "My Article",
-  body: "<p>Hello world</p>",
-  date: Date(),
-  metadata: EmptyMetadata()
-)
-```
-
-By default, the item's output path is derived from the slugified title: `my-article/index.html`. You can set a custom output path using the `relativeDestination` parameter:
-
-```swift
-import SagaPathKit
-
-let item = Item(
-  title: "My Article",
-  body: "<p>Hello world</p>",
-  date: Date(),
-  relativeDestination: Path("blog/my-article/index.html"),
-  metadata: EmptyMetadata()
-)
-```
-
-You can freely mix file-based and fetch-based steps. All items — regardless of how they were created — are available via ``Saga/allItems`` and passed to every writer's `allItems` parameter.
-
-> tip: See <doc:FetchingFromAPIs> for a complete example fetching GitHub repositories and rendering them as portfolio pages.
+> Tip: See <doc:FetchingFromAPIs> for a complete example fetching GitHub repositories and rendering them as portfolio pages.
 
 
 ## Nested subfolder processing
 
-When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — use the `nested:` parameter:
+When you have content organized into subfolders and want each subfolder processed independently, with its own scoped `items` array, `previous`/`next` navigation, and writers, use the `nested:` parameter. Each subfolder gets its own processing scope, so writers and navigation stay within that subfolder.
 
-```swift
-try await Saga(input: "content", output: "deploy")
-  .register(
-    folder: "photos",
-    nested: { nested in
-      nested.register(
-        metadata: PhotoMetadata.self,
-        readers: [.parsleyMarkdownReader],
-        writers: [
-          .listWriter(swim(renderPhotoList)),
-          .itemWriter(swim(renderPhoto)),
-        ]
-      )
-    }
-  )
-  .run()
-```
-
-Given a directory layout like:
-
-```
-content/
-  photos/
-    vacation/
-      photo1.md
-      photo2.md
-    birthday/
-      photo3.md
-      photo4.md
-```
-
-Saga processes `photos/vacation` and `photos/birthday` independently. Each subfolder gets its own scoped `items` array, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
-
-Without `nested:`, `folder: "photos"` would treat every file under `photos/` as part of a single flat collection.
-
-### Accessing subfolders from outer writers
-
-Saga creates a synthetic ``Item`` per subfolder, with `title` set to the subfolder name and `children` wired to the nested items. Add outer `writers` to render an overview page:
-
-```swift
-.register(
-  folder: "photos",
-  writers: [
-    .listWriter(swim(renderAlbumIndex)),
-  ],
-  nested: { nested in
-    nested.register(
-      metadata: PhotoMetadata.self,
-      readers: [.parsleyMarkdownReader],
-      writers: [
-        .listWriter(swim(renderPhotoList)),
-      ]
-    )
-  }
-)
-```
-
-In the template, use `children()` to access the nested items:
-
-```swift
-func renderAlbumIndex(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
-  context.items.map { album in
-    let photos = album.children(as: PhotoMetadata.self)
-    a(href: album.url) {
-      h2 { album.title }
-      p { "\(photos.count) photos" }
-    }
-  }
-}
-```
-
-### Parent/child with different readers
-
-When the parent and child items use different readers and metadata types, specify `readers` and `metadata` on both the outer and nested registrations:
-
-```swift
-.register(
-  folder: "photos",
-  metadata: AlbumMetadata.self,
-  readers: [.parsleyMarkdownReader],
-  writers: [
-    .listWriter(swim(renderAlbums)),
-    .itemWriter(swim(renderAlbum)),
-  ],
-  nested: { nested in
-    nested.register(
-      metadata: PhotoMetadata.self,
-      readers: [.imageReader],
-      writers: [
-        .itemWriter(swim(renderPhoto)),
-      ]
-    )
-  }
-)
-```
-
-Here the outer readers create real parent items from `index.md` files, and `children`/`parent` relationships are wired automatically:
-
-```swift
-// In a nested item's template
-let album = context.item.parent(as: AlbumMetadata.self)
-
-// In a parent item's template
-let photos = context.item.children(as: PhotoMetadata.self)
-```
-
-> tip: See <doc:PhotoGalleries> for a complete photo gallery example with album pages and per-album navigation.
-
-
-## Post-processing output
-
-Use ``Saga/postProcess(_:)`` to transform every file before it's written. Multiple calls stack. The transform receives the rendered content and the relative output path.
-
-```swift
-try await Saga(input: "content", output: "deploy")
-  .register(
-    metadata: EmptyMetadata.self,
-    readers: [.parsleyMarkdownReader],
-    writers: [.itemWriter(swim(renderPage))]
-  )
-  .postProcess { content, path in
-    guard !isDev, path.extension == "html" else { return content }
-    return minifyHTML(content)
-  }
-  .run()
-```
-
-> tip: See <doc:HTMLMinification> for a step-by-step setup guide.
+> Tip: See <doc:PhotoGalleries> for a complete example building photo galleries with nested processing, album pages, and per-album navigation.
 
 
 ## Cache-busting with hashed()
@@ -279,4 +125,4 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
 }
 ```
 
-> note: In dev mode (when using `saga dev`), ``hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload. See <doc:GettingStarted> for more on dev mode.
+> Note: In dev mode (when using `saga dev`), ``hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload. See <doc:GettingStarted> for more on dev mode.

@@ -20,29 +20,29 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
   .createPage("index.html", using: swim(renderHome))
-  .createPage("sitemap.xml", using: sitemap(
-    baseURL: URL(string: "https://example.com")!
-  ))
+  .createPage("sitemap.xml", using: sitemap(baseURL: URL(string: "https://example.com")!))
   .run()
 ```
 
 The sitemap includes every page: individual articles, list pages, and the homepage. The sitemap automatically excludes itself.
 
-> important: `createPage` steps run after all writers, in the order they are registered. The sitemap reads ``PageRenderingContext/generatedPages``, so it should be the **last** `createPage` call to see every page.
+> Important: Order matters! ``sitemap(baseURL:filter:)`` should be the last step in the pipeline, so that it sees all the previously generated pages.
 
 ## Filtering pages
 
 Use the `filter` parameter to exclude pages that don't belong in a sitemap:
 
 ```swift
-.createPage("404.html", using: swim(render404))
-.createPage("search/index.html", using: swim(renderSearch))
-.createPage("sitemap.xml", using: sitemap(
-  baseURL: URL(string: "https://example.com")!,
-  filter: { path in
-    path != "404.html" && path != "search/index.html"
-  }
-))
+try await Saga(input: "content", output: "deploy")
+  .createPage("404.html", using: swim(render404))
+  .createPage("search/index.html", using: swim(renderSearch))
+  .createPage("sitemap.xml", using: sitemap(
+    baseURL: URL(string: "https://example.com")!,
+    filter: { path in
+      path != "404.html" && path != "search/index.html"
+    }
+  ))
+  .run()
 ```
 
-> tip: Don't forget to reference your sitemap in `robots.txt`: `Sitemap: https://example.com/sitemap.xml`
+> Tip: Or, just place these `createPage` steps *after* the `sitemap` one. Since order matters, they won't be part of the sitemap if they come after that step.

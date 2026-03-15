@@ -6,9 +6,9 @@ Use nested processing steps to create photo galleries with per-album navigation.
 
 Photo galleries typically have a two-level structure: albums containing photos. Saga's `nested:` parameter creates a separate processing scope per subfolder, giving each album its own `items` array and `previous`/`next` navigation.
 
-## Content structure
+## Simple gallery (images only)
 
-Organize your content with images in subfolders:
+When albums are just folders of images with no metadata file:
 
 ```
 content/
@@ -21,9 +21,7 @@ content/
       group.jpg
 ```
 
-## Simple gallery (images only)
-
-When albums are just folders of images with no metadata file, use `nested:` without outer readers. Saga creates a synthetic parent item per subfolder:
+Then set up your nested Saga pipeline like so:
 
 ```swift
 struct PhotoMetadata: Metadata {}
@@ -48,13 +46,13 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-The outer `listWriter` receives synthetic items — one per subfolder — with `children` wired to the photos:
+In the outer `renderAlbums` template, `context.items` is the list of albums. For each album you can use ``Item/children(as:)`` to access the nested items:
 
 ```swift
 func renderAlbums(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
   context.items.map { album in
     let photos = album.children(as: PhotoMetadata.self)
-    a(href: album.url) {
+    return a(href: album.url) {
       h2 { album.title }
       p { "\(photos.count) photos" }
     }
@@ -88,6 +86,8 @@ date: 2024-06-15
 # Summer Vacation
 Photos from our trip to the coast.
 ```
+
+Your pipeline looks like this:
 
 ```swift
 struct AlbumMetadata: Metadata {
@@ -137,7 +137,7 @@ func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
 
 ## Photo detail pages with navigation
 
-Each photo page gets `previous`/`next` links scoped to its album, and can navigate back to its parent:
+Each photo page gets `previous`/`next` links scoped within its album, and can navigate back to its parent:
 
 ```swift
 func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
@@ -153,9 +153,9 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
         a(href: next.url) { "Next" }
       }
     }
-    img(alt: context.item.title, src: "../\(context.item.relativeSource.lastComponent)")
+    img(alt: context.item.title, src: context.item.relativeSource.lastComponent)
   }
 }
 ```
 
-> tip: Check the [Example2 project](https://github.com/loopwerk/Saga/blob/main/Example2) for a complete, runnable version of this pattern.
+> Tip: Check the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a complete, runnable version of this pattern.

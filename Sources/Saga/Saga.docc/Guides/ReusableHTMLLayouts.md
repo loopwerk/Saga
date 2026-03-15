@@ -48,7 +48,7 @@ func baseLayout(
 }
 ```
 
-> tip: The `extraHead` parameter is handy for injecting page-specific metadata like Open Graph tags or scripts for a single page.
+> Tip: The `extraHead` parameter is handy for injecting page-specific metadata like Open Graph tags or scripts for a single page.
 
 ## Using the layout in templates
 

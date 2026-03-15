@@ -86,4 +86,4 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-> tip: For more complex transformations that need to work with the HTML DOM rather than string replacement, consider using [SagaUtils](https://github.com/loopwerk/SagaUtils) which provides SwiftSoup-based HTML transformations.
+> Tip: For more complex transformations that need to work with the HTML DOM rather than string replacement, consider using [SagaUtils](https://github.com/loopwerk/SagaUtils) which provides SwiftSoup-based HTML transformations.

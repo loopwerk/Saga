@@ -121,9 +121,9 @@ try await Saga(input: "content", output: "deploy")
 
 While that might look a bit overwhelming, it should be easy to follow what each `register` step does, each operating on a set of files in a subfolder and processing them in different ways.
 
-Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. Simply open `Package.swift`, wait for the dependencies to be downloaded, and run the project from within Xcode. Or run from the command line: `swift run`. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
+Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
 
-You can also check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io), which is completely built with Saga.
+You can also check the source code of [loopwerk.io](https://github.com/loopwerk/loopwerk.io), or [getsaga.dev](https://github.com/loopwerk/getsaga.dev), both of which are completely built with Saga.
 
 
 ## Writers
