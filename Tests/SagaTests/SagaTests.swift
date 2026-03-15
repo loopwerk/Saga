@@ -768,6 +768,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       "artists/beatles/abbey-road/tracks/something.md",
       "artists/beatles/let-it-be/index.md",
       "artists/beatles/let-it-be/tracks/get-back.md",
+      "artists/beatles/yellow-submarine/index.md",
       "artists/radiohead/index.md",
       "artists/radiohead/ok-computer/index.md",
       "artists/radiohead/ok-computer/tracks/paranoid-android.md",
@@ -824,15 +825,15 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let albumItems = saga.allItems.compactMap { $0 as? Item<AlbumMetadata> }
     let trackItems = saga.allItems.compactMap { $0 as? Item<TrackMetadata> }
     XCTAssertEqual(artistItems.count, 2, "Expected 2 artists (beatles, radiohead)")
-    XCTAssertEqual(albumItems.count, 3, "Expected 3 albums (abbey-road, let-it-be, ok-computer)")
+    XCTAssertEqual(albumItems.count, 4, "Expected 4 albums (abbey-road, let-it-be, yellow-submarine, ok-computer)")
     XCTAssertEqual(trackItems.count, 4, "Expected 4 tracks")
-    XCTAssertEqual(saga.allItems.count, 9, "Expected 9 total items (2 artists + 3 albums + 4 tracks)")
+    XCTAssertEqual(saga.allItems.count, 10, "Expected 10 total items (2 artists + 4 albums + 4 tracks)")
 
     // === Parent/child wiring ===
     // Artists should have albums as direct children (not tracks)
     let beatles = try XCTUnwrap(artistItems.first(where: { $0.relativeSource.string.contains("beatles") }))
     let radiohead = try XCTUnwrap(artistItems.first(where: { $0.relativeSource.string.contains("radiohead") }))
-    XCTAssertEqual(beatles.children.count, 2, "Beatles should have 2 album children")
+    XCTAssertEqual(beatles.children.count, 3, "Beatles should have 3 album children")
     XCTAssertEqual(radiohead.children.count, 1, "Radiohead should have 1 album child")
 
     // Albums should have tracks as direct children
@@ -842,10 +843,13 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(abbeyRoad.children.count, 2, "Abbey Road should have 2 tracks")
     XCTAssertEqual(letItBe.children.count, 1, "Let It Be should have 1 track")
     XCTAssertEqual(okComputer.children.count, 1, "OK Computer should have 1 track")
+    let yellowSubmarine = try XCTUnwrap(albumItems.first(where: { $0.relativeSource.string.contains("yellow-submarine") }))
+    XCTAssertEqual(yellowSubmarine.children.count, 0, "Yellow Submarine should have 0 tracks")
 
     // Albums should have artist as parent
     XCTAssertTrue(abbeyRoad.parent === beatles)
     XCTAssertTrue(letItBe.parent === beatles)
+    XCTAssertTrue(yellowSubmarine.parent === beatles)
     XCTAssertTrue(okComputer.parent === radiohead)
 
     // Tracks should have album as parent
@@ -857,13 +861,14 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // === Writers at every level ===
     // Artist listWriter
     let artistList = try XCTUnwrap(finalWrittenPages.first(where: { $0.destination == "root/output/artists/index.html" }))
-    XCTAssertEqual(artistList.content, "Test:2albums,Test:1albums")
+    XCTAssertEqual(artistList.content, "Test:3albums,Test:1albums")
 
-    // Album itemWriter — one page per album
+    // Album itemWriter — one page per album (including childless yellow-submarine)
     let albumPages = finalWrittenPages.filter { $0.content.hasPrefix("album:") }
-    XCTAssertEqual(albumPages.count, 3, "Expected 3 album pages")
+    XCTAssertEqual(albumPages.count, 4, "Expected 4 album pages")
     XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/beatles/abbey-road/index.html", content: "album:Test|artist:Test|tracks:2")))
     XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/beatles/let-it-be/index.html", content: "album:Test|artist:Test|tracks:1")))
+    XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/beatles/yellow-submarine/index.html", content: "album:Test|artist:Test|tracks:0")))
     XCTAssertTrue(albumPages.contains(WrittenPage(destination: "root/output/artists/radiohead/ok-computer/index.html", content: "album:Test|artist:Test|tracks:1")))
 
     // Track itemWriter — one page per track
@@ -878,8 +883,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       XCTAssertTrue(page.content.contains("|album:Test"), "Track page should reference parent album: \(page.content)")
     }
 
-    // Total written pages: 1 artist list + 3 album pages + 4 track pages = 8
-    XCTAssertEqual(finalWrittenPages.count, 8)
+    // Total written pages: 1 artist list + 4 album pages + 4 track pages = 9
+    XCTAssertEqual(finalWrittenPages.count, 9)
   }
 
   func testSubfolderIsNilWithoutNesting() async throws {
