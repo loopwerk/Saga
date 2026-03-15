@@ -1,5 +1,6 @@
 import Foundation
 import Saga
+import SagaImageReader
 import SagaParsleyMarkdownReader
 import SagaPathKit
 import SagaSwimRenderer
@@ -31,10 +32,43 @@ struct MusicVideoMetadata: Metadata {
 struct AlbumMetadata: Metadata {}
 struct PhotoMetadata: Metadata {}
 
+struct ArtistMetadata: Metadata {
+  let genre: String
+  let image: String
+}
+
+struct MusicAlbumMetadata: Metadata {
+  let year: Int
+  let cover: String
+}
+
+struct TrackMetadata: Metadata {
+  let duration: String
+  var trackNumber: Int?
+  let youtube: String?
+}
+
 /// An easy way to check if an article is archived, since ArticleMetadata.archived is optional
 extension Item where M == ArticleMetadata {
   var archived: Bool {
     return metadata.archived ?? false
+  }
+}
+
+extension Item where M == TrackMetadata {
+  var trackNumber: Int {
+    return metadata.trackNumber ?? 0
+  }
+}
+
+/// An item processor that extracts the track number from filenames like "07-here-comes-the-sun"
+/// and strips it from the destination path.
+@Sendable func trackNumberInFilename(item: Item<TrackMetadata>) async {
+  item.metadata.trackNumber = Int(item.filenameWithoutExtension.prefix(2))
+
+  if item.title == item.filenameWithoutExtension {
+    let stripped = String(item.filenameWithoutExtension.dropFirst(3))
+    item.title = stripped.replacingOccurrences(of: "-", with: " ")
   }
 }
 
@@ -81,7 +115,7 @@ try await Saga(input: "content", output: "deploy")
     writers: [.listWriter(swim(renderApps))]
   )
 
-  // Photo albums from markdown files
+  // Photo albums from markdown files, with nested photo pages per album
   .register(
     folder: "photos",
     metadata: AlbumMetadata.self,
@@ -89,17 +123,49 @@ try await Saga(input: "content", output: "deploy")
     writers: [
       .listWriter(swim(renderAlbums)),
       .itemWriter(swim(renderAlbum)),
-    ]
+    ],
+    nested: { nested in
+      nested.register(
+        metadata: PhotoMetadata.self,
+        readers: [.imageReader],
+        writers: [
+          .itemWriter(swim(renderPhoto)),
+        ]
+      )
+    }
   )
 
-  // Individual photo pages from images, one step per album subfolder
+  // Music catalog: Artists → Albums → Tracks (three levels of nesting)
   .register(
-    folder: "photos/**",
-    metadata: PhotoMetadata.self,
-    readers: [.imageReader],
+    folder: "music",
+    metadata: ArtistMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    sorting: { $0.relativeSource.string < $1.relativeSource.string },
     writers: [
-      .itemWriter(swim(renderPhoto)),
-    ]
+      .listWriter(swim(renderArtists)),
+      .itemWriter(swim(renderArtist)),
+    ],
+    nested: { artists in
+      artists.register(
+        metadata: MusicAlbumMetadata.self,
+        readers: [.parsleyMarkdownReader],
+        writers: [
+          .itemWriter(swim(renderMusicAlbum)),
+        ],
+        nested: { albums in
+          albums.register(
+            folder: "tracks",
+            metadata: TrackMetadata.self,
+            readers: [.parsleyMarkdownReader],
+            itemProcessor: trackNumberInFilename,
+            sorting: { $0.trackNumber < $1.trackNumber },
+            writers: [
+              .itemWriter(swim(renderTrack)),
+            ]
+          )
+        }
+      )
+    }
   )
 
   // Fetch Beatles videos from iTunes and render them

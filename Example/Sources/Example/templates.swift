@@ -24,10 +24,6 @@ extension Item where M == ArticleMetadata {
   }
 }
 
-func photosForAlbum(_ album: AnyItem, allItems: [AnyItem]) -> [AnyItem] {
-  allItems.filter { $0 is Item<PhotoMetadata> && $0.relativeSource.parent() == album.relativeSource.parent() }
-}
-
 // MARK: - Base layout
 
 func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
@@ -47,6 +43,7 @@ func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConverti
             a(href: "/articles/") { "Articles" }
             a(href: "/apps/") { "Apps" }
             a(href: "/photos/") { "Photos" }
+            a(href: "/music/") { "Music" }
             a(href: "/videos/") { "Videos" }
             a(href: "/about/") { "About" }
           }
@@ -176,7 +173,7 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
 
       div(class: "collections-grid") {
         context.items.map { album in
-          let photos = photosForAlbum(album, allItems: context.allItems)
+          let photos = album.children(as: PhotoMetadata.self)
           let previewPhotos = Array(photos.prefix(4))
           let folder = album.relativeSource.parent()
 
@@ -198,7 +195,7 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
 }
 
 func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
-  let photos = photosForAlbum(context.item, allItems: context.allItems)
+  let photos = context.item.children(as: PhotoMetadata.self)
 
   return baseHtml(title: context.item.title) {
     div(class: "album") {
@@ -226,9 +223,7 @@ func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
 }
 
 func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
-  let album = context.allItems.first {
-    $0 is Item<AlbumMetadata> && $0.relativeSource.parent() == context.item.relativeSource.parent()
-  }
+  let album = context.item.parent(as: AlbumMetadata.self)
 
   let imageSrc = "../\(context.item.relativeSource.lastComponent)"
 
@@ -239,9 +234,7 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
           a(class: "nav-prev", href: previous.url) { "\u{2190}" }
         }
 
-        if let album {
-          a(class: "nav-close", href: album.url) { "\u{2715}" }
-        }
+        a(class: "nav-close", href: album.url) { "\u{2715}" }
 
         if let next = context.next {
           a(class: "nav-next", href: next.url) { "\u{2192}" }
@@ -250,6 +243,138 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
 
       div(class: "photo-full") {
         img(alt: context.item.title, src: imageSrc)
+      }
+    }
+  }
+}
+
+// MARK: - Music catalog (Artists → Albums → Tracks)
+
+func renderArtists(context: ItemsRenderingContext<ArtistMetadata>) -> Node {
+  baseHtml(title: "Music") {
+    div(class: "page") {
+      h1 { "Music" }
+      p(class: "") { "An example of nested-in-nested processing steps." }
+    }
+    div(class: "collections-grid") {
+      context.items.map { artist in
+        a(class: "artist-card", href: artist.url) {
+          img(alt: artist.title, class: "artist-image", src: artist.metadata.image)
+          div(class: "card-info") {
+            h2 { artist.title }
+            p(class: "genre") { artist.metadata.genre }
+            p { "\(artist.children.count) albums" }
+          }
+        }
+      }
+    }
+  }
+}
+
+func renderArtist(context: ItemRenderingContext<ArtistMetadata>) -> Node {
+  let albums = context.item.children(as: MusicAlbumMetadata.self)
+
+  return baseHtml(title: context.item.title) {
+    h1 { context.item.title }
+    p(class: "subtitle") { context.item.metadata.genre }
+
+    if !context.item.body.isEmpty {
+      div(class: "album-description") {
+        Node.raw(context.item.body)
+      }
+    }
+
+    h2 { "Albums" }
+    div(class: "collections-grid") {
+      albums.map { album in
+        a(class: "album-card", href: album.url) {
+          img(alt: album.title, class: "album-cover-img", src: album.metadata.cover)
+          div(class: "card-info") {
+            h3 { album.title }
+            p { "\(album.metadata.year) · \(album.children.count) tracks" }
+          }
+        }
+      }
+    }
+
+    div(class: "back-link") {
+      a(href: "/music/") { "Back to Music" }
+    }
+  }
+}
+
+func renderMusicAlbum(context: ItemRenderingContext<MusicAlbumMetadata>) -> Node {
+  let artist = context.item.parent(as: ArtistMetadata.self)
+  let tracks = context.item.children(as: TrackMetadata.self)
+
+  return baseHtml(title: "\(context.item.title) — \(artist.title)") {
+    div(class: "album-header") {
+      img(alt: context.item.title, class: "album-cover-large", src: context.item.metadata.cover)
+      div(class: "album-header-info") {
+        h1 { context.item.title }
+        p(class: "subtitle") {
+          a(href: artist.url) { artist.title }
+          " · \(context.item.metadata.year)"
+        }
+        if !context.item.body.isEmpty {
+          div(class: "album-description") {
+            Node.raw(context.item.body)
+          }
+        }
+      }
+    }
+
+    ol(class: "track-list") {
+      tracks.map { track in
+        li(value: "\(track.trackNumber)") {
+          a(class: "track-title", href: track.url) { track.title }
+          span(class: "track-duration") { track.metadata.duration }
+        }
+      }
+    }
+
+    div(class: "back-link") {
+      a(href: artist.url) { "Back to \(artist.title)" }
+    }
+  }
+}
+
+func renderTrack(context: ItemRenderingContext<TrackMetadata>) -> Node {
+  let album = context.item.parent(as: MusicAlbumMetadata.self)
+  let artist = album.parent(as: ArtistMetadata.self)
+
+  return baseHtml(title: "\(context.item.title) — \(artist.title)") {
+    div(class: "detail-page") {
+      div(class: "detail-nav") {
+        if let previous = context.previous {
+          a(class: "nav-prev", href: previous.url) { "\u{2190}" }
+        }
+
+        a(class: "nav-close", href: album.url) { "\u{2715}" }
+
+        if let next = context.next {
+          a(class: "nav-next", href: next.url) { "\u{2192}" }
+        }
+      }
+
+      if let youtubeId = context.item.metadata.youtube {
+        div(class: "video-embed") {
+          Node.raw("<iframe src=\"https://www.youtube.com/embed/\(youtubeId)\" frameborder=\"0\" allowfullscreen></iframe>")
+        }
+      }
+
+      div(class: "track-detail") {
+        h1 { context.item.title }
+        p(class: "subtitle") {
+          context.item.metadata.duration
+        }
+        p {
+          "Track \(context.item.trackNumber) on"
+          a(href: album.url) { album.title }
+          " by "
+          a(href: artist.url) { artist.title }
+          " (\(album.metadata.year))"
+        }
       }
     }
   }

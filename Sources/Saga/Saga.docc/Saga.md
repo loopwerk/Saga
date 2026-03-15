@@ -27,11 +27,11 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 
 ### Guides
 
-- <doc:ReusableHTMLLayouts>
-- <doc:FetchingFromAPIs>
-- <doc:PhotoGalleries>
 - <doc:AddingSearch>
-- <doc:TailwindCSS>
+- <doc:FetchingFromAPIs>
 - <doc:HTMLMinification>
+- <doc:ReusableHTMLLayouts>
 - <doc:GeneratingSitemaps>
+- <doc:PhotoGalleries>
 - <doc:Shortcodes>
+- <doc:TailwindCSS>

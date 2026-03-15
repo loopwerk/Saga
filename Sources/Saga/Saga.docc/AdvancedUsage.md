@@ -40,7 +40,7 @@ Since items are classes, mutations in processors are visible to all subsequent s
 
 Create pages that are purely template-driven — no markdown file or ``Item`` needed.
 
-Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``Saga/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``StepBuilder/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -60,7 +60,7 @@ try await Saga(input: "content", output: "deploy")
 
 The renderer receives a ``PageRenderingContext`` with access to ``PageRenderingContext/allItems`` (all items across all processing steps) and ``PageRenderingContext/outputPath``.
 
-Use ``Saga/createPage(_:using:)`` when the page has no corresponding content file and is purely template-driven. Use `register` when content comes from files on disk or a programmatic data source and you need the full ``Item`` pipeline.
+Use ``StepBuilder/createPage(_:using:)`` when the page has no corresponding content file and is purely template-driven. Use `register` when content comes from files on disk or a programmatic data source and you need the full ``Item`` pipeline.
 
 > tip: See <doc:GeneratingSitemaps> and <doc:AddingSearch> for practical examples of template-driven pages.
 
@@ -128,17 +128,22 @@ You can freely mix file-based and fetch-based steps. All items — regardless of
 
 ## Nested subfolder processing
 
-When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — append `/**` to the folder path:
+When you have content organized into subfolders and want each subfolder processed independently — with its own scoped `items` array, `previous`/`next` navigation, and writers — use the `nested:` parameter:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
   .register(
-    folder: "photos/**",
-    metadata: PhotoMetadata.self,
-    readers: [.parsleyMarkdownReader],
-    writers: [
-      .listWriter(swim(renderPhotoList)),
-    ]
+    folder: "photos",
+    nested: { nested in
+      nested.register(
+        metadata: PhotoMetadata.self,
+        readers: [.parsleyMarkdownReader],
+        writers: [
+          .listWriter(swim(renderPhotoList)),
+          .itemWriter(swim(renderPhoto)),
+        ]
+      )
+    }
   )
   .run()
 ```
@@ -156,9 +161,80 @@ content/
       photo4.md
 ```
 
-Saga creates a separate processing step for `photos/vacation` and `photos/birthday`. Each step sees only its own items, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
+Saga processes `photos/vacation` and `photos/birthday` independently. Each subfolder gets its own scoped `items` array, so a `listWriter` produces one index per subfolder and `previous`/`next` links stay within the subfolder.
 
-Without the `/**` suffix, `folder: "photos"` would treat every Markdown file under `photos/` as part of a single flat collection.
+Without `nested:`, `folder: "photos"` would treat every file under `photos/` as part of a single flat collection.
+
+### Accessing subfolders from outer writers
+
+Saga creates a synthetic ``Item`` per subfolder, with `title` set to the subfolder name and `children` wired to the nested items. Add outer `writers` to render an overview page:
+
+```swift
+.register(
+  folder: "photos",
+  writers: [
+    .listWriter(swim(renderAlbumIndex)),
+  ],
+  nested: { nested in
+    nested.register(
+      metadata: PhotoMetadata.self,
+      readers: [.parsleyMarkdownReader],
+      writers: [
+        .listWriter(swim(renderPhotoList)),
+      ]
+    )
+  }
+)
+```
+
+In the template, use `children()` to access the nested items:
+
+```swift
+func renderAlbumIndex(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
+  context.items.map { album in
+    let photos = album.children(as: PhotoMetadata.self)
+    a(href: album.url) {
+      h2 { album.title }
+      p { "\(photos.count) photos" }
+    }
+  }
+}
+```
+
+### Parent/child with different readers
+
+When the parent and child items use different readers and metadata types, specify `readers` and `metadata` on both the outer and nested registrations:
+
+```swift
+.register(
+  folder: "photos",
+  metadata: AlbumMetadata.self,
+  readers: [.parsleyMarkdownReader],
+  writers: [
+    .listWriter(swim(renderAlbums)),
+    .itemWriter(swim(renderAlbum)),
+  ],
+  nested: { nested in
+    nested.register(
+      metadata: PhotoMetadata.self,
+      readers: [.imageReader],
+      writers: [
+        .itemWriter(swim(renderPhoto)),
+      ]
+    )
+  }
+)
+```
+
+Here the outer readers create real parent items from `index.md` files, and `children`/`parent` relationships are wired automatically:
+
+```swift
+// In a nested item's template
+let album = context.item.parent(as: AlbumMetadata.self)
+
+// In a parent item's template
+let photos = context.item.children(as: PhotoMetadata.self)
+```
 
 > tip: See <doc:PhotoGalleries> for a complete photo gallery example with album pages and per-album navigation.
 

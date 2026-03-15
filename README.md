@@ -84,7 +84,7 @@ Saga allows you to:
 - Build archive pages, tag pages, feeds, and indexes.
 - Swap in different readers and renderers.
 - Load content programmatically and/or from disk.
-- Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build.
+- Register custom pipeline steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build.
 - Process the generated HTML content right before it's written to disk. For example to [minify it](https://github.com/loopwerk/Bonsai).
 - Easily created cache-busting hashed filenames for static assets.
 - Create a sitemap with one line of code.

@@ -56,7 +56,7 @@ Pagefind generates its index and UI files into `deploy/pagefind/`.
 
 ## Create a search page
 
-Use ``Saga/createPage(_:using:)`` to add a search page:
+Use ``StepBuilder/createPage(_:using:)`` to add a search page:
 
 ```swift
 try await Saga(input: "content", output: "deploy")

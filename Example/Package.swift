@@ -11,6 +11,7 @@ let package = Package(
     .package(path: "../"),
     .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "1.0.0"),
     .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "1.0.0"),
+    .package(url: "https://github.com/loopwerk/SagaImageReader", from: "1.0.0"),
     .package(url: "https://github.com/loopwerk/Moon", from: "1.0.0"),
   ],
   targets: [
@@ -20,6 +21,7 @@ let package = Package(
         "Saga",
         "SagaParsleyMarkdownReader",
         "SagaSwimRenderer",
+        "SagaImageReader",
         "Moon",
       ]
     ),

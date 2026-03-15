@@ -1,5 +1,5 @@
 {
-  "originHash" : "ff6876cf42ae767bca095c4cd9d8a2348b667292a9c1829220bccfc5334c38cb",
+  "originHash" : "6942a1436699139759badddfd40fa215cc2f69217641d6df17f43bd495959322",
   "pins" : [
     {
       "identity" : "jxkit",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "e7c825b00846c3006a1ed2d75d9674ee69cadbf6",
         "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "sagaimagereader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/loopwerk/SagaImageReader",
+      "state" : {
+        "revision" : "da940a4b9fdbd829da78798bac362d5d5c20baf1",
+        "version" : "1.0.0"
       }
     },
     {
