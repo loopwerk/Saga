@@ -28,10 +28,10 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 ### Guides
 
 - <doc:AddingSearch>
-- <doc:FetchingFromAPIs>
-- <doc:HTMLMinification>
-- <doc:ReusableHTMLLayouts>
-- <doc:GeneratingSitemaps>
 - <doc:PhotoGalleries>
-- <doc:Shortcodes>
 - <doc:TailwindCSS>
+- <doc:FetchingFromAPIs>
+- <doc:GeneratingSitemaps>
+- <doc:HTMLMinification>
+- <doc:Shortcodes>
+- <doc:ReusableHTMLLayouts>

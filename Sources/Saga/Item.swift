@@ -2,9 +2,9 @@ import Foundation
 import SagaPathKit
 
 #if compiler(>=6.2)
-  public protocol Metadata: Decodable, SendableMetatype {}
+  public protocol Metadata: Codable, SendableMetatype {}
 #else
-  public protocol Metadata: Decodable {}
+  public protocol Metadata: Codable {}
 #endif
 
 /// A convenience version of ``Metadata`` that's just empty. This can be used, for example, when you don't have custom item metadata.
@@ -31,7 +31,7 @@ public protocol AnyItem: AnyObject, Sendable {
 /// A model representing an item.
 ///
 /// An item can be any text file (like a Markdown or RestructedText file). ``Reader``s will turn the file into an ``Item``, and ``Writer``s will turn the ``Item`` into a `String` (for example HTML or RSS) to be written to disk.
-public class Item<M: Metadata>: AnyItem, @unchecked Sendable {
+public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   /// The absolute path of the file
   public let absoluteSource: Path
 
@@ -118,5 +118,9 @@ public class Item<M: Metadata>: AnyItem, @unchecked Sendable {
 
   public var url: String {
     relativeDestination.url
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case absoluteSource, relativeSource, relativeDestination, title, body, date, created, lastModified, metadata
   }
 }

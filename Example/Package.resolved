@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/SagaPathKit",
       "state" : {
-        "revision" : "3d8c6ba5c2b89f83fe55f9f494dea26922e0629c",
-        "version" : "1.4.0"
+        "revision" : "4e5c09a4dcf6ff0e082ea918b9fb0323e8b071ce",
+        "version" : "1.6.0"
       }
     },
     {

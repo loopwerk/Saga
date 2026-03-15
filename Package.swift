@@ -11,7 +11,7 @@ let package = Package(
     .library(name: "Saga", targets: ["Saga"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/loopwerk/SagaPathKit", from: "1.4.0"),
+    .package(url: "https://github.com/loopwerk/SagaPathKit", from: "1.6.0"),
     .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
     // .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),
   ],

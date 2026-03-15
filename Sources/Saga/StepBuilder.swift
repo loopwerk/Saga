@@ -235,9 +235,14 @@ public class StepBuilder: @unchecked Sendable {
 
   /// Register a pipeline step that fetches items programmatically instead of reading from files.
   ///
+  /// When `SAGA_CACHE_DIR` is set (which `saga dev` does automatically), fetched items are
+  /// cached to disk so that subsequent rebuilds skip the fetch. Pass `nil` for `cacheKey` to
+  /// disable caching (useful while developing the fetch function itself).
+  ///
   /// - Parameters:
   ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - fetch: An async function that returns an array of items.
+  ///   - cacheKey: The cache key for storing fetched items. Defaults to the metadata type name. Pass `nil` to disable caching.
   ///   - itemProcessor: A function to modify each fetched ``Item`` as you see fit.
   ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
   ///   - writers: The writers that will be used by this step.
@@ -247,6 +252,7 @@ public class StepBuilder: @unchecked Sendable {
   public func register<M: Metadata>(
     metadata: M.Type = EmptyMetadata.self,
     fetch: @escaping @Sendable () async throws -> [Item<M>],
+    cacheKey: String? = String(describing: M.self),
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
     writers: [Writer<M>]
@@ -255,8 +261,16 @@ public class StepBuilder: @unchecked Sendable {
 
     steps.append(PipelineStep(
       outputPrefix: Path(""),
-      read: { _, _ in
-        items = try await fetch().sorted(by: sorting)
+      read: { saga, _ in
+        if let cacheKey, let cachedItems: [Item<M>] = try? saga.loadCachedItems(key: cacheKey) {
+          print("💡Using cached \(cacheKey) items")
+          items = cachedItems
+        } else {
+          items = try await fetch().sorted(by: sorting)
+          if let cacheKey {
+            saga.cacheItems(items, key: cacheKey)
+          }
+        }
         if let itemProcessor {
           for item in items {
             await itemProcessor(item)
