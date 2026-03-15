@@ -192,7 +192,7 @@ In the template, use `children()` to access the nested items:
 ```swift
 func renderAlbumIndex(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
   context.items.map { album in
-    let photos: [Item<PhotoMetadata>] = album.children()
+    let photos = album.children(as: PhotoMetadata.self)
     a(href: album.url) {
       h2 { album.title }
       p { "\(photos.count) photos" }
@@ -230,10 +230,10 @@ Here the outer readers create real parent items from `index.md` files, and `chil
 
 ```swift
 // In a nested item's template
-let album: Item<AlbumMetadata>? = context.item.parent()
+let album = context.item.parent(as: AlbumMetadata.self)
 
 // In a parent item's template
-let photos: [Item<PhotoMetadata>] = context.item.children()
+let photos = context.item.children(as: PhotoMetadata.self)
 ```
 
 > tip: See <doc:PhotoGalleries> for a complete photo gallery example with album pages and per-album navigation.

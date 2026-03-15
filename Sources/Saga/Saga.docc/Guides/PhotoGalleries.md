@@ -53,7 +53,7 @@ The outer `listWriter` receives synthetic items — one per subfolder — with `
 ```swift
 func renderAlbums(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
   context.items.map { album in
-    let photos: [Item<PhotoMetadata>] = album.children()
+    let photos = album.children(as: PhotoMetadata.self)
     a(href: album.url) {
       h2 { album.title }
       p { "\(photos.count) photos" }
@@ -120,7 +120,7 @@ Parent/child relationships are wired automatically. Access them with typed acces
 
 ```swift
 func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
-  let photos: [Item<PhotoMetadata>] = context.item.children()
+  let photos = context.item.children(as: PhotoMetadata.self)
 
   return baseLayout(title: context.item.title) {
     h1 { context.item.title }
@@ -141,16 +141,14 @@ Each photo page gets `previous`/`next` links scoped to its album, and can naviga
 
 ```swift
 func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
-  let album: Item<AlbumMetadata>? = context.item.parent()
+  let album = context.item.parent(as: AlbumMetadata.self)
 
   return baseLayout(title: context.item.title) {
     div(class: "photo-nav") {
       if let previous = context.previous {
         a(href: previous.url) { "Previous" }
       }
-      if let album {
-        a(href: album.url) { "Back to album" }
-      }
+      a(href: album.url) { "Back to album" }
       if let next = context.next {
         a(href: next.url) { "Next" }
       }
