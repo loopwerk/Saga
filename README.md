@@ -21,7 +21,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-Typed metadata, pluggable readers, multiple writer types, pagination, tags — all defined in Swift, readable top to bottom, and enforced by the compiler. No hidden defaults. No template logic you can't debug.
+Typed metadata, pluggable readers, multiple writer types, pagination, tags, multilingual sites — all defined in Swift, readable top to bottom, and enforced by the compiler. No hidden defaults. No template logic you can't debug.
 
 
 ## Who this is for
@@ -88,6 +88,7 @@ Saga allows you to:
 - Process the generated HTML content right before it's written to disk. For example to [minify it](https://github.com/loopwerk/Bonsai).
 - Easily created cache-busting hashed filenames for static assets.
 - Create a sitemap with one line of code.
+- Create multilingual sites, with support for folder (`en/about.md`) and file-based (`about.en.md`) translations.
 - Keep everything enforced by the compiler.
 
 ### Typed metadata (when you need it)

@@ -56,6 +56,13 @@ extension Saga {
               metadata: metadata
             )
 
+            // Override the output path if a slug is specified in frontmatter
+            if let slug = partial.frontmatter?["slug"] {
+              let parent = file.relativePath.parent()
+              let slugPath = parent + Path(slug.slugified + "." + (file.relativePath.extension ?? "md"))
+              item.relativeDestination = slugPath.makeOutputPath(itemWriteMode: itemWriteMode)
+            }
+
             // Process the Item if there's an itemProcessor
             if let itemProcessor {
               await itemProcessor(item)

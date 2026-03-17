@@ -34,4 +34,5 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 - <doc:GeneratingSitemaps>
 - <doc:HTMLMinification>
 - <doc:Shortcodes>
+- <doc:Internationalization>
 - <doc:ReusableHTMLLayouts>

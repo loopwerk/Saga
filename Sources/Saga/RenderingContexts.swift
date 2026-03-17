@@ -26,6 +26,9 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
 
   /// The subfolder name when using `nested:`. Nil otherwise.
   public let subfolder: Path?
+
+  /// The locale of the items being rendered, or `nil` when i18n is not configured.
+  public let locale: String?
 }
 
 // A protocol for rendering contexts that can be used to generate Atom feeds.
@@ -69,6 +72,9 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext, Sendable {
 
   /// The subfolder name when using `nested:`. Nil otherwise.
   public let subfolder: Path?
+
+  /// The locale of the items being rendered, or `nil` when i18n is not configured.
+  public let locale: String?
 }
 
 /// A type constraint for partition keys used in ``PartitionedRenderingContext``.
@@ -97,6 +103,9 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 
   /// The subfolder name when using `nested:`. Nil otherwise.
   public let subfolder: Path?
+
+  /// The locale of the items being rendered, or `nil` when i18n is not configured.
+  public let locale: String?
 }
 
 /// The rendering context for template-driven pages created with ``StepBuilder/createPage(_:using:)``.
@@ -110,8 +119,19 @@ public struct PageRenderingContext: Sendable {
   /// The output path of the page being rendered.
   public let outputPath: Path
 
-  /// Relative paths of all pages written by writers and earlier ``StepBuilder/createPage(_:using:)`` calls.
-  public let generatedPages: [Path]
+  /// All generated pages, grouped by translation. Each entry is a dictionary mapping locale to output path.
+  /// Pages that are translations of each other share the same entry.
+  /// Pages without i18n or without translations are single-entry dictionaries.
+  ///
+  /// Example with i18n:
+  /// ```
+  /// [
+  ///   ["en": "articles/index.html", "nl": "nl/articles/index.html"],
+  ///   ["en": "articles/hello/index.html", "nl": "nl/articles/hello/index.html"],
+  ///   ["en": "404.html"],   // no translation
+  /// ]
+  /// ```
+  public let generatedPages: [[String: Path]]
 }
 
 /// A model representing a paginator.

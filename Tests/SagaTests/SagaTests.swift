@@ -1273,7 +1273,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       .createPage("404.html") { _ in "<h1>Not Found</h1>" }
       .run()
 
-    let pages = saga.generatedPages.map(\.string).sorted()
+    let pages = saga.generatedPages.flatMap(\.values).map(\.string).sorted()
     XCTAssertEqual(pages, ["404.html", "articles/list.html", "articles/test/index.html", "articles/test2/index.html", "index.html"])
   }
 
@@ -1317,6 +1317,686 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertFalse(content.contains("404.html"))
   }
 
+  // MARK: - i18n Tests
+
+  func testI18NDirectoryStyleLocaleTagging() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/hello.md",
+      "en/articles/world.md",
+      "nl/articles/hello.md",
+      "nl/articles/world.md",
+      "static/style.css",
+    ] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: []
+      )
+      .run()
+
+    XCTAssertEqual(saga.allItems.count, 4)
+
+    let enItems = saga.allItems.filter { $0.locale == "en" }
+    let nlItems = saga.allItems.filter { $0.locale == "nl" }
+    XCTAssertEqual(enItems.count, 2)
+    XCTAssertEqual(nlItems.count, 2)
+  }
+
+  func testI18NDirectoryStyleOutputPaths() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/hello.md",
+      "nl/articles/hello.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Default locale (en) at root, nl prefixed
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/articles/hello/index.html" }))
+  }
+
+  func testI18NDirectoryStyleDefaultLocaleInSubdir() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/hello.md",
+      "nl/articles/hello.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory, defaultLocaleInSubdir: true)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Both locales prefixed
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/en/articles/hello/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/articles/hello/index.html" }))
+  }
+
+  func testI18NTranslationLinking() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/hello.md",
+      "en/articles/world.md",
+      "nl/articles/hello.md",
+    ] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: []
+      )
+      .run()
+
+    // hello.md has translations in both directions
+    let enHello = saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") }!
+    let nlHello = saga.allItems.first { $0.locale == "nl" && $0.relativeSource.string.contains("hello") }!
+
+    XCTAssertEqual(enHello.translations.count, 1)
+    XCTAssertEqual(enHello.translations["nl"]?.url, nlHello.url)
+    XCTAssertEqual(nlHello.translations.count, 1)
+    XCTAssertEqual(nlHello.translations["en"]?.url, enHello.url)
+
+    // world.md has no Dutch translation
+    let enWorld = saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("world") }!
+    XCTAssertEqual(enWorld.translations.count, 0)
+  }
+
+  func testI18NPerLocaleListWriter() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/one.md",
+      "en/articles/two.md",
+      "nl/articles/one.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .listWriter({ context in "\(context.items.count)" }, output: "index.html"),
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // English list at root with 2 items
+    let enList = finalWrittenPages.first { $0.destination == "root/output/articles/index.html" }
+    XCTAssertNotNil(enList)
+    XCTAssertEqual(enList?.content, "2")
+
+    // Dutch list prefixed with 1 item
+    let nlList = finalWrittenPages.first { $0.destination == "root/output/nl/articles/index.html" }
+    XCTAssertNotNil(nlList)
+    XCTAssertEqual(nlList?.content, "1")
+  }
+
+  func testI18NLocaleInRenderingContext() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/hello.md",
+      "nl/hello.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.locale ?? "none" },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/hello/index.html", content: "en")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/nl/hello/index.html", content: "nl")))
+  }
+
+  func testI18NPrevNextLocaleScoped() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/a.md",
+      "en/articles/b.md",
+      "nl/articles/a.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in
+            let prev = context.previous?.title ?? "none"
+            let next = context.next?.title ?? "none"
+            return "prev:\(prev)|next:\(next)"
+          },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Dutch article has no prev/next (only 1 article in nl)
+    let nlPage = finalWrittenPages.first { $0.destination == "root/output/nl/articles/a/index.html" }
+    XCTAssertNotNil(nlPage)
+    XCTAssertEqual(nlPage?.content, "prev:none|next:none")
+  }
+
+  func testI18NFilenameStyle() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "articles/hello.en.md",
+      "articles/hello.nl.md",
+      "articles/world.en.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .filename)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    // Locale tagging
+    let enItems = saga.allItems.filter { $0.locale == "en" }
+    let nlItems = saga.allItems.filter { $0.locale == "nl" }
+    XCTAssertEqual(enItems.count, 2)
+    XCTAssertEqual(nlItems.count, 1)
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Default locale at root, locale suffix stripped from filename
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/world/index.html" }))
+    // Non-default locale prefixed
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/articles/hello/index.html" }))
+
+    // Translation linking
+    let enHello = saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") }!
+    XCTAssertEqual(enHello.translations.count, 1)
+    XCTAssertNotNil(enHello.translations["nl"])
+  }
+
+  func testI18NSlugFrontmatter() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "about.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["slug": "over-ons"])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Slug overrides the output path
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/over-ons/index.html" }))
+    // Original filename path should NOT exist
+    XCTAssertFalse(finalWrittenPages.contains(where: { $0.destination == "root/output/about/index.html" }))
+  }
+
+  func testI18NRedirectDefaultLocaleAtRoot() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/hello.md",
+      "nl/articles/hello.md",
+      "en/index.md",
+      "nl/index.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+          .listWriter({ _ in "" }),
+        ]
+      )
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Every default-locale page should have a redirect at /en/...
+    let enIndex = finalWrittenPages.first { $0.destination == "root/output/en/index.html" }
+    XCTAssertNotNil(enIndex, "Should have redirect at /en/")
+    XCTAssertTrue(enIndex!.content.contains("http-equiv=\"refresh\""))
+    XCTAssertTrue(enIndex!.content.contains("url=/"))
+
+    let enArticle = finalWrittenPages.first { $0.destination == "root/output/en/articles/hello/index.html" }
+    XCTAssertNotNil(enArticle, "Should have redirect at /en/articles/hello/")
+    XCTAssertTrue(enArticle!.content.contains("url=/articles/hello/"))
+
+    let enArticlesList = finalWrittenPages.first { $0.destination == "root/output/en/articles/index.html" }
+    XCTAssertNotNil(enArticlesList, "Should have redirect at /en/articles/")
+    XCTAssertTrue(enArticlesList!.content.contains("url=/articles/"))
+  }
+
+  func testI18NTagWriterPerLocale() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/one.md",
+      "en/articles/two.md",
+      "nl/articles/one.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: TaggedMetadata.self,
+        readers: [.mock(frontmatter: ["tags": "swift"])],
+        writers: [
+          .tagWriter({ context in "\(context.items.count)" }, tags: \.metadata.tags),
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // English tag page at root
+    let enTag = finalWrittenPages.first { $0.destination == "root/output/articles/tag/swift/index.html" }
+    XCTAssertNotNil(enTag)
+    XCTAssertEqual(enTag?.content, "2")
+
+    // Dutch tag page prefixed
+    let nlTag = finalWrittenPages.first { $0.destination == "root/output/nl/articles/tag/swift/index.html" }
+    XCTAssertNotNil(nlTag)
+    XCTAssertEqual(nlTag?.content, "1")
+  }
+
+  func testI18NNestedDirectoryStyle() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/photos/cats/index.md",
+      "en/photos/cats/whiskers.jpg",
+      "en/photos/cats/mittens.jpg",
+      "en/photos/dogs/index.md",
+      "en/photos/dogs/rex.jpg",
+      "nl/photos/cats/index.md",
+      "nl/photos/cats/whiskers.jpg",
+      "nl/photos/dogs/index.md",
+      "nl/photos/dogs/rex.jpg",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    struct AlbumMetadata: Metadata {}
+    struct PhotoMetadata: Metadata {}
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "photos",
+        metadata: AlbumMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .listWriter({ context in
+            "albums:\(context.items.count)|locale:\(context.locale ?? "none")"
+          }),
+          .itemWriter { context in
+            "album:\(context.item.title)|photos:\(context.item.children.count)|locale:\(context.locale ?? "none")"
+          },
+        ],
+        nested: { nested in
+          nested.register(
+            metadata: PhotoMetadata.self,
+            readers: [.mockImage],
+            writers: [
+              .itemWriter { context in
+                "photo:\(context.item.title)|locale:\(context.locale ?? "none")"
+              },
+            ]
+          )
+        }
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // === Locale tagging ===
+    let enItems = saga.allItems.filter { $0.locale == "en" }
+    let nlItems = saga.allItems.filter { $0.locale == "nl" }
+    XCTAssertTrue(enItems.count > 0, "Should have English items")
+    XCTAssertTrue(nlItems.count > 0, "Should have Dutch items")
+
+    // === Album list pages (per locale) ===
+    let enAlbumList = finalWrittenPages.first { $0.destination == "root/output/photos/index.html" }
+    XCTAssertNotNil(enAlbumList, "English album list should be at root (default locale)")
+    XCTAssertEqual(enAlbumList?.content, "albums:2|locale:en")
+
+    let nlAlbumList = finalWrittenPages.first { $0.destination == "root/output/nl/photos/index.html" }
+    XCTAssertNotNil(nlAlbumList, "Dutch album list should be under nl/")
+    XCTAssertEqual(nlAlbumList?.content, "albums:2|locale:nl")
+
+    // === Album detail pages ===
+    // English albums at root
+    let enCatsAlbum = finalWrittenPages.first { $0.destination == "root/output/photos/cats/index.html" }
+    XCTAssertNotNil(enCatsAlbum)
+    XCTAssertTrue(enCatsAlbum!.content.contains("photos:2"), "English cats album should have 2 photos")
+    XCTAssertTrue(enCatsAlbum!.content.contains("locale:en"))
+
+    // Dutch albums under nl/
+    let nlCatsAlbum = finalWrittenPages.first { $0.destination == "root/output/nl/photos/cats/index.html" }
+    XCTAssertNotNil(nlCatsAlbum)
+    XCTAssertTrue(nlCatsAlbum!.content.contains("photos:1"), "Dutch cats album should have 1 photo (whiskers only)")
+    XCTAssertTrue(nlCatsAlbum!.content.contains("locale:nl"))
+
+    // === Photo detail pages ===
+    // English photo at root
+    XCTAssertTrue(finalWrittenPages.contains(where: {
+      $0.destination == "root/output/photos/cats/whiskers/index.html" && $0.content.contains("locale:en")
+    }), "English whiskers photo should be at root")
+
+    // Dutch photo under nl/
+    XCTAssertTrue(finalWrittenPages.contains(where: {
+      $0.destination == "root/output/nl/photos/cats/whiskers/index.html" && $0.content.contains("locale:nl")
+    }), "Dutch whiskers photo should be under nl/")
+
+    // === No cross-locale leakage ===
+    // English mittens photo should exist
+    XCTAssertTrue(finalWrittenPages.contains(where: {
+      $0.destination == "root/output/photos/cats/mittens/index.html"
+    }), "English mittens photo should exist")
+
+    // Dutch mittens photo should NOT exist (not in nl/ content)
+    XCTAssertFalse(finalWrittenPages.contains(where: {
+      $0.destination == "root/output/nl/photos/cats/mittens/index.html"
+    }), "Dutch mittens photo should NOT exist")
+  }
+
+  func testI18NSitemapHreflang() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/articles/hello.md",
+      "nl/articles/hello.md",
+      "en/articles/only-english.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        folder: "articles",
+        metadata: TaggedMetadata.self,
+        readers: [.mock(frontmatter: ["tags": "swift"])],
+        writers: [
+          .itemWriter { context in context.item.body },
+          .listWriter({ _ in "" }),
+          .tagWriter({ _ in "" }, tags: \.metadata.tags),
+        ]
+      )
+      .createPage("sitemap.xml", using: sitemap(baseURL: try XCTUnwrap(URL(string: "https://example.com"))))
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let sitemapPage = try XCTUnwrap(finalWrittenPages.first { $0.destination == "root/output/sitemap.xml" })
+    let content = sitemapPage.content
+
+    // Should have xhtml namespace
+    XCTAssertTrue(content.contains("xmlns:xhtml="))
+
+    // Item pages: hello has translations — both entries should have hreflang
+    XCTAssertTrue(content.contains("hreflang=\"en\" href=\"https://example.com/articles/hello/\""))
+    XCTAssertTrue(content.contains("hreflang=\"nl\" href=\"https://example.com/nl/articles/hello/\""))
+
+    // only-english has no translations — plain <url> without hreflang
+    XCTAssertTrue(content.contains("<loc>https://example.com/articles/only-english/</loc>"))
+    XCTAssertFalse(content.contains("hreflang=\"en\" href=\"https://example.com/articles/only-english/\""))
+
+    // List pages: articles/index.html and nl/articles/index.html should be linked
+    XCTAssertTrue(content.contains("hreflang=\"en\" href=\"https://example.com/articles/\""))
+    XCTAssertTrue(content.contains("hreflang=\"nl\" href=\"https://example.com/nl/articles/\""))
+
+    // Tag pages: articles/tag/swift/ and nl/articles/tag/swift/ should be linked
+    XCTAssertTrue(content.contains("hreflang=\"en\" href=\"https://example.com/articles/tag/swift/\""))
+    XCTAssertTrue(content.contains("hreflang=\"nl\" href=\"https://example.com/nl/articles/tag/swift/\""))
+  }
+
+  func testI18NSlugWithTranslationLinking() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "en/about.md",
+      "nl/about.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    // English about has no slug, Dutch about has slug "over-ons"
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [
+          Reader(supportedExtensions: ["md"]) { absoluteSource in
+            let isNl = absoluteSource.string.contains("nl/")
+            return (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: isNl ? ["slug": "over-ons"] : [:])
+          }
+        ],
+        writers: [
+          .itemWriter { context in context.item.url },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // English about at root with default path
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/about/index.html" }))
+
+    // Dutch about with slug override
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/over-ons/index.html" }))
+
+    // Translations should still be linked (matching by source filename, not output path)
+    let enAbout = saga.allItems.first { $0.locale == "en" }!
+    let nlAbout = saga.allItems.first { $0.locale == "nl" }!
+    XCTAssertEqual(enAbout.translations.count, 1)
+    XCTAssertEqual(enAbout.translations["nl"]?.url, nlAbout.url)
+    XCTAssertEqual(nlAbout.url, "/nl/over-ons/")
+  }
+
+  func testI18NFilenameStyleListWriter() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "articles/one.en.md",
+      "articles/two.en.md",
+      "articles/one.nl.md",
+    ] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .filename)
+      .register(
+        folder: "articles",
+        metadata: TaggedMetadata.self,
+        readers: [.mock(frontmatter: ["tags": "swift"])],
+        writers: [
+          .listWriter({ context in "count:\(context.items.count)|locale:\(context.locale ?? "none")" }),
+          .tagWriter({ context in "tag:\(context.key)|count:\(context.items.count)" }, tags: \.metadata.tags),
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // English list at root with 2 items
+    let enList = finalWrittenPages.first { $0.destination == "root/output/articles/index.html" }
+    XCTAssertNotNil(enList)
+    XCTAssertEqual(enList?.content, "count:2|locale:en")
+
+    // Dutch list prefixed with 1 item
+    let nlList = finalWrittenPages.first { $0.destination == "root/output/nl/articles/index.html" }
+    XCTAssertNotNil(nlList)
+    XCTAssertEqual(nlList?.content, "count:1|locale:nl")
+
+    // Tag pages per locale
+    let enTag = finalWrittenPages.first { $0.destination == "root/output/articles/tag/swift/index.html" }
+    XCTAssertNotNil(enTag)
+    XCTAssertEqual(enTag?.content, "tag:swift|count:2")
+
+    let nlTag = finalWrittenPages.first { $0.destination == "root/output/nl/articles/tag/swift/index.html" }
+    XCTAssertNotNil(nlTag)
+    XCTAssertEqual(nlTag?.content, "tag:swift|count:1")
+  }
+
   static let allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
@@ -1353,5 +2033,20 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     ("testPostProcessReceivesRelativePath", testPostProcessReceivesRelativePath),
     ("testGeneratedPages", testGeneratedPages),
     ("testSitemap", testSitemap),
+    ("testI18NDirectoryStyleLocaleTagging", testI18NDirectoryStyleLocaleTagging),
+    ("testI18NDirectoryStyleOutputPaths", testI18NDirectoryStyleOutputPaths),
+    ("testI18NDirectoryStyleDefaultLocaleInSubdir", testI18NDirectoryStyleDefaultLocaleInSubdir),
+    ("testI18NTranslationLinking", testI18NTranslationLinking),
+    ("testI18NPerLocaleListWriter", testI18NPerLocaleListWriter),
+    ("testI18NLocaleInRenderingContext", testI18NLocaleInRenderingContext),
+    ("testI18NPrevNextLocaleScoped", testI18NPrevNextLocaleScoped),
+    ("testI18NFilenameStyle", testI18NFilenameStyle),
+    ("testI18NSlugFrontmatter", testI18NSlugFrontmatter),
+    ("testI18NRedirectDefaultLocaleAtRoot", testI18NRedirectDefaultLocaleAtRoot),
+    ("testI18NTagWriterPerLocale", testI18NTagWriterPerLocale),
+    ("testI18NNestedDirectoryStyle", testI18NNestedDirectoryStyle),
+    ("testI18NSitemapHreflang", testI18NSitemapHreflang),
+    ("testI18NSlugWithTranslationLinking", testI18NSlugWithTranslationLinking),
+    ("testI18NFilenameStyleListWriter", testI18NFilenameStyleListWriter),
   ]
 }

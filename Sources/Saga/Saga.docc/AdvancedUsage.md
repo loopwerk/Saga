@@ -106,6 +106,22 @@ When you have content organized into subfolders and want each subfolder processe
 > Tip: See <doc:PhotoGalleries> for a complete example building photo galleries with nested processing, album pages, and per-album navigation.
 
 
+## Custom output URLs with slug
+
+By default, an item's output path mirrors its source filename. Set `slug` in frontmatter to override it:
+
+```yaml
+---
+slug: my-custom-url
+---
+# Page Title
+```
+
+This writes the item to `my-custom-url/index.html` (or `my-custom-url.html` with `.keepAsFile` write mode) instead of deriving the path from the filename. The `slug` value is slugified automatically.
+
+This is useful for giving pages human-friendly or localized URLs without renaming the source file. For i18n usage, see <doc:Internationalization>.
+
+
 ## Cache-busting with hashed()
 
 The ``hashed(_:)`` function takes a path like `/static/output.css` and returns `/static/output-a1b2c3d4.css`, where the hash is derived from the file's contents. Saga automatically copies the hashed file to the output folder.

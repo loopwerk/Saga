@@ -6,9 +6,10 @@ struct WriterContext<M: Metadata> {
   let allItems: [AnyItem]
   let outputRoot: Path
   let outputPrefix: Path
-  let write: @Sendable (Path, String) throws -> Void
+  let write: @Sendable (Path, String, String?) throws -> Void
   let resourcesByFolder: [Path: [Path]]
   let subfolder: Path?
+  let locale: String?
 }
 
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
@@ -47,13 +48,15 @@ public extension Writer {
               resources: resources,
               previous: previous,
               next: next,
-              subfolder: writerContext.subfolder
+              subfolder: writerContext.subfolder,
+              locale: writerContext.locale
             )
             let stringToWrite = try await renderer(renderingContext)
 
             try writerContext.write(
               writerContext.outputRoot + item.relativeDestination,
-              stringToWrite
+              stringToWrite,
+              writerContext.locale
             )
           }
         }
@@ -79,7 +82,7 @@ public extension Writer {
         paginate: paginate,
         paginatedOutput: paginatedOutput
       ) {
-        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder)
+        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale)
       }
     }
   }
@@ -113,7 +116,8 @@ public extension Writer {
               outputPrefix: writerContext.outputPrefix,
               write: writerContext.write,
               resourcesByFolder: writerContext.resourcesByFolder,
-              subfolder: writerContext.subfolder
+              subfolder: writerContext.subfolder,
+              locale: writerContext.locale
             )
 
             try await writePages(
@@ -123,7 +127,7 @@ public extension Writer {
               paginate: paginate,
               paginatedOutput: finishedPaginatedOutputPath
             ) {
-              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder)
+              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale)
             }
           }
         }
@@ -209,7 +213,7 @@ private extension Writer {
 
         let renderContext = getRenderContext(firstItems, writerContext.allItems, paginator, writerContext.outputPrefix + output)
         let stringToWrite = try await renderer(renderContext)
-        try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
+        try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite, writerContext.locale)
       }
 
       // Then we write all the pages to their paginated paths, for example /articles/page/[page]/index.html
@@ -231,7 +235,7 @@ private extension Writer {
             let finishedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
             let renderContext = getRenderContext(items, writerContext.allItems, paginator, writerContext.outputPrefix + finishedOutputPath)
             let stringToWrite = try await renderer(renderContext)
-            try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + finishedOutputPath, stringToWrite)
+            try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + finishedOutputPath, stringToWrite, writerContext.locale)
           }
         }
         try await group.waitForAll()
@@ -240,7 +244,7 @@ private extension Writer {
       // No pagination
       let renderContext = getRenderContext(writerContext.items, writerContext.allItems, nil, writerContext.outputPrefix + output)
       let stringToWrite = try await renderer(renderContext)
-      try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
+      try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite, writerContext.locale)
     }
   }
 }

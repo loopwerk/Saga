@@ -74,17 +74,38 @@ public class Saga: StepBuilder, @unchecked Sendable {
   var contentHashes: [String: String] = [:]
 
   // Generated page tracking, for the sitemap
-  var generatedPages: [Path] = []
-  private let generatedPagesLock = NSLock()
+  private var writtenPages: [(path: Path, locale: String?)] = []
+  private let writtenPagesLock = NSLock()
+
+  /// All generated pages, grouped by translation.
+  var generatedPages: [[String: Path]] {
+    guard i18nConfig != nil else {
+      return writtenPages.map { ["": $0.path] }
+    }
+
+    var groups: [String: [String: Path]] = [:]
+    for page in writtenPages {
+      let key: String
+      if let locale = page.locale {
+        let prefix = locale + "/"
+        key = page.path.string.hasPrefix(prefix) ? String(page.path.string.dropFirst(prefix.count)) : page.path.string
+      } else {
+        key = page.path.string
+      }
+      groups[key, default: [:]][page.locale ?? ""] = page.path
+    }
+
+    return Array(groups.values)
+  }
 
   /// Post processors
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
-  /// Write content to a file, applying any registered post-processors.
-  /// Also tracks the relative path in ``generatedPages``.
-  func processedWrite(_ destination: Path, _ content: String) throws {
+  // Write content to a file, applying any registered post-processors.
+  // Also tracks the relative path in ``writtenPages``.
+  func processedWrite(_ destination: Path, _ content: String, locale: String? = nil) throws {
     let relativePath = try destination.relativePath(from: outputPath)
-    generatedPagesLock.withLock { generatedPages.append(relativePath) }
+    writtenPagesLock.withLock { writtenPages.append((path: relativePath, locale: locale)) }
 
     let result = try postProcessors.reduce(content) { content, transform in try transform(content, relativePath) }
     try fileIO.write(destination, result)
@@ -95,8 +116,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
     let rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
 
     self.rootPath = rootPath
-    inputPath = self.rootPath + input
-    outputPath = self.rootPath + output
+    inputPath = rootPath + input
+    outputPath = rootPath + output
     self.fileIO = fileIO
 
     // Find all files in the source folder (filter out .DS_Store)
@@ -121,6 +142,36 @@ public class Saga: StepBuilder, @unchecked Sendable {
       result[file.relativePath.parent(), default: []].append(file.path)
     }
     return result
+  }
+
+  // MARK: - Internationalization
+
+  /// Configure internationalization for this site.
+  ///
+  /// When i18n is configured, each `register` call automatically processes content for all locales.
+  /// Items are tagged with their locale, translations are linked by matching source filenames,
+  /// and writers run per-locale to generate separate list/tag/year pages for each language.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+  ///   .register(...)
+  ///   .run()
+  /// ```
+  @discardableResult
+  public func i18n(
+    locales: [String],
+    defaultLocale: String,
+    style: I18NStyle = .directory,
+    defaultLocaleInSubdir: Bool = false
+  ) -> Self {
+    self.i18nConfig = I18NConfig(
+      locales: locales,
+      defaultLocale: defaultLocale,
+      style: style,
+      defaultLocaleInSubdir: defaultLocaleInSubdir
+    )
+    return self
   }
 
   // MARK: - Post-processing
@@ -167,12 +218,17 @@ public class Saga: StepBuilder, @unchecked Sendable {
       allItems.append(contentsOf: items)
     }
 
+    // Sort all items by date descending
+    allItems.sort { $0.date > $1.date }
+
+    // Link translations
+    if let i18n = i18nConfig {
+      linkTranslations(items: allItems, config: i18n)
+    }
+
     let readEnd = DispatchTime.now()
     let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
     print("\(logTimestamp()) | Finished read phase in \(Double(readTime) / 1_000_000_000)s")
-
-    // Sort all items by date descending
-    allItems.sort { $0.date > $1.date }
 
     // Clean the output folder
     try fileIO.deletePath(outputPath)
@@ -184,7 +240,19 @@ public class Saga: StepBuilder, @unchecked Sendable {
     try await withThrowingTaskGroup(of: Void.self) { group in
       for file in unhandledFiles {
         group.addTask {
-          let output = self.outputPath + file.relativePath
+          var outputRelative = file.relativePath
+
+          // For directory-style i18n, rewrite locale-prefixed static files
+          if let i18n = self.i18nConfig, i18n.style == .directory {
+            let first = file.relativePath.string.split(separator: "/").first.map(String.init) ?? ""
+            if i18n.locales.contains(first) && !i18n.shouldPrefix(locale: first) {
+              // Strip locale prefix for default locale
+              let stripped = String(file.relativePath.string.dropFirst(first.count + 1))
+              outputRelative = Path(stripped)
+            }
+          }
+
+          let output = self.outputPath + outputRelative
           try self.fileIO.mkpath(output.parent())
           try self.fileIO.copy(file.path, output)
         }
@@ -238,9 +306,27 @@ public class Saga: StepBuilder, @unchecked Sendable {
       try await step.write(self)
     }
 
-    let writeEnd = DispatchTime.now()
-    let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
-    print("\(logTimestamp()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
+    // Generate i18n redirects
+    if let i18n = i18nConfig {
+      if i18n.defaultLocaleInSubdir {
+        // Redirect / → /{defaultLocale}/
+        let from = Path("index.html")
+        if !writtenPages.contains(where: { $0.path == from }) {
+          let dest = outputPath + from
+          try fileIO.mkpath(dest.parent())
+          try processedWrite(dest, redirectHTML(to: "/\(i18n.defaultLocale)/"))
+        }
+      } else {
+        // Redirect /{defaultLocale}/... → /... for every default-locale page
+        let defaultLocalePages = writtenPages.filter { $0.locale == i18n.defaultLocale }
+        for page in defaultLocalePages {
+          let prefixedPath = Path(i18n.defaultLocale) + page.path
+          let dest = outputPath + prefixedPath
+          try fileIO.mkpath(dest.parent())
+          try processedWrite(dest, redirectHTML(to: page.path.url))
+        }
+      }
+    }
 
     // Copy hashed versions of files that were referenced via hashed()
     for file in unhandledFiles where contentHashes[file.relativePath.string] != nil {
@@ -256,10 +342,75 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // Reset the hash function
     setHashFunction(nil)
 
+    let writeEnd = DispatchTime.now()
+    let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
+    print("\(logTimestamp()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
+
     let totalEnd = DispatchTime.now()
     let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds
     print("\(logTimestamp()) | All done in \(Double(totalTime) / 1_000_000_000)s")
 
     return self
+  }
+
+  // MARK: - Redirect helpers
+
+  private func redirectHTML(to url: String) -> String {
+    """
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="refresh" content="0; url=\(url)">
+      <link rel="canonical" href="\(url)">
+    </head>
+    <body>
+      <p>Redirecting to <a href="\(url)">\(url)</a></p>
+    </body>
+    </html>
+    """
+  }
+
+  // MARK: - Translation linking
+
+  private func linkTranslations(items: [AnyItem], config: I18NConfig) {
+    var groups: [String: [String: AnyItem]] = [:]
+
+    for item in items {
+      guard let locale = item.locale else { continue }
+      let key = translationKey(for: item, config: config)
+      groups[key, default: [:]][locale] = item
+    }
+
+    for (_, group) in groups where group.count > 1 {
+      for (locale, item) in group {
+        item.translations = group.filter { $0.key != locale }
+      }
+    }
+  }
+
+  private func translationKey(for item: AnyItem, config: I18NConfig) -> String {
+    switch config.style {
+    case .directory:
+      // Strip locale prefix: en/articles/hello.md → articles/hello.md
+      let source = item.relativeSource.string
+      let components = source.split(separator: "/", maxSplits: 1)
+      if components.count > 1, config.locales.contains(String(components[0])) {
+        return String(components[1])
+      }
+      return source
+
+    case .filename:
+      // Strip locale suffix: articles/hello.en.md → articles/hello.md
+      let name = item.relativeSource.lastComponentWithoutExtension
+      guard let locale = item.locale else { return item.relativeSource.string }
+      let suffix = ".\(locale)"
+      if name.hasSuffix(suffix) {
+        let clean = String(name.dropLast(suffix.count))
+        let ext = item.relativeSource.extension ?? ""
+        return (item.relativeSource.parent() + Path(clean + (ext.isEmpty ? "" : ".\(ext)"))).string
+      }
+      return item.relativeSource.string
+    }
   }
 }
