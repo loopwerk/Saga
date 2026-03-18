@@ -17,17 +17,11 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
 /// Discover canonical subfolders across all locale-prefixed paths.
 /// Returns paths without locale prefix, e.g., "articles/sub1" not "en/articles/sub1".
 private func discoverLocaleAwareSubfolders(under folder: Path, from files: [(path: Path, relativePath: Path)], config: I18NConfig) -> Set<Path> {
-  var canonical = Set<Path>()
-  for locale in config.locales {
-    let localePrefixed = Path(locale) + folder
-    let subs = discoverSubfolders(under: localePrefixed, from: files)
-    for sub in subs {
-      // Strip locale prefix: "en/articles/sub1" → "articles/sub1"
-      let stripped = String(sub.string.dropFirst(locale.count + 1))
-      canonical.insert(Path(stripped))
+  return Set(config.locales.flatMap { locale in
+    discoverSubfolders(under: Path(locale) + folder, from: files).map { sub in
+      Path(sub.components.dropFirst().joined(separator: "/"))
     }
-  }
-  return canonical
+  })
 }
 
 /// Tags items with their locale and rewrites their output paths.
