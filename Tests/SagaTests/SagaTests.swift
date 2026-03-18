@@ -80,7 +80,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     saga.register(metadata: EmptyMetadata.self, readers: [], writers: [])
     XCTAssertEqual(saga.steps.count, 1)
   }
-  
+
   func testMakeSureEmptyPathHasNoComponents() {
     XCTAssertEqual(Path("").components, [])
   }
@@ -1436,8 +1436,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       .run()
 
     // hello.md has translations in both directions
-    let enHello = saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") }!
-    let nlHello = saga.allItems.first { $0.locale == "nl" && $0.relativeSource.string.contains("hello") }!
+    let enHello = try XCTUnwrap(saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") })
+    let nlHello = try XCTUnwrap(saga.allItems.first { $0.locale == "nl" && $0.relativeSource.string.contains("hello") })
 
     XCTAssertEqual(enHello.translations.count, 1)
     XCTAssertEqual(enHello.translations["nl"]?.url, nlHello.url)
@@ -1445,7 +1445,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(nlHello.translations["en"]?.url, enHello.url)
 
     // world.md has no Dutch translation
-    let enWorld = saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("world") }!
+    let enWorld = try XCTUnwrap(saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("world") })
     XCTAssertEqual(enWorld.translations.count, 0)
   }
 
@@ -1605,7 +1605,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/articles/hello/index.html" }))
 
     // Translation linking
-    let enHello = saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") }!
+    let enHello = try XCTUnwrap(saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") })
     XCTAssertEqual(enHello.translations.count, 1)
     XCTAssertNotNil(enHello.translations["nl"])
   }
@@ -1667,7 +1667,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         readers: [.mock(frontmatter: [:])],
         writers: [
           .itemWriter { context in context.item.body },
-          .listWriter({ _ in "" }),
+          .listWriter { _ in "" },
         ]
       )
       .register(
@@ -1684,16 +1684,16 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Every default-locale page should have a redirect at /en/...
     let enIndex = finalWrittenPages.first { $0.destination == "root/output/en/index.html" }
     XCTAssertNotNil(enIndex, "Should have redirect at /en/")
-    XCTAssertTrue(enIndex!.content.contains("http-equiv=\"refresh\""))
-    XCTAssertTrue(enIndex!.content.contains("url=/"))
+    XCTAssertTrue(try XCTUnwrap(enIndex?.content.contains("http-equiv=\"refresh\"")))
+    XCTAssertTrue(try XCTUnwrap(enIndex?.content.contains("url=/")))
 
     let enArticle = finalWrittenPages.first { $0.destination == "root/output/en/articles/hello/index.html" }
     XCTAssertNotNil(enArticle, "Should have redirect at /en/articles/hello/")
-    XCTAssertTrue(enArticle!.content.contains("url=/articles/hello/"))
+    XCTAssertTrue(try XCTUnwrap(enArticle?.content.contains("url=/articles/hello/")))
 
     let enArticlesList = finalWrittenPages.first { $0.destination == "root/output/en/articles/index.html" }
     XCTAssertNotNil(enArticlesList, "Should have redirect at /en/articles/")
-    XCTAssertTrue(enArticlesList!.content.contains("url=/articles/"))
+    XCTAssertTrue(try XCTUnwrap(enArticlesList?.content.contains("url=/articles/")))
   }
 
   func testI18NTagWriterPerLocale() async throws {
@@ -1769,9 +1769,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         metadata: AlbumMetadata.self,
         readers: [.mock(frontmatter: [:])],
         writers: [
-          .listWriter({ context in
+          .listWriter { context in
             "albums:\(context.items.count)|locale:\(context.locale ?? "none")"
-          }),
+          },
           .itemWriter { context in
             "album:\(context.item.title)|photos:\(context.item.children.count)|locale:\(context.locale ?? "none")"
           },
@@ -1811,14 +1811,14 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // English albums at root
     let enCatsAlbum = finalWrittenPages.first { $0.destination == "root/output/photos/cats/index.html" }
     XCTAssertNotNil(enCatsAlbum)
-    XCTAssertTrue(enCatsAlbum!.content.contains("photos:2"), "English cats album should have 2 photos")
-    XCTAssertTrue(enCatsAlbum!.content.contains("locale:en"))
+    XCTAssertTrue(try XCTUnwrap(enCatsAlbum?.content.contains("photos:2")), "English cats album should have 2 photos")
+    XCTAssertTrue(try XCTUnwrap(enCatsAlbum?.content.contains("locale:en")))
 
     // Dutch albums under nl/
     let nlCatsAlbum = finalWrittenPages.first { $0.destination == "root/output/nl/photos/cats/index.html" }
     XCTAssertNotNil(nlCatsAlbum)
-    XCTAssertTrue(nlCatsAlbum!.content.contains("photos:1"), "Dutch cats album should have 1 photo (whiskers only)")
-    XCTAssertTrue(nlCatsAlbum!.content.contains("locale:nl"))
+    XCTAssertTrue(try XCTUnwrap(nlCatsAlbum?.content.contains("photos:1")), "Dutch cats album should have 1 photo (whiskers only)")
+    XCTAssertTrue(try XCTUnwrap(nlCatsAlbum?.content.contains("locale:nl")))
 
     // === Photo detail pages ===
     // English photo at root
@@ -1867,7 +1867,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         readers: [.mock(frontmatter: ["tags": "swift"])],
         writers: [
           .itemWriter { context in context.item.body },
-          .listWriter({ _ in "" }),
+          .listWriter { _ in "" },
           .tagWriter({ _ in "" }, tags: \.metadata.tags),
         ]
       )
@@ -1922,7 +1922,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
           Reader(supportedExtensions: ["md"]) { absoluteSource in
             let isNl = absoluteSource.string.contains("nl/")
             return (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: isNl ? ["slug": "over-ons"] : [:])
-          }
+          },
         ],
         writers: [
           .itemWriter { context in context.item.url },
@@ -1939,8 +1939,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/over-ons/index.html" }))
 
     // Translations should still be linked (matching by source filename, not output path)
-    let enAbout = saga.allItems.first { $0.locale == "en" }!
-    let nlAbout = saga.allItems.first { $0.locale == "nl" }!
+    let enAbout = try XCTUnwrap(saga.allItems.first { $0.locale == "en" })
+    let nlAbout = try XCTUnwrap(saga.allItems.first { $0.locale == "nl" })
     XCTAssertEqual(enAbout.translations.count, 1)
     XCTAssertEqual(enAbout.translations["nl"]?.url, nlAbout.url)
     XCTAssertEqual(nlAbout.url, "/nl/over-ons/")
@@ -1969,7 +1969,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         metadata: TaggedMetadata.self,
         readers: [.mock(frontmatter: ["tags": "swift"])],
         writers: [
-          .listWriter({ context in "count:\(context.items.count)|locale:\(context.locale ?? "none")" }),
+          .listWriter { context in "count:\(context.items.count)|locale:\(context.locale ?? "none")" },
           .tagWriter({ context in "tag:\(context.key)|count:\(context.items.count)" }, tags: \.metadata.tags),
         ]
       )

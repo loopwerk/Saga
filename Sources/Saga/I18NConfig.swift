@@ -11,15 +11,15 @@ public enum I18NStyle: Sendable {
 ///
 /// Pass this to ``Saga/i18n(locales:defaultLocale:style:defaultLocaleInSubdir:)``
 /// to enable automatic locale detection, translation linking, and per-locale output.
-public struct I18NConfig: Sendable {
+struct I18NConfig {
   /// The supported locales, e.g. `["en", "nl"]`.
-  public let locales: [String]
+  let locales: [String]
 
   /// The default locale, e.g. `"en"`. Must be one of `locales`.
-  public let defaultLocale: String
+  let defaultLocale: String
 
   /// The content organization style.
-  public let style: I18NStyle
+  let style: I18NStyle
 
   /// Whether the default locale's content should be written to a subdirectory.
   ///
@@ -28,11 +28,11 @@ public struct I18NConfig: Sendable {
   ///
   /// When `true`, all locales are prefixed (e.g. `deploy/en/articles/`, `deploy/nl/articles/`)
   /// and a redirect is generated from `/` to `/{defaultLocale}/`.
-  public let defaultLocaleInSubdir: Bool
+  let defaultLocaleInSubdir: Bool
 
   /// Whether the given locale's output should be prefixed with the locale path.
   func shouldPrefix(locale: String) -> Bool {
-    if locale == defaultLocale && !defaultLocaleInSubdir {
+    if locale == defaultLocale, !defaultLocaleInSubdir {
       return false
     }
     return true

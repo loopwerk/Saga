@@ -101,8 +101,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// Post processors
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
-  // Write content to a file, applying any registered post-processors.
-  // Also tracks the relative path in ``writtenPages``.
+  /// Write content to a file, applying any registered post-processors.
+  /// Also tracks the relative path in ``writtenPages``.
   func processedWrite(_ destination: Path, _ content: String, locale: String? = nil) throws {
     let relativePath = try destination.relativePath(from: outputPath)
     writtenPagesLock.withLock { writtenPages.append((path: relativePath, locale: locale)) }
@@ -165,7 +165,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     style: I18NStyle = .directory,
     defaultLocaleInSubdir: Bool = false
   ) -> Self {
-    self.i18nConfig = I18NConfig(
+    i18nConfig = I18NConfig(
       locales: locales,
       defaultLocale: defaultLocale,
       style: style,
@@ -245,7 +245,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
           // For directory-style i18n, rewrite locale-prefixed static files
           if let i18n = self.i18nConfig, i18n.style == .directory {
             let first = file.relativePath.string.split(separator: "/").first.map(String.init) ?? ""
-            if i18n.locales.contains(first) && !i18n.shouldPrefix(locale: first) {
+            if i18n.locales.contains(first), !i18n.shouldPrefix(locale: first) {
               // Strip locale prefix for default locale
               let stripped = String(file.relativePath.string.dropFirst(first.count + 1))
               outputRelative = Path(stripped)
@@ -391,26 +391,26 @@ public class Saga: StepBuilder, @unchecked Sendable {
 
   private func translationKey(for item: AnyItem, config: I18NConfig) -> String {
     switch config.style {
-    case .directory:
-      // Strip locale prefix: en/articles/hello.md → articles/hello.md
-      let source = item.relativeSource.string
-      let components = source.split(separator: "/", maxSplits: 1)
-      if components.count > 1, config.locales.contains(String(components[0])) {
-        return String(components[1])
-      }
-      return source
+      case .directory:
+        // Strip locale prefix: en/articles/hello.md → articles/hello.md
+        let source = item.relativeSource.string
+        let components = source.split(separator: "/", maxSplits: 1)
+        if components.count > 1, config.locales.contains(String(components[0])) {
+          return String(components[1])
+        }
+        return source
 
-    case .filename:
-      // Strip locale suffix: articles/hello.en.md → articles/hello.md
-      let name = item.relativeSource.lastComponentWithoutExtension
-      guard let locale = item.locale else { return item.relativeSource.string }
-      let suffix = ".\(locale)"
-      if name.hasSuffix(suffix) {
-        let clean = String(name.dropLast(suffix.count))
-        let ext = item.relativeSource.extension ?? ""
-        return (item.relativeSource.parent() + Path(clean + (ext.isEmpty ? "" : ".\(ext)"))).string
-      }
-      return item.relativeSource.string
+      case .filename:
+        // Strip locale suffix: articles/hello.en.md → articles/hello.md
+        let name = item.relativeSource.lastComponentWithoutExtension
+        guard let locale = item.locale else { return item.relativeSource.string }
+        let suffix = ".\(locale)"
+        if name.hasSuffix(suffix) {
+          let clean = String(name.dropLast(suffix.count))
+          let ext = item.relativeSource.extension ?? ""
+          return (item.relativeSource.parent() + Path(clean + (ext.isEmpty ? "" : ".\(ext)"))).string
+        }
+        return item.relativeSource.string
     }
   }
 }

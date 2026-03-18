@@ -37,7 +37,7 @@ private func tagItemsWithLocale(_ items: [AnyItem], locale: String, config: I18N
     if item.locale == nil {
       item.locale = locale
     }
-    if !config.shouldPrefix(locale: locale) && item.relativeDestination.string.hasPrefix(prefix) {
+    if !config.shouldPrefix(locale: locale), item.relativeDestination.string.hasPrefix(prefix) {
       item.relativeDestination = Path(String(item.relativeDestination.string.dropFirst(prefix.count)))
     }
   }
@@ -193,11 +193,10 @@ public class StepBuilder: @unchecked Sendable {
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
 
       // Discover subfolders at build-time, locale-aware when i18n is configured
-      let subFolders: Set<Path>
-      if let i18n = i18nConfig, i18n.style == .directory {
-        subFolders = discoverLocaleAwareSubfolders(under: effectiveFolder, from: files, config: i18n)
+      let subFolders: Set<Path> = if let i18n = i18nConfig, i18n.style == .directory {
+        discoverLocaleAwareSubfolders(under: effectiveFolder, from: files, config: i18n)
       } else {
-        subFolders = discoverSubfolders(under: effectiveFolder, from: files)
+        discoverSubfolders(under: effectiveFolder, from: files)
       }
 
       // For each subfolder, create a child StepBuilder scoped to it.
