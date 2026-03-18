@@ -8,6 +8,51 @@ private struct FileReadResult<M: Metadata> {
 }
 
 extension Saga {
+  /// All generated pages, grouped by translation.
+  var generatedPages: [[String: Path]] {
+    guard i18nConfig != nil else {
+      return writtenPages.map { ["": $0.path] }
+    }
+
+    var groups: [String: [String: Path]] = [:]
+    for page in writtenPages {
+      let key: String
+      if let locale = page.locale {
+        let prefix = locale + "/"
+        key = page.path.string.hasPrefix(prefix) ? String(page.path.string.dropFirst(prefix.count)) : page.path.string
+      } else {
+        key = page.path.string
+      }
+      groups[key, default: [:]][page.locale ?? ""] = page.path
+    }
+
+    return Array(groups.values)
+  }
+
+  /// Write content to a file, applying any registered post-processors.
+  /// Also tracks the relative path in ``writtenPages``.
+  func processedWrite(_ destination: Path, _ content: String, locale: String? = nil) throws {
+    let relativePath = try destination.relativePath(from: outputPath)
+    writtenPagesLock.withLock { writtenPages.append((path: relativePath, locale: locale)) }
+
+    let result = try postProcessors.reduce(content) { content, transform in try transform(content, relativePath) }
+    try fileIO.write(destination, result)
+  }
+
+  /// Files not claimed by any processing step.
+  var unhandledFiles: [(path: Path, relativePath: Path)] {
+    files.filter { !handledPaths.contains($0.path) }
+  }
+
+  /// Unhandled files grouped by their relative parent folder.
+  func resourcesByFolder() -> [Path: [Path]] {
+    var result: [Path: [Path]] = [:]
+    for file in unhandledFiles {
+      result[file.relativePath.parent(), default: []].append(file.path)
+    }
+    return result
+  }
+
   func readItems<M: Metadata>(
     folder: Path?,
     readers: [Reader],
