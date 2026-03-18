@@ -70,10 +70,10 @@ try await Saga(input: "content", output: "deploy")
 
 ## Cache-busting
 
-Use ``hashed(_:)`` in your templates to serve fingerprinted CSS URLs:
+Use ``Saga/hashed(_:)`` in your templates to serve fingerprinted CSS URLs:
 
 ```swift
-link(href: hashed("/static/output.css"), rel: "stylesheet")
+link(href: Saga.hashed("/static/output.css"), rel: "stylesheet")
 ```
 
 This produces a URL like `/static/output-a1b2c3d4.css` in production mode, ensuring browsers fetch the latest version after a rebuild.

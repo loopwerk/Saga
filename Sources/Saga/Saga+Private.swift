@@ -101,4 +101,47 @@ extension Saga {
 
     return items.sorted(by: sorting)
   }
+
+  // MARK: - Translation linking
+
+  func linkTranslations(items: [AnyItem], config: I18NConfig) {
+    var groups: [String: [String: AnyItem]] = [:]
+
+    for item in items {
+      guard let locale = item.locale else { continue }
+      let key = translationKey(for: item, config: config)
+      groups[key, default: [:]][locale] = item
+    }
+
+    for (_, group) in groups where group.count > 1 {
+      for (locale, item) in group {
+        item.translations = group.filter { $0.key != locale }
+      }
+    }
+  }
+
+  func translationKey(for item: AnyItem, config: I18NConfig) -> String {
+    switch config.style {
+      case .directory:
+        // Strip locale prefix: en/articles/hello.md → articles/hello.md
+        let source = item.relativeSource.string
+        let components = source.split(separator: "/", maxSplits: 1)
+        if components.count > 1, config.locales.contains(String(components[0])) {
+          return String(components[1])
+        }
+        return source
+
+      case .filename:
+        // Strip locale suffix: articles/hello.en.md → articles/hello.md
+        let name = item.relativeSource.lastComponentWithoutExtension
+        guard let locale = item.locale else { return item.relativeSource.string }
+        let suffix = ".\(locale)"
+        if name.hasSuffix(suffix) {
+          let clean = String(name.dropLast(suffix.count))
+          let ext = item.relativeSource.extension ?? ""
+          return (item.relativeSource.parent() + Path(clean + (ext.isEmpty ? "" : ".\(ext)"))).string
+        }
+        return item.relativeSource.string
+    }
+  }
 }

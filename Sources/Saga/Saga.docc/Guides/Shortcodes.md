@@ -58,7 +58,7 @@ func processShortcodes(item: Item<ArticleMetadata>) async {
 
 ## Register the processor
 
-Pass your shortcode processor as the `itemProcessor`, or chain it with other processors using `sequence()`:
+Pass your shortcode processor as the `itemProcessor`, or chain it with other processors using ``Saga/sequence(_:)``:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -80,7 +80,7 @@ try await Saga(input: "content", output: "deploy")
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
-    itemProcessor: sequence(processShortcodes, anotherProcessor),
+    itemProcessor: Saga.sequence(processShortcodes, anotherProcessor),
     writers: [.itemWriter(swim(renderArticle))]
   )
   .run()

@@ -6,38 +6,14 @@
 import Foundation
 import SagaPathKit
 
-private nonisolated(unsafe) var _hashFunction: ((String) -> String)?
-private let _hashLock = NSLock()
+nonisolated(unsafe) var _hashFunction: ((String) -> String)?
+let _hashLock = NSLock()
 
 private func setHashFunction(_ fn: ((String) -> String)?) {
   _hashLock.withLock {
     _hashFunction = fn
   }
 }
-
-/// Returns a cache-busted file path by inserting a content hash into the filename.
-///
-/// Call this from any renderer to produce fingerprinted asset URLs:
-/// ```swift
-/// link(rel: "stylesheet", href: hashed("/static/output.css"))
-/// // → "/static/output-a1b2c3d4.css"
-/// ```
-public func hashed(_ path: String) -> String {
-  _hashLock.withLock {
-    _hashFunction?(path) ?? path
-  }
-}
-
-/// Whether the site is being served by `saga dev`.
-///
-/// This is `true` when the `SAGA_DEV` environment variable is set (which `saga dev` does
-/// automatically). Use it to skip expensive work during development:
-/// ```swift
-/// .postProcess { html, _ in
-///   isDev ? html : minifyHTML(html)
-/// }
-/// ```
-public let isDev = ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
 
 /// The main Saga class, used to configure and build your website.
 ///
@@ -269,7 +245,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // The closure runs under _hashLock (acquired by the global hashed() function),
     // so contentHashes access is thread-safe without additional locking.
 
-    if !isDev {
+    if !Saga.isDev {
       setHashFunction { path in
         let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
         guard let file = self.files.first(where: { $0.relativePath.string == stripped }) else {
@@ -314,7 +290,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
         if !writtenPages.contains(where: { $0.path == from }) {
           let dest = outputPath + from
           try fileIO.mkpath(dest.parent())
-          try processedWrite(dest, redirectHTML(to: "/\(i18n.defaultLocale)/"))
+          try processedWrite(dest, Self.redirectHTML(to: "/\(i18n.defaultLocale)/"))
         }
       } else {
         // Redirect /{defaultLocale}/... → /... for every default-locale page
@@ -323,7 +299,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
           let prefixedPath = Path(i18n.defaultLocale) + page.path
           let dest = outputPath + prefixedPath
           try fileIO.mkpath(dest.parent())
-          try processedWrite(dest, redirectHTML(to: page.path.url))
+          try processedWrite(dest, Self.redirectHTML(to: page.path.url))
         }
       }
     }
@@ -351,66 +327,5 @@ public class Saga: StepBuilder, @unchecked Sendable {
     print("\(logTimestamp()) | All done in \(Double(totalTime) / 1_000_000_000)s")
 
     return self
-  }
-
-  // MARK: - Redirect helpers
-
-  private func redirectHTML(to url: String) -> String {
-    """
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta http-equiv="refresh" content="0; url=\(url)">
-      <link rel="canonical" href="\(url)">
-    </head>
-    <body>
-      <p>Redirecting to <a href="\(url)">\(url)</a></p>
-    </body>
-    </html>
-    """
-  }
-
-  // MARK: - Translation linking
-
-  private func linkTranslations(items: [AnyItem], config: I18NConfig) {
-    var groups: [String: [String: AnyItem]] = [:]
-
-    for item in items {
-      guard let locale = item.locale else { continue }
-      let key = translationKey(for: item, config: config)
-      groups[key, default: [:]][locale] = item
-    }
-
-    for (_, group) in groups where group.count > 1 {
-      for (locale, item) in group {
-        item.translations = group.filter { $0.key != locale }
-      }
-    }
-  }
-
-  private func translationKey(for item: AnyItem, config: I18NConfig) -> String {
-    switch config.style {
-      case .directory:
-        // Strip locale prefix: en/articles/hello.md → articles/hello.md
-        let source = item.relativeSource.string
-        let components = source.split(separator: "/", maxSplits: 1)
-        if components.count > 1, config.locales.contains(String(components[0])) {
-          return String(components[1])
-        }
-        return source
-
-      case .filename:
-        // Strip locale suffix: articles/hello.en.md → articles/hello.md
-        let name = item.relativeSource.lastComponentWithoutExtension
-        guard let locale = item.locale else { return item.relativeSource.string }
-        let suffix = ".\(locale)"
-        if name.hasSuffix(suffix) {
-          let clean = String(name.dropLast(suffix.count))
-          let ext = item.relativeSource.extension ?? ""
-          return (item.relativeSource.parent() + Path(clean + (ext.isEmpty ? "" : ".\(ext)"))).string
-        }
-        return item.relativeSource.string
-    }
   }
 }

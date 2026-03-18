@@ -229,7 +229,7 @@ try await Saga(input: "content", output: "deploy")
       .listWriter(swim(renderArticles)),
       .tagWriter(swim(renderTag), tags: \.metadata.tags),
       .listWriter(
-        atomFeed(
+        Saga.atomFeed(
           title: "My Site",
           author: "Author",
           baseURL: URL(string: "https://example.com")!,
@@ -244,7 +244,7 @@ try await Saga(input: "content", output: "deploy")
     readers: [.parsleyMarkdownReader],
     writers: [.itemWriter(swim(renderPage))]
   )
-  .createPage("sitemap.xml", using: sitemap(baseURL: URL(string: "https://example.com")!))
+  .createPage("sitemap.xml", using: Saga.sitemap(baseURL: URL(string: "https://example.com")!))
   .run()
 ```
 

@@ -21,12 +21,12 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-Chain multiple processors with `sequence()`:
+Chain multiple processors with `Saga.sequence()`:
 
 ```swift
 .register(
   readers: [.parsleyMarkdownReader],
-  itemProcessor: sequence(processShortcodes, fixDates, addReadingTime),
+  itemProcessor: Saga.sequence(processShortcodes, fixDates, addReadingTime),
   writers: [.itemWriter(swim(renderItem))]
 )
 ```
@@ -122,17 +122,17 @@ This writes the item to `my-custom-url/index.html` (or `my-custom-url.html` with
 This is useful for giving pages human-friendly or localized URLs without renaming the source file. For i18n usage, see <doc:Internationalization>.
 
 
-## Cache-busting with hashed()
+## Cache-busting with Saga.hashed()
 
-The ``hashed(_:)`` function takes a path like `/static/output.css` and returns `/static/output-a1b2c3d4.css`, where the hash is derived from the file's contents. Saga automatically copies the hashed file to the output folder.
+The ``Saga/hashed(_:)`` function takes a path like `/static/output.css` and returns `/static/output-a1b2c3d4.css`, where the hash is derived from the file's contents. Saga automatically copies the hashed file to the output folder.
 
-Call ``hashed(_:)`` from any renderer to produce fingerprinted asset URLs:
+Call ``Saga/hashed(_:)`` from any renderer to produce fingerprinted asset URLs:
 
 ```swift
 func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   html {
     head {
-      link(href: hashed("/static/style.css"), rel: "stylesheet")
+      link(href: Saga.hashed("/static/style.css"), rel: "stylesheet")
     }
     body {
       Node.raw(context.item.body)
@@ -141,4 +141,4 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
 }
 ```
 
-> Note: In dev mode (when using `saga dev`), ``hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload. See <doc:GettingStarted> for more on dev mode.
+> Note: In dev mode (when using `saga dev`), ``Saga/hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload. See <doc:GettingStarted> for more on dev mode.
