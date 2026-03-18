@@ -42,20 +42,10 @@ public class Saga: StepBuilder, @unchecked Sendable {
 
   // Generated page tracking, for the sitemap
   var generatedPages: [Path] = []
-  private let generatedPagesLock = NSLock()
+  let generatedPagesLock = NSLock()
 
   /// Post processors
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
-
-  /// Write content to a file, applying any registered post-processors.
-  /// Also tracks the relative path in ``generatedPages``.
-  func processedWrite(_ destination: Path, _ content: String) throws {
-    let relativePath = try destination.relativePath(from: outputPath)
-    generatedPagesLock.withLock { generatedPages.append(relativePath) }
-
-    let result = try postProcessors.reduce(content) { content, transform in try transform(content, relativePath) }
-    try fileIO.write(destination, result)
-  }
 
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #filePath) throws {
     let originFile = Path("\(originFilePath)")
@@ -76,22 +66,6 @@ public class Saga: StepBuilder, @unchecked Sendable {
     super.init(files: computedFiles, workingPath: Path(""))
   }
 
-  /// Files not claimed by any processing step.
-  var unhandledFiles: [(path: Path, relativePath: Path)] {
-    files.filter { !handledPaths.contains($0.path) }
-  }
-
-  /// Unhandled files grouped by their relative parent folder.
-  func resourcesByFolder() -> [Path: [Path]] {
-    var result: [Path: [Path]] = [:]
-    for file in unhandledFiles {
-      result[file.relativePath.parent(), default: []].append(file.path)
-    }
-    return result
-  }
-
-  // MARK: - Post-processing
-
   /// Apply a transform to every file written by Saga.
   ///
   /// The transform receives the rendered content and relative output path.
@@ -111,8 +85,6 @@ public class Saga: StepBuilder, @unchecked Sendable {
     postProcessors.append(transform)
     return self
   }
-
-  // MARK: - Run
 
   /// Execute all the registered steps.
   @discardableResult

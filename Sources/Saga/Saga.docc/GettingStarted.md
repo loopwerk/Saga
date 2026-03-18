@@ -35,11 +35,30 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer). The <doc:Architecture> document has more information on how Saga works. 
+> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer). The <doc:Architecture> document has more information on how Saga works.
+
+
+## Frontmatter
+Markdown files can include a frontmatter block at the top, delimited by `---`. Saga supports three built-in frontmatter properties:
+
+- **title**: The title of the item. If not set, Saga uses the first heading in the document, or the filename as a last resort.
+- **date**: The publication date, in `yyyy-MM-dd` format. If not set, Saga uses the file's creation date.
+- **slug**: Overrides the output path. For example, setting `slug: my-page` writes the item to `my-page/index.html` instead of deriving the path from the filename.
+
+```text
+---
+title: About this site
+date: 2024-06-15
+slug: about
+---
+Content goes here.
+```
+
+You can parse custom frontmatter properties using strongly typed metadata.
 
 
 ## Custom metadata
-Of course Saga can do much more than just render a folder of markdown files as-is. It can also deal with custom metadata contained within markdown files - even multiple types of metadata for different kinds of pages.
+Saga can deal with custom metadata contained within frontmatter blocks - even multiple types of metadata for different kinds of pages.
 
 Let's look at an example markdown article, `/content/articles/first-article.md`:
 

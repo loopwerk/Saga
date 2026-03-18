@@ -8,6 +8,31 @@ private struct FileReadResult<M: Metadata> {
 }
 
 extension Saga {
+  /// Write content to a file, applying any registered post-processors.
+  /// Also tracks the relative path in ``generatedPages``.
+  func processedWrite(_ destination: Path, _ content: String) throws {
+    let relativePath = try destination.relativePath(from: outputPath)
+    generatedPagesLock.withLock { generatedPages.append(relativePath) }
+
+    let result = try postProcessors.reduce(content) { content, transform in try transform(content, relativePath) }
+    try fileIO.write(destination, result)
+  }
+
+  /// Files not claimed by any processing step.
+  var unhandledFiles: [(path: Path, relativePath: Path)] {
+    files.filter { !handledPaths.contains($0.path) }
+  }
+
+  /// Unhandled files grouped by their relative parent folder.
+  func resourcesByFolder() -> [Path: [Path]] {
+    var result: [Path: [Path]] = [:]
+    for file in unhandledFiles {
+      result[file.relativePath.parent(), default: []].append(file.path)
+    }
+    return result
+  }
+
+  /// Read files from disk using a Reader, turns them into Items
   func readItems<M: Metadata>(
     folder: Path?,
     readers: [Reader],
@@ -48,13 +73,20 @@ extension Saga {
               absoluteSource: file.path,
               relativeSource: file.relativePath,
               relativeDestination: file.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
-              title: partial.title ?? partial.frontmatter?["title"] ?? file.relativePath.lastComponentWithoutExtension,
+              title: partial.frontmatter?["title"] ?? partial.title ?? file.relativePath.lastComponentWithoutExtension,
               body: partial.body,
               date: date ?? self.fileIO.creationDate(file.path) ?? Date(),
               created: self.fileIO.creationDate(file.path) ?? Date(),
               lastModified: self.fileIO.modificationDate(file.path) ?? Date(),
               metadata: metadata
             )
+
+            // Override the output path if a slug is specified in frontmatter
+            if let slug = partial.frontmatter?["slug"] {
+              let parent = file.relativePath.parent()
+              let slugPath = parent + Path(slug.slugified + "." + (file.relativePath.extension ?? "md"))
+              item.relativeDestination = slugPath.makeOutputPath(itemWriteMode: itemWriteMode)
+            }
 
             // Process the Item if there's an itemProcessor
             if let itemProcessor {

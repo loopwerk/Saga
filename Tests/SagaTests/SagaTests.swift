@@ -1317,6 +1317,39 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertFalse(content.contains("404.html"))
   }
 
+  func testSlugFrontmatterSetsDestination() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [
+      "about.md",
+    ] }
+
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["slug": "about-us"])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Slug overrides the output path
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/about-us/index.html" }))
+    // Original filename path should NOT exist
+    XCTAssertFalse(finalWrittenPages.contains(where: { $0.destination == "root/output/about/index.html" }))
+  }
+
   static let allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
@@ -1353,5 +1386,6 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     ("testPostProcessReceivesRelativePath", testPostProcessReceivesRelativePath),
     ("testGeneratedPages", testGeneratedPages),
     ("testSitemap", testSitemap),
+    ("testSlugFrontmatterSetsDestination", testSlugFrontmatterSetsDestination),
   ]
 }
