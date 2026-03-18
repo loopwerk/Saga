@@ -27,7 +27,7 @@ func baseLayout(
         meta(charset: "utf-8")
         meta(content: "width=device-width, initial-scale=1", name: "viewport")
         title { pageTitle }
-        link(href: hashed("/static/style.css"), rel: "stylesheet")
+        link(href: Saga.hashed("/static/style.css"), rel: "stylesheet")
         extraHead()
       }
       body {

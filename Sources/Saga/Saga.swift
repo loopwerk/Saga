@@ -6,39 +6,6 @@
 import Foundation
 import SagaPathKit
 
-private nonisolated(unsafe) var _hashFunction: ((String) -> String)?
-private let _hashLock = NSLock()
-
-private func setHashFunction(_ fn: ((String) -> String)?) {
-  _hashLock.withLock {
-    _hashFunction = fn
-  }
-}
-
-/// Returns a cache-busted file path by inserting a content hash into the filename.
-///
-/// Call this from any renderer to produce fingerprinted asset URLs:
-/// ```swift
-/// link(rel: "stylesheet", href: hashed("/static/output.css"))
-/// // → "/static/output-a1b2c3d4.css"
-/// ```
-public func hashed(_ path: String) -> String {
-  _hashLock.withLock {
-    _hashFunction?(path) ?? path
-  }
-}
-
-/// Whether the site is being served by `saga dev`.
-///
-/// This is `true` when the `SAGA_DEV` environment variable is set (which `saga dev` does
-/// automatically). Use it to skip expensive work during development:
-/// ```swift
-/// .postProcess { html, _ in
-///   isDev ? html : minifyHTML(html)
-/// }
-/// ```
-public let isDev = ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
-
 /// The main Saga class, used to configure and build your website.
 ///
 /// ```swift
@@ -201,7 +168,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // The closure runs under _hashLock (acquired by the global hashed() function),
     // so contentHashes access is thread-safe without additional locking.
 
-    if !isDev {
+    if !Saga.isDev {
       setHashFunction { path in
         let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
         guard let file = self.files.first(where: { $0.relativePath.string == stripped }) else {

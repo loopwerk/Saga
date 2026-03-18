@@ -32,8 +32,8 @@ func baseHtml(title pageTitle: String, @NodeBuilder children: () -> NodeConverti
       meta(charset: "utf-8")
       meta(content: "width=device-width, initial-scale=1", name: "viewport")
       title { SiteMetadata.name + ": " + pageTitle }
-      link(href: hashed("/static/style.css"), rel: "stylesheet")
-      link(href: hashed("/static/prism.css"), rel: "stylesheet")
+      link(href: Saga.hashed("/static/style.css"), rel: "stylesheet")
+      link(href: Saga.hashed("/static/prism.css"), rel: "stylesheet")
     }
     body {
       header {

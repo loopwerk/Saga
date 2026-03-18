@@ -80,7 +80,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     saga.register(metadata: EmptyMetadata.self, readers: [], writers: [])
     XCTAssertEqual(saga.steps.count, 1)
   }
-  
+
   func testMakeSureEmptyPathHasNoComponents() {
     XCTAssertEqual(Path("").components, [])
   }
@@ -1120,7 +1120,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         readers: [.mock(frontmatter: [:])],
         writers: [
           .itemWriter { context in
-            let hashed = hashed("/style.css")
+            let hashed = Saga.hashed("/style.css")
             return "<link href=\"\(hashed)\">"
           },
         ]
@@ -1147,7 +1147,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         readers: [.mock(frontmatter: [:])],
         writers: [
           .itemWriter { _ in
-            let hashed = hashed("style.css")
+            let hashed = Saga.hashed("style.css")
             // Without leading slash, result should also have no leading slash
             XCTAssertEqual(hashed, "style-5d41402a.css")
             return ""
@@ -1167,7 +1167,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         readers: [.mock(frontmatter: [:])],
         writers: [
           .itemWriter { _ in
-            let hashed = hashed("/nonexistent.css")
+            let hashed = Saga.hashed("/nonexistent.css")
             // Unknown file should return path unchanged
             XCTAssertEqual(hashed, "/nonexistent.css")
             return ""
@@ -1300,7 +1300,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
         ]
       )
       .createPage("404.html") { _ in "<h1>Not Found</h1>" }
-      .createPage("sitemap.xml", using: sitemap(
+      .createPage("sitemap.xml", using: Saga.sitemap(
         baseURL: try XCTUnwrap(URL(string: "https://example.com")),
         filter: { $0 != "404.html" }
       ))

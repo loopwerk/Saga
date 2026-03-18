@@ -24,13 +24,13 @@ import Bonsai
 try await Saga(input: "content", output: "deploy")
   .register(...)
   .postProcess { html, path in
-    guard !isDev else { return html }
+    guard !Saga.isDev else { return html }
     return Bonsai.minifyHTML(html)
   }
   .run()
 ```
 
-The `isDev` check skips minification during development for faster rebuilds and easier debugging.
+The ``Saga/isDev`` check skips minification during development for faster rebuilds and easier debugging.
 
 ## Selective processing
 
@@ -38,7 +38,7 @@ The second parameter is the relative output path, so you can limit minification 
 
 ```swift
 .postProcess { content, path in
-  guard !isDev, path.extension == "html" else { return content }
+  guard !Saga.isDev, path.extension == "html" else { return content }
   return Bonsai.minifyHTML(content)
 }
 ```

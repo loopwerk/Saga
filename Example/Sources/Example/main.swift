@@ -80,7 +80,7 @@ try await Saga(input: "content", output: "deploy")
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
-    itemProcessor: publicationDateInFilename,
+    itemProcessor: Saga.publicationDateInFilename,
     filter: { !$0.archived },
     claimExcludedItems: false,
     writers: [
@@ -90,8 +90,8 @@ try await Saga(input: "content", output: "deploy")
       .yearWriter(swim(renderPartition)),
 
       // Atom feed for all articles, and a feed per tag
-      .listWriter(atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.metadata.summary), output: "feed.xml"),
-      .tagWriter(atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.metadata.summary), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
+      .listWriter(Saga.atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.metadata.summary), output: "feed.xml"),
+      .tagWriter(Saga.atomFeed(title: SiteMetadata.name, author: SiteMetadata.author, baseURL: SiteMetadata.url, summary: \.metadata.summary), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
     ]
   )
 
@@ -100,7 +100,7 @@ try await Saga(input: "content", output: "deploy")
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
-    itemProcessor: publicationDateInFilename,
+    itemProcessor: Saga.publicationDateInFilename,
     writers: [
       .itemWriter(swim(renderArticle)),
     ]
@@ -186,7 +186,7 @@ try await Saga(input: "content", output: "deploy")
   )
 
   // Sitemap including all generated pages
-  .createPage("sitemap.xml", using: sitemap(baseURL: SiteMetadata.url))
+  .createPage("sitemap.xml", using: Saga.sitemap(baseURL: SiteMetadata.url))
 
   // Run the steps we registered above.
   // Static files (images, css, etc.) are copied automatically.
