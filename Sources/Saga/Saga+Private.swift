@@ -14,8 +14,36 @@ extension Saga {
       return writtenPages.map { ["": $0.path] }
     }
 
-    var groups: [String: [String: Path]] = [:]
-    for page in writtenPages {
+    let writtenPathSet = Set(writtenPages.map(\.path.string))
+    var grouped = Set<String>()
+    var groups: [[String: Path]] = []
+
+    // Group pages that correspond to items, using their translation links
+    for item in allItems {
+      let dest = item.relativeDestination
+      guard !grouped.contains(dest.string) else { continue }
+      guard writtenPathSet.contains(dest.string) else { continue }
+
+      var group: [String: Path] = [:]
+      if let locale = item.locale {
+        group[locale] = dest
+        grouped.insert(dest.string)
+      }
+      for (locale, translated) in item.translations {
+        let tDest = translated.relativeDestination
+        if writtenPathSet.contains(tDest.string) {
+          group[locale] = tDest
+          grouped.insert(tDest.string)
+        }
+      }
+      if !group.isEmpty {
+        groups.append(group)
+      }
+    }
+
+    // Group remaining pages (list, tag, createPage) by stripped path
+    var remainingGroups: [String: [String: Path]] = [:]
+    for page in writtenPages where !grouped.contains(page.path.string) {
       let key: String
       if let locale = page.locale {
         let prefix = locale + "/"
@@ -23,10 +51,11 @@ extension Saga {
       } else {
         key = page.path.string
       }
-      groups[key, default: [:]][page.locale ?? ""] = page.path
+      remainingGroups[key, default: [:]][page.locale ?? ""] = page.path
     }
+    groups.append(contentsOf: remainingGroups.values)
 
-    return Array(groups.values)
+    return groups
   }
 
   /// Write content to a file, applying any registered post-processors.
