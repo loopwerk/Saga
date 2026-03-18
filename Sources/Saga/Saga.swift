@@ -70,7 +70,6 @@ public class Saga: StepBuilder, @unchecked Sendable {
   let fileIO: FileIO
 
   // Internal file tracking
-  let files: [(path: Path, relativePath: Path)]
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
 
@@ -93,18 +92,21 @@ public class Saga: StepBuilder, @unchecked Sendable {
 
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #filePath) throws {
     let originFile = Path("\(originFilePath)")
-    rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
-    inputPath = rootPath + input
-    outputPath = rootPath + output
+    let rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
+
+    self.rootPath = rootPath
+    self.inputPath = self.rootPath + input
+    self.outputPath = self.rootPath + output
     self.fileIO = fileIO
 
     // Find all files in the source folder (filter out .DS_Store)
-    let ip = inputPath
-    let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
-    files = allFound.map { path in
-      let relativePath = (try? path.relativePath(from: ip)) ?? Path("")
+    let allFound = try fileIO.findFiles(self.inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
+    let computedFiles = allFound.map { path in
+      let relativePath = (try? path.relativePath(from: rootPath + input)) ?? Path("")
       return (path: path, relativePath: relativePath)
     }
+
+    super.init(files: computedFiles, workingPath: Path(""))
   }
 
   /// Files not claimed by any processing step.
@@ -161,7 +163,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // which turns raw content into Items, and stores them within the step.
     let readStart = DispatchTime.now()
     for step in steps {
-      let items = try await step.read(self, nil)
+      let items = try await step.read(self)
       allItems.append(contentsOf: items)
     }
 
@@ -233,7 +235,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     // processedWrite tracks generated paths automatically.
     let writeStart = DispatchTime.now()
     for step in steps {
-      try await step.write(self, step.outputPrefix, nil)
+      try await step.write(self)
     }
 
     let writeEnd = DispatchTime.now()
