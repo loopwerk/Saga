@@ -44,7 +44,7 @@ private func tagItemsWithLocale(_ items: [AnyItem], locale: String, config: I18N
 }
 
 /// Tags items by filename suffix for `.filename` style i18n.
-private func tagItemsByFilename<M: Metadata>(_ items: [Item<M>], config: I18NConfig, itemWriteMode: ItemWriteMode) {
+private func tagItemsByFilename(_ items: [AnyItem], config: I18NConfig, itemWriteMode: ItemWriteMode) {
   for item in items {
     let name = item.relativeSource.lastComponentWithoutExtension
     guard let locale = config.locales.first(where: { name.hasSuffix(".\($0)") }) else { continue }
