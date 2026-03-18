@@ -121,7 +121,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
-  ///   .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+  ///   .i18n(locales: ["en", "nl"], defaultLocale: "en")
   ///   .register(...)
   ///   .run()
   /// ```
@@ -129,13 +129,11 @@ public class Saga: StepBuilder, @unchecked Sendable {
   public func i18n(
     locales: [String],
     defaultLocale: String,
-    style: I18NStyle = .directory,
     defaultLocaleInSubdir: Bool = false
   ) -> Self {
     i18nConfig = I18NConfig(
       locales: locales,
       defaultLocale: defaultLocale,
-      style: style,
       defaultLocaleInSubdir: defaultLocaleInSubdir
     )
     return self
@@ -209,8 +207,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
         group.addTask {
           var outputRelative = file.relativePath
 
-          // For directory-style i18n, rewrite locale-prefixed static files
-          if let i18n = self.i18nConfig, i18n.style == .directory {
+          // For i18n, rewrite locale-prefixed static files
+          if let i18n = self.i18nConfig {
             let first = file.relativePath.string.split(separator: "/").first.map(String.init) ?? ""
             if i18n.locales.contains(first), !i18n.shouldPrefix(locale: first) {
               // Strip locale prefix for default locale

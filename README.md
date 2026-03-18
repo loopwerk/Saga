@@ -88,7 +88,7 @@ Saga allows you to:
 - Process the generated HTML content right before it's written to disk. For example to [minify it](https://github.com/loopwerk/Bonsai).
 - Easily created cache-busting hashed filenames for static assets.
 - Create a sitemap with one line of code.
-- Create multilingual sites, with support for folder (`en/about.md`) and file-based (`about.en.md`) translations.
+- Create multilingual sites with folder-based translations (`en/about.md`, `nl/about.md`).
 - Keep everything enforced by the compiler.
 
 ### Typed metadata (when you need it)

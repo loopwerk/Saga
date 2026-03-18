@@ -6,21 +6,17 @@ Build multilingual sites with automatic translation linking and per-locale outpu
 
 Saga supports multilingual sites through a global i18n configuration. You define your locales once, and Saga handles locale detection, translation linking, and per-locale output paths automatically. Your `register` calls stay exactly the same as a single-language site — no duplication needed.
 
-Two content organization styles are supported:
-
-- **Directory-based:** each locale has its own folder (`en/articles/hello.md`, `nl/articles/hello.md`)
-- **Filename-based:** locale is encoded in the filename (`articles/hello.en.md`, `articles/hello.nl.md`)
+Each locale has its own folder under your content directory (`en/articles/hello.md`, `nl/articles/hello.md`).
 
 ## Configuration
 
-Call ``Saga/i18n(locales:defaultLocale:style:defaultLocaleInSubdir:)`` before your `register` calls:
+Call ``Saga/i18n(locales:defaultLocale:defaultLocaleInSubdir:)`` before your `register` calls:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
   .i18n(
     locales: ["en", "nl"],
-    defaultLocale: "en",
-    style: .directory
+    defaultLocale: "en"
   )
   .register(
     folder: "articles",
@@ -38,8 +34,6 @@ try await Saga(input: "content", output: "deploy")
 With this configuration, `.register(folder: "articles")` automatically processes both `en/articles/` and `nl/articles/`. Each item gets a `locale` property, and translations are linked by matching source filenames across locale directories.
 
 ## Content organization
-
-### Directory-based (`.directory`)
 
 Each locale gets its own top-level folder under your content directory:
 
@@ -63,27 +57,6 @@ content/
 
 Files outside locale folders (like `static/`) are locale-independent and handled normally.
 
-### Filename-based (`.filename`)
-
-All content lives in a single folder structure, with locale suffixes on filenames:
-
-```
-content/
-  articles/
-    getting-started.en.md
-    getting-started.nl.md
-    concurrency.en.md
-    concurrency.nl.md
-  index.en.md
-  index.nl.md
-  about.en.md
-  about.nl.md
-  static/
-    style.css
-```
-
-Files without a locale suffix (like `style.css`) are locale-independent.
-
 ## Output paths
 
 By default, the default locale's content is written to the root, and other locales are written to a subfolder:
@@ -103,7 +76,6 @@ Set `defaultLocaleInSubdir: true` to prefix all locales, including the default:
 .i18n(
   locales: ["en", "nl"],
   defaultLocale: "en",
-  style: .directory,
   defaultLocaleInSubdir: true
 )
 ```
@@ -112,7 +84,7 @@ This writes `en/index.md` to `deploy/en/index.html` and generates a redirect fro
 
 ## Translation linking
 
-Saga links translations automatically by matching source filenames. In directory mode, `en/articles/getting-started.md` and `nl/articles/getting-started.md` are translations of each other because they share the path `articles/getting-started.md` relative to their locale folder. In filename mode, `articles/getting-started.en.md` and `articles/getting-started.nl.md` are translations because they share the base name `getting-started`.
+Saga links translations automatically by matching source filenames. `en/articles/getting-started.md` and `nl/articles/getting-started.md` are translations of each other because they share the path `articles/getting-started.md` relative to their locale folder.
 
 Access translations via the `translations` property on any item:
 
@@ -219,7 +191,7 @@ struct ArticleMetadata: Metadata {
 }
 
 try await Saga(input: "content", output: "deploy")
-  .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+  .i18n(locales: ["en", "nl"], defaultLocale: "en")
   .register(
     folder: "articles",
     metadata: ArticleMetadata.self,

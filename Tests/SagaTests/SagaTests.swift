@@ -1331,7 +1331,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     mock.write = { _, _ in }
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1364,7 +1364,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1398,7 +1398,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory, defaultLocaleInSubdir: true)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", defaultLocaleInSubdir: true)
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1426,7 +1426,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     mock.write = { _, _ in }
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1466,7 +1466,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1506,7 +1506,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         metadata: EmptyMetadata.self,
         readers: [.mock(frontmatter: [:])],
@@ -1539,7 +1539,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1560,54 +1560,6 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let nlPage = finalWrittenPages.first { $0.destination == "root/output/nl/articles/a/index.html" }
     XCTAssertNotNil(nlPage)
     XCTAssertEqual(nlPage?.content, "prev:none|next:none")
-  }
-
-  func testI18NFilenameStyle() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
-
-    var mock = FileIO.mock
-    mock.findFiles = { _ in [
-      "articles/hello.en.md",
-      "articles/hello.nl.md",
-      "articles/world.en.md",
-    ] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
-
-    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .filename)
-      .register(
-        folder: "articles",
-        metadata: EmptyMetadata.self,
-        readers: [.mock(frontmatter: [:])],
-        writers: [
-          .itemWriter { context in context.item.body },
-        ]
-      )
-      .run()
-
-    // Locale tagging
-    let enItems = saga.allItems.filter { $0.locale == "en" }
-    let nlItems = saga.allItems.filter { $0.locale == "nl" }
-    XCTAssertEqual(enItems.count, 2)
-    XCTAssertEqual(nlItems.count, 1)
-
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-
-    // Default locale at root, locale suffix stripped from filename
-    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
-    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/world/index.html" }))
-    // Non-default locale prefixed
-    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/articles/hello/index.html" }))
-
-    // Translation linking
-    let enHello = try XCTUnwrap(saga.allItems.first { $0.locale == "en" && $0.relativeSource.string.contains("hello") })
-    XCTAssertEqual(enHello.translations.count, 1)
-    XCTAssertNotNil(enHello.translations["nl"])
   }
 
   func testI18NSlugFrontmatter() async throws {
@@ -1660,7 +1612,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,
@@ -1713,7 +1665,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: TaggedMetadata.self,
@@ -1763,7 +1715,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     struct PhotoMetadata: Metadata {}
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "photos",
         metadata: AlbumMetadata.self,
@@ -1860,7 +1812,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
         metadata: TaggedMetadata.self,
@@ -1915,7 +1867,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
 
     // English about has no slug, Dutch about has slug "over-ons"
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .directory)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         metadata: EmptyMetadata.self,
         readers: [
@@ -1944,57 +1896,6 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(enAbout.translations.count, 1)
     XCTAssertEqual(enAbout.translations["nl"]?.url, nlAbout.url)
     XCTAssertEqual(nlAbout.url, "/nl/over-ons/")
-  }
-
-  func testI18NFilenameStyleListWriter() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
-
-    var mock = FileIO.mock
-    mock.findFiles = { _ in [
-      "articles/one.en.md",
-      "articles/two.en.md",
-      "articles/one.nl.md",
-    ] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
-
-    try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", style: .filename)
-      .register(
-        folder: "articles",
-        metadata: TaggedMetadata.self,
-        readers: [.mock(frontmatter: ["tags": "swift"])],
-        writers: [
-          .listWriter { context in "count:\(context.items.count)|locale:\(context.locale ?? "none")" },
-          .tagWriter({ context in "tag:\(context.key)|count:\(context.items.count)" }, tags: \.metadata.tags),
-        ]
-      )
-      .run()
-
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-
-    // English list at root with 2 items
-    let enList = finalWrittenPages.first { $0.destination == "root/output/articles/index.html" }
-    XCTAssertNotNil(enList)
-    XCTAssertEqual(enList?.content, "count:2|locale:en")
-
-    // Dutch list prefixed with 1 item
-    let nlList = finalWrittenPages.first { $0.destination == "root/output/nl/articles/index.html" }
-    XCTAssertNotNil(nlList)
-    XCTAssertEqual(nlList?.content, "count:1|locale:nl")
-
-    // Tag pages per locale
-    let enTag = finalWrittenPages.first { $0.destination == "root/output/articles/tag/swift/index.html" }
-    XCTAssertNotNil(enTag)
-    XCTAssertEqual(enTag?.content, "tag:swift|count:2")
-
-    let nlTag = finalWrittenPages.first { $0.destination == "root/output/nl/articles/tag/swift/index.html" }
-    XCTAssertNotNil(nlTag)
-    XCTAssertEqual(nlTag?.content, "tag:swift|count:1")
   }
 
   static let allTests = [
@@ -2040,13 +1941,11 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     ("testI18NPerLocaleListWriter", testI18NPerLocaleListWriter),
     ("testI18NLocaleInRenderingContext", testI18NLocaleInRenderingContext),
     ("testI18NPrevNextLocaleScoped", testI18NPrevNextLocaleScoped),
-    ("testI18NFilenameStyle", testI18NFilenameStyle),
     ("testI18NSlugFrontmatter", testI18NSlugFrontmatter),
     ("testI18NRedirectDefaultLocaleAtRoot", testI18NRedirectDefaultLocaleAtRoot),
     ("testI18NTagWriterPerLocale", testI18NTagWriterPerLocale),
     ("testI18NNestedDirectoryStyle", testI18NNestedDirectoryStyle),
     ("testI18NSitemapHreflang", testI18NSitemapHreflang),
     ("testI18NSlugWithTranslationLinking", testI18NSlugWithTranslationLinking),
-    ("testI18NFilenameStyleListWriter", testI18NFilenameStyleListWriter),
   ]
 }

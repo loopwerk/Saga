@@ -14,16 +14,6 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
   )
 }
 
-/// Discover canonical subfolders across all locale-prefixed paths.
-/// Returns paths without locale prefix, e.g., "articles/sub1" not "en/articles/sub1".
-private func discoverLocaleAwareSubfolders(under folder: Path, from files: [(path: Path, relativePath: Path)], config: I18NConfig) -> Set<Path> {
-  return Set(config.locales.flatMap { locale in
-    discoverSubfolders(under: Path(locale) + folder, from: files).map { sub in
-      Path(sub.components.dropFirst().joined(separator: "/"))
-    }
-  })
-}
-
 /// Tags items with their locale and rewrites their output paths.
 private func tagItemsWithLocale(_ items: [AnyItem], locale: String, config: I18NConfig) {
   let prefix = locale + "/"
@@ -35,48 +25,6 @@ private func tagItemsWithLocale(_ items: [AnyItem], locale: String, config: I18N
       item.relativeDestination = Path(String(item.relativeDestination.string.dropFirst(prefix.count)))
     }
   }
-}
-
-/// Tags items by filename suffix for `.filename` style i18n.
-private func tagItemsByFilename(_ items: [AnyItem], config: I18NConfig, itemWriteMode: ItemWriteMode) {
-  for item in items {
-    let name = item.relativeSource.lastComponentWithoutExtension
-    guard let locale = config.locales.first(where: { name.hasSuffix(".\($0)") }) else { continue }
-
-    item.locale = locale
-    let ext = item.relativeSource.extension ?? "md"
-    let cleanName = String(name.dropLast(locale.count + 1))
-    let cleanPath = item.relativeSource.parent() + Path(cleanName + "." + ext)
-    var dest = cleanPath.makeOutputPath(itemWriteMode: itemWriteMode)
-    if config.shouldPrefix(locale: locale) {
-      dest = Path(locale) + dest
-    }
-    item.relativeDestination = dest
-  }
-}
-
-/// Groups items by locale and returns (locale, items, outputPrefix) tuples for writer execution.
-private func localeGroups<M: Metadata>(items: [Item<M>], outputPrefix: Path, saga: Saga) -> [(locale: String?, items: [Item<M>], outputPrefix: Path)] {
-  guard let i18n = saga.i18nConfig else {
-    return [(nil, items, outputPrefix)]
-  }
-
-  var groups: [(locale: String?, items: [Item<M>], outputPrefix: Path)] = []
-  let itemsByLocale = Dictionary(grouping: items, by: { $0.locale ?? "" })
-
-  for locale in i18n.locales {
-    let localeItems = itemsByLocale[locale] ?? []
-    guard !localeItems.isEmpty else { continue }
-    let prefix = i18n.shouldPrefix(locale: locale) ? Path(locale) + outputPrefix : outputPrefix
-    groups.append((locale, localeItems, prefix))
-  }
-
-  let independent = items.filter { $0.locale == nil }
-  if !independent.isEmpty {
-    groups.append((nil, independent, outputPrefix))
-  }
-
-  return groups
 }
 
 /// Runs writers with a WriterContext built from the given parameters.
@@ -117,13 +65,15 @@ struct PipelineStep: @unchecked Sendable {
 public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
   let files: [(path: Path, relativePath: Path)]
-  let workingPath: Path // relative to inputPath
+  let workingPath: Path // relative to inputPath, without locale prefix
   var i18nConfig: I18NConfig?
+  let locale: String? // when set, this builder is scoped to a specific locale
 
-  init(files: [(path: Path, relativePath: Path)], workingPath: Path, i18nConfig: I18NConfig? = nil) {
+  init(files: [(path: Path, relativePath: Path)], workingPath: Path, i18nConfig: I18NConfig? = nil, locale: String? = nil) {
     self.files = files
     self.workingPath = workingPath
     self.i18nConfig = i18nConfig
+    self.locale = locale
   }
 
   /// Register a new pipeline step.
@@ -181,22 +131,51 @@ public class StepBuilder: @unchecked Sendable {
       )
     }
 
+    // When i18n is configured and not yet locale-scoped, fan out into per-locale steps
+    if let i18n = i18nConfig, locale == nil {
+      for locale in i18n.locales {
+        let localeBuilder = StepBuilder(files: files, workingPath: workingPath, i18nConfig: i18nConfig, locale: locale)
+        localeBuilder.register(
+          folder: folder,
+          metadata: metadata,
+          readers: readers,
+          itemProcessor: itemProcessor,
+          filter: filter,
+          claimExcludedItems: claimExcludedItems,
+          itemWriteMode: itemWriteMode,
+          sorting: effectiveSorting,
+          writers: writers,
+          nested: nested
+        )
+        steps.append(contentsOf: localeBuilder.steps)
+      }
+      return self
+    }
+
     let effectiveFolder = workingPath + (folder ?? Path(""))
+    let readFolder = locale.map { Path($0) + effectiveFolder } ?? effectiveFolder
+    let outputPrefix: Path = if let locale, let i18n = i18nConfig, i18n.shouldPrefix(locale: locale) {
+      Path(locale) + effectiveFolder
+    } else {
+      effectiveFolder
+    }
 
     if let nested {
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
 
-      // Discover subfolders at build-time, locale-aware when i18n is configured
-      let subFolders: Set<Path> = if let i18n = i18nConfig, i18n.style == .directory {
-        discoverLocaleAwareSubfolders(under: effectiveFolder, from: files, config: i18n)
+      let rawSubFolders = discoverSubfolders(under: readFolder, from: files)
+
+      // Convert to canonical paths (strip locale prefix if locale-scoped)
+      let subFolders: Set<Path> = if locale != nil {
+        Set(rawSubFolders.map { Path($0.components.dropFirst().joined(separator: "/")) })
       } else {
-        discoverSubfolders(under: effectiveFolder, from: files)
+        rawSubFolders
       }
 
       // For each subfolder, create a child StepBuilder scoped to it.
       // Child steps are appended first (leaf-first), so they claim their files before the parent step runs.
       for subFolderPath in subFolders {
-        let child = StepBuilder(files: files, workingPath: subFolderPath, i18nConfig: i18nConfig)
+        let child = StepBuilder(files: files, workingPath: subFolderPath, i18nConfig: i18nConfig, locale: locale)
         nested(child)
         steps.append(contentsOf: child.steps)
       }
@@ -211,7 +190,7 @@ public class StepBuilder: @unchecked Sendable {
         itemWriteMode: itemWriteMode,
         sorting: effectiveSorting,
         writers: writers,
-        outputPrefix: effectiveFolder
+        outputPrefix: outputPrefix
       ))
 
       return self
@@ -221,48 +200,26 @@ public class StepBuilder: @unchecked Sendable {
     nonisolated(unsafe) var items: [Item<M>] = []
 
     steps.append(PipelineStep(
-      read: { saga in
-        var allLocaleItems: [Item<M>] = []
+      read: { [locale] saga in
+        let readItems: [Item<M>] = try await saga.readItems(
+          folder: readFolder,
+          readers: readers,
+          itemProcessor: itemProcessor,
+          filter: filter,
+          claimExcludedItems: claimExcludedItems,
+          itemWriteMode: itemWriteMode,
+          sorting: effectiveSorting
+        )
 
-        if let i18n = saga.i18nConfig, i18n.style == .directory {
-          for locale in i18n.locales {
-            let localeFolder = Path(locale) + effectiveFolder
-            let localeItems: [Item<M>] = try await saga.readItems(
-              folder: localeFolder,
-              readers: readers,
-              itemProcessor: itemProcessor,
-              filter: filter,
-              claimExcludedItems: claimExcludedItems,
-              itemWriteMode: itemWriteMode,
-              sorting: effectiveSorting
-            )
-            tagItemsWithLocale(localeItems, locale: locale, config: i18n)
-            allLocaleItems.append(contentsOf: localeItems)
-          }
-        } else {
-          allLocaleItems = try await saga.readItems(
-            folder: effectiveFolder,
-            readers: readers,
-            itemProcessor: itemProcessor,
-            filter: filter,
-            claimExcludedItems: claimExcludedItems,
-            itemWriteMode: itemWriteMode,
-            sorting: effectiveSorting
-          )
+        if let locale, let i18n = saga.i18nConfig {
+          tagItemsWithLocale(readItems, locale: locale, config: i18n)
         }
 
-        // For filename-style i18n, tag by filename suffix
-        if let i18n = saga.i18nConfig, i18n.style == .filename {
-          tagItemsByFilename(allLocaleItems, config: i18n, itemWriteMode: itemWriteMode)
-        }
-
-        items = allLocaleItems.sorted(by: effectiveSorting)
+        items = readItems.sorted(by: effectiveSorting)
         return items
       },
-      write: { saga in
-        for group in localeGroups(items: items, outputPrefix: effectiveFolder, saga: saga) {
-          try await executeWriters(items: group.items, writers: writers, saga: saga, outputPrefix: group.outputPrefix, subfolder: subfolder, locale: group.locale)
-        }
+      write: { [locale] saga in
+        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: subfolder, locale: locale)
       }
     ))
 
@@ -401,109 +358,59 @@ public class StepBuilder: @unchecked Sendable {
     nonisolated(unsafe) var parentItems: [Item<M>] = []
 
     return PipelineStep(
-      read: { saga in
+      read: { [locale] saga in
         for subFolderPath in subFolders {
-          if let i18n = saga.i18nConfig, i18n.style == .directory {
-            // For directory-style i18n, create a parent item per locale per subfolder
-            for locale in i18n.locales {
-              let localeSubFolder = Path(locale) + subFolderPath
-              let parentItem: Item<M>
-              if let readers {
-                let readItems: [Item<M>] = try await saga.readItems(
-                  folder: localeSubFolder,
-                  readers: readers,
-                  itemProcessor: itemProcessor,
-                  filter: filter,
-                  claimExcludedItems: claimExcludedItems,
-                  itemWriteMode: itemWriteMode,
-                  sorting: sorting
-                )
-                guard let first = readItems.first else { continue }
-                parentItem = first
-              } else {
-                let subfolderName = subFolderPath.lastComponent
-                parentItem = Item<M>(
-                  absoluteSource: saga.inputPath + localeSubFolder,
-                  relativeSource: localeSubFolder,
-                  relativeDestination: localeSubFolder + Path("index.html"),
-                  title: subfolderName,
-                  body: "",
-                  date: Date(),
-                  created: Date(),
-                  lastModified: Date(),
-                  metadata: try M(from: makeMetadataDecoder(for: [:]))
-                )
-              }
+          let readPath = locale.map { Path($0) + subFolderPath } ?? subFolderPath
 
-              tagItemsWithLocale([parentItem], locale: locale, config: i18n)
-
-              // Wire children: match by locale-prefixed subfolder path
-              let localeSubFolderPrefix = localeSubFolder.string + "/"
-              let directChildren: [AnyItem] = saga.allItems.filter {
-                $0.relativeSource.string.hasPrefix(localeSubFolderPrefix) && $0.parent == nil
-              }
-              parentItem.children = directChildren
-              for child in directChildren {
-                child.parent = parentItem
-              }
-
-              parentItems.append(parentItem)
-            }
+          let parentItem: Item<M>
+          if let readers {
+            let readItems: [Item<M>] = try await saga.readItems(
+              folder: readPath,
+              readers: readers,
+              itemProcessor: itemProcessor,
+              filter: filter,
+              claimExcludedItems: claimExcludedItems,
+              itemWriteMode: itemWriteMode,
+              sorting: sorting
+            )
+            guard let first = readItems.first else { continue }
+            parentItem = first
           } else {
-            // Standard non-i18n (or filename-style) parent creation
-            let parentItem: Item<M>
-            if let readers {
-              let readItems: [Item<M>] = try await saga.readItems(
-                folder: subFolderPath,
-                readers: readers,
-                itemProcessor: itemProcessor,
-                filter: filter,
-                claimExcludedItems: claimExcludedItems,
-                itemWriteMode: itemWriteMode,
-                sorting: sorting
-              )
-              guard let first = readItems.first else { continue }
-              parentItem = first
-            } else {
-              parentItem = Item<M>(
-                absoluteSource: saga.inputPath + subFolderPath,
-                relativeSource: subFolderPath,
-                relativeDestination: subFolderPath + Path("index.html"),
-                title: subFolderPath.lastComponent,
-                body: "",
-                date: Date(),
-                created: Date(),
-                lastModified: Date(),
-                metadata: try M(from: makeMetadataDecoder(for: [:]))
-              )
-            }
-
-            let subFolderPrefix = subFolderPath.string + "/"
-            let directChildren: [AnyItem] = saga.allItems.filter {
-              $0.relativeSource.string.hasPrefix(subFolderPrefix) && $0.parent == nil
-            }
-
-            parentItem.children = directChildren
-            for child in directChildren {
-              child.parent = parentItem
-            }
-
-            // For filename-style i18n, tag parent by filename suffix
-            if let i18n = saga.i18nConfig, i18n.style == .filename {
-              tagItemsByFilename([parentItem], config: i18n, itemWriteMode: itemWriteMode)
-            }
-
-            parentItems.append(parentItem)
+            parentItem = Item<M>(
+              absoluteSource: saga.inputPath + readPath,
+              relativeSource: readPath,
+              relativeDestination: readPath + Path("index.html"),
+              title: subFolderPath.lastComponent,
+              body: "",
+              date: Date(),
+              created: Date(),
+              lastModified: Date(),
+              metadata: try M(from: makeMetadataDecoder(for: [:]))
+            )
           }
+
+          if let locale, let i18n = saga.i18nConfig {
+            tagItemsWithLocale([parentItem], locale: locale, config: i18n)
+          }
+
+          // Wire children
+          let childPrefix = readPath.string + "/"
+          let directChildren: [AnyItem] = saga.allItems.filter {
+            $0.relativeSource.string.hasPrefix(childPrefix) && $0.parent == nil
+          }
+          parentItem.children = directChildren
+          for child in directChildren {
+            child.parent = parentItem
+          }
+
+          parentItems.append(parentItem)
         }
 
         parentItems.sort(by: sorting)
         return parentItems
       },
-      write: { saga in
-        for group in localeGroups(items: parentItems, outputPrefix: outputPrefix, saga: saga) {
-          try await executeWriters(items: group.items, writers: writers, saga: saga, outputPrefix: group.outputPrefix, subfolder: nil, locale: group.locale)
-        }
+      write: { [locale] saga in
+        try await executeWriters(items: parentItems, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: nil, locale: locale)
       }
     )
   }
