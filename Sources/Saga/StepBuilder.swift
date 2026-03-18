@@ -1,24 +1,34 @@
 import Foundation
 import SagaPathKit
 
-private func resolveFolder(_ folderOverride: Path?, _ folder: Path?) -> Path? {
-  switch (folderOverride, folder) {
-    case let (a?, b?): return a + b
-    case let (a?, nil): return a
-    case let (nil, b): return b
-  }
+/// Discover immediate subdirectories of `folder` by inspecting file paths.
+private func discoverSubfolders(under folder: Path, from files: [(path: Path, relativePath: Path)]) -> Set<Path> {
+  let depth = folder.components.count
+  return Set(
+    files.compactMap { file -> Path? in
+      let components = file.relativePath.components
+      guard components.count > depth + 1 else { return nil }
+      guard Array(components.prefix(depth)) == folder.components else { return nil }
+      return folder + Path(components[depth])
+    }
+  )
 }
 
 struct PipelineStep: @unchecked Sendable {
-  let outputPrefix: Path
-  let read: @Sendable (Saga, _ folderOverride: Path?) async throws -> [AnyItem]
-  let write: @Sendable (Saga, _ outputPrefix: Path, _ subfolder: Path?) async throws -> Void
+  let read: @Sendable (Saga) async throws -> [AnyItem]
+  let write: @Sendable (Saga) async throws -> Void
 }
 
 /// A builder that collects pipeline steps.
 public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
-  var folder: Path?
+  let files: [(path: Path, relativePath: Path)]
+  let workingPath: Path // relative to inputPath
+
+  init(files: [(path: Path, relativePath: Path)], workingPath: Path) {
+    self.files = files
+    self.workingPath = workingPath
+  }
 
   /// Register a new pipeline step.
   ///
@@ -44,11 +54,18 @@ public class StepBuilder: @unchecked Sendable {
     filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true },
     claimExcludedItems: Bool = true,
     itemWriteMode: ItemWriteMode = .moveToSubfolder,
-    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
+    sorting: (@Sendable (Item<M>, Item<M>) -> Bool)? = nil,
     writers: [Writer<M>] = [],
     nested: (@Sendable (StepBuilder) -> Void)? = nil
   ) -> Self {
-    // When folder ends with "/**", treat as nested with a deprecation warning.
+    // For nested steps we default to sorting by filename, otherwise we default to sorting by date
+    let effectiveSorting: @Sendable (Item<M>, Item<M>) -> Bool = switch (sorting, nested) {
+      case (let s?, _): s
+      case (nil, _?): { $0.relativeSource.string < $1.relativeSource.string }
+      case (nil, nil): { $0.date > $1.date }
+    }
+
+    // When `folder` ends with "/**", treat as nested (with a deprecation warning)
     if let folder, folder.string.hasSuffix("/**") {
       print("❕The '/**' folder suffix is deprecated. Use 'nested:' instead.")
       return register(
@@ -61,162 +78,65 @@ public class StepBuilder: @unchecked Sendable {
             filter: filter,
             claimExcludedItems: claimExcludedItems,
             itemWriteMode: itemWriteMode,
-            sorting: sorting,
+            sorting: effectiveSorting,
             writers: writers
           )
         }
       )
     }
 
+    let effectiveFolder = workingPath + (folder ?? Path(""))
+
     if let nested {
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
+      let subFolders = discoverSubfolders(under: effectiveFolder, from: files)
 
-      // The tree is built during read: one child StepBuilder per discovered subfolder,
-      // each with its own steps, items, and (recursively) children.
-      nonisolated(unsafe) var items: [Item<M>] = []
-      nonisolated(unsafe) var children: [StepBuilder] = []
+      // For each subfolder, create a child StepBuilder scoped to it.
+      // Child steps are appended first (leaf-first), so they claim their files before the parent step runs.
+      for subFolderPath in subFolders {
+        let child = StepBuilder(files: files, workingPath: subFolderPath)
+        nested(child)
+        steps.append(contentsOf: child.steps)
+      }
 
-      steps.append(PipelineStep(
-        outputPrefix: folder ?? Path(""),
-        read: { saga, folderOverride in
-          guard let effectiveFolder = resolveFolder(folderOverride, folder) else { return [] }
-          let baseFolderPrefix = effectiveFolder.string + "/"
-
-          // Discover subfolders by finding immediate subdirectories under effectiveFolder
-          let subFolders = Set(
-            saga.files
-              .filter { file in
-                guard file.relativePath.string.hasPrefix(baseFolderPrefix) else { return false }
-                let afterFolder = String(file.relativePath.string.dropFirst(baseFolderPrefix.count))
-                return afterFolder.contains("/")
-              }
-              .map { file -> Path in
-                let afterFolder = String(file.relativePath.string.dropFirst(baseFolderPrefix.count))
-                let subfolderName = String(afterFolder.prefix(while: { $0 != "/" }))
-                return effectiveFolder + Path(subfolderName)
-              }
-          )
-          .sorted(by: { $0.string < $1.string })
-
-          var allDescendants: [AnyItem] = []
-
-          for subFolder in subFolders {
-            let subfolderName = try subFolder.relativePath(from: effectiveFolder)
-
-            // Instantiate fresh substeps for this subfolder from the template
-            let child = StepBuilder()
-            nested(child)
-
-            // Run substeps first (deepest-first) so they claim their files
-            // before the parent reader runs on the same folder tree.
-            var directChildren: [AnyItem] = []
-            for step in child.steps {
-              let stepItems = try await step.read(saga, subFolder)
-              directChildren.append(contentsOf: stepItems.filter { $0.parent == nil })
-              allDescendants.append(contentsOf: stepItems)
-            }
-
-            // Read or create parent item for this subfolder
-            let parentItem: Item<M>
-            if let parentReaders {
-              let readItems: [Item<M>] = try await saga.readItems(
-                folder: subFolder,
-                readers: parentReaders,
-                itemProcessor: itemProcessor,
-                filter: filter,
-                claimExcludedItems: claimExcludedItems,
-                itemWriteMode: itemWriteMode,
-                sorting: sorting
-              )
-              guard let first = readItems.first else { continue }
-              parentItem = first
-            } else {
-              parentItem = Item<M>(
-                absoluteSource: saga.inputPath + subFolder,
-                relativeSource: subFolder,
-                relativeDestination: (subFolder + Path("index.html")),
-                title: subfolderName.lastComponent,
-                body: "",
-                date: directChildren.first?.date ?? Date(),
-                created: directChildren.first?.created ?? Date(),
-                lastModified: directChildren.first?.lastModified ?? Date(),
-                metadata: try M(from: makeMetadataDecoder(for: [:]))
-              )
-            }
-
-            // Wire parent/child relationships (only direct children, not all descendants)
-            parentItem.children = directChildren
-            for child in directChildren {
-              child.parent = parentItem
-            }
-
-            child.folder = subfolderName
-            items.append(parentItem)
-            children.append(child)
-          }
-
-          items.sort(by: sorting)
-
-          // Return all items: this level + all descendants (for saga.allItems)
-          var result: [AnyItem] = items
-          result.append(contentsOf: allDescendants)
-          return result
-        },
-        write: { saga, outputPrefix, _ in
-          // Run outer writers with this level's items
-          if !writers.isEmpty {
-            let context = WriterContext(
-              items: items,
-              allItems: saga.allItems,
-              outputRoot: saga.outputPath,
-              outputPrefix: outputPrefix,
-              write: { try saga.processedWrite($0, $1) },
-              resourcesByFolder: saga.resourcesByFolder(),
-              subfolder: nil
-            )
-            try await withThrowingTaskGroup(of: Void.self) { group in
-              for writer in writers {
-                group.addTask { try await writer.run(context) }
-              }
-              try await group.waitForAll()
-            }
-          }
-
-          // Each child StepBuilder has its own steps with its own items
-          for child in children {
-            let subOutputPrefix = outputPrefix + child.folder!
-
-            for step in child.steps {
-              try await step.write(saga, subOutputPrefix, child.folder!)
-            }
-          }
-        }
+      // Parent step: creates/reads parent items and wires parent/child relationships.
+      steps.append(parentStep(
+        subFolders: subFolders,
+        readers: parentReaders,
+        itemProcessor: itemProcessor,
+        filter: filter,
+        claimExcludedItems: claimExcludedItems,
+        itemWriteMode: itemWriteMode,
+        sorting: effectiveSorting,
+        writers: writers,
+        outputPrefix: effectiveFolder
       ))
+
       return self
     }
 
+    let subfolder = workingPath.string.isEmpty ? nil : Path(workingPath.lastComponent)
     nonisolated(unsafe) var items: [Item<M>] = []
 
     steps.append(PipelineStep(
-      outputPrefix: folder ?? Path(""),
-      read: { saga, folderOverride in
+      read: { saga in
         items = try await saga.readItems(
-          folder: resolveFolder(folderOverride, folder),
+          folder: effectiveFolder,
           readers: readers,
           itemProcessor: itemProcessor,
           filter: filter,
           claimExcludedItems: claimExcludedItems,
           itemWriteMode: itemWriteMode,
-          sorting: sorting
+          sorting: effectiveSorting
         )
         return items
       },
-      write: { saga, outputPrefix, subfolder in
+      write: { saga in
         let context = WriterContext(
           items: items,
           allItems: saga.allItems,
           outputRoot: saga.outputPath,
-          outputPrefix: outputPrefix,
+          outputPrefix: effectiveFolder,
           write: { try saga.processedWrite($0, $1) },
           resourcesByFolder: saga.resourcesByFolder(),
           subfolder: subfolder
@@ -230,6 +150,7 @@ public class StepBuilder: @unchecked Sendable {
         }
       }
     ))
+
     return self
   }
 
@@ -260,8 +181,7 @@ public class StepBuilder: @unchecked Sendable {
     nonisolated(unsafe) var items: [Item<M>] = []
 
     steps.append(PipelineStep(
-      outputPrefix: Path(""),
-      read: { saga, _ in
+      read: { saga in
         if let cacheKey, let cachedItems: [Item<M>] = try? saga.loadCachedItems(key: cacheKey) {
           print("💡Using cached \(cacheKey) items")
           items = cachedItems
@@ -278,15 +198,15 @@ public class StepBuilder: @unchecked Sendable {
         }
         return items
       },
-      write: { saga, outputPrefix, subfolder in
+      write: { saga in
         let context = WriterContext(
           items: items,
           allItems: saga.allItems,
           outputRoot: saga.outputPath,
-          outputPrefix: outputPrefix,
+          outputPrefix: Path(""),
           write: { try saga.processedWrite($0, $1) },
           resourcesByFolder: [:],
-          subfolder: subfolder
+          subfolder: nil
         )
         try await withThrowingTaskGroup(of: Void.self) { group in
           for writer in writers {
@@ -296,6 +216,7 @@ public class StepBuilder: @unchecked Sendable {
         }
       }
     ))
+
     return self
   }
 
@@ -317,13 +238,13 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     steps.append(PipelineStep(
-      outputPrefix: Path(""),
-      read: { _, _ in [] },
-      write: { saga, _, _ in try await write(saga) }
+      read: { _ in [] },
+      write: { saga in try await write(saga) }
     ))
+
     return self
   }
-  
+
   /// Create a page that is driven purely by a template.
   ///
   /// Use this for pages such as a homepage showing the latest articles,
@@ -346,10 +267,9 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func createPage(_ output: Path, using renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
     steps.append(PipelineStep(
-      outputPrefix: Path(""),
-      read: { _, _ in [] },
-      write: { saga, outputPrefix, _ in
-        let fullOutput = outputPrefix + output
+      read: { _ in [] },
+      write: { [workingPath] saga in
+        let fullOutput = workingPath + output
         let context = PageRenderingContext(
           allItems: saga.allItems,
           outputPath: fullOutput,
@@ -359,6 +279,91 @@ public class StepBuilder: @unchecked Sendable {
         try saga.processedWrite(saga.outputPath + fullOutput, string)
       }
     ))
+
     return self
+  }
+
+  /// Creates a parent step that reads/creates parent items for each subfolder
+  /// and wires parent/child relationships. By the time this step runs,
+  /// child items are already in saga.allItems.
+  @preconcurrency
+  private func parentStep<M: Metadata>(
+    subFolders: Set<Path>,
+    readers: [Reader]?,
+    itemProcessor: (@Sendable (Item<M>) async -> Void)?,
+    filter: @escaping @Sendable (Item<M>) -> Bool,
+    claimExcludedItems: Bool,
+    itemWriteMode: ItemWriteMode,
+    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool,
+    writers: [Writer<M>],
+    outputPrefix: Path
+  ) -> PipelineStep {
+    nonisolated(unsafe) var parentItems: [Item<M>] = []
+
+    return PipelineStep(
+      read: { saga in
+        for subFolderPath in subFolders {
+          let parentItem: Item<M>
+          if let readers {
+            let readItems: [Item<M>] = try await saga.readItems(
+              folder: subFolderPath,
+              readers: readers,
+              itemProcessor: itemProcessor,
+              filter: filter,
+              claimExcludedItems: claimExcludedItems,
+              itemWriteMode: itemWriteMode,
+              sorting: sorting
+            )
+            guard let first = readItems.first else { continue }
+            parentItem = first
+          } else {
+            parentItem = Item<M>(
+              absoluteSource: saga.inputPath + subFolderPath,
+              relativeSource: subFolderPath,
+              relativeDestination: subFolderPath + Path("index.html"),
+              title: subFolderPath.lastComponent,
+              body: "",
+              date: Date(),
+              created: Date(),
+              lastModified: Date(),
+              metadata: try M(from: makeMetadataDecoder(for: [:]))
+            )
+          }
+
+          let subFolderPrefix = subFolderPath.string + "/"
+          let directChildren: [AnyItem] = saga.allItems.filter {
+            $0.relativeSource.string.hasPrefix(subFolderPrefix) && $0.parent == nil
+          }
+
+          parentItem.children = directChildren
+          for child in directChildren {
+            child.parent = parentItem
+          }
+
+          parentItems.append(parentItem)
+        }
+
+        parentItems.sort(by: sorting)
+        return parentItems
+      },
+      write: { saga in
+        guard !writers.isEmpty else { return }
+        let context = WriterContext(
+          items: parentItems,
+          allItems: saga.allItems,
+          outputRoot: saga.outputPath,
+          outputPrefix: outputPrefix,
+          write: { try saga.processedWrite($0, $1) },
+          resourcesByFolder: saga.resourcesByFolder(),
+          subfolder: nil
+        )
+        try await withThrowingTaskGroup(of: Void.self) { group in
+          for writer in writers {
+            group.addTask { try await writer.run(context) }
+          }
+          try await group.waitForAll()
+        }
+      }
+    )
   }
 }

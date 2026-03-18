@@ -4,3 +4,5 @@
 --disable unusedArguments
 --disable redundantReturn
 --disable opaqueGenericParameters
+--disable hoistTry
+--disable blankLinesBetweenChainedFunctions

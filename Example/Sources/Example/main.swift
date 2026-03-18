@@ -140,7 +140,6 @@ try await Saga(input: "content", output: "deploy")
     folder: "music",
     metadata: ArtistMetadata.self,
     readers: [.parsleyMarkdownReader],
-    sorting: { $0.relativeSource.string < $1.relativeSource.string },
     writers: [
       .listWriter(swim(renderArtists)),
       .itemWriter(swim(renderArtist)),
