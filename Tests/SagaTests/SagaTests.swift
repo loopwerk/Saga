@@ -80,6 +80,10 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     saga.register(metadata: EmptyMetadata.self, readers: [], writers: [])
     XCTAssertEqual(saga.steps.count, 1)
   }
+  
+  func testMakeSureEmptyPathHasNoComponents() {
+    XCTAssertEqual(Path("").components, [])
+  }
 
   func testReaderAndItemWriterAndListWriter() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
@@ -1316,6 +1320,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
   static let allTests = [
     ("testInitializer", testInitializer),
     ("testRegister", testRegister),
+    ("testMakeSureEmptyPathHasNoComponents", testMakeSureEmptyPathHasNoComponents),
     ("testReaderAndItemWriterAndListWriter", testReaderAndItemWriterAndListWriter),
     ("testItemWriterPreviousNext", testItemWriterPreviousNext),
     ("testCustomSorting", testCustomSorting),

@@ -58,13 +58,14 @@ public class StepBuilder: @unchecked Sendable {
     writers: [Writer<M>] = [],
     nested: (@Sendable (StepBuilder) -> Void)? = nil
   ) -> Self {
+    // For nested steps we default to sorting by filename, otherwise we default to sorting by date
     let effectiveSorting: @Sendable (Item<M>, Item<M>) -> Bool = switch (sorting, nested) {
       case (let s?, _): s
       case (nil, _?): { $0.relativeSource.string < $1.relativeSource.string }
       case (nil, nil): { $0.date > $1.date }
     }
 
-    // When folder ends with "/**", treat as nested with a deprecation warning.
+    // When `folder` ends with "/**", treat as nested (with a deprecation warning)
     if let folder, folder.string.hasSuffix("/**") {
       print("❕The '/**' folder suffix is deprecated. Use 'nested:' instead.")
       return register(
