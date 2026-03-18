@@ -1,6 +1,13 @@
 import Foundation
 import SagaPathKit
 
+private let publicationDateFormatter: DateFormatter = {
+  let pageProcessorDateFormatter = DateFormatter()
+  pageProcessorDateFormatter.dateFormat = "yyyy-MM-dd"
+  pageProcessorDateFormatter.timeZone = .current
+  return pageProcessorDateFormatter
+}()
+
 @available(*, deprecated, message: "Use Saga.sequence() instead")
 @preconcurrency
 public func sequence<M>(_ processors: (@Sendable (Item<M>) async -> Void)...) -> @Sendable (Item<M>) async -> Void {
@@ -12,34 +19,10 @@ public func sequence<M>(_ processors: (@Sendable (Item<M>) async -> Void)...) ->
   return await Saga.publicationDateInFilename(item: item)
 }
 
-private let publicationDateFormatter: DateFormatter = {
-  let pageProcessorDateFormatter = DateFormatter()
-  pageProcessorDateFormatter.dateFormat = "yyyy-MM-dd"
-  pageProcessorDateFormatter.timeZone = .current
-  return pageProcessorDateFormatter
-}()
-
-@available(*, deprecated, message: "Use Saga.hashed() instead")
-public func hashed(_ path: String) -> String {
-  return Saga.hashed(path)
-}
-
 @available(*, deprecated, message: "Use Saga.isDev instead")
 public let isDev = Saga.isDev
 
 public extension Saga {
-  /// Returns a cache-busted file path by inserting a content hash into the filename.
-  ///
-  /// ```swift
-  /// link(rel: "stylesheet", href: Saga.hashed("/static/output.css"))
-  /// // → "/static/output-a1b2c3d4.css"
-  /// ```
-  static func hashed(_ path: String) -> String {
-    _hashLock.withLock {
-      _hashFunction?(path) ?? path
-    }
-  }
-
   /// Whether the site is being served by `saga dev`.
   ///
   /// This is `true` when the `SAGA_DEV` environment variable is set (which `saga dev` does

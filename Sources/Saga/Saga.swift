@@ -6,15 +6,6 @@
 import Foundation
 import SagaPathKit
 
-nonisolated(unsafe) var _hashFunction: ((String) -> String)?
-let _hashLock = NSLock()
-
-private func setHashFunction(_ fn: ((String) -> String)?) {
-  _hashLock.withLock {
-    _hashFunction = fn
-  }
-}
-
 /// The main Saga class, used to configure and build your website.
 ///
 /// ```swift

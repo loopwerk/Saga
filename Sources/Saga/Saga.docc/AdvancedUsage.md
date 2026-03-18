@@ -21,7 +21,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-Chain multiple processors with `Saga.sequence()`:
+Chain multiple processors with ``Saga/sequence(_:)``:
 
 ```swift
 .register(
@@ -104,22 +104,6 @@ Not all content lives on disk. The ``StepBuilder/register(metadata:fetch:cacheKe
 When you have content organized into subfolders and want each subfolder processed independently, with its own scoped `items` array, `previous`/`next` navigation, and writers, use the `nested:` parameter. Each subfolder gets its own processing scope, so writers and navigation stay within that subfolder.
 
 > Tip: See <doc:PhotoGalleries> for a complete example building photo galleries with nested processing, album pages, and per-album navigation.
-
-
-## Custom output URLs with slug
-
-By default, an item's output path mirrors its source filename. Set `slug` in frontmatter to override it:
-
-```yaml
----
-slug: my-custom-url
----
-# Page Title
-```
-
-This writes the item to `my-custom-url/index.html` (or `my-custom-url.html` with `.keepAsFile` write mode) instead of deriving the path from the filename. The `slug` value is slugified automatically.
-
-This is useful for giving pages human-friendly or localized URLs without renaming the source file. For i18n usage, see <doc:Internationalization>.
 
 
 ## Cache-busting with Saga.hashed()
