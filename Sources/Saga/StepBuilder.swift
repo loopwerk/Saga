@@ -15,7 +15,7 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
 }
 
 /// Tags items with their locale and rewrites their output paths.
-private func tagItemsWithLocale(_ items: [AnyItem], locale: String, config: I18NConfig) {
+private func addLocaleToItems(_ items: [AnyItem], locale: String, config: I18NConfig) {
   let prefix = locale + "/"
   for item in items {
     if item.locale == nil {
@@ -212,7 +212,7 @@ public class StepBuilder: @unchecked Sendable {
         )
 
         if let locale, let i18n = saga.i18nConfig {
-          tagItemsWithLocale(readItems, locale: locale, config: i18n)
+          addLocaleToItems(readItems, locale: locale, config: i18n)
         }
 
         items = readItems.sorted(by: effectiveSorting)
@@ -390,7 +390,7 @@ public class StepBuilder: @unchecked Sendable {
           }
 
           if let locale, let i18n = saga.i18nConfig {
-            tagItemsWithLocale([parentItem], locale: locale, config: i18n)
+            addLocaleToItems([parentItem], locale: locale, config: i18n)
           }
 
           // Wire children
