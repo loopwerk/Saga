@@ -77,11 +77,11 @@ public class Saga: StepBuilder, @unchecked Sendable {
   var generatedPages: [Path] = []
   private let generatedPagesLock = NSLock()
 
-  // Post processors
+  /// Post processors
   var postProcessors: [@Sendable (String, Path) throws -> String] = []
 
-  // Write content to a file, applying any registered post-processors.
-  // Also tracks the relative path in ``generatedPages``.
+  /// Write content to a file, applying any registered post-processors.
+  /// Also tracks the relative path in ``generatedPages``.
   func processedWrite(_ destination: Path, _ content: String) throws {
     let relativePath = try destination.relativePath(from: outputPath)
     generatedPagesLock.withLock { generatedPages.append(relativePath) }
@@ -95,12 +95,12 @@ public class Saga: StepBuilder, @unchecked Sendable {
     let rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
 
     self.rootPath = rootPath
-    self.inputPath = self.rootPath + input
-    self.outputPath = self.rootPath + output
+    inputPath = self.rootPath + input
+    outputPath = self.rootPath + output
     self.fileIO = fileIO
 
     // Find all files in the source folder (filter out .DS_Store)
-    let allFound = try fileIO.findFiles(self.inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
+    let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
     let computedFiles = allFound.map { path in
       let relativePath = (try? path.relativePath(from: rootPath + input)) ?? Path("")
       return (path: path, relativePath: relativePath)

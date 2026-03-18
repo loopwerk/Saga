@@ -574,8 +574,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Outer listWriter should see fake parent items with children
     let listPage = finalWrittenPages.first(where: { $0.destination == "root/output/folder/index.html" })
     XCTAssertNotNil(listPage)
-    XCTAssertTrue(listPage!.content.contains("sub1:2"))
-    XCTAssertTrue(listPage!.content.contains("sub2:1"))
+    XCTAssertTrue(try XCTUnwrap(listPage?.content.contains("sub1:2")))
+    XCTAssertTrue(try XCTUnwrap(listPage?.content.contains("sub2:1")))
 
     // Nested items should be in allItems
     XCTAssertTrue(saga.allItems.count >= 3) // At least the 3 nested items + 2 fake parents
@@ -625,8 +625,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Parent listWriter should see albums with children
     let listPage = finalWrittenPages.first(where: { $0.destination == "root/output/photos/index.html" })
     XCTAssertNotNil(listPage)
-    XCTAssertTrue(listPage!.content.contains(":2")) // dogs has 2 photos
-    XCTAssertTrue(listPage!.content.contains(":1")) // cats has 1 photo
+    XCTAssertTrue(try XCTUnwrap(listPage?.content.contains(":2"))) // dogs has 2 photos
+    XCTAssertTrue(try XCTUnwrap(listPage?.content.contains(":1"))) // cats has 1 photo
 
     // Nested itemWriter should see parent
     let photoPages = finalWrittenPages.filter { $0.destination.string.contains(".jpg") || $0.content.contains("parent:") }
@@ -663,7 +663,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Find the fake parent
     let parents = saga.allItems.filter { $0 is Item<EmptyMetadata> }
     XCTAssertEqual(parents.count, 1)
-    let parent = parents[0] as! Item<EmptyMetadata>
+    let parent = try XCTUnwrap(parents[0] as? Item<EmptyMetadata>)
 
     // Typed children accessor
     let typedChildren = parent.children(as: PhotoMeta.self)
@@ -735,18 +735,18 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Middle-level listWriter: one per course subfolder (math, science)
     let mathTopics = finalWrittenPages.first(where: { $0.destination == "root/output/courses/math/index.html" })
     XCTAssertNotNil(mathTopics)
-    XCTAssertTrue(mathTopics!.content.contains("algebra:2"))
-    XCTAssertTrue(mathTopics!.content.contains("calculus:1"))
+    XCTAssertTrue(try XCTUnwrap(mathTopics?.content.contains("algebra:2")))
+    XCTAssertTrue(try XCTUnwrap(mathTopics?.content.contains("calculus:1")))
 
     let scienceTopics = finalWrittenPages.first(where: { $0.destination == "root/output/courses/science/index.html" })
     XCTAssertNotNil(scienceTopics)
-    XCTAssertTrue(scienceTopics!.content.contains("physics:1"))
+    XCTAssertTrue(try XCTUnwrap(scienceTopics?.content.contains("physics:1")))
 
     // Outer listWriter: courses overview
     let coursesPage = finalWrittenPages.first(where: { $0.destination == "root/output/courses/index.html" })
     XCTAssertNotNil(coursesPage)
-    XCTAssertTrue(coursesPage!.content.contains("math:2"))
-    XCTAssertTrue(coursesPage!.content.contains("science:1"))
+    XCTAssertTrue(try XCTUnwrap(coursesPage?.content.contains("math:2")))
+    XCTAssertTrue(try XCTUnwrap(coursesPage?.content.contains("science:1")))
 
     // All items should be in allItems
     XCTAssertTrue(saga.allItems.count >= 4) // At least the 4 lessons

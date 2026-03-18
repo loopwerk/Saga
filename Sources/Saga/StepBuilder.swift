@@ -59,7 +59,7 @@ public class StepBuilder: @unchecked Sendable {
     nested: (@Sendable (StepBuilder) -> Void)? = nil
   ) -> Self {
     let effectiveSorting: @Sendable (Item<M>, Item<M>) -> Bool = switch (sorting, nested) {
-      case let (s?, _): s
+      case (let s?, _): s
       case (nil, _?): { $0.relativeSource.string < $1.relativeSource.string }
       case (nil, nil): { $0.date > $1.date }
     }
@@ -319,7 +319,7 @@ public class StepBuilder: @unchecked Sendable {
             parentItem = Item<M>(
               absoluteSource: saga.inputPath + subFolderPath,
               relativeSource: subFolderPath,
-              relativeDestination: (subFolderPath + Path("index.html")),
+              relativeDestination: subFolderPath + Path("index.html"),
               title: subFolderPath.lastComponent,
               body: "",
               date: Date(),
