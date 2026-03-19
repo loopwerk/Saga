@@ -1,8 +1,3 @@
-#if canImport(CryptoKit)
-  import CryptoKit
-#else
-  import Crypto
-#endif
 import Foundation
 import SagaPathKit
 
@@ -96,7 +91,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     }
 
     let totalStart = DispatchTime.now()
-    print("\(logTimestamp()) | Starting run")
+    log("Starting run")
 
     // Run all the readers for all the steps sequentially to ensure proper order,
     // which turns raw content into Items, and stores them within the step.
@@ -106,9 +101,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
       allItems.append(contentsOf: items)
     }
 
-    let readEnd = DispatchTime.now()
-    let readTime = readEnd.uptimeNanoseconds - readStart.uptimeNanoseconds
-    print("\(logTimestamp()) | Finished read phase in \(Double(readTime) / 1_000_000_000)s")
+    log("Finished read phase in \(elapsed(from: readStart))")
 
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
@@ -131,44 +124,10 @@ public class Saga: StepBuilder, @unchecked Sendable {
       try await group.waitForAll()
     }
 
-    let copyEnd = DispatchTime.now()
-    let copyTime = copyEnd.uptimeNanoseconds - copyStart.uptimeNanoseconds
-    print("\(logTimestamp()) | Finished copying static files in \(Double(copyTime) / 1_000_000_000)s")
+    log("Finished copying static files in \(elapsed(from: copyStart))")
 
-    // Set up the hash function so renderers can call hashed() during the write phase.
-    // In dev mode, skip hashing so filenames stay stable for auto-reload.
-    // The closure runs under _hashLock (acquired by the global hashed() function),
-    // so contentHashes access is thread-safe without additional locking.
-
-    if !Saga.isDev {
-      setHashFunction { path in
-        let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
-        guard let file = self.files.first(where: { $0.relativePath.string == stripped }) else {
-          return path
-        }
-
-        if let cached = self.contentHashes[stripped] {
-          let p = Path(stripped)
-          let ext = p.extension ?? ""
-          let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + cached + (ext.isEmpty ? "" : ".\(ext)"))
-          return (path.hasPrefix("/") ? "/" : "") + name.string
-        }
-
-        do {
-          let data = try self.fileIO.read(file.path)
-          let digest = Insecure.MD5.hash(data: data)
-          let hashString = String(digest.map { String(format: "%02x", $0) }.joined().prefix(8))
-          self.contentHashes[stripped] = hashString
-
-          let p = Path(stripped)
-          let ext = p.extension ?? ""
-          let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + hashString + (ext.isEmpty ? "" : ".\(ext)"))
-          return (path.hasPrefix("/") ? "/" : "") + name.string
-        } catch {
-          return path
-        }
-      }
-    }
+    // Make Saga.hashed() work
+    setupHashFunction()
 
     // Run all writers sequentially
     // processedWrite tracks generated paths automatically.
@@ -177,27 +136,12 @@ public class Saga: StepBuilder, @unchecked Sendable {
       try await step.write(self)
     }
 
-    let writeEnd = DispatchTime.now()
-    let writeTime = writeEnd.uptimeNanoseconds - writeStart.uptimeNanoseconds
-    print("\(logTimestamp()) | Finished write phase in \(Double(writeTime) / 1_000_000_000)s")
+    log("Finished write phase in \(elapsed(from: writeStart))")
 
-    // Copy hashed versions of files that were referenced via hashed()
-    for file in unhandledFiles where contentHashes[file.relativePath.string] != nil {
-      let relativePath = file.relativePath
-      let ext = relativePath.extension ?? ""
-      let hashedName = relativePath.lastComponentWithoutExtension + "-" + contentHashes[relativePath.string]! + (ext.isEmpty ? "" : ".\(ext)")
-      let hashedRelativePath = relativePath.parent() + Path(hashedName)
-      let destination = outputPath + hashedRelativePath
-      try fileIO.mkpath(destination.parent())
-      try fileIO.copy(file.path, destination)
-    }
+    // Copy hashed versions of files that were referenced via Saga.hashed()
+    try copyHashedFiles()
 
-    // Reset the hash function
-    setHashFunction(nil)
-
-    let totalEnd = DispatchTime.now()
-    let totalTime = totalEnd.uptimeNanoseconds - totalStart.uptimeNanoseconds
-    print("\(logTimestamp()) | All done in \(Double(totalTime) / 1_000_000_000)s")
+    log("All done in \(elapsed(from: totalStart))")
 
     return self
   }

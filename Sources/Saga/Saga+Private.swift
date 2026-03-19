@@ -7,7 +7,22 @@ private struct FileReadResult<M: Metadata> {
   let claimFile: Bool
 }
 
+private let logDateFormatter: DateFormatter = {
+  let f = DateFormatter()
+  f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+  return f
+}()
+
 extension Saga {
+  func log(_ message: String) {
+    print("\(logDateFormatter.string(from: Date())) | \(message)")
+  }
+
+  func elapsed(from start: DispatchTime) -> String {
+    let nanos = DispatchTime.now().uptimeNanoseconds - start.uptimeNanoseconds
+    return String(format: "%.2fs", Double(nanos) / 1_000_000_000)
+  }
+
   /// Write content to a file, applying any registered post-processors.
   /// Also tracks the relative path in ``generatedPages``.
   func processedWrite(_ destination: Path, _ content: String) throws {
