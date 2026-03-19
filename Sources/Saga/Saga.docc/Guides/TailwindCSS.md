@@ -20,22 +20,26 @@ Place your source CSS at `content/static/input.css`:
 @import "tailwindcss";
 ```
 
-Then run Tailwind before Saga:
+Then use ``Saga/beforeRead(_:)`` to run Tailwind before each build:
 
 ```swift
 import SwiftTailwind
 
 let tailwind = SwiftTailwind(version: "4.2.1")
-try await tailwind.run(
-  input: "content/static/input.css",
-  output: "content/static/output.css",
-  options: .minify
-)
 
 try await Saga(input: "content", output: "deploy")
+  .beforeRead { _ in
+    try await tailwind.run(
+      input: "content/static/input.css",
+      output: "content/static/output.css",
+      options: .minify
+    )
+  }
   .register(/* ... */)
   .run()
 ```
+
+The `beforeRead` hook runs before every build cycle, including rebuilds triggered by `saga dev`. This keeps your CSS up to date as you edit templates.
 
 Since `output.css` is written into the `content` folder, Saga copies it to the `deploy` folder automatically.
 
@@ -47,23 +51,24 @@ If you prefer to manage Tailwind via npm, install it in your project:
 $ npm install tailwindcss @tailwindcss/cli
 ```
 
-Then run the CLI before Saga:
+Then use ``Saga/beforeRead(_:)`` to run the CLI before each build:
 
 ```swift
 import Foundation
 
-let process = Process()
-process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-process.arguments = [
-  "npx", "@tailwindcss/cli",
-  "-i", "content/static/input.css",
-  "-o", "content/static/output.css",
-  "--minify",
-]
-try process.run()
-process.waitUntilExit()
-
 try await Saga(input: "content", output: "deploy")
+  .beforeRead { _ in
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = [
+      "npx", "@tailwindcss/cli",
+      "-i", "content/static/input.css",
+      "-o", "content/static/output.css",
+      "--minify",
+    ]
+    try process.run()
+    process.waitUntilExit()
+  }
   .register(/* ... */)
   .run()
 ```

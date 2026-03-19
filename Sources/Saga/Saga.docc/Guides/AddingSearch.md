@@ -30,7 +30,7 @@ $ pnpm add pagefind
 
 ## Run Pagefind after the build
 
-After Saga's `run()` completes, shell out to Pagefind to index the output folder:
+Use ``Saga/afterWrite(_:)`` to run Pagefind after each build:
 
 ```swift
 import Foundation
@@ -42,17 +42,17 @@ try await Saga(input: "content", output: "deploy")
     readers: [.parsleyMarkdownReader],
     writers: [.itemWriter(swim(renderArticle))]
   )
+  .afterWrite { _ in
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["pnpm", "pagefind", "--site", "deploy"]
+    try process.run()
+    process.waitUntilExit()
+  }
   .run()
-
-// Index the site
-let process = Process()
-process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-process.arguments = ["pnpm", "pagefind", "--site", "deploy"]
-try process.run()
-process.waitUntilExit()
 ```
 
-Pagefind generates its index and UI files into `deploy/pagefind/`.
+The `afterWrite` hook runs after every build cycle, including rebuilds triggered by `saga dev`. Pagefind generates its index and UI files into `deploy/pagefind/`.
 
 ## Create a search page
 

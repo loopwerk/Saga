@@ -2,6 +2,28 @@
 
 Tips and techniques for more complex Saga setups.
 
+
+## Build hooks
+
+Use ``Saga/beforeRead(_:)`` and ``Saga/afterWrite(_:)`` to run custom logic before or after each build cycle. These hooks run on every build, including rebuilds triggered by `saga dev`.
+
+```swift
+try await Saga(input: "content", output: "deploy")
+  .beforeRead { saga in
+    // Runs before the read phase, e.g. compile CSS
+  }
+  .register(/* ... */)
+  .afterWrite { saga in
+    // Runs after the write phase, e.g. index for search
+  }
+  .run()
+```
+
+You can register multiple hooks of the same type — they run in the order they were added. Each hook receives the ``Saga`` instance.
+
+> Tip: See <doc:TailwindCSS> for a `beforeRead` example and <doc:AddingSearch> for an `afterWrite` example.
+
+
 ## Item processors
 
 Use an `itemProcessor` to modify items after they are read but before they are written. This is useful for transforming titles, adjusting dates, setting metadata, or any per-item logic.
