@@ -84,12 +84,6 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
-    let logDateFormatter = DateFormatter()
-    logDateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-    func logTimestamp() -> String {
-      logDateFormatter.string(from: Date())
-    }
-
     let totalStart = DispatchTime.now()
     log("Starting run")
 
