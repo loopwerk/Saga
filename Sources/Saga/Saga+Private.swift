@@ -47,6 +47,33 @@ extension Saga {
     return result
   }
 
+  /// Reset mutable pipeline state between dev rebuilds.
+  func reset() throws {
+    allItems = []
+    handledPaths = []
+    generatedPages = []
+    contentHashes = [:]
+
+    // Re-scan input files (files may have been added/removed)
+    let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
+    files = allFound.map { path in
+      let relativePath = (try? path.relativePath(from: inputPath)) ?? Path("")
+      return (path: path, relativePath: relativePath)
+    }
+  }
+
+  /// Wait for SIGUSR1, then return.
+  func waitForSignal() async {
+    await withCheckedContinuation { continuation in
+      let source = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
+      source.setEventHandler {
+        source.cancel()
+        continuation.resume()
+      }
+      source.resume()
+    }
+  }
+
   /// Read files from disk using a Reader, turns them into Items
   func readItems<M: Metadata>(
     folder: Path?,
@@ -55,7 +82,8 @@ extension Saga {
     filter: @escaping @Sendable (Item<M>) -> Bool,
     claimExcludedItems: Bool,
     itemWriteMode: ItemWriteMode,
-    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool
+    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool,
+    cacheKey: String
   ) async throws -> [Item<M>] {
     // Filter to only files that match the folder (if any) and have a supported reader
     let relevant = unhandledFiles.filter { file in
@@ -65,6 +93,9 @@ extension Saga {
       return readers.contains { $0.supportedExtensions.contains(file.path.extension ?? "") }
     }
 
+    // In-memory cache from previous dev rebuilds (keyed by relative path)
+    let cache = readerCache[cacheKey] ?? [:]
+
     // Process files in parallel with deterministic result ordering
     let items = try await withThrowingTaskGroup(of: FileReadResult<M>.self) { group in
       for file in relevant {
@@ -72,6 +103,19 @@ extension Saga {
           // Pick the first reader that is able to work on this file, based on file extension
           guard let reader = readers.first(where: { $0.supportedExtensions.contains(file.path.extension ?? "") }) else {
             return FileReadResult(filePath: file.path, item: nil, claimFile: false)
+          }
+
+          // Check in-memory cache: if the file hasn't changed, reuse the cached item
+          let currentModDate = self.fileIO.modificationDate(file.path)
+          if let cached = cache[file.relativePath.string] as? Item<M>,
+             let currentModDate,
+             cached.lastModified == currentModDate
+          {
+            if filter(cached) {
+              return FileReadResult(filePath: file.path, item: cached, claimFile: !reader.copySourceFiles)
+            } else {
+              return FileReadResult(filePath: file.path, item: nil, claimFile: claimExcludedItems)
+            }
           }
 
           do {
@@ -124,8 +168,9 @@ extension Saga {
         }
       }
 
-      // Collect results serially — safe to update handledPaths here
+      // Collect results serially — safe to update handledPaths and cache here
       var items: [Item<M>] = []
+      var updatedCache: [String: AnyItem] = cache
       for try await result in group {
         if result.claimFile {
           self.handledPaths.insert(result.filePath)
@@ -133,8 +178,11 @@ extension Saga {
 
         if let item = result.item {
           items.append(item)
+          updatedCache[item.relativeSource.string] = item
         }
       }
+
+      self.readerCache[cacheKey] = updatedCache
 
       return items
     }

@@ -22,7 +22,7 @@ struct PipelineStep: @unchecked Sendable {
 /// A builder that collects pipeline steps.
 public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
-  let files: [(path: Path, relativePath: Path)]
+  var files: [(path: Path, relativePath: Path)]
   let workingPath: Path // relative to inputPath
 
   init(files: [(path: Path, relativePath: Path)], workingPath: Path) {
@@ -109,7 +109,8 @@ public class StepBuilder: @unchecked Sendable {
         itemWriteMode: itemWriteMode,
         sorting: effectiveSorting,
         writers: writers,
-        outputPrefix: effectiveFolder
+        outputPrefix: effectiveFolder,
+        cacheKey: "reader-\(steps.count)"
       ))
 
       return self
@@ -119,7 +120,7 @@ public class StepBuilder: @unchecked Sendable {
     nonisolated(unsafe) var items: [Item<M>] = []
 
     steps.append(PipelineStep(
-      read: { saga in
+      read: { [steps] saga in
         items = try await saga.readItems(
           folder: effectiveFolder,
           readers: readers,
@@ -127,7 +128,8 @@ public class StepBuilder: @unchecked Sendable {
           filter: filter,
           claimExcludedItems: claimExcludedItems,
           itemWriteMode: itemWriteMode,
-          sorting: effectiveSorting
+          sorting: effectiveSorting,
+          cacheKey: "reader-\(steps.count)"
         )
         return items
       },
@@ -296,7 +298,8 @@ public class StepBuilder: @unchecked Sendable {
     itemWriteMode: ItemWriteMode,
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool,
     writers: [Writer<M>],
-    outputPrefix: Path
+    outputPrefix: Path,
+    cacheKey: String
   ) -> PipelineStep {
     nonisolated(unsafe) var parentItems: [Item<M>] = []
 
@@ -312,7 +315,8 @@ public class StepBuilder: @unchecked Sendable {
               filter: filter,
               claimExcludedItems: claimExcludedItems,
               itemWriteMode: itemWriteMode,
-              sorting: sorting
+              sorting: sorting,
+              cacheKey: cacheKey
             )
             guard let first = readItems.first else { continue }
             parentItem = first
