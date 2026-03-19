@@ -26,7 +26,7 @@ Chain multiple processors with ``Saga/sequence(_:)``:
 ```swift
 .register(
   readers: [.parsleyMarkdownReader],
-  itemProcessor: Saga.sequence(processShortcodes, fixDates, addReadingTime),
+  itemProcessor: sequence(processShortcodes, fixDates, addReadingTime),
   writers: [.itemWriter(swim(renderItem))]
 )
 ```

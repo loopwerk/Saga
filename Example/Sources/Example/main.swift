@@ -80,7 +80,7 @@ try await Saga(input: "content", output: "deploy")
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
-    itemProcessor: Saga.publicationDateInFilename,
+    itemProcessor: publicationDateInFilename,
     filter: { !$0.archived },
     claimExcludedItems: false,
     writers: [
@@ -100,7 +100,7 @@ try await Saga(input: "content", output: "deploy")
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
-    itemProcessor: Saga.publicationDateInFilename,
+    itemProcessor: publicationDateInFilename,
     writers: [
       .itemWriter(swim(renderArticle)),
     ]

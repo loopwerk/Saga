@@ -80,7 +80,7 @@ try await Saga(input: "content", output: "deploy")
     folder: "articles",
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
-    itemProcessor: Saga.sequence(processShortcodes, anotherProcessor),
+    itemProcessor: sequence(processShortcodes, anotherProcessor),
     writers: [.itemWriter(swim(renderArticle))]
   )
   .run()
