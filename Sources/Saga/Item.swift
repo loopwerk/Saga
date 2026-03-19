@@ -66,7 +66,7 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   public var children: [AnyItem] = []
 
   /// Type-erased parent. Populated automatically by nested registrations.
-  public var parent: AnyItem? = nil
+  public weak var parent: AnyItem? = nil
 
   /// Typed accessor for children.
   public func children<C: Metadata>(as type: C.Type) -> [Item<C>] {
