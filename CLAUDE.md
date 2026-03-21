@@ -30,16 +30,13 @@ saga build
 # Start dev server with file watching and auto-reload
 saga dev
 
-# Dev server with custom options
-saga dev --watch content --watch Sources --output deploy --port 3000
-
-# Ignore patterns
-saga dev --ignore "*.tmp" --ignore "drafts/*"
+# Dev server with custom port
+saga dev --port 8080
 ```
 
-The `saga` CLI is built from `Sources/SagaCLI/`. Install via Homebrew (`brew install loopwerk/tap/saga`) or Mint (`mint install loopwerk/Saga`).
+The `saga` CLI lives in a [separate repository](https://github.com/loopwerk/saga-cli). Install via Homebrew (`brew install loopwerk/tap/saga`) or Mint (`mint install loopwerk/saga-cli`).
 
-The legacy `watch` command (`Sources/SagaWatch/`) is deprecated in favor of `saga dev`.
+File watching and ignore patterns are handled by Saga itself (not the CLI). Use `.ignore()` in your Swift code to exclude files from triggering rebuilds.
 
 ## Architecture Overview
 
@@ -79,13 +76,13 @@ Saga is designed for extensibility via external packages:
 - `postProcess(_:)`: Apply transforms (e.g. HTML minification) to every written file.
 - `Saga.sitemap(baseURL:filter:)`: Built-in renderer that generates an XML sitemap from `generatedPages`. Use with `createPage`.
 - `Saga.atomFeed(title:author:baseURL:...)`: Built-in renderer that generates an Atom feed from items.
-- `Saga.isDev`: `true` when running under `saga dev` or the legacy `watch` command (checks `SAGA_DEV` env var).
+- `Saga.isDev`: `true` when the `SAGA_DEV` environment variable is set. Use to skip expensive work during development.
+- `Saga.isCLI`: `true` when launched by saga-cli (checks `SAGA_CLI` env var). Used internally to activate file watching and rebuild loop.
+- `ignore(_:)`: Add glob patterns for files that should not trigger a dev rebuild (e.g. generated CSS).
 
 ## Key Directories
 
 - `/Sources/Saga/` - Main library with core architecture
-- `/Sources/SagaCLI/` - `saga` CLI (init, dev, build commands)
-- `/Sources/SagaWatch/` - Legacy `watch` command (deprecated)
 - `/Tests/SagaTests/` - Unit tests with mock implementations
 - `/Example/` - Complete working example demonstrating usage patterns
 - `/Sources/Saga/Saga.docc/` - DocC documentation source

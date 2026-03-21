@@ -17,6 +17,16 @@ $ brew install loopwerk/tap/saga
 $ mint install loopwerk/saga-cli
 ```
 
+**From source:**
+
+```shell-session
+$ git clone https://github.com/loopwerk/saga-cli.git
+$ cd saga-cli
+$ swift package experimental-install
+```
+
+This installs the `saga` binary to `~/.swiftpm/bin`. Make sure that directory is in your `PATH`.
+
 
 ## Quick start
 
@@ -46,7 +56,7 @@ let package = Package(
     .macOS(.v14)
   ],
   dependencies: [
-    .package(url: "https://github.com/loopwerk/Saga", from: "2.0.0"),
+    .package(url: "https://github.com/loopwerk/Saga", from: "3.0.0"),
     .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "1.0.0"),
     .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "1.0.0"),
   ],

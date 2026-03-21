@@ -75,10 +75,16 @@ try await Saga(input: "content", output: "deploy")
 
 ## With `saga dev`
 
-Because `output.css` is written into the `content` folder, the dev server's file watcher will detect the change and trigger a rebuild. Which then regenerates `output.css`, which triggers another rebuild, and so on. Break this loop by telling `saga dev` to ignore the generated file:
+Because `output.css` is written into the `content` folder, the file watcher will detect the change and trigger a rebuild. Which then regenerates `output.css`, which triggers another rebuild, and so on. Break this loop by telling Saga to ignore the generated file:
 
-```shell-session
-$ saga dev --ignore output.css
+```swift
+try await Saga(input: "content", output: "deploy")
+  .ignore("output.css")
+  .beforeRead { _ in
+    try await tailwind.run(/* ... */)
+  }
+  .register(/* ... */)
+  .run()
 ```
 
 ## Cache-busting
