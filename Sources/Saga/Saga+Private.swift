@@ -1,6 +1,11 @@
 import Foundation
 import SagaPathKit
 
+struct SagaConfig: Codable {
+  let input: String
+  let output: String
+}
+
 private struct FileReadResult<M: Metadata> {
   let filePath: Path
   let item: Item<M>?
@@ -47,6 +52,24 @@ extension Saga {
     return result
   }
 
+  /// Signal the parent process (saga-cli) that a build completed, so it can send a browser reload.
+  func signalParent() {
+    kill(getppid(), SIGUSR2)
+  }
+
+  /// Write a config file to `.build/saga-config.json` so saga-cli can detect output path for serving.
+  func writeConfigFile() {
+    let config = SagaConfig(
+      input: (try? inputPath.relativePath(from: rootPath))?.string ?? "content",
+      output: (try? outputPath.relativePath(from: rootPath))?.string ?? "deploy"
+    )
+
+    let configPath = rootPath + ".build/saga-config.json"
+    if let data = try? JSONEncoder().encode(config) {
+      try? data.write(to: URL(fileURLWithPath: configPath.string))
+    }
+  }
+
   /// Reset mutable pipeline state between dev rebuilds.
   func reset() throws {
     allItems = []
@@ -59,18 +82,6 @@ extension Saga {
     files = allFound.map { path in
       let relativePath = (try? path.relativePath(from: inputPath)) ?? Path("")
       return (path: path, relativePath: relativePath)
-    }
-  }
-
-  /// Wait for SIGUSR1, then return.
-  func waitForSignal() async {
-    await withCheckedContinuation { continuation in
-      let source = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
-      source.setEventHandler {
-        source.cancel()
-        continuation.resume()
-      }
-      source.resume()
     }
   }
 

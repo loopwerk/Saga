@@ -49,6 +49,9 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// In-memory reader cache that survives between dev rebuilds
   var readerCache: [String: [String: AnyItem]] = [:]
 
+  /// Glob patterns to ignore during file watching in dev mode
+  var ignoredPatterns: [String] = [".DS_Store"]
+
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #filePath) throws {
     let originFile = Path("\(originFilePath)")
     let rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
@@ -124,100 +127,37 @@ public class Saga: StepBuilder, @unchecked Sendable {
     return self
   }
 
+  /// Add a glob pattern to ignore during file watching in dev mode.
+  ///
+  /// Use this to prevent unnecessary rebuilds when certain files change:
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .ignore("output.css")
+  ///   .ignore("*.tmp")
+  ///   .register(...)
+  ///   .run()
+  /// ```
+  @discardableResult
+  public func ignore(_ pattern: String) -> Self {
+    ignoredPatterns.append(pattern)
+    return self
+  }
+
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {
-    // In dev mode, ignore SIGUSR1 at the process level so DispatchSource can handle it
-    if Saga.isDev {
-      signal(SIGUSR1, SIG_IGN)
+    // Write config file so saga-cli can detect output path for serving
+    writeConfigFile()
+
+    // Run the pipeline
+    try await build()
+
+    // When launched by `saga dev`, watch for changes and rebuild
+    if Saga.isDev, Saga.isCLI {
+      signalParent()
+      try await watchAndRebuild()
     }
 
-    while true {
-      let totalStart = DispatchTime.now()
-      log("Starting run")
-
-      if !beforeReadHooks.isEmpty {
-        let start = DispatchTime.now()
-        for hook in beforeReadHooks {
-          try await hook(self)
-        }
-
-        log("Finished beforeRead hooks in \(elapsed(from: start))")
-      }
-
-      // Run all the readers for all the steps sequentially to ensure proper order,
-      // which turns raw content into Items, and stores them within the step.
-      let readStart = DispatchTime.now()
-      for step in steps {
-        let items = try await step.read(self)
-        allItems.append(contentsOf: items)
-      }
-
-      log("Finished read phase in \(elapsed(from: readStart))")
-
-      // Sort all items by date descending
-      allItems.sort { $0.date > $1.date }
-
-      // Clean the output folder
-      try fileIO.deletePath(outputPath)
-
-      // Copy all unhandled files as-is to the output folder first,
-      // so that the directory structure exists for the write phase.
-      let copyStart = DispatchTime.now()
-      try await withThrowingTaskGroup(of: Void.self) { group in
-        for file in unhandledFiles {
-          group.addTask {
-            let output = self.outputPath + file.relativePath
-            try self.fileIO.mkpath(output.parent())
-            try self.fileIO.copy(file.path, output)
-          }
-        }
-        try await group.waitForAll()
-      }
-
-      log("Finished copying static files in \(elapsed(from: copyStart))")
-
-      // Make Saga.hashed() work
-      setupHashFunction()
-
-      // Run all writers sequentially
-      // processedWrite tracks generated paths automatically.
-      let writeStart = DispatchTime.now()
-      for step in steps {
-        try await step.write(self)
-      }
-
-      log("Finished write phase in \(elapsed(from: writeStart))")
-
-      // Copy hashed versions of files that were referenced via Saga.hashed()
-      try copyHashedFiles()
-
-      if !afterWriteHooks.isEmpty {
-        let start = DispatchTime.now()
-        for hook in afterWriteHooks {
-          try await hook(self)
-        }
-
-        log("Finished afterWrite hooks in \(elapsed(from: start))")
-      }
-
-      log("All done in \(elapsed(from: totalStart))")
-
-      // In dev mode, signal the CLI that the build is done, then wait for SIGUSR1
-      if Saga.isDev {
-        // Signal the parent process (saga dev) that the build completed
-        if let pidString = ProcessInfo.processInfo.environment["SAGA_DEV_PID"],
-           let pid = Int32(pidString)
-        {
-          kill(pid, SIGUSR2)
-        }
-
-        await waitForSignal()
-        try reset()
-        continue
-      }
-
-      return self
-    } // while true
+    return self
   }
 }

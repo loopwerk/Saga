@@ -24,6 +24,7 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 - <doc:GettingStarted>
 - <doc:Architecture>
 - <doc:AdvancedUsage>
+- <doc:Migrate>
 
 ### Guides
 

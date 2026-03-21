@@ -167,16 +167,19 @@ From your website folder you can run the following command to start a developmen
 $ saga dev
 ```
 
-By default this watches the `content` and `Sources` folders, outputs to `deploy`, and serves on port 3000. All of these can be customized:
+Saga automatically watches your content folder and `Sources/` for changes. Content changes trigger an in-process rebuild; Swift source changes trigger a recompilation. The dev server runs on port 3000 by default:
 
 ```shell-session
-$ saga dev --watch content --watch Sources --output deploy --port 3000
+$ saga dev --port 8080
 ```
 
-You can also ignore certain files or folders using glob patterns:
+To prevent certain files from triggering rebuilds (e.g. generated CSS), use ``Saga/ignore(_:)`` in your Swift code:
 
-```shell-session
-$ saga dev --ignore "*.tmp" --ignore "drafts/*"
+```swift
+try await Saga(input: "content", output: "deploy")
+  .ignore("output.css")
+  .register(/* ... */)
+  .run()
 ```
 
 To just build the site without starting a server:
@@ -185,6 +188,6 @@ To just build the site without starting a server:
 $ saga build
 ```
 
-When running under `saga dev`, Saga sets the `SAGA_DEV` environment variable and exposes it as ``Saga/isDev``. Use this to skip expensive work during development, such as image generation or HTML minification.
+When running under `saga dev`, ``Saga/isDev`` is `true`. Use this to skip expensive work during development, such as image generation or HTML minification.
 
 See <doc:Installation> for how to install the `saga` CLI.

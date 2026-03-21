@@ -63,6 +63,11 @@ public extension Saga {
     ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
   }
 
+  /// Whether the site was launched by saga-cli (the `SAGA_CLI` environment variable is set).
+  static var isCLI: Bool {
+    ProcessInfo.processInfo.environment["SAGA_CLI"] != nil
+  }
+
   /// A renderer which creates an HTML page that redirects the browser to the given URL.
   ///
   /// Uses both a `<meta http-equiv="refresh">` tag and a canonical link for
