@@ -10,12 +10,6 @@ import Foundation
   import FoundationXML
 #endif
 
-@available(*, deprecated, message: "Use Saga.atomFeed() instead")
-@preconcurrency
-public func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: (@Sendable (Item<M>) -> String?)? = nil, image: (@Sendable (Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) where Context.M == M {
-  Saga.atomFeed(title: title, author: author, baseURL: baseURL, summary: summary, image: image, dateKeyPath: dateKeyPath)
-}
-
 public extension Saga {
   /// A renderer which creates an Atom feed for Items
   ///

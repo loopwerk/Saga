@@ -46,9 +46,6 @@ private let publicationDateFormatter: DateFormatter = {
   ).makeOutputPath(itemWriteMode: .moveToSubfolder)
 }
 
-@available(*, deprecated, message: "Use Saga.isDev instead")
-public let isDev = Saga.isDev
-
 public extension Saga {
   /// Whether the site is being served by `saga dev`.
   ///

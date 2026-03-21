@@ -65,26 +65,6 @@ public class StepBuilder: @unchecked Sendable {
       case (nil, nil): { $0.date > $1.date }
     }
 
-    // When `folder` ends with "/**", treat as nested (with a deprecation warning)
-    if let folder, folder.string.hasSuffix("/**") {
-      print("❕The '/**' folder suffix is deprecated. Use 'nested:' instead.")
-      return register(
-        folder: folder.parent(),
-        nested: { nested in
-          nested.register(
-            metadata: M.self,
-            readers: readers,
-            itemProcessor: itemProcessor,
-            filter: filter,
-            claimExcludedItems: claimExcludedItems,
-            itemWriteMode: itemWriteMode,
-            sorting: effectiveSorting,
-            writers: writers
-          )
-        }
-      )
-    }
-
     let effectiveFolder = workingPath + (folder ?? Path(""))
 
     if let nested {

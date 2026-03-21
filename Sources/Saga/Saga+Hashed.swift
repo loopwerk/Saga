@@ -15,11 +15,6 @@ private func setHashFunction(_ fn: ((String) -> String)?) {
   }
 }
 
-@available(*, deprecated, message: "Use Saga.hashed() instead")
-public func hashed(_ path: String) -> String {
-  return Saga.hashed(path)
-}
-
 public extension Saga {
   /// Returns a cache-busted file path by inserting a content hash into the filename.
   ///

@@ -1,11 +1,6 @@
 import Foundation
 import SagaPathKit
 
-@available(*, deprecated, message: "Use Saga.sitemap() instead")
-public func sitemap(baseURL: URL, filter: (@Sendable (Path) -> Bool)? = nil) -> @Sendable (PageRenderingContext) -> String {
-  Saga.sitemap(baseURL: baseURL, filter: filter)
-}
-
 public extension Saga {
   /// A renderer which creates an XML sitemap from all generated pages.
   ///
