@@ -24,7 +24,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-The sitemap includes every page: individual articles, list pages, and the homepage. The sitemap automatically excludes itself.
+The sitemap includes every page: individual articles, list pages, and the homepage.
 
 > Important: Order matters! ``Saga/sitemap(baseURL:filter:)`` should be the last step in the pipeline, so that it sees all the previously generated pages.
 

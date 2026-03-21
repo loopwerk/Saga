@@ -31,8 +31,6 @@ Chain multiple processors with ``Saga/sequence(_:)``:
 )
 ```
 
-Since items are classes, mutations in processors are visible to all subsequent steps and writers.
-
 > Tip: See <doc:Shortcodes> for a practical example of using item processors to implement shortcode expansion.
 
 
@@ -40,7 +38,7 @@ Since items are classes, mutations in processors are visible to all subsequent s
 
 Create pages that are purely template-driven — no markdown file or ``Item`` needed.
 
-Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``StepBuilder/createPage(_:using:)`` method lets you render these pages without needing a markdown file or ``Item``.
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``StepBuilder/createPage(_:using:)`` method lets you render these pages without needing a markdown file.
 
 ```swift
 try await Saga(input: "content", output: "deploy")

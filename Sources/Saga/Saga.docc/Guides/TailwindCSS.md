@@ -68,6 +68,14 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
+## With `saga dev`
+
+Because `output.css` is written into the `content` folder, the dev server's file watcher will detect the change and trigger a rebuild. Which then regenerates `output.css`, which triggers another rebuild, and so on. Break this loop by telling `saga dev` to ignore the generated file:
+
+```shell-session
+$ saga dev --ignore output.css
+```
+
 ## Cache-busting
 
 Use ``Saga/hashed(_:)`` in your templates to serve fingerprinted CSS URLs:

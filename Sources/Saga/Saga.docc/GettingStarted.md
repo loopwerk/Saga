@@ -130,7 +130,7 @@ try await Saga(input: "content", output: "deploy")
   // using the default `EmptyMetadata` as the item's metadata type.
   .register(
     readers: [.parsleyMarkdownReader],
-    writers: [.itemWriter(swim(renderItem))]
+    writers: [.itemWriter(swim(renderPage))]
   )
 
   // Run the steps we registered above.
@@ -152,8 +152,8 @@ In the custom metadata example above, you can see that the articles step uses fo
 
 The four different writers are all used for different purposes:
 
-- `itemWriter` writes a single item to a single file. For example `content/articles/my-article.md` will be written to `deploy/articles/my-article.html`, or `content/index.md` to `deploy/index.html`.
-- `listWriter` writes an array of items to multiple files. For example to create an `deploy/articles/index.html` page that lists all your articles in a paginated manner.
+- `itemWriter` writes a single item to a single file. For example `content/articles/my-article.md` will be written to `deploy/articles/my-article/index.html`, or `content/index.md` to `deploy/index.html`.
+- `listWriter` writes an array of items to one or multiple files (depending on pagination). For example to create an `deploy/articles/index.html` page that lists all your articles.
 - `tagWriter` writes an array of items to multiple files, based on a tag. If you tag your articles you can use this to render tag pages like `deploy/articles/iOS/index.html`.
 - `yearWriter` is similar to `tagWriter` but uses the publication date of the item. You can use this to create year-based archives of your articles, for example `deploy/articles/2022/index.html`.
 
