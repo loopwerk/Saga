@@ -1350,42 +1350,48 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertFalse(finalWrittenPages.contains(where: { $0.destination == "root/output/about/index.html" }))
   }
 
-  static let allTests = [
-    ("testInitializer", testInitializer),
-    ("testRegister", testRegister),
-    ("testMakeSureEmptyPathHasNoComponents", testMakeSureEmptyPathHasNoComponents),
-    ("testReaderAndItemWriterAndListWriter", testReaderAndItemWriterAndListWriter),
-    ("testItemWriterPreviousNext", testItemWriterPreviousNext),
-    ("testCustomSorting", testCustomSorting),
-    ("testYearWriter", testYearWriter),
-    ("testTagWriter", testTagWriter),
-    ("testStaticFiles", testStaticFiles),
-    ("testWriteMode", testWriteMode),
-    ("testFilterItems", testFilterItems),
-    ("testFilterButNotHandledItems", testFilterButNotHandledItems),
-    ("testDateFromFrontMatter", testDateFromFrontMatter),
-    ("testFolderGlob", testFolderGlob),
-    ("testNestedSimple", testNestedSimple),
-    ("testNestedWithOuterWriters", testNestedWithOuterWriters),
-    ("testNestedDifferentReaders", testNestedDifferentReaders),
-    ("testNestedChildrenAccessor", testNestedChildrenAccessor),
-    ("testNestedInNested", testNestedInNested),
-    ("testNestedInNestedWithDifferentMetadata", testNestedInNestedWithDifferentMetadata),
-    ("testSubfolderIsNilWithoutNesting", testSubfolderIsNilWithoutNesting),
-    ("testMetadataDecoder", testMetadataDecoder),
-    ("testSlugified", testSlugified),
-    ("testRegisterFetch", testRegisterFetch),
-    ("testRegisterFetchWithFileBasedItems", testRegisterFetchWithFileBasedItems),
-    ("testCreatePage", testCreatePage),
-    ("testCreatePageOutputPath", testCreatePageOutputPath),
-    ("testHash", testHash),
-    ("testHashWithoutLeadingSlash", testHashWithoutLeadingSlash),
-    ("testHashUnknownFile", testHashUnknownFile),
-    ("testPostProcess", testPostProcess),
-    ("testPostProcessWithCreatePage", testPostProcessWithCreatePage),
-    ("testPostProcessReceivesRelativePath", testPostProcessReceivesRelativePath),
-    ("testGeneratedPages", testGeneratedPages),
-    ("testSitemap", testSitemap),
-    ("testSlugFrontmatterSetsDestination", testSlugFrontmatterSetsDestination),
-  ]
+  func testFolderMatchingIsBoundaryAware() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "art/page.md",
+        "articles/hello.md",
+      ]
+    }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "art",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: [
+          .listWriter({ context in "art:\(context.items.count)" }, output: "index.html"),
+        ]
+      )
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: [
+          .listWriter({ context in "articles:\(context.items.count)" }, output: "index.html"),
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // "art" step should only write its own list, not claim articles/hello.md
+    let artList = finalWrittenPages.first { $0.destination == "root/output/art/index.html" }
+    let articlesList = finalWrittenPages.first { $0.destination == "root/output/articles/index.html" }
+    XCTAssertEqual(artList?.content, "art:1")
+    XCTAssertEqual(articlesList?.content, "articles:1")
+  }
 }

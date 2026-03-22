@@ -59,7 +59,7 @@ extension Saga {
   ) async throws -> [Item<M>] {
     // Filter to only files that match the folder (if any) and have a supported reader
     let relevant = unhandledFiles.filter { file in
-      if let folder, !file.relativePath.string.starts(with: folder.string) {
+      if let folder, !folder.string.isEmpty, !file.relativePath.string.hasPrefix(folder.string + "/") {
         return false
       }
       return readers.contains { $0.supportedExtensions.contains(file.path.extension ?? "") }
