@@ -14,6 +14,53 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
   )
 }
 
+/// Tags items with their locale and rewrites their output paths for i18n.
+private func addLocaleToItems(_ items: [AnyItem], locale: String, config: I18NConfig, readFolder: Path, outputPrefix: Path) {
+  let readPrefix = readFolder.string.isEmpty ? "" : readFolder.string + "/"
+  let outputPrefixStr = outputPrefix.string.isEmpty ? "" : outputPrefix.string + "/"
+
+  for item in items {
+    item.locale = locale
+
+    // Rewrite relativeDestination: replace the read folder prefix with the output prefix
+    let dest = item.relativeDestination.string
+    if !readPrefix.isEmpty, dest.hasPrefix(readPrefix) {
+      item.relativeDestination = Path(outputPrefixStr + String(dest.dropFirst(readPrefix.count)))
+    } else if readPrefix.isEmpty {
+      item.relativeDestination = Path(outputPrefixStr + dest)
+    }
+  }
+}
+
+/// Runs writers with a WriterContext built from the given parameters.
+private func executeWriters<M: Metadata>(
+  items: [Item<M>],
+  writers: [Writer<M>],
+  saga: Saga,
+  outputPrefix: Path,
+  subfolder: Path?,
+  locale: String?
+) async throws {
+  guard !writers.isEmpty else { return }
+
+  let context = WriterContext(
+    items: items,
+    allItems: saga.allItems,
+    outputRoot: saga.outputPath,
+    outputPrefix: outputPrefix,
+    write: { try saga.processedWrite($0, $1) },
+    resourcesByFolder: saga.resourcesByFolder(),
+    subfolder: subfolder,
+    locale: locale
+  )
+  try await withThrowingTaskGroup(of: Void.self) { group in
+    for writer in writers {
+      group.addTask { try await writer.run(context) }
+    }
+    try await group.waitForAll()
+  }
+}
+
 struct PipelineStep: @unchecked Sendable {
   let read: @Sendable (Saga) async throws -> [AnyItem]
   let write: @Sendable (Saga) async throws -> Void
@@ -23,17 +70,43 @@ struct PipelineStep: @unchecked Sendable {
 public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
   var files: [(path: Path, relativePath: Path)]
-  let workingPath: Path // relative to inputPath
+  let workingPath: Path // relative to inputPath, without locale prefix
+  /// i18n configuration, or `nil` when i18n is not enabled.
+  public var i18nConfig: I18NConfig?
+  let locale: String? // when set, this builder is scoped to a specific locale
+  let localizedOutputFolder: [String: String]? // locale → output folder name
 
-  init(files: [(path: Path, relativePath: Path)], workingPath: Path) {
+  init(
+    files: [(path: Path, relativePath: Path)],
+    workingPath: Path,
+    i18nConfig: I18NConfig? = nil,
+    locale: String? = nil,
+    localizedOutputFolder: [String: String]? = nil
+  ) {
     self.files = files
     self.workingPath = workingPath
+    self.i18nConfig = i18nConfig
+    self.locale = locale
+    self.localizedOutputFolder = localizedOutputFolder
+  }
+
+  /// Compute the output folder for a given locale.
+  ///
+  /// When `localizedOutputFolder` contains a mapping for the locale, use that.
+  /// Otherwise, use the original folder name.
+  private func outputFolder(for locale: String, folder: Path) -> Path {
+    if let mapping = localizedOutputFolder, let localized = mapping[locale] {
+      return Path(localized)
+    }
+    return folder
   }
 
   /// Register a new pipeline step.
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
+  ///   - localizedOutputFolder: A mapping of locale to output folder name. When i18n is configured, this allows
+  ///     the output folder to differ from the content folder per locale. Locales not in the map use the original `folder` name.
   ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
@@ -48,6 +121,7 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func register<M: Metadata>(
     folder: Path? = nil,
+    localizedOutputFolder: [String: String]? = nil,
     metadata: M.Type = EmptyMetadata.self,
     readers: [Reader] = [],
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
@@ -65,16 +139,68 @@ public class StepBuilder: @unchecked Sendable {
       case (nil, nil): { $0.date > $1.date }
     }
 
+    // When i18n is configured and not yet locale-scoped, fan out into per-locale steps
+    if let i18n = i18nConfig, locale == nil {
+      for locale in i18n.locales {
+        let localeBuilder = StepBuilder(
+          files: files,
+          workingPath: workingPath,
+          i18nConfig: i18nConfig,
+          locale: locale,
+          localizedOutputFolder: localizedOutputFolder ?? self.localizedOutputFolder
+        )
+        localeBuilder.register(
+          folder: folder,
+          metadata: metadata,
+          readers: readers,
+          itemProcessor: itemProcessor,
+          filter: filter,
+          claimExcludedItems: claimExcludedItems,
+          itemWriteMode: itemWriteMode,
+          sorting: effectiveSorting,
+          writers: writers,
+          nested: nested
+        )
+        steps.append(contentsOf: localeBuilder.steps)
+      }
+      return self
+    }
+
     let effectiveFolder = workingPath + (folder ?? Path(""))
+
+    // When locale-scoped, the read folder includes the locale prefix
+    let readFolder = locale.map { Path($0) + effectiveFolder } ?? effectiveFolder
+
+    // Compute the output prefix: locale prefix (if needed) + localized folder name
+    let localizedFolder = locale.map { outputFolder(for: $0, folder: effectiveFolder) } ?? effectiveFolder
+    let outputPrefix: Path = if let locale, let i18n = i18nConfig, i18n.shouldPrefix(locale: locale) {
+      Path(locale) + localizedFolder
+    } else {
+      localizedFolder
+    }
 
     if let nested {
       let parentReaders: [Reader]? = readers.isEmpty ? nil : readers
-      let subFolders = discoverSubfolders(under: effectiveFolder, from: files)
+
+      let rawSubFolders = discoverSubfolders(under: readFolder, from: files)
+
+      // Convert to canonical paths (strip locale prefix if locale-scoped)
+      let subFolders: Set<Path> = if locale != nil {
+        Set(rawSubFolders.map { Path($0.components.dropFirst().joined(separator: "/")) })
+      } else {
+        rawSubFolders
+      }
 
       // For each subfolder, create a child StepBuilder scoped to it.
       // Child steps are appended first (leaf-first), so they claim their files before the parent step runs.
       for subFolderPath in subFolders {
-        let child = StepBuilder(files: files, workingPath: subFolderPath)
+        let child = StepBuilder(
+          files: files,
+          workingPath: subFolderPath,
+          i18nConfig: i18nConfig,
+          locale: locale,
+          localizedOutputFolder: localizedOutputFolder ?? self.localizedOutputFolder
+        )
         nested(child)
         steps.append(contentsOf: child.steps)
       }
@@ -89,8 +215,9 @@ public class StepBuilder: @unchecked Sendable {
         itemWriteMode: itemWriteMode,
         sorting: effectiveSorting,
         writers: writers,
-        outputPrefix: effectiveFolder,
-        cacheKey: "reader-\(steps.count)"
+        readFolder: readFolder,
+        outputPrefix: outputPrefix,
+        cacheKey: "reader-\(locale ?? "")-\(steps.count)"
       ))
 
       return self
@@ -100,36 +227,26 @@ public class StepBuilder: @unchecked Sendable {
     nonisolated(unsafe) var items: [Item<M>] = []
 
     steps.append(PipelineStep(
-      read: { [steps] saga in
+      read: { [locale, steps] saga in
         items = try await saga.readItems(
-          folder: effectiveFolder,
+          folder: readFolder,
           readers: readers,
           itemProcessor: itemProcessor,
           filter: filter,
           claimExcludedItems: claimExcludedItems,
           itemWriteMode: itemWriteMode,
           sorting: effectiveSorting,
-          cacheKey: "reader-\(steps.count)"
-        )
-        return items
-      },
-      write: { saga in
-        let context = WriterContext(
-          items: items,
-          allItems: saga.allItems,
-          outputRoot: saga.outputPath,
-          outputPrefix: effectiveFolder,
-          write: { try saga.processedWrite($0, $1) },
-          resourcesByFolder: saga.resourcesByFolder(),
-          subfolder: subfolder
+          cacheKey: "reader-\(locale ?? "")-\(steps.count)"
         )
 
-        try await withThrowingTaskGroup(of: Void.self) { group in
-          for writer in writers {
-            group.addTask { try await writer.run(context) }
-          }
-          try await group.waitForAll()
+        if let locale, let i18n = saga.i18nConfig {
+          addLocaleToItems(items, locale: locale, config: i18n, readFolder: readFolder, outputPrefix: outputPrefix)
         }
+
+        return items
+      },
+      write: { [locale] saga in
+        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: subfolder, locale: locale)
       }
     ))
 
@@ -181,21 +298,7 @@ public class StepBuilder: @unchecked Sendable {
         return items
       },
       write: { saga in
-        let context = WriterContext(
-          items: items,
-          allItems: saga.allItems,
-          outputRoot: saga.outputPath,
-          outputPrefix: Path(""),
-          write: { try saga.processedWrite($0, $1) },
-          resourcesByFolder: [:],
-          subfolder: nil
-        )
-        try await withThrowingTaskGroup(of: Void.self) { group in
-          for writer in writers {
-            group.addTask { try await writer.run(context) }
-          }
-          try await group.waitForAll()
-        }
+        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: Path(""), subfolder: nil, locale: nil)
       }
     ))
 
@@ -278,18 +381,21 @@ public class StepBuilder: @unchecked Sendable {
     itemWriteMode: ItemWriteMode,
     sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool,
     writers: [Writer<M>],
+    readFolder: Path,
     outputPrefix: Path,
     cacheKey: String
   ) -> PipelineStep {
     nonisolated(unsafe) var parentItems: [Item<M>] = []
 
     return PipelineStep(
-      read: { saga in
+      read: { [locale] saga in
         for subFolderPath in subFolders {
+          let readPath = locale.map { Path($0) + subFolderPath } ?? subFolderPath
+
           let parentItem: Item<M>
           if let readers {
             let readItems: [Item<M>] = try await saga.readItems(
-              folder: subFolderPath,
+              folder: readPath,
               readers: readers,
               itemProcessor: itemProcessor,
               filter: filter,
@@ -302,9 +408,9 @@ public class StepBuilder: @unchecked Sendable {
             parentItem = first
           } else {
             parentItem = Item<M>(
-              absoluteSource: saga.inputPath + subFolderPath,
-              relativeSource: subFolderPath,
-              relativeDestination: subFolderPath + Path("index.html"),
+              absoluteSource: saga.inputPath + readPath,
+              relativeSource: readPath,
+              relativeDestination: readPath + Path("index.html"),
               title: subFolderPath.lastComponent,
               body: "",
               date: Date(),
@@ -314,11 +420,15 @@ public class StepBuilder: @unchecked Sendable {
             )
           }
 
-          let subFolderPrefix = subFolderPath.string + "/"
-          let directChildren: [AnyItem] = saga.allItems.filter {
-            $0.relativeSource.string.hasPrefix(subFolderPrefix) && $0.parent == nil
+          if let locale, let i18n = saga.i18nConfig {
+            addLocaleToItems([parentItem], locale: locale, config: i18n, readFolder: readFolder, outputPrefix: outputPrefix)
           }
 
+          // Wire children: match by the read path (which includes locale prefix)
+          let childPrefix = readPath.string + "/"
+          let directChildren: [AnyItem] = saga.allItems.filter {
+            $0.relativeSource.string.hasPrefix(childPrefix) && $0.parent == nil
+          }
           parentItem.children = directChildren
           for child in directChildren {
             child.parent = parentItem
@@ -330,23 +440,8 @@ public class StepBuilder: @unchecked Sendable {
         parentItems.sort(by: sorting)
         return parentItems
       },
-      write: { saga in
-        guard !writers.isEmpty else { return }
-        let context = WriterContext(
-          items: parentItems,
-          allItems: saga.allItems,
-          outputRoot: saga.outputPath,
-          outputPrefix: outputPrefix,
-          write: { try saga.processedWrite($0, $1) },
-          resourcesByFolder: saga.resourcesByFolder(),
-          subfolder: nil
-        )
-        try await withThrowingTaskGroup(of: Void.self) { group in
-          for writer in writers {
-            group.addTask { try await writer.run(context) }
-          }
-          try await group.waitForAll()
-        }
+      write: { [locale] saga in
+        try await executeWriters(items: parentItems, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: nil, locale: locale)
       }
     )
   }

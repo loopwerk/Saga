@@ -84,6 +84,7 @@ Saga allows you to:
 - Build archive pages, tag pages, feeds, and indexes.
 - Swap in different readers and renderers.
 - Load content programmatically and/or from disk.
+- Build multilingual sites with automatic translation linking and fully localized URLs.
 - Register custom pipeline steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build.
 - Process the generated HTML content right before it's written to disk. For example to [minify it](https://github.com/loopwerk/Bonsai).
 - Easily created cache-busting hashed filenames for static assets.
@@ -127,6 +128,10 @@ File-based and programmatic steps can be freely mixed. All items are available v
 
 The [Example project](https://github.com/loopwerk/Saga/blob/main/Example) includes a working iTunes API integration, and the [programmatic items guide](https://getsaga.dev/docs/advancedusage/#programmatic-items) has a full walkthrough.
 
+### Multilingual sites
+
+Saga has built-in i18n support with fully localized URLs, automatic translation linking, and per-locale writers. See the [i18n guide](https://getsaga.dev/docs/guides/internationalization/) and the [ExampleI18n project](https://github.com/loopwerk/Saga/blob/main/ExampleI18n).
+
 
 ## Documentation
 
@@ -154,6 +159,7 @@ Saga is modular. You compose it with readers and renderers that fit your needs.
 **Utilities**
 
 - [SagaUtils](https://github.com/loopwerk/SagaUtils) — composable HTML transformations (via [SwiftSoup](https://github.com/scinfu/SwiftSoup)) and useful String extensions
+- [SagaImageReader](https://github.com/loopwerk/SagaImageReader) — turn image files into items
 
 ## Requirements
 

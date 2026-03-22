@@ -26,6 +26,11 @@ extension Saga {
 
     fileIO.log("Finished read phase in \(elapsed(from: readStart))")
 
+    // Link translations across locales
+    if i18nConfig != nil {
+      linkTranslations()
+    }
+
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
 
@@ -38,7 +43,11 @@ extension Saga {
     try await withThrowingTaskGroup(of: Void.self) { group in
       for file in unhandledFiles {
         group.addTask {
-          let output = self.outputPath + file.relativePath
+          let output: Path = if let i18nConfig = self.i18nConfig {
+            self.outputPath + self.i18nOutputPath(for: file.relativePath, config: i18nConfig)
+          } else {
+            self.outputPath + file.relativePath
+          }
           try self.fileIO.mkpath(output.parent())
           try self.fileIO.copy(file.path, output)
         }

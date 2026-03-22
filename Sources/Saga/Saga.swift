@@ -71,6 +71,35 @@ public class Saga: StepBuilder, @unchecked Sendable {
     super.init(files: computedFiles, workingPath: Path(""))
   }
 
+  /// Configure internationalization support.
+  ///
+  /// When enabled, Saga expects content to be organized in locale-prefixed folders
+  /// (e.g. `en/articles/`, `nl/articles/`). Each `register()` call automatically fans out
+  /// into per-locale processing steps.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .i18n(locales: ["en", "nl"], defaultLocale: "en")
+  ///   .register(
+  ///     folder: "articles",
+  ///     localizedOutputFolder: ["nl": "artikelen"],
+  ///     metadata: ArticleMetadata.self,
+  ///     readers: [.parsleyMarkdownReader],
+  ///     writers: [.itemWriter(swim(renderArticle))]
+  ///   )
+  ///   .run()
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - locales: The supported locales (e.g. `["en", "nl"]`).
+  ///   - defaultLocale: The default locale. Its content is written to the root unless `defaultLocaleInSubdir` is `true`.
+  ///   - defaultLocaleInSubdir: Whether the default locale should also get a subdirectory prefix. Defaults to `false`.
+  @discardableResult
+  public func i18n(locales: [String], defaultLocale: String, defaultLocaleInSubdir: Bool = false) -> Self {
+    i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, defaultLocaleInSubdir: defaultLocaleInSubdir)
+    return self
+  }
+
   /// Register a hook that runs before the read phase of each build cycle.
   ///
   /// Use this for pre-build steps like CSS compilation:

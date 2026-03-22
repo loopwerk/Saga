@@ -26,6 +26,9 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
 
   /// The subfolder name when using `nested:`. Nil otherwise.
   public let subfolder: Path?
+
+  /// The locale of this rendering context, or `nil` when i18n is not configured.
+  public let locale: String?
 }
 
 // A protocol for rendering contexts that can be used to generate Atom feeds.
@@ -69,6 +72,9 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext, Sendable {
 
   /// The subfolder name when using `nested:`. Nil otherwise.
   public let subfolder: Path?
+
+  /// The locale of this rendering context, or `nil` when i18n is not configured.
+  public let locale: String?
 }
 
 /// A type constraint for partition keys used in ``PartitionedRenderingContext``.
@@ -97,6 +103,9 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 
   /// The subfolder name when using `nested:`. Nil otherwise.
   public let subfolder: Path?
+
+  /// The locale of this rendering context, or `nil` when i18n is not configured.
+  public let locale: String?
 }
 
 /// The rendering context for template-driven pages created with ``StepBuilder/createPage(_:using:)``.

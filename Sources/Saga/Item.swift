@@ -26,6 +26,8 @@ public protocol AnyItem: AnyObject, Sendable {
   var url: String { get }
   var children: [AnyItem] { get set }
   var parent: AnyItem? { get set }
+  var locale: String? { get set }
+  var translations: [String: AnyItem] { get set }
 }
 
 /// A model representing an item.
@@ -62,6 +64,12 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   /// The parsed metadata. ``Metadata`` can be any `Codable` object.
   public var metadata: M
 
+  /// The locale of this item, or `nil` when i18n is not configured.
+  public var locale: String? = nil
+
+  /// Other language versions of this item, keyed by locale.
+  public var translations: [String: AnyItem] = [:]
+
   /// Type-erased children. Populated automatically by nested registrations.
   public var children: [AnyItem] = []
 
@@ -76,6 +84,11 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   /// Typed accessor for parent.
   public func parent<P: Metadata>(as type: P.Type) -> Item<P> {
     parent as! Item<P>
+  }
+
+  /// Returns the translation for the given locale, if available.
+  public func translation(for locale: String) -> Item<M>? {
+    translations[locale] as? Item<M>
   }
 
   public init(absoluteSource: Path, relativeSource: Path, relativeDestination: Path, title: String, body: String, date: Date, created: Date, lastModified: Date, metadata: M) {
