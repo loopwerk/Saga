@@ -26,6 +26,13 @@ public struct I18NConfig: Sendable {
   /// - `nl/articles/hello.md` → `nl/articles/hello/index.html`
   public let prefixDefaultLocaleOutputFolder: Bool
 
+  /// Localized output folder names, keyed by content folder → [locale → output folder].
+  ///
+  /// For example, `["articles": ["nl": "artikelen"]]` causes Dutch articles to be
+  /// written to `nl/artikelen/` instead of `nl/articles/`.
+  /// Locales not in the map use the original folder name.
+  public let localizedOutputFolders: [String: [String: String]]
+
   /// Whether the given locale should be prefixed in output paths.
   func shouldPrefix(locale: String) -> Bool {
     prefixDefaultLocaleOutputFolder || locale != defaultLocale

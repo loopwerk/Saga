@@ -51,8 +51,8 @@ extension Saga {
         var stripped = String(str.dropFirst(prefix.count))
 
         // Apply folder mappings (e.g. articles/logo.png → artikelen/logo.png)
-        if let mappings = folderMappings[locale] {
-          for (contentFolder, outputFolder) in mappings {
+        for (contentFolder, localeMap) in config.localizedOutputFolders {
+          if let outputFolder = localeMap[locale] {
             let contentPrefix = contentFolder + "/"
             if stripped.hasPrefix(contentPrefix) {
               stripped = outputFolder + "/" + String(stripped.dropFirst(contentPrefix.count))

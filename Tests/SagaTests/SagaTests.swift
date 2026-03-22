@@ -1408,10 +1408,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
       .register(
         folder: "articles",
-        localizedOutputFolder: ["nl": "artikelen"],
         metadata: EmptyMetadata.self,
         readers: [.mock(frontmatter: ["date": "2025-01-01"])],
         writers: [
@@ -1588,10 +1587,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
       .register(
         folder: "articles",
-        localizedOutputFolder: ["nl": "artikelen"],
         metadata: EmptyMetadata.self,
         readers: [.mock(frontmatter: ["date": "2025-01-01"])],
         writers: [
@@ -1628,10 +1626,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
       .register(
         folder: "articles",
-        localizedOutputFolder: ["nl": "artikelen"],
         metadata: TaggedMetadata.self,
         readers: [.mock(frontmatter: ["date": "2025-01-01", "tags": "swift, saga"])],
         writers: [
@@ -1724,10 +1721,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
 
     // The Dutch article has a slug override
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
       .register(
         folder: "articles",
-        localizedOutputFolder: ["nl": "artikelen"],
         metadata: EmptyMetadata.self,
         readers: [
           .init(supportedExtensions: ["md"]) { path in
@@ -1782,10 +1778,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
       .register(
         folder: "articles",
-        localizedOutputFolder: ["nl": "artikelen"],
         metadata: EmptyMetadata.self,
         readers: [.mock(frontmatter: ["date": "2025-01-01"])],
         writers: []

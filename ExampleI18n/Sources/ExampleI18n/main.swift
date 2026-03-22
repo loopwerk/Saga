@@ -15,13 +15,15 @@ struct ArticleMetadata: Metadata {
 }
 
 try await Saga(input: "content", output: "deploy")
-  .i18n(locales: ["en", "nl"], defaultLocale: "en")
+  .i18n(
+    locales: ["en", "nl"],
+    defaultLocale: "en",
+    localizedOutputFolders: ["articles": ["nl": "artikelen"]]
+  )
 
   // Articles with list and tag pages
-  // Dutch uses "artikelen" instead of "articles" in the URL
   .register(
     folder: "articles",
-    localizedOutputFolder: ["nl": "artikelen"],
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [

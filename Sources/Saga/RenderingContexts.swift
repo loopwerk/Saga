@@ -2,25 +2,25 @@ import SagaPathKit
 
 // A protocol for rendering contexts that can be used to generate Atom feeds.
 #if compiler(>=6.2)
-public protocol AtomContext: SendableMetatype {
-  associatedtype M: Metadata
-  
-  /// The items to include in the feed.
-  var items: [Item<M>] { get }
-  
-  /// The output path of the page being rendered.
-  var outputPath: Path { get }
-}
+  public protocol AtomContext: SendableMetatype {
+    associatedtype M: Metadata
+
+    /// The items to include in the feed.
+    var items: [Item<M>] { get }
+
+    /// The output path of the page being rendered.
+    var outputPath: Path { get }
+  }
 #else
-public protocol AtomContext {
-  associatedtype M: Metadata
-  
-  /// The items to include in the feed.
-  var items: [Item<M>] { get }
-  
-  /// The output path of the page being rendered.
-  var outputPath: Path { get }
-}
+  public protocol AtomContext {
+    associatedtype M: Metadata
+
+    /// The items to include in the feed.
+    var items: [Item<M>] { get }
+
+    /// The output path of the page being rendered.
+    var outputPath: Path { get }
+  }
 #endif
 
 /// The rendering context passed to an ``Writer/itemWriter(_:)`` renderer.

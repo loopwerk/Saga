@@ -79,10 +79,13 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
-  ///   .i18n(locales: ["en", "nl"], defaultLocale: "en")
+  ///   .i18n(
+  ///     locales: ["en", "nl"],
+  ///     defaultLocale: "en",
+  ///     localizedOutputFolders: ["articles": ["nl": "artikelen"]]
+  ///   )
   ///   .register(
   ///     folder: "articles",
-  ///     localizedOutputFolder: ["nl": "artikelen"],
   ///     metadata: ArticleMetadata.self,
   ///     readers: [.parsleyMarkdownReader],
   ///     writers: [.itemWriter(swim(renderArticle))]
@@ -94,10 +97,17 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///   - locales: The supported locales (e.g. `["en", "nl"]`).
   ///   - defaultLocale: The default locale. Its content is written to the root unless `prefixDefaultLocaleOutputFolder` is `true`.
   ///   - prefixDefaultLocaleOutputFolder: Whether the default locale should also get a subdirectory prefix. Defaults to `false`.
+  ///   - localizedOutputFolders: A mapping of content folder → [locale → output folder]. Allows output folder names
+  ///     to differ from content folder names per locale. Locales not in the map use the original folder name.
   @discardableResult
-  public func i18n(locales: [String], defaultLocale: String, prefixDefaultLocaleOutputFolder: Bool = false) -> Self {
+  public func i18n(
+    locales: [String],
+    defaultLocale: String,
+    prefixDefaultLocaleOutputFolder: Bool = false,
+    localizedOutputFolders: [String: [String: String]] = [:]
+  ) -> Self {
     precondition(locales.contains(defaultLocale), "defaultLocale \"\(defaultLocale)\" must be included in locales \(locales)")
-    i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, prefixDefaultLocaleOutputFolder: prefixDefaultLocaleOutputFolder)
+    i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, prefixDefaultLocaleOutputFolder: prefixDefaultLocaleOutputFolder, localizedOutputFolders: localizedOutputFolders)
     return self
   }
 

@@ -82,18 +82,13 @@ This writes `en/index.md` to `deploy/en/index.html`.
 
 ## Localized folder names
 
-By default, the output folder name matches the content folder name. Use `localizedOutputFolder` to give locales different URL segments:
+By default, the output folder name matches the content folder name. Use `localizedOutputFolders` on the `i18n()` call to give locales different URL segments:
 
 ```swift
-.register(
-  folder: "articles",
-  localizedOutputFolder: ["nl": "artikelen"],
-  metadata: ArticleMetadata.self,
-  readers: [.parsleyMarkdownReader],
-  writers: [
-    .itemWriter(swim(renderArticle)),
-    .listWriter(swim(renderArticles)),
-  ]
+.i18n(
+  locales: ["en", "nl"],
+  defaultLocale: "en",
+  localizedOutputFolders: ["articles": ["nl": "artikelen"]]
 )
 ```
 
@@ -135,7 +130,7 @@ slug: over-ons
 
 With this frontmatter, `nl/about.md` is written to `deploy/nl/over-ons/index.html` but still links to `en/about.md` as its English translation.
 
-Combined with `localizedOutputFolder`, you can build fully localized URL structures:
+Combined with `localizedOutputFolders`, you can build fully localized URL structures:
 
 ```
 /articles/getting-started/         (English)
@@ -205,10 +200,13 @@ struct ArticleMetadata: Metadata {
 }
 
 try await Saga(input: "content", output: "deploy")
-  .i18n(locales: ["en", "nl"], defaultLocale: "en")
+  .i18n(
+    locales: ["en", "nl"],
+    defaultLocale: "en",
+    localizedOutputFolders: ["articles": ["nl": "artikelen"]]
+  )
   .register(
     folder: "articles",
-    localizedOutputFolder: ["nl": "artikelen"],
     metadata: ArticleMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [

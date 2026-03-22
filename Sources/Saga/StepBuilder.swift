@@ -77,11 +77,6 @@ public class StepBuilder: @unchecked Sendable {
   /// i18n configuration, or `nil` when i18n is not enabled.
   public var i18nConfig: I18NConfig?
   let locale: String? // when set, this builder is scoped to a specific locale
-  let localizedOutputFolder: [String: String]? // locale → output folder name
-
-  /// Accumulated folder mappings for static file copying.
-  /// Maps locale → [contentFolder/ → outputFolder/]
-  var folderMappings: [String: [String: String]] = [:]
 
   /// Output prefixes for all locales in the current register call. Passed through to writers for translations.
   var localeOutputPrefixes: [String: Path] = [:]
@@ -90,22 +85,18 @@ public class StepBuilder: @unchecked Sendable {
     files: [(path: Path, relativePath: Path)],
     workingPath: Path,
     i18nConfig: I18NConfig? = nil,
-    locale: String? = nil,
-    localizedOutputFolder: [String: String]? = nil
+    locale: String? = nil
   ) {
     self.files = files
     self.workingPath = workingPath
     self.i18nConfig = i18nConfig
     self.locale = locale
-    self.localizedOutputFolder = localizedOutputFolder
   }
 
-  /// Compute the output folder for a given locale.
-  ///
-  /// When `localizedOutputFolder` contains a mapping for the locale, use that.
-  /// Otherwise, use the original folder name.
+  /// Compute the output folder for a given locale and content folder,
+  /// using the mapping from ``I18NConfig/localizedOutputFolders``.
   private func outputFolder(for locale: String, folder: Path) -> Path {
-    if let mapping = localizedOutputFolder, let localized = mapping[locale] {
+    if let localized = i18nConfig?.localizedOutputFolders[folder.string]?[locale] {
       return Path(localized)
     }
     return folder
@@ -115,8 +106,6 @@ public class StepBuilder: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
-  ///   - localizedOutputFolder: A mapping of locale to output folder name. When i18n is configured, this allows
-  ///     the output folder to differ from the content folder per locale. Locales not in the map use the original `folder` name.
   ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
@@ -131,7 +120,6 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func register<M: Metadata>(
     folder: Path? = nil,
-    localizedOutputFolder: [String: String]? = nil,
     metadata: M.Type = EmptyMetadata.self,
     readers: [Reader] = [],
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
@@ -151,20 +139,12 @@ public class StepBuilder: @unchecked Sendable {
 
     // When i18n is configured and not yet locale-scoped, fan out into per-locale steps
     if let i18n = i18nConfig, locale == nil {
-      // Record folder mappings for static file copying
-      let effectiveMapping = localizedOutputFolder ?? self.localizedOutputFolder
-      if let effectiveMapping, let folder {
-        let contentFolder = (workingPath + folder).string
-        for (locale, outputFolder) in effectiveMapping {
-          folderMappings[locale, default: [:]][contentFolder] = outputFolder
-        }
-      }
+      let effectiveFolder = workingPath + (folder ?? Path(""))
 
       // Compute output prefixes for all locales so writers can build translation links
-      let effectiveFolder = workingPath + (folder ?? Path(""))
       var allPrefixes: [String: Path] = [:]
       for loc in i18n.locales {
-        let locFolder = effectiveMapping.flatMap { $0[loc] }.map { Path($0) } ?? effectiveFolder
+        let locFolder = outputFolder(for: loc, folder: effectiveFolder)
         allPrefixes[loc] = i18n.shouldPrefix(locale: loc) ? Path(loc) + locFolder : locFolder
       }
 
@@ -173,8 +153,7 @@ public class StepBuilder: @unchecked Sendable {
           files: files,
           workingPath: workingPath,
           i18nConfig: i18nConfig,
-          locale: locale,
-          localizedOutputFolder: effectiveMapping
+          locale: locale
         )
         localeBuilder.localeOutputPrefixes = allPrefixes
         localeBuilder.register(
@@ -226,8 +205,7 @@ public class StepBuilder: @unchecked Sendable {
           files: files,
           workingPath: subFolderPath,
           i18nConfig: i18nConfig,
-          locale: locale,
-          localizedOutputFolder: localizedOutputFolder ?? self.localizedOutputFolder
+          locale: locale
         )
         nested(child)
         steps.append(contentsOf: child.steps)

@@ -8,12 +8,12 @@ Om een meertalige site te maken met Saga, begin je met het organiseren van je co
 
 ```swift
 try await Saga(input: "content", output: "deploy")
-  .i18n(locales: ["en", "nl"], defaultLocale: "en")
-  .register(
-    folder: "articles",
-    localizedOutputFolder: ["nl": "artikelen"],
-    ...
+  .i18n(
+    locales: ["en", "nl"],
+    defaultLocale: "en",
+    localizedOutputFolders: ["articles": ["nl": "artikelen"]]
   )
+  .register(...)
   .run()
 ```
 

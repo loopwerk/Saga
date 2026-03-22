@@ -7,12 +7,12 @@ To create a multilingual site with Saga, start by organizing your content into l
 
 ```swift
 try await Saga(input: "content", output: "deploy")
-  .i18n(locales: ["en", "nl"], defaultLocale: "en")
-  .register(
-    folder: "articles",
-    localizedOutputFolder: ["nl": "artikelen"],
-    ...
+  .i18n(
+    locales: ["en", "nl"],
+    defaultLocale: "en",
+    localizedOutputFolders: ["articles": ["nl": "artikelen"]]
   )
+  .register(...)
   .run()
 ```
 
