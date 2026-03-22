@@ -33,12 +33,15 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
 
-  // All remaining markdown files (index, about)
+  // All remaining markdown files (about, etc.)
   .register(
     metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [.itemWriter(swim(renderPage))]
   )
+
+  // Homepage — runs once per locale, allItems is filtered automatically
+  .createPage("index.html", forEachLocale: swim(renderHome))
 
   // Sitemap
   .createPage("sitemap.xml", using: Saga.sitemap(baseURL: SiteMetadata.url))

@@ -15,6 +15,8 @@ func t(_ key: String, locale: String) -> String {
       "tagged": "Tagged",
       "read_more": "Read more",
       "built_with": "Built with",
+      "welcome": "Welcome",
+      "latest_article": "Latest article",
     ],
     "nl": [
       "articles": "Artikelen",
@@ -23,6 +25,8 @@ func t(_ key: String, locale: String) -> String {
       "tagged": "Getagd",
       "read_more": "Lees meer",
       "built_with": "Gebouwd met",
+      "welcome": "Welkom",
+      "latest_article": "Nieuwste artikel",
     ],
   ]
   return strings[locale]?[key] ?? key
@@ -128,6 +132,25 @@ func renderTag(context: PartitionedRenderingContext<String, ArticleMetadata>) ->
     context.items.map { article in
       div(class: "article-card") {
         a(href: article.url) { article.title }
+      }
+    }
+  }
+}
+
+// MARK: - Home
+
+func renderHome(context: PageRenderingContext) -> Node {
+  let locale = context.locale ?? "en"
+
+  return baseHtml(title: t("home", locale: locale), locale: locale) {
+    languageSwitcher(currentLocale: locale, translations: context.translations)
+
+    h1 { t("welcome", locale: locale) }
+
+    if let latest = context.allItems.compactMap({ $0 as? Item<ArticleMetadata> }).first {
+      div(class: "article-card") {
+        p { t("latest_article", locale: locale) }
+        a(href: latest.url) { latest.title }
       }
     }
   }
