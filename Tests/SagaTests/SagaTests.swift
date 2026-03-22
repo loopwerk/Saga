@@ -1704,4 +1704,59 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let between = String(afterOnlyEnglish[..<nextUrl.lowerBound])
     XCTAssertFalse(between.contains("xhtml:link"))
   }
+
+  func testI18nSlugWithLocalizedOutputFolder() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "nl/articles/hello.md",
+      ]
+    }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    // The Dutch article has a slug override
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .register(
+        folder: "articles",
+        localizedOutputFolder: ["nl": "artikelen"],
+        metadata: EmptyMetadata.self,
+        readers: [
+          .init(supportedExtensions: ["md"]) { path in
+            let isNl = path.string.contains("nl/")
+            let frontmatter: [String: String] = isNl
+              ? ["date": "2025-01-01", "slug": "hallo"]
+              : ["date": "2025-01-01"]
+            return (title: "Test", body: "<p>\(path)</p>", frontmatter: frontmatter)
+          },
+        ],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+
+    // English: normal path
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
+
+    // Dutch: localized folder + slug override
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/artikelen/hallo/index.html" }))
+
+    // Translations should still be linked (same filename across locales)
+    let enItem = saga.allItems.first { $0.locale == "en" }
+    let nlItem = saga.allItems.first { $0.locale == "nl" }
+    XCTAssertTrue(enItem?.translations["nl"] === nlItem)
+    XCTAssertTrue(nlItem?.translations["en"] === enItem)
+  }
 }
