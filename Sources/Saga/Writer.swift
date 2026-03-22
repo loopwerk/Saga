@@ -10,7 +10,6 @@ struct WriterContext<M: Metadata> {
   let resourcesByFolder: [Path: [Path]]
   let subfolder: Path?
   let locale: String?
-  /// Output prefixes for all locales. Used to compute translations for list pages.
   let localeOutputPrefixes: [String: Path]
 }
 
@@ -100,7 +99,15 @@ public extension Writer {
         paginate: paginate,
         paginatedOutput: paginatedOutput
       ) {
-        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale, translations: writerContext.translatedURLs(for: output))
+        ItemsRenderingContext(
+          items: $0,
+          allItems: $1,
+          paginator: $2,
+          outputPath: $3,
+          subfolder: writerContext.subfolder,
+          locale: writerContext.locale,
+          translations: writerContext.translatedURLs(for: output)
+        )
       }
     }
   }
@@ -146,7 +153,16 @@ public extension Writer {
               paginate: paginate,
               paginatedOutput: finishedPaginatedOutputPath
             ) {
-              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale, translations: [:])
+              PartitionedRenderingContext(
+                key: key,
+                items: $0,
+                allItems: $1,
+                paginator: $2,
+                outputPath: $3,
+                subfolder: writerContext.subfolder,
+                locale: writerContext.locale,
+                translations: [:]
+              )
             }
           }
         }

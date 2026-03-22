@@ -32,7 +32,7 @@ func t(_ key: String, locale: String) -> String {
 
 func languageSwitcher(currentLocale: String, translations: [String: String]) -> Node {
   nav(class: "lang-switcher") {
-    translations.sorted(by: { $0.key < $1.key }).map { (locale, url) in
+    translations.sorted(by: { $0.key < $1.key }).map { locale, url in
       if locale == currentLocale {
         span(class: "active") { locale.uppercased() }
       } else {
