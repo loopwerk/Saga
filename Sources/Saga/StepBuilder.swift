@@ -76,7 +76,7 @@ public class StepBuilder: @unchecked Sendable {
   let workingPath: Path // relative to inputPath, without locale prefix
 
   /// i18n configuration, or `nil` when i18n is not enabled.
-  public var i18nConfig: I18NConfig?
+  var i18nConfig: I18NConfig?
   let locale: String? // when set, this builder is scoped to a specific locale
 
   /// Output prefixes for all locales in the current register call. Passed through to writers for translations.

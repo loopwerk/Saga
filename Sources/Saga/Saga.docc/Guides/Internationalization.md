@@ -10,7 +10,7 @@ Each locale has its own folder under your content directory (`en/articles/hello.
 
 ## Configuration
 
-Call ``Saga/i18n(locales:defaultLocale:prefixDefaultLocaleOutputFolder:)`` before your `register` calls:
+Call ``Saga/i18n(locales:defaultLocale:prefixDefaultLocaleOutputFolder:localizedOutputFolders:)`` before your `register` calls:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -108,13 +108,13 @@ Saga links translations automatically by matching source filenames. `en/articles
 Access translations via the `translations` property on any item:
 
 ```swift
-// Dictionary of locale → item, excluding the current locale
-let dutchVersion = context.item.translation(for: "nl")
-
 // Iterate all translations
 for (locale, item) in context.item.translations {
   // locale: "nl", item: the Dutch version
 }
+
+// Grab a specific translation
+let dutchVersion = context.item.translation(for: "nl")
 ```
 
 ## Localized slugs
@@ -132,23 +132,14 @@ With this frontmatter, `nl/about.md` is written to `deploy/nl/over-ons/index.htm
 
 Combined with `localizedOutputFolders`, you can build fully localized URL structures:
 
-```
-/articles/getting-started/         (English)
-/nl/artikelen/aan-de-slag/         (Dutch, localized folder + slug)
-```
-
-## Writers and i18n
-
-Writers automatically run per-locale when i18n is configured:
-
-- **`itemWriter`** renders each item as usual. Output paths already reflect the locale.
-- **`listWriter`** generates a separate list page per locale, containing only that locale's items. For example, `/articles/index.html` lists English articles and `/nl/artikelen/index.html` lists Dutch articles.
-- **`tagWriter`** and **`yearWriter`** partition per-locale, so `/articles/tag/swift/` contains only English articles tagged "swift".
-- **Atom feeds** are generated per-locale when used as a `listWriter` output.
+| Source | Output |
+|---|---|
+| `en/articles/getting-started.md` | `deploy/articles/getting-started/index.html` |
+| `nl/articles/getting-started.md` | `deploy/nl/artikelen/aan-de-slag/index.html` |
 
 ## Template-driven pages
 
-Use `createPage(_:forEachLocale:)` to create pages that run once per locale, like a homepage:
+Use ``StepBuilder/createPage(_:forEachLocale:)`` to create pages that run once per locale, like a homepage:
 
 ```swift
 .createPage("index.html", forEachLocale: swim(renderHome))
@@ -156,7 +147,7 @@ Use `createPage(_:forEachLocale:)` to create pages that run once per locale, lik
 
 This writes `index.html` for the default locale and `nl/index.html` for Dutch (etc.). The renderer receives a `PageRenderingContext` with `locale` set and `allItems` filtered to that locale.
 
-For pages that don't need per-locale variants (sitemaps, 404 pages), use the regular `createPage(_:using:)`.
+For pages that don't need per-locale variants (sitemaps, 404 pages), use the regular ``StepBuilder/createPage(_:using:)``.
 
 ## Rendering context
 
@@ -175,7 +166,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
 
 ## Building a language switcher
 
-All rendering contexts provide a `translations` dictionary mapping locale to URL. This works for item pages, list pages, and `forEachLocale` pages:
+All rendering contexts provide a `translations` dictionary mapping locale to URL.
 
 ```swift
 func languageSwitcher(currentLocale: String, translations: [String: String]) -> Node {
@@ -194,19 +185,8 @@ func languageSwitcher(currentLocale: String, translations: [String: String]) -> 
 languageSwitcher(currentLocale: context.locale ?? "en", translations: context.translations)
 ```
 
-## String translation
+> Tip: See the [ExampleI18n project](https://github.com/loopwerk/Saga/blob/main/ExampleI18n) for a full working site with templates.
 
-Saga does not provide a built-in UI string translation system. For localized labels ("Articles", "Read more", etc.), define your own lookup:
-
-```swift
-func t(_ key: String, locale: String) -> String {
-  let strings: [String: [String: String]] = [
-    "en": ["articles": "Articles", "about": "About", "read_more": "Read more"],
-    "nl": ["articles": "Artikelen", "about": "Over ons", "read_more": "Lees meer"],
-  ]
-  return strings[locale]?[key] ?? key
-}
-```
 
 ## Complete example
 
@@ -241,4 +221,6 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-This single pipeline generates a complete bilingual site with articles, pages, per-locale homepages, and a sitemap — all from one set of `register` calls. See the [ExampleI18n project](https://github.com/loopwerk/Saga/blob/main/ExampleI18n) for a full working site with templates.
+This single pipeline generates a complete bilingual site with articles, pages, per-locale homepages, and a sitemap — all from one set of `register` calls. 
+
+> Tip: See the [ExampleI18n project](https://github.com/loopwerk/Saga/blob/main/ExampleI18n) for a full working site with templates.

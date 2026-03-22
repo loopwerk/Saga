@@ -8,12 +8,12 @@
 /// ```
 ///
 /// Each `register()` call automatically fans out into per-locale processing steps.
-public struct I18NConfig: Sendable {
+struct I18NConfig: Sendable {
   /// The supported locales (e.g. `["en", "nl", "de"]`).
-  public let locales: [String]
+  let locales: [String]
 
   /// The default locale (e.g. `"en"`).
-  public let defaultLocale: String
+  let defaultLocale: String
 
   /// Whether the default locale should be placed in a subdirectory.
   ///
@@ -24,14 +24,14 @@ public struct I18NConfig: Sendable {
   /// When `true`, all locales get a subdirectory prefix:
   /// - `en/articles/hello.md` → `en/articles/hello/index.html`
   /// - `nl/articles/hello.md` → `nl/articles/hello/index.html`
-  public let prefixDefaultLocaleOutputFolder: Bool
+  let prefixDefaultLocaleOutputFolder: Bool
 
   /// Localized output folder names, keyed by content folder → [locale → output folder].
   ///
   /// For example, `["articles": ["nl": "artikelen"]]` causes Dutch articles to be
   /// written to `nl/artikelen/` instead of `nl/articles/`.
   /// Locales not in the map use the original folder name.
-  public let localizedOutputFolders: [String: [String: String]]
+  let localizedOutputFolders: [String: [String: String]]
 
   /// Whether the given locale should be prefixed in output paths.
   func shouldPrefix(locale: String) -> Bool {

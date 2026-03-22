@@ -132,7 +132,7 @@ public struct PageRenderingContext: Sendable {
   /// The output path of the page being rendered.
   public let outputPath: Path
 
-  /// Relative paths of all pages written by writers and earlier ``StepBuilder/createPage(_:using:)`` calls.
+  /// Relative paths of all pages written by writers and earlier `createPage` calls.
   public let generatedPages: [Path]
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.

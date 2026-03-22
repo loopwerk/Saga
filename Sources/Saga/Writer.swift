@@ -11,9 +11,7 @@ struct WriterContext<M: Metadata> {
   let subfolder: Path?
   let locale: String?
   let localeOutputPrefixes: [String: Path]
-}
 
-extension WriterContext {
   /// Compute translated URLs for a list page output path.
   func translatedURLs(for output: Path) -> [String: String] {
     guard locale != nil else { return [:] }
