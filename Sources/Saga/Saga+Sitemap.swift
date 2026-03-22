@@ -4,6 +4,11 @@ import SagaPathKit
 public extension Saga {
   /// A renderer which creates an XML sitemap from all generated pages.
   ///
+  /// When i18n is configured, the sitemap includes `xhtml:link` alternate entries
+  /// for pages that have translations in other locales, following Google's
+  /// [multilingual sitemap](https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap)
+  /// specification.
+  ///
   /// - Parameters:
   ///   - baseURL: The base URL of your website, for example `https://www.example.com`.
   ///   - filter: An optional filter to exclude certain paths from the sitemap.
@@ -30,19 +35,42 @@ public extension Saga {
 
       paths.sort { $0.string < $1.string }
 
-      var xml = """
-      <?xml version="1.0" encoding="UTF-8"?>
-      <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      // Build a lookup from destination path → item for alternate links
+      let pathSet = Set(paths.map(\.string))
+      var itemByDest: [String: AnyItem] = [:]
+      for item in context.allItems where item.locale != nil {
+        if pathSet.contains(item.relativeDestination.string) {
+          itemByDest[item.relativeDestination.string] = item
+        }
+      }
 
-      """
+      let hasAlternates = !itemByDest.isEmpty
+      var xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      xml += "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\""
+      if hasAlternates {
+        xml += "\n xmlns:xhtml=\"http://www.w3.org/1999/xhtml\""
+      }
+      xml += ">\n"
 
       for path in paths {
-        xml += """
-          <url>
-            <loc>\(base)\(path.url)</loc>
-          </url>
+        xml += "<url>\n"
+        xml += "<loc>\(base)\(path.url)</loc>\n"
 
-        """
+        if let item = itemByDest[path.string], let locale = item.locale, !item.translations.isEmpty {
+          // Include self + all translations as alternates
+          var alternates = [(locale, path)]
+          for (tLocale, tItem) in item.translations {
+            if pathSet.contains(tItem.relativeDestination.string) {
+              alternates.append((tLocale, tItem.relativeDestination))
+            }
+          }
+          alternates.sort { $0.0 < $1.0 }
+          for (altLocale, altPath) in alternates {
+            xml += "<xhtml:link rel=\"alternate\" hreflang=\"\(altLocale)\" href=\"\(base)\(altPath.url)\"/>\n"
+          }
+        }
+
+        xml += "</url>\n"
       }
 
       xml += "</urlset>"

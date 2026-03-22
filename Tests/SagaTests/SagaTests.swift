@@ -1407,7 +1407,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       }
     }
 
-    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+    try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en")
       .register(
         folder: "articles",
@@ -1447,7 +1447,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       }
     }
 
-    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+    try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", defaultLocaleInSubdir: true)
       .register(
         folder: "articles",
@@ -1649,5 +1649,59 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Dutch tags at nl/artikelen/tag/...
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/artikelen/tag/swift/index.html" && $0.content == "tag:swift:nl" }))
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/nl/artikelen/tag/saga/index.html" && $0.content == "tag:saga:nl" }))
+  }
+
+  func testI18nSitemapWithAlternates() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "nl/articles/hello.md",
+        "en/articles/only-english.md",
+      ]
+    }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .createPage("sitemap.xml", using: Saga.sitemap(baseURL: URL(string: "https://example.com")!))
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let sitemapPage = finalWrittenPages.first { $0.destination == "root/output/sitemap.xml" }
+    XCTAssertNotNil(sitemapPage)
+
+    let sitemap = sitemapPage!.content
+
+    // Should have xhtml namespace since there are alternates
+    XCTAssertTrue(sitemap.contains("xmlns:xhtml"))
+
+    // The hello page (has both locales) should have alternate links
+    XCTAssertTrue(sitemap.contains("hreflang=\"en\" href=\"https://example.com/articles/hello/\""))
+    XCTAssertTrue(sitemap.contains("hreflang=\"nl\" href=\"https://example.com/nl/articles/hello/\""))
+
+    // The only-english page should NOT have alternate links
+    XCTAssertTrue(sitemap.contains("<loc>https://example.com/articles/only-english/</loc>"))
+    // Check it doesn't have an xhtml:link right after it
+    let onlyEnglishRange = sitemap.range(of: "<loc>https://example.com/articles/only-english/</loc>")!
+    let afterOnlyEnglish = sitemap[onlyEnglishRange.upperBound...]
+    let nextUrl = afterOnlyEnglish.range(of: "</url>")!
+    let between = String(afterOnlyEnglish[..<nextUrl.lowerBound])
+    XCTAssertFalse(between.contains("xhtml:link"))
   }
 }
