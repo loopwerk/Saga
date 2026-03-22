@@ -107,6 +107,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
     localizedOutputFolders: [String: [String: String]] = [:]
   ) -> Self {
     precondition(locales.contains(defaultLocale), "defaultLocale \"\(defaultLocale)\" must be included in locales \(locales)")
+    precondition(steps.isEmpty, "i18n() must be called before register()")
     i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, prefixDefaultLocaleOutputFolder: prefixDefaultLocaleOutputFolder, localizedOutputFolders: localizedOutputFolders)
     return self
   }
