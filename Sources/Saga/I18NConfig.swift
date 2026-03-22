@@ -24,10 +24,10 @@ public struct I18NConfig: Sendable {
   /// When `true`, all locales get a subdirectory prefix:
   /// - `en/articles/hello.md` → `en/articles/hello/index.html`
   /// - `nl/articles/hello.md` → `nl/articles/hello/index.html`
-  public let defaultLocaleInSubdir: Bool
+  public let prefixDefaultLocaleOutputFolder: Bool
 
   /// Whether the given locale should be prefixed in output paths.
   func shouldPrefix(locale: String) -> Bool {
-    defaultLocaleInSubdir || locale != defaultLocale
+    prefixDefaultLocaleOutputFolder || locale != defaultLocale
   }
 }

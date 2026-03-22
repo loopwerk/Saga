@@ -1448,7 +1448,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     }
 
     try await Saga(input: "input", output: "output", fileIO: mock)
-      .i18n(locales: ["en", "nl"], defaultLocale: "en", defaultLocaleInSubdir: true)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", prefixDefaultLocaleOutputFolder: true)
       .register(
         folder: "articles",
         metadata: EmptyMetadata.self,

@@ -92,12 +92,12 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - locales: The supported locales (e.g. `["en", "nl"]`).
-  ///   - defaultLocale: The default locale. Its content is written to the root unless `defaultLocaleInSubdir` is `true`.
-  ///   - defaultLocaleInSubdir: Whether the default locale should also get a subdirectory prefix. Defaults to `false`.
+  ///   - defaultLocale: The default locale. Its content is written to the root unless `prefixDefaultLocaleOutputFolder` is `true`.
+  ///   - prefixDefaultLocaleOutputFolder: Whether the default locale should also get a subdirectory prefix. Defaults to `false`.
   @discardableResult
-  public func i18n(locales: [String], defaultLocale: String, defaultLocaleInSubdir: Bool = false) -> Self {
+  public func i18n(locales: [String], defaultLocale: String, prefixDefaultLocaleOutputFolder: Bool = false) -> Self {
     precondition(locales.contains(defaultLocale), "defaultLocale \"\(defaultLocale)\" must be included in locales \(locales)")
-    i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, defaultLocaleInSubdir: defaultLocaleInSubdir)
+    i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, prefixDefaultLocaleOutputFolder: prefixDefaultLocaleOutputFolder)
     return self
   }
 

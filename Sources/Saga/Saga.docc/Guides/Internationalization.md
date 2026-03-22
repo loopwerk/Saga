@@ -10,7 +10,7 @@ Each locale has its own folder under your content directory (`en/articles/hello.
 
 ## Configuration
 
-Call ``Saga/i18n(locales:defaultLocale:defaultLocaleInSubdir:)`` before your `register` calls:
+Call ``Saga/i18n(locales:defaultLocale:prefixDefaultLocaleOutputFolder:)`` before your `register` calls:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -68,13 +68,13 @@ By default, the default locale's content is written to the root, and other local
 | `en/index.md` | `deploy/index.html` |
 | `nl/index.md` | `deploy/nl/index.html` |
 
-Set `defaultLocaleInSubdir: true` to prefix all locales, including the default:
+Set `prefixDefaultLocaleOutputFolder: true` to prefix all locales, including the default:
 
 ```swift
 .i18n(
   locales: ["en", "nl"],
   defaultLocale: "en",
-  defaultLocaleInSubdir: true
+  prefixDefaultLocaleOutputFolder: true
 )
 ```
 

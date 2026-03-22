@@ -1,5 +1,28 @@
 import SagaPathKit
 
+// A protocol for rendering contexts that can be used to generate Atom feeds.
+#if compiler(>=6.2)
+public protocol AtomContext: SendableMetatype {
+  associatedtype M: Metadata
+  
+  /// The items to include in the feed.
+  var items: [Item<M>] { get }
+  
+  /// The output path of the page being rendered.
+  var outputPath: Path { get }
+}
+#else
+public protocol AtomContext {
+  associatedtype M: Metadata
+  
+  /// The items to include in the feed.
+  var items: [Item<M>] { get }
+  
+  /// The output path of the page being rendered.
+  var outputPath: Path { get }
+}
+#endif
+
 /// The rendering context passed to an ``Writer/itemWriter(_:)`` renderer.
 ///
 /// Contains the single item being rendered, along with all items from the same processing step,
@@ -31,32 +54,8 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
   public let locale: String?
 
   /// URLs for this page in other locales.
-  /// For item pages, this is derived from the item's translation links.
   public let translations: [String: String]
 }
-
-// A protocol for rendering contexts that can be used to generate Atom feeds.
-#if compiler(>=6.2)
-  public protocol AtomContext: SendableMetatype {
-    associatedtype M: Metadata
-
-    /// The items to include in the feed.
-    var items: [Item<M>] { get }
-
-    /// The output path of the page being rendered.
-    var outputPath: Path { get }
-  }
-#else
-  public protocol AtomContext {
-    associatedtype M: Metadata
-
-    /// The items to include in the feed.
-    var items: [Item<M>] { get }
-
-    /// The output path of the page being rendered.
-    var outputPath: Path { get }
-  }
-#endif
 
 /// The rendering context passed to a ``Writer/listWriter(_:output:paginate:paginatedOutput:)`` renderer.
 ///
