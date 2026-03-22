@@ -36,6 +36,7 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
   public let items: [Item<M>]
 
   /// All items across all registered processing steps.
+  /// When i18n is configured, this only contains items for the current locale.
   public let allItems: [AnyItem]
 
   /// Unhandled files in the same folder as the item, such as images or other static files.
@@ -65,6 +66,7 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext, Sendable {
   public let items: [Item<M>]
 
   /// All items across all registered processing steps.
+  /// When i18n is configured, this only contains items for the current locale.
   public let allItems: [AnyItem]
 
   /// Pagination information, or `nil` if the writer is not paginated.
@@ -99,6 +101,7 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
   public let items: [Item<M>]
 
   /// All items across all registered processing steps.
+  /// When i18n is configured, this only contains items for the current locale.
   public let allItems: [AnyItem]
 
   /// Pagination information, or `nil` if the writer is not paginated.
@@ -123,6 +126,7 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 /// that are purely template-driven, such as a homepage, search page, or 404 page.
 public struct PageRenderingContext: Sendable {
   /// All items across all registered processing steps.
+  /// When i18n is configured and a locale is set, this only contains items for that locale.
   public let allItems: [AnyItem]
 
   /// The output path of the page being rendered.
@@ -130,6 +134,12 @@ public struct PageRenderingContext: Sendable {
 
   /// Relative paths of all pages written by writers and earlier ``StepBuilder/createPage(_:using:)`` calls.
   public let generatedPages: [Path]
+
+  /// The locale of this rendering context, or `nil` when i18n is not configured.
+  public let locale: String?
+
+  /// URLs for this page in all locales, keyed by locale. Empty when i18n is not configured.
+  public let translations: [String: String]
 }
 
 /// A model representing a paginator.

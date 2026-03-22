@@ -15,7 +15,7 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
 }
 
 /// Tags items with their locale and rewrites their output paths for i18n.
-private func addLocaleToItems(_ items: [AnyItem], locale: String, config: I18NConfig, readFolder: Path, outputPrefix: Path) {
+private func applyLocaleToItems(_ items: [AnyItem], locale: String, config: I18NConfig, readFolder: Path, outputPrefix: Path) {
   let readPrefix = readFolder.string.isEmpty ? "" : readFolder.string + "/"
   let outputPrefixStr = outputPrefix.string.isEmpty ? "" : outputPrefix.string + "/"
 
@@ -44,9 +44,10 @@ private func executeWriters<M: Metadata>(
 ) async throws {
   guard !writers.isEmpty else { return }
 
+  let filteredAllItems = locale == nil ? saga.allItems : saga.allItems.filter { $0.locale == locale }
   let context = WriterContext(
     items: items,
-    allItems: saga.allItems,
+    allItems: filteredAllItems,
     outputRoot: saga.outputPath,
     outputPrefix: outputPrefix,
     write: { try saga.processedWrite($0, $1) },
@@ -95,11 +96,11 @@ public class StepBuilder: @unchecked Sendable {
 
   /// Compute the output folder for a given locale and content folder,
   /// using the mapping from ``I18NConfig/localizedOutputFolders``.
-  private func outputFolder(for locale: String, folder: Path) -> Path {
-    if let localized = i18nConfig?.localizedOutputFolders[folder.string]?[locale] {
+  private func outputFolder(for locale: String, contentFolder: Path) -> Path {
+    if let localized = i18nConfig?.localizedOutputFolders[contentFolder.string]?[locale] {
       return Path(localized)
     }
-    return folder
+    return contentFolder
   }
 
   /// Register a new pipeline step.
@@ -144,7 +145,7 @@ public class StepBuilder: @unchecked Sendable {
       // Compute output prefixes for all locales so writers can build translation links
       var allPrefixes: [String: Path] = [:]
       for loc in i18n.locales {
-        let locFolder = outputFolder(for: loc, folder: effectiveFolder)
+        let locFolder = outputFolder(for: loc, contentFolder: effectiveFolder)
         allPrefixes[loc] = i18n.shouldPrefix(locale: loc) ? Path(loc) + locFolder : locFolder
       }
 
@@ -179,7 +180,7 @@ public class StepBuilder: @unchecked Sendable {
     let readFolder = locale.map { Path($0) + effectiveFolder } ?? effectiveFolder
 
     // Compute the output prefix: locale prefix (if needed) + localized folder name
-    let localizedFolder = locale.map { outputFolder(for: $0, folder: effectiveFolder) } ?? effectiveFolder
+    let localizedFolder = locale.map { outputFolder(for: $0, contentFolder: effectiveFolder) } ?? effectiveFolder
     let outputPrefix: Path = if let locale, let i18n = i18nConfig, i18n.shouldPrefix(locale: locale) {
       Path(locale) + localizedFolder
     } else {
@@ -246,7 +247,7 @@ public class StepBuilder: @unchecked Sendable {
         )
 
         if let locale, let i18n = saga.i18nConfig {
-          addLocaleToItems(items, locale: locale, config: i18n, readFolder: readFolder, outputPrefix: outputPrefix)
+          applyLocaleToItems(items, locale: locale, config: i18n, readFolder: readFolder, outputPrefix: outputPrefix)
         }
 
         return items
@@ -288,7 +289,7 @@ public class StepBuilder: @unchecked Sendable {
     steps.append(PipelineStep(
       read: { saga in
         if let cacheKey, let cachedItems: [Item<M>] = try? saga.loadCachedItems(key: cacheKey) {
-          print("💡Using cached \(cacheKey) items")
+          saga.fileIO.log("💡 Using cached \(cacheKey) items")
           items = cachedItems
         } else {
           items = try await fetch().sorted(by: sorting)
@@ -364,10 +365,74 @@ public class StepBuilder: @unchecked Sendable {
         let context = PageRenderingContext(
           allItems: saga.allItems,
           outputPath: fullOutput,
-          generatedPages: saga.generatedPages
+          generatedPages: saga.generatedPages,
+          locale: nil,
+          translations: [:]
         )
         let string = try await renderer(context)
         try saga.processedWrite(saga.outputPath + fullOutput, string)
+      }
+    ))
+
+    return self
+  }
+
+  /// Create a page per locale, driven purely by a template.
+  ///
+  /// When i18n is configured, the renderer runs once per locale. The output path is automatically
+  /// prefixed for non-default locales (e.g. `"index.html"` → `"nl/index.html"`).
+  /// The rendering context's ``PageRenderingContext/allItems`` only contains items for the current locale,
+  /// and ``PageRenderingContext/locale`` is set.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .i18n(locales: ["en", "nl"], defaultLocale: "en")
+  ///   .register(...)
+  ///   .createPage("index.html", forEachLocale: swim(renderHome))
+  ///   .run()
+  /// ```
+  @_disfavoredOverload
+  @discardableResult
+  @preconcurrency
+  public func createPage(_ output: Path, forEachLocale renderer: @Sendable @escaping (PageRenderingContext) async throws -> String) -> Self {
+    steps.append(PipelineStep(
+      read: { _ in [] },
+      write: { [workingPath] saga in
+        guard let i18n = saga.i18nConfig else {
+          // No i18n configured — behave like regular createPage
+          let fullOutput = workingPath + output
+          let context = PageRenderingContext(
+            allItems: saga.allItems,
+            outputPath: fullOutput,
+            generatedPages: saga.generatedPages,
+            locale: nil,
+            translations: [:]
+          )
+          let string = try await renderer(context)
+          try saga.processedWrite(saga.outputPath + fullOutput, string)
+          return
+        }
+
+        // Compute output paths for all locales
+        var localePaths: [String: Path] = [:]
+        for locale in i18n.locales {
+          let prefix = i18n.shouldPrefix(locale: locale) ? Path(locale) : Path("")
+          localePaths[locale] = prefix + workingPath + output
+        }
+
+        for locale in i18n.locales {
+          let fullOutput = localePaths[locale]!
+          let translations = localePaths.mapValues { $0.url }
+          let context = PageRenderingContext(
+            allItems: saga.allItems.filter { $0.locale == locale },
+            outputPath: fullOutput,
+            generatedPages: saga.generatedPages,
+            locale: locale,
+            translations: translations
+          )
+          let string = try await renderer(context)
+          try saga.processedWrite(saga.outputPath + fullOutput, string)
+        }
       }
     ))
 
@@ -427,7 +492,7 @@ public class StepBuilder: @unchecked Sendable {
           }
 
           if let locale, let i18n = saga.i18nConfig {
-            addLocaleToItems([parentItem], locale: locale, config: i18n, readFolder: readFolder, outputPrefix: outputPrefix)
+            applyLocaleToItems([parentItem], locale: locale, config: i18n, readFolder: readFolder, outputPrefix: outputPrefix)
           }
 
           // Wire children: match by the read path (which includes locale prefix)

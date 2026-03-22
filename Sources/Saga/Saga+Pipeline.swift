@@ -165,7 +165,7 @@ extension Saga {
             // We still mark it as handled, otherwise another, less specific, read step might
             // pick it up with an EmptyMetadata, turning a broken item suddenly into a working item,
             // which is probably not what you want.
-            print("❕File \(file.relativePath) failed conversion to Item<\(M.self)>, error: ", error)
+            self.fileIO.log("⚠️ File \(file.relativePath) failed conversion to Item<\(M.self)>, error: \(error)")
             return FileReadResult(filePath: file.path, item: nil, claimFile: true)
           }
         }

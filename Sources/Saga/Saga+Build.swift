@@ -99,7 +99,7 @@ extension Saga {
           try await self.build()
           self.signalParent(SIGUSR2)
         } catch {
-          print("Rebuild failed: \(error)")
+          self.fileIO.log("💥 Rebuild failed: \(error)")
         }
       }
     }

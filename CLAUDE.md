@@ -80,6 +80,7 @@ Saga is designed for extensibility via external packages:
 - `Saga.isCLI`: `true` when launched by saga-cli (checks `SAGA_CLI` env var). Used internally to activate file watching and rebuild loop.
 - `ignore(_:)`: Add glob patterns for files that should not trigger a dev rebuild (e.g. generated CSS).
 - `i18n(locales:defaultLocale:prefixDefaultLocaleOutputFolder:localizedOutputFolders:)`: Enable multilingual support. Content is organized in locale-prefixed folders (`en/articles/`, `nl/articles/`). Each `register()` call auto-fans into per-locale steps. Use `localizedOutputFolders` to map content folders to different output folder names per locale (e.g. `["articles": ["nl": "artikelen"]]`).
+- `createPage(_:forEachLocale:)`: Like `createPage(_:using:)` but runs the renderer once per locale. Output path is auto-prefixed, `allItems` is filtered to the current locale, and `locale`/`translations` are set on the context.
 - `Item.locale`: The locale of an item (`nil` without i18n).
 - `Item.translations`: Dictionary of locale → `AnyItem` linking translations by matching filenames across locale folders.
 - `Item.translation(for:)`: Typed accessor for a specific locale's translation.

@@ -146,36 +146,52 @@ Writers automatically run per-locale when i18n is configured:
 - **`tagWriter`** and **`yearWriter`** partition per-locale, so `/articles/tag/swift/` contains only English articles tagged "swift".
 - **Atom feeds** are generated per-locale when used as a `listWriter` output.
 
+## Template-driven pages
+
+Use `createPage(_:forEachLocale:)` to create pages that run once per locale, like a homepage:
+
+```swift
+.createPage("index.html", forEachLocale: swim(renderHome))
+```
+
+This writes `index.html` for the default locale and `nl/index.html` for Dutch (etc.). The renderer receives a `PageRenderingContext` with `locale` set and `allItems` filtered to that locale.
+
+For pages that don't need per-locale variants (sitemaps, 404 pages), use the regular `createPage(_:using:)`.
+
 ## Rendering context
 
-All rendering contexts include a `locale` property:
+All rendering contexts include `locale` and `translations` properties. When i18n is configured, `allItems` is automatically filtered to the current locale.
 
 ```swift
 func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
   let locale = context.locale ?? "en"
 
   html(lang: locale) {
-    // ...
+    // context.allItems only contains items for this locale
+    // context.translations has URLs for all locales
   }
 }
 ```
 
 ## Building a language switcher
 
-Use `context.item.translations` to build a language switcher that links to the same content in other locales:
+All rendering contexts provide a `translations` dictionary mapping locale to URL. This works for item pages, list pages, and `forEachLocale` pages:
 
 ```swift
-func languageSwitcher(currentLocale: String, item: AnyItem) -> Node {
+func languageSwitcher(currentLocale: String, translations: [String: String]) -> Node {
   nav(class: "lang-switcher") {
-    // Current locale (not a link)
-    span(class: "active") { currentLocale.uppercased() }
-
-    // Other locales
-    item.translations.sorted(by: { $0.key < $1.key }).map { (locale, translated) in
-      a(href: translated.url) { locale.uppercased() }
+    translations.sorted(by: { $0.key < $1.key }).map { (locale, url) in
+      if locale == currentLocale {
+        span(class: "active") { locale.uppercased() }
+      } else {
+        a(href: url) { locale.uppercased() }
+      }
     }
   }
 }
+
+// Use it from any rendering context:
+languageSwitcher(currentLocale: context.locale ?? "en", translations: context.translations)
 ```
 
 ## String translation
@@ -220,8 +236,9 @@ try await Saga(input: "content", output: "deploy")
     readers: [.parsleyMarkdownReader],
     writers: [.itemWriter(swim(renderPage))]
   )
+  .createPage("index.html", forEachLocale: swim(renderHome))
   .createPage("sitemap.xml", using: Saga.sitemap(baseURL: URL(string: "https://example.com")!))
   .run()
 ```
 
-This single pipeline generates a complete bilingual site with articles, pages, tag archives, and a sitemap — all from one set of `register` calls. See the [ExampleI18n project](https://github.com/loopwerk/Saga/blob/main/ExampleI18n) for a full working site with templates.
+This single pipeline generates a complete bilingual site with articles, pages, per-locale homepages, and a sitemap — all from one set of `register` calls. See the [ExampleI18n project](https://github.com/loopwerk/Saga/blob/main/ExampleI18n) for a full working site with templates.
