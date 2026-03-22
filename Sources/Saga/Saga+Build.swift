@@ -43,11 +43,7 @@ extension Saga {
     try await withThrowingTaskGroup(of: Void.self) { group in
       for file in unhandledFiles {
         group.addTask {
-          let output: Path = if let i18nConfig = self.i18nConfig {
-            self.outputPath + self.i18nOutputPath(for: file.relativePath, config: i18nConfig)
-          } else {
-            self.outputPath + file.relativePath
-          }
+          let output = self.outputPath + self.i18nOutputPath(for: file.relativePath)
           try self.fileIO.mkpath(output.parent())
           try self.fileIO.copy(file.path, output)
         }

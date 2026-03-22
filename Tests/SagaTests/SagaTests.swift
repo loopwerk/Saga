@@ -1679,14 +1679,14 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
           .itemWriter { context in context.item.body },
         ]
       )
-      .createPage("sitemap.xml", using: Saga.sitemap(baseURL: URL(string: "https://example.com")!))
+      .createPage("sitemap.xml", using: Saga.sitemap(baseURL: try XCTUnwrap(URL(string: "https://example.com"))))
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
     let sitemapPage = finalWrittenPages.first { $0.destination == "root/output/sitemap.xml" }
     XCTAssertNotNil(sitemapPage)
 
-    let sitemap = sitemapPage!.content
+    let sitemap = try XCTUnwrap(sitemapPage?.content)
 
     // Should have xhtml namespace since there are alternates
     XCTAssertTrue(sitemap.contains("xmlns:xhtml"))
@@ -1698,9 +1698,9 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // The only-english page should NOT have alternate links
     XCTAssertTrue(sitemap.contains("<loc>https://example.com/articles/only-english/</loc>"))
     // Check it doesn't have an xhtml:link right after it
-    let onlyEnglishRange = sitemap.range(of: "<loc>https://example.com/articles/only-english/</loc>")!
+    let onlyEnglishRange = try XCTUnwrap(sitemap.range(of: "<loc>https://example.com/articles/only-english/</loc>"))
     let afterOnlyEnglish = sitemap[onlyEnglishRange.upperBound...]
-    let nextUrl = afterOnlyEnglish.range(of: "</url>")!
+    let nextUrl = try XCTUnwrap(afterOnlyEnglish.range(of: "</url>"))
     let between = String(afterOnlyEnglish[..<nextUrl.lowerBound])
     XCTAssertFalse(between.contains("xhtml:link"))
   }
@@ -1758,5 +1758,49 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let nlItem = saga.allItems.first { $0.locale == "nl" }
     XCTAssertTrue(enItem?.translations["nl"] === nlItem)
     XCTAssertTrue(nlItem?.translations["en"] === enItem)
+  }
+
+  func testI18nStaticFilesUseLocalizedOutputFolder() async throws {
+    nonisolated(unsafe) var copiedFiles: [(from: Path, to: Path)] = []
+    let copiedQueue = DispatchQueue(label: "copied", attributes: .concurrent)
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "en/articles/chart.png",
+        "nl/articles/hello.md",
+        "nl/articles/chart.png",
+        "static/style.css",
+      ]
+    }
+    mock.write = { _, _ in }
+    mock.copy = { from, to in
+      copiedQueue.sync(flags: .barrier) {
+        copiedFiles.append((from: from, to: to))
+      }
+    }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .register(
+        folder: "articles",
+        localizedOutputFolder: ["nl": "artikelen"],
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: []
+      )
+      .run()
+
+    let finalCopied = copiedQueue.sync { copiedFiles }
+
+    // English static file: default locale, no prefix, folder stays "articles"
+    XCTAssertTrue(finalCopied.contains(where: { $0.to == "root/output/articles/chart.png" }))
+
+    // Dutch static file: locale prefix + localized folder name
+    XCTAssertTrue(finalCopied.contains(where: { $0.to == "root/output/nl/artikelen/chart.png" }))
+
+    // Files outside locale folders are unaffected
+    XCTAssertTrue(finalCopied.contains(where: { $0.to == "root/output/static/style.css" }))
   }
 }

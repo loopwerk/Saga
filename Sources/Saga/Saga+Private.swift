@@ -28,62 +28,6 @@ extension Saga {
     try fileIO.write(destination, result)
   }
 
-  /// Link items across locales by matching their source paths (after stripping the locale prefix).
-  ///
-  /// For example, `en/articles/hello.md` and `nl/articles/hello.md` share the translation key
-  /// `articles/hello.md`, so they become translations of each other.
-  func linkTranslations() {
-    // Group items by their translation key (source path without the locale prefix)
-    var groups: [String: [AnyItem]] = [:]
-    for item in allItems {
-      guard let locale = item.locale else { continue }
-      let key = translationKey(for: item.relativeSource, locale: locale)
-      groups[key, default: []].append(item)
-    }
-
-    // Wire up translations
-    for (_, items) in groups where items.count > 1 {
-      for item in items {
-        for other in items where other !== item {
-          if let otherLocale = other.locale {
-            item.translations[otherLocale] = other
-          }
-        }
-      }
-    }
-  }
-
-  /// Strip the locale prefix from a source path to get the translation key.
-  private func translationKey(for path: Path, locale: String) -> String {
-    let prefix = locale + "/"
-    let str = path.string
-    if str.hasPrefix(prefix) {
-      return String(str.dropFirst(prefix.count))
-    }
-    return str
-  }
-
-  /// Rewrite a relative path for i18n output.
-  ///
-  /// Files inside a locale folder (e.g. `en/static/style.css`) have the locale prefix
-  /// stripped and are optionally re-prefixed based on whether the locale should be in a subdirectory.
-  /// Files outside locale folders are copied as-is.
-  func i18nOutputPath(for relativePath: Path, config: I18NConfig) -> Path {
-    let str = relativePath.string
-    for locale in config.locales {
-      let prefix = locale + "/"
-      if str.hasPrefix(prefix) {
-        let stripped = String(str.dropFirst(prefix.count))
-        if config.shouldPrefix(locale: locale) {
-          return Path(locale) + Path(stripped)
-        } else {
-          return Path(stripped)
-        }
-      }
-    }
-    return relativePath
-  }
-
   /// Files not claimed by any processing step.
   var unhandledFiles: [(path: Path, relativePath: Path)] {
     files.filter { !handledPaths.contains($0.path) }

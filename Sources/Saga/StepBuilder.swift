@@ -71,10 +71,15 @@ public class StepBuilder: @unchecked Sendable {
   var steps: [PipelineStep] = []
   var files: [(path: Path, relativePath: Path)]
   let workingPath: Path // relative to inputPath, without locale prefix
+
   /// i18n configuration, or `nil` when i18n is not enabled.
   public var i18nConfig: I18NConfig?
   let locale: String? // when set, this builder is scoped to a specific locale
   let localizedOutputFolder: [String: String]? // locale → output folder name
+
+  /// Accumulated folder mappings for static file copying.
+  /// Maps locale → [contentFolder/ → outputFolder/]
+  var folderMappings: [String: [String: String]] = [:]
 
   init(
     files: [(path: Path, relativePath: Path)],
@@ -141,13 +146,22 @@ public class StepBuilder: @unchecked Sendable {
 
     // When i18n is configured and not yet locale-scoped, fan out into per-locale steps
     if let i18n = i18nConfig, locale == nil {
+      // Record folder mappings for static file copying
+      let effectiveMapping = localizedOutputFolder ?? self.localizedOutputFolder
+      if let effectiveMapping, let folder {
+        let contentFolder = (workingPath + folder).string
+        for (locale, outputFolder) in effectiveMapping {
+          folderMappings[locale, default: [:]][contentFolder] = outputFolder
+        }
+      }
+
       for locale in i18n.locales {
         let localeBuilder = StepBuilder(
           files: files,
           workingPath: workingPath,
           i18nConfig: i18nConfig,
           locale: locale,
-          localizedOutputFolder: localizedOutputFolder ?? self.localizedOutputFolder
+          localizedOutputFolder: effectiveMapping
         )
         localeBuilder.register(
           folder: folder,
