@@ -25,7 +25,8 @@ extension FileIO {
       } else {
         return Date(timeIntervalSince1970: 1_704_106_800)
       }
-    }
+    },
+    log: { _ in }
   )
 }
 

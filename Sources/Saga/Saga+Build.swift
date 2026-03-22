@@ -5,7 +5,7 @@ extension Saga {
   /// Run the build pipeline once.
   func build() async throws {
     let totalStart = DispatchTime.now()
-    log("Starting run")
+    fileIO.log("Starting run")
 
     if !beforeReadHooks.isEmpty {
       let start = DispatchTime.now()
@@ -13,7 +13,7 @@ extension Saga {
         try await hook(self)
       }
 
-      log("Finished beforeRead hooks in \(elapsed(from: start))")
+      fileIO.log("Finished beforeRead hooks in \(elapsed(from: start))")
     }
 
     // Run all the readers for all the steps sequentially to ensure proper order,
@@ -24,7 +24,7 @@ extension Saga {
       allItems.append(contentsOf: items)
     }
 
-    log("Finished read phase in \(elapsed(from: readStart))")
+    fileIO.log("Finished read phase in \(elapsed(from: readStart))")
 
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
@@ -46,7 +46,7 @@ extension Saga {
       try await group.waitForAll()
     }
 
-    log("Finished copying static files in \(elapsed(from: copyStart))")
+    fileIO.log("Finished copying static files in \(elapsed(from: copyStart))")
 
     // Make Saga.hashed() work
     setupHashFunction()
@@ -58,7 +58,7 @@ extension Saga {
       try await step.write(self)
     }
 
-    log("Finished write phase in \(elapsed(from: writeStart))")
+    fileIO.log("Finished write phase in \(elapsed(from: writeStart))")
 
     // Copy hashed versions of files that were referenced via Saga.hashed()
     try copyHashedFiles()
@@ -69,10 +69,10 @@ extension Saga {
         try await hook(self)
       }
 
-      log("Finished afterWrite hooks in \(elapsed(from: start))")
+      fileIO.log("Finished afterWrite hooks in \(elapsed(from: start))")
     }
 
-    log("All done in \(elapsed(from: totalStart))")
+    fileIO.log("All done in \(elapsed(from: totalStart))")
   }
 
   /// Watch for file changes and rebuild when content changes.

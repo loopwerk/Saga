@@ -1,6 +1,12 @@
 import Foundation
 import SagaPathKit
 
+private let logDateFormatter: DateFormatter = {
+  let f = DateFormatter()
+  f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+  return f
+}()
+
 /// A wrapper around file operations used by Saga, to abstract away the SagaPathKit dependency.
 public struct FileIO: Sendable {
   var resolveSwiftPackageFolder: @Sendable (Path) throws -> Path
@@ -12,6 +18,7 @@ public struct FileIO: Sendable {
   var copy: @Sendable (Path, Path) throws -> Void
   var creationDate: @Sendable (Path) -> Date?
   var modificationDate: @Sendable (Path) -> Date?
+  var log: @Sendable (String) -> Void
 }
 
 public extension FileIO {
@@ -42,6 +49,9 @@ public extension FileIO {
     },
     modificationDate: { path in
       path.modificationDate
+    },
+    log: { message in
+      print("\(logDateFormatter.string(from: Date())) | \(message)")
     }
   )
 }
