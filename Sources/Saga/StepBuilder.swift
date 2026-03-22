@@ -413,11 +413,12 @@ public class StepBuilder: @unchecked Sendable {
           return
         }
 
-        // Compute output paths for all locales
+        // Compute output paths for all locales, applying localizedOutputFolders
         var localePaths: [String: Path] = [:]
         for locale in i18n.locales {
+          let localizedOutput = saga.applyLocalizedOutputFolders(to: workingPath + output, locale: locale)
           let prefix = i18n.shouldPrefix(locale: locale) ? Path(locale) : Path("")
-          localePaths[locale] = prefix + workingPath + output
+          localePaths[locale] = prefix + localizedOutput
         }
 
         for locale in i18n.locales {

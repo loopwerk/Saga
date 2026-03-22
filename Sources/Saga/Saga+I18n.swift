@@ -36,11 +36,63 @@ extension Saga {
     return str
   }
 
-  /// Rewrite a relative path for i18n output.
+  /// Write redirect pages for the default locale.
   ///
-  /// Files inside a locale folder (e.g. `en/static/style.css`) have the locale prefix
-  /// stripped, folder mappings applied (e.g. `articles` → `artikelen`), and optionally
-  /// re-prefixed based on whether the locale should be in a subdirectory.
+  /// When `prefixDefaultLocaleOutputFolder` is false: the default locale's content lives at the
+  /// root, so this generates redirects from `/{locale}/...` → `/...` for each generated page.
+  ///
+  /// When `prefixDefaultLocaleOutputFolder` is true: all locales are prefixed, so this generates
+  /// redirects from `/...` → `/{locale}/...` for each generated page.
+  func writeDefaultLocaleRedirects() throws {
+    guard let config = i18nConfig else { return }
+
+    let locale = config.defaultLocale
+    let nonDefaultPrefixes = config.locales.filter { $0 != locale }.map { $0 + "/" }
+
+    for page in generatedPages {
+      // Only process pages that belong to the default locale
+      let isNonDefault = nonDefaultPrefixes.contains { page.string.hasPrefix($0) }
+      if isNonDefault { continue }
+
+      if config.prefixDefaultLocaleOutputFolder {
+        // Content is at /{locale}/..., redirect from /... → /{locale}/...
+        // The page path already includes the locale prefix
+        let unprefixed = Path(String(page.string.dropFirst(locale.count + 1)))
+        let destination = outputPath + unprefixed
+        try fileIO.mkpath(destination.parent())
+        try fileIO.write(destination, Saga.redirectHTML(to: page.url))
+      } else {
+        // Content is at /..., redirect from /{locale}/... → /...
+        let prefixed = Path(locale) + page
+        let destination = outputPath + prefixed
+        try fileIO.mkpath(destination.parent())
+        try fileIO.write(destination, Saga.redirectHTML(to: page.url))
+      }
+    }
+  }
+
+  /// Apply `localizedOutputFolders` mappings to an output path for a given locale.
+  func applyLocalizedOutputFolders(to path: Path, locale: String) -> Path {
+    guard let config = i18nConfig else { return path }
+    var str = path.string
+    for (contentFolder, localeMap) in config.localizedOutputFolders {
+      if let outputFolder = localeMap[locale] {
+        if str.hasPrefix(contentFolder + "/") {
+          str = outputFolder + "/" + String(str.dropFirst(contentFolder.count + 1))
+          break
+        } else if str == contentFolder {
+          str = outputFolder
+          break
+        }
+      }
+    }
+    return Path(str)
+  }
+
+  /// Rewrite a content-relative path for i18n output.
+  ///
+  /// Strips the locale prefix, applies `localizedOutputFolders` mappings, and re-prefixes
+  /// for non-default locales. For example, `nl/articles/image.png` → `nl/artikelen/image.png`.
   /// Files outside locale folders are copied as-is.
   func i18nOutputPath(for relativePath: Path) -> Path {
     guard let config = i18nConfig else { return relativePath }
@@ -48,23 +100,13 @@ extension Saga {
     for locale in config.locales {
       let prefix = locale + "/"
       if str.hasPrefix(prefix) {
-        var stripped = String(str.dropFirst(prefix.count))
-
-        // Apply folder mappings (e.g. articles/logo.png → artikelen/logo.png)
-        for (contentFolder, localeMap) in config.localizedOutputFolders {
-          if let outputFolder = localeMap[locale] {
-            let contentPrefix = contentFolder + "/"
-            if stripped.hasPrefix(contentPrefix) {
-              stripped = outputFolder + "/" + String(stripped.dropFirst(contentPrefix.count))
-              break
-            }
-          }
-        }
+        let stripped = String(str.dropFirst(prefix.count))
+        let mapped = applyLocalizedOutputFolders(to: Path(stripped), locale: locale)
 
         if config.shouldPrefix(locale: locale) {
-          return Path(locale) + Path(stripped)
+          return Path(locale) + mapped
         } else {
-          return Path(stripped)
+          return mapped
         }
       }
     }

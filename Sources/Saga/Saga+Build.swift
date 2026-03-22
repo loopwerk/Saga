@@ -68,6 +68,9 @@ extension Saga {
     // Copy hashed versions of files that were referenced via Saga.hashed()
     try copyHashedFiles()
 
+    // Generate redirect pages for the default locale
+    try writeDefaultLocaleRedirects()
+
     if !afterWriteHooks.isEmpty {
       let start = DispatchTime.now()
       for hook in afterWriteHooks {

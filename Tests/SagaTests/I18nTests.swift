@@ -38,7 +38,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(saga.allItems.count, 4)
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(finalWrittenPages.count, 4)
+    XCTAssertEqual(finalWrittenPages.count, 6) // 4 items + 2 en redirects
 
     // Default locale (en) writes to root (no locale prefix)
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
@@ -79,7 +79,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertEqual(finalWrittenPages.count, 3) // 2 items + 1 en redirect
 
     // English: articles (unchanged)
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
@@ -118,7 +118,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertEqual(finalWrittenPages.count, 3) // 2 items + 1 redirect from /articles/hello/ to /en/articles/hello/
 
     // Both locales get a prefix
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/en/articles/hello/index.html" }))
@@ -258,7 +258,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertEqual(finalWrittenPages.count, 3) // 2 lists + 1 en redirect
 
     // English list at articles/index.html
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/articles/index.html", content: "list:en")))
@@ -400,7 +400,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertEqual(finalWrittenPages.count, 3) // 2 items + 1 en redirect
 
     // English: normal path
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/hello/index.html" }))
@@ -559,7 +559,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       .run()
 
     let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
-    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertEqual(finalWrittenPages.count, 3) // 2 pages + 1 en redirect
 
     // English homepage at root with only English items
     let enHome = finalWrittenPages.first { $0.destination == "root/output/index.html" }
@@ -605,5 +605,118 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
 
     // Without i18n, behaves like regular createPage
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/index.html", content: "locale:nil")))
+  }
+
+  func testDefaultLocaleRedirects() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "nl/articles/hello.md",
+      ]
+    }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Redirect from /en/articles/hello/ → /articles/hello/
+    let redirect = finalWrittenPages.first { $0.destination == "root/output/en/articles/hello/index.html" }
+    XCTAssertNotNil(redirect)
+    XCTAssertTrue(try XCTUnwrap(redirect?.content.contains("/articles/hello/")))
+  }
+
+  func testDefaultLocaleRedirectsWithPrefix() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "nl/articles/hello.md",
+      ]
+    }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", prefixDefaultLocaleOutputFolder: true)
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // Redirect from /articles/hello/ → /en/articles/hello/
+    let redirect = finalWrittenPages.first { $0.destination == "root/output/articles/hello/index.html" }
+    XCTAssertNotNil(redirect)
+    XCTAssertTrue(try XCTUnwrap(redirect?.content.contains("/en/articles/hello/")))
+  }
+
+  func testCreatePageForEachLocaleWithLocalizedOutputFolders() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "nl/articles/hello.md",
+      ]
+    }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: []
+      )
+      .createPage("articles/latest.html", forEachLocale: { context in
+        "latest:\(context.locale ?? "nil")"
+      })
+      .run()
+
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+
+    // English: articles/latest.html (unchanged)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/articles/latest.html", content: "latest:en")))
+
+    // Dutch: nl/artikelen/latest.html (localized folder)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/nl/artikelen/latest.html", content: "latest:nl")))
   }
 }
