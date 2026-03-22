@@ -10,6 +10,20 @@ struct WriterContext<M: Metadata> {
   let resourcesByFolder: [Path: [Path]]
   let subfolder: Path?
   let locale: String?
+  /// Output prefixes for all locales. Used to compute translations for list pages.
+  let localeOutputPrefixes: [String: Path]
+}
+
+extension WriterContext {
+  /// Compute translated URLs for a list page output path.
+  func translatedURLs(for output: Path) -> [String: String] {
+    guard locale != nil else { return [:] }
+    var result: [String: String] = [:]
+    for (locale, prefix) in localeOutputPrefixes {
+      result[locale] = (prefix + output).url
+    }
+    return result
+  }
 }
 
 /// Writers turn an ``Item`` into a `String` using a "renderer", and write the resulting `String` to a file on disk.
@@ -41,6 +55,10 @@ public extension Writer {
             let resources = writerContext.resourcesByFolder[item.relativeSource.parent()] ?? []
             let previous = index > 0 ? writerContext.items[index - 1] : nil
             let next = index < writerContext.items.count - 1 ? writerContext.items[index + 1] : nil
+            var translations = item.translations.compactMapValues { $0.url as String? }
+            if let locale = writerContext.locale {
+              translations[locale] = item.url
+            }
             let renderingContext = ItemRenderingContext(
               item: item,
               items: writerContext.items,
@@ -49,7 +67,8 @@ public extension Writer {
               previous: previous,
               next: next,
               subfolder: writerContext.subfolder,
-              locale: writerContext.locale
+              locale: writerContext.locale,
+              translations: translations
             )
             let stringToWrite = try await renderer(renderingContext)
 
@@ -81,7 +100,7 @@ public extension Writer {
         paginate: paginate,
         paginatedOutput: paginatedOutput
       ) {
-        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale)
+        ItemsRenderingContext(items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale, translations: writerContext.translatedURLs(for: output))
       }
     }
   }
@@ -116,7 +135,8 @@ public extension Writer {
               write: writerContext.write,
               resourcesByFolder: writerContext.resourcesByFolder,
               subfolder: writerContext.subfolder,
-              locale: writerContext.locale
+              locale: writerContext.locale,
+              localeOutputPrefixes: writerContext.localeOutputPrefixes
             )
 
             try await writePages(
@@ -126,7 +146,7 @@ public extension Writer {
               paginate: paginate,
               paginatedOutput: finishedPaginatedOutputPath
             ) {
-              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale)
+              PartitionedRenderingContext(key: key, items: $0, allItems: $1, paginator: $2, outputPath: $3, subfolder: writerContext.subfolder, locale: writerContext.locale, translations: [:])
             }
           }
         }

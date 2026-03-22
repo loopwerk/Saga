@@ -1,6 +1,7 @@
 ---
 tags: handleiding
 date: 2024-07-01
+slug: aan-de-slag
 ---
 # Aan de slag met Saga
 Om een meertalige site te maken met Saga, begin je met het organiseren van je content in taalmappen. Configureer daarna i18n voor je register-aanroepen:

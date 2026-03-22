@@ -29,6 +29,10 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
   public let locale: String?
+
+  /// URLs for this page in other locales.
+  /// For item pages, this is derived from the item's translation links.
+  public let translations: [String: String]
 }
 
 // A protocol for rendering contexts that can be used to generate Atom feeds.
@@ -75,6 +79,9 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext, Sendable {
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
   public let locale: String?
+
+  /// URLs for this page in other locales.
+  public let translations: [String: String]
 }
 
 /// A type constraint for partition keys used in ``PartitionedRenderingContext``.
@@ -106,6 +113,9 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
   public let locale: String?
+
+  /// URLs for this page in other locales.
+  public let translations: [String: String]
 }
 
 /// The rendering context for template-driven pages created with ``StepBuilder/createPage(_:using:)``.

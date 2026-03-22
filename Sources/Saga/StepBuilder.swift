@@ -39,7 +39,8 @@ private func executeWriters<M: Metadata>(
   saga: Saga,
   outputPrefix: Path,
   subfolder: Path?,
-  locale: String?
+  locale: String?,
+  localeOutputPrefixes: [String: Path] = [:]
 ) async throws {
   guard !writers.isEmpty else { return }
 
@@ -51,7 +52,8 @@ private func executeWriters<M: Metadata>(
     write: { try saga.processedWrite($0, $1) },
     resourcesByFolder: saga.resourcesByFolder(),
     subfolder: subfolder,
-    locale: locale
+    locale: locale,
+    localeOutputPrefixes: localeOutputPrefixes
   )
   try await withThrowingTaskGroup(of: Void.self) { group in
     for writer in writers {
@@ -80,6 +82,9 @@ public class StepBuilder: @unchecked Sendable {
   /// Accumulated folder mappings for static file copying.
   /// Maps locale → [contentFolder/ → outputFolder/]
   var folderMappings: [String: [String: String]] = [:]
+
+  /// Output prefixes for all locales in the current register call. Passed through to writers for translations.
+  var localeOutputPrefixes: [String: Path] = [:]
 
   init(
     files: [(path: Path, relativePath: Path)],
@@ -155,6 +160,14 @@ public class StepBuilder: @unchecked Sendable {
         }
       }
 
+      // Compute output prefixes for all locales so writers can build translation links
+      let effectiveFolder = workingPath + (folder ?? Path(""))
+      var allPrefixes: [String: Path] = [:]
+      for loc in i18n.locales {
+        let locFolder = effectiveMapping.flatMap { $0[loc] }.map { Path($0) } ?? effectiveFolder
+        allPrefixes[loc] = i18n.shouldPrefix(locale: loc) ? Path(loc) + locFolder : locFolder
+      }
+
       for locale in i18n.locales {
         let localeBuilder = StepBuilder(
           files: files,
@@ -163,6 +176,7 @@ public class StepBuilder: @unchecked Sendable {
           locale: locale,
           localizedOutputFolder: effectiveMapping
         )
+        localeBuilder.localeOutputPrefixes = allPrefixes
         localeBuilder.register(
           folder: folder,
           metadata: metadata,
@@ -259,8 +273,8 @@ public class StepBuilder: @unchecked Sendable {
 
         return items
       },
-      write: { [locale] saga in
-        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: subfolder, locale: locale)
+      write: { [locale, localeOutputPrefixes] saga in
+        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: subfolder, locale: locale, localeOutputPrefixes: localeOutputPrefixes)
       }
     ))
 
@@ -454,8 +468,8 @@ public class StepBuilder: @unchecked Sendable {
         parentItems.sort(by: sorting)
         return parentItems
       },
-      write: { [locale] saga in
-        try await executeWriters(items: parentItems, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: nil, locale: locale)
+      write: { [locale, localeOutputPrefixes] saga in
+        try await executeWriters(items: parentItems, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: nil, locale: locale, localeOutputPrefixes: localeOutputPrefixes)
       }
     )
   }

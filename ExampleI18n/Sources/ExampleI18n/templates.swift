@@ -30,21 +30,13 @@ func t(_ key: String, locale: String) -> String {
 
 // MARK: - Language switcher
 
-func languageSwitcher(currentLocale: String, item: AnyItem) -> Node {
+func languageSwitcher(currentLocale: String, translations: [String: String]) -> Node {
   nav(class: "lang-switcher") {
-    if currentLocale == "en" {
-      span(class: "active") { "EN" }
-    } else {
-      if let enVersion = item.translations["en"] {
-        a(href: enVersion.url) { "EN" }
-      }
-    }
-
-    if currentLocale == "nl" {
-      span(class: "active") { "NL" }
-    } else {
-      if let nlVersion = item.translations["nl"] {
-        a(href: nlVersion.url) { "NL" }
+    translations.sorted(by: { $0.key < $1.key }).map { (locale, url) in
+      if locale == currentLocale {
+        span(class: "active") { locale.uppercased() }
+      } else {
+        a(href: url) { locale.uppercased() }
       }
     }
   }
@@ -97,7 +89,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
   let tagBase = locale == "en" ? "/articles/tag" : "/nl/artikelen/tag"
 
   return baseHtml(title: context.item.title, locale: locale) {
-    languageSwitcher(currentLocale: locale, item: context.item)
+    languageSwitcher(currentLocale: locale, translations: context.translations)
 
     h1 { context.item.title }
     ul(class: "tags") {
@@ -117,6 +109,8 @@ func renderArticles(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
   let locale = context.locale ?? "en"
 
   return baseHtml(title: t("articles", locale: locale), locale: locale) {
+    languageSwitcher(currentLocale: locale, translations: context.translations)
+
     h1 { t("articles", locale: locale) }
     context.items.map { article in
       div(class: "article-card") {
@@ -145,7 +139,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   let locale = context.locale ?? "en"
 
   return baseHtml(title: context.item.title, locale: locale) {
-    languageSwitcher(currentLocale: locale, item: context.item)
+    languageSwitcher(currentLocale: locale, translations: context.translations)
 
     div(class: "page") {
       h1 { context.item.title }
