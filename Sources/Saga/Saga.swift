@@ -96,6 +96,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///   - defaultLocaleInSubdir: Whether the default locale should also get a subdirectory prefix. Defaults to `false`.
   @discardableResult
   public func i18n(locales: [String], defaultLocale: String, defaultLocaleInSubdir: Bool = false) -> Self {
+    precondition(locales.contains(defaultLocale), "defaultLocale \"\(defaultLocale)\" must be included in locales \(locales)")
     i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, defaultLocaleInSubdir: defaultLocaleInSubdir)
     return self
   }
