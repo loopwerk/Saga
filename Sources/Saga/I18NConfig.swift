@@ -8,7 +8,7 @@
 /// ```
 ///
 /// Each `register()` call automatically fans out into per-locale processing steps.
-struct I18NConfig: Sendable {
+struct I18NConfig {
   /// The supported locales (e.g. `["en", "nl", "de"]`).
   let locales: [String]
 
