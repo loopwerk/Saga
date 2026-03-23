@@ -42,9 +42,11 @@ extension Saga {
     return result
   }
 
-  /// Signal the parent process (saga-cli) that a build completed, so it can send a browser reload.
-  func signalParent() {
-    kill(getppid(), SIGUSR2)
+  /// Signal the parent process (saga-cli).
+  /// - SIGUSR1: Swift source changed, please recompile and relaunch.
+  /// - SIGUSR2: Content rebuild done, reload browsers.
+  func signalParent(_ signal: Int32) {
+    kill(getppid(), signal)
   }
 
   /// Write a config file to `.build/saga-config.json` so saga-cli can detect output path for serving.

@@ -76,22 +76,23 @@ extension Saga {
   }
 
   /// Watch for file changes and rebuild when content changes.
-  /// Exits with code 42 if Swift source files change (signals saga-cli to recompile).
+  /// Signals saga-cli via SIGUSR1 if Swift source files change (so it can recompile and relaunch).
   func watchAndRebuild() async throws {
     let watchPaths = [inputPath.string, (rootPath + "Sources").string]
     let monitor = FolderMonitor(paths: watchPaths, ignoredPatterns: ignoredPatterns) { [weak self] changedPaths in
       guard let self else { return }
 
       if changedPaths.contains(where: { $0.hasSuffix(".swift") }) {
-        // Swift source changed — exit so saga-cli can recompile and relaunch
-        exit(42)
+        // Swift source changed — signal saga-cli to recompile and relaunch
+        self.signalParent(SIGUSR1)
+        return
       }
 
       Task {
         do {
           try self.reset()
           try await self.build()
-          self.signalParent()
+          self.signalParent(SIGUSR2)
         } catch {
           print("Rebuild failed: \(error)")
         }

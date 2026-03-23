@@ -154,7 +154,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
 
     // When launched by `saga dev`, watch for changes and rebuild
     if Saga.isDev, Saga.isCLI {
-      signalParent()
+      signalParent(SIGUSR2)
       try await watchAndRebuild()
     }
 
