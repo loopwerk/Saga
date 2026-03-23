@@ -101,10 +101,10 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///     to differ from content folder names per locale. Locales not in the map use the original folder name.
   @discardableResult
   public func i18n(
-    locales: [String],
-    defaultLocale: String,
+    locales: [SagaLocale],
+    defaultLocale: SagaLocale,
     prefixDefaultLocaleOutputFolder: Bool = false,
-    localizedOutputFolders: [String: [String: String]] = [:]
+    localizedOutputFolders: [String: [SagaLocale: String]] = [:]
   ) -> Self {
     precondition(locales.contains(defaultLocale), "defaultLocale \"\(defaultLocale)\" must be included in locales \(locales)")
     precondition(steps.isEmpty, "i18n() must be called before register()")

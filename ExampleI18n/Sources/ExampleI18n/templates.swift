@@ -6,8 +6,8 @@ import SagaSwimRenderer
 
 // MARK: - Translations
 
-func t(_ key: String, locale: String) -> String {
-  let strings: [String: [String: String]] = [
+func t(_ key: String, locale: SagaLocale) -> String {
+  let strings: [SagaLocale: [String: String]] = [
     "en": [
       "articles": "Articles",
       "about": "About",
@@ -34,7 +34,7 @@ func t(_ key: String, locale: String) -> String {
 
 // MARK: - Language switcher
 
-func languageSwitcher(currentLocale: String, translations: [String: String]) -> Node {
+func languageSwitcher(currentLocale: SagaLocale, translations: [SagaLocale: String]) -> Node {
   nav(class: "lang-switcher") {
     translations.sorted(by: { $0.key < $1.key }).map { locale, url in
       if locale == currentLocale {

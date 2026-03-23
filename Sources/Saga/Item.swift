@@ -26,8 +26,8 @@ public protocol AnyItem: AnyObject, Sendable {
   var url: String { get }
   var children: [AnyItem] { get set }
   var parent: AnyItem? { get set }
-  var locale: String? { get set }
-  var translations: [String: AnyItem] { get set }
+  var locale: SagaLocale? { get set }
+  var translations: [SagaLocale: AnyItem] { get set }
 }
 
 /// A model representing an item.
@@ -65,10 +65,10 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   public var metadata: M
 
   /// The locale of this item, or `nil` when i18n is not configured.
-  public var locale: String? = nil
+  public var locale: SagaLocale? = nil
 
   /// Other language versions of this item, keyed by locale.
-  public var translations: [String: AnyItem] = [:]
+  public var translations: [SagaLocale: AnyItem] = [:]
 
   /// Type-erased children. Populated automatically by nested registrations.
   public var children: [AnyItem] = []
@@ -87,7 +87,7 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   }
 
   /// Returns the translation for the given locale, if available.
-  public func translation(for locale: String) -> Item<M>? {
+  public func translation(for locale: SagaLocale) -> Item<M>? {
     translations[locale] as? Item<M>
   }
 

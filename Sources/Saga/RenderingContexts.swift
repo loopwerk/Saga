@@ -52,10 +52,10 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
   public let subfolder: Path?
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
-  public let locale: String?
+  public let locale: SagaLocale?
 
   /// URLs for this page in other locales.
-  public let translations: [String: String]
+  public let translations: [SagaLocale: String]
 }
 
 /// The rendering context passed to a ``Writer/listWriter(_:output:paginate:paginatedOutput:)`` renderer.
@@ -79,10 +79,10 @@ public struct ItemsRenderingContext<M: Metadata>: AtomContext, Sendable {
   public let subfolder: Path?
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
-  public let locale: String?
+  public let locale: SagaLocale?
 
   /// URLs for this page in other locales.
-  public let translations: [String: String]
+  public let translations: [SagaLocale: String]
 }
 
 /// A type constraint for partition keys used in ``PartitionedRenderingContext``.
@@ -114,10 +114,10 @@ public struct PartitionedRenderingContext<T: ContextKey, M: Metadata>: AtomConte
   public let subfolder: Path?
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
-  public let locale: String?
+  public let locale: SagaLocale?
 
   /// URLs for this page in other locales.
-  public let translations: [String: String]
+  public let translations: [SagaLocale: String]
 }
 
 /// The rendering context for template-driven pages created with ``StepBuilder/createPage(_:using:)``.
@@ -136,10 +136,10 @@ public struct PageRenderingContext: Sendable {
   public let generatedPages: [Path]
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
-  public let locale: String?
+  public let locale: SagaLocale?
 
   /// URLs for this page in all locales, keyed by locale. Empty when i18n is not configured.
-  public let translations: [String: String]
+  public let translations: [SagaLocale: String]
 }
 
 /// A model representing a paginator.

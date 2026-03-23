@@ -10,10 +10,10 @@
 /// Each `register()` call automatically fans out into per-locale processing steps.
 struct I18NConfig {
   /// The supported locales (e.g. `["en", "nl", "de"]`).
-  let locales: [String]
+  let locales: [SagaLocale]
 
   /// The default locale (e.g. `"en"`).
-  let defaultLocale: String
+  let defaultLocale: SagaLocale
 
   /// Whether the default locale should be placed in a subdirectory.
   ///
@@ -31,10 +31,10 @@ struct I18NConfig {
   /// For example, `["articles": ["nl": "artikelen"]]` causes Dutch articles to be
   /// written to `nl/artikelen/` instead of `nl/articles/`.
   /// Locales not in the map use the original folder name.
-  let localizedOutputFolders: [String: [String: String]]
+  let localizedOutputFolders: [String: [SagaLocale: String]]
 
   /// Whether the given locale should be prefixed in output paths.
-  func shouldPrefix(locale: String) -> Bool {
+  func shouldPrefix(locale: SagaLocale) -> Bool {
     prefixDefaultLocaleOutputFolder || locale != defaultLocale
   }
 }

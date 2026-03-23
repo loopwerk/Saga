@@ -15,7 +15,7 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
 }
 
 /// Tags items with their locale and rewrites their output paths for i18n.
-private func applyLocaleToItems(_ items: [AnyItem], locale: String, config: I18NConfig, readFolder: Path, outputPrefix: Path) {
+private func applyLocaleToItems(_ items: [AnyItem], locale: SagaLocale, config: I18NConfig, readFolder: Path, outputPrefix: Path) {
   let readPrefix = readFolder.string.isEmpty ? "" : readFolder.string + "/"
   let outputPrefixStr = outputPrefix.string.isEmpty ? "" : outputPrefix.string + "/"
 
@@ -38,9 +38,9 @@ private func executeWriters<M: Metadata>(
   writers: [Writer<M>],
   saga: Saga,
   outputPrefix: Path,
-  subfolder: Path?,
-  locale: String?,
-  localeOutputPrefixes: [String: Path] = [:]
+  subfolder: Path? = nil,
+  locale: SagaLocale? = nil,
+  localeOutputPrefixes: [SagaLocale: Path] = [:]
 ) async throws {
   guard !writers.isEmpty else { return }
 
@@ -77,16 +77,16 @@ public class StepBuilder: @unchecked Sendable {
 
   /// i18n configuration, or `nil` when i18n is not enabled.
   var i18nConfig: I18NConfig?
-  let locale: String? // when set, this builder is scoped to a specific locale
+  let locale: SagaLocale? // when set, this builder is scoped to a specific locale
 
   /// Output prefixes for all locales in the current register call. Passed through to writers for translations.
-  var localeOutputPrefixes: [String: Path] = [:]
+  var localeOutputPrefixes: [SagaLocale: Path] = [:]
 
   init(
     files: [(path: Path, relativePath: Path)],
     workingPath: Path,
     i18nConfig: I18NConfig? = nil,
-    locale: String? = nil
+    locale: SagaLocale? = nil
   ) {
     self.files = files
     self.workingPath = workingPath
@@ -96,7 +96,7 @@ public class StepBuilder: @unchecked Sendable {
 
   /// Compute the output folder for a given locale and content folder,
   /// using the mapping from ``I18NConfig/localizedOutputFolders``.
-  private func outputFolder(for locale: String, contentFolder: Path) -> Path {
+  private func outputFolder(for locale: SagaLocale, contentFolder: Path) -> Path {
     if let localized = i18nConfig?.localizedOutputFolders[contentFolder.string]?[locale] {
       return Path(localized)
     }
@@ -143,10 +143,9 @@ public class StepBuilder: @unchecked Sendable {
       let effectiveFolder = workingPath + (folder ?? Path(""))
 
       // Compute output prefixes for all locales so writers can build translation links
-      var allPrefixes: [String: Path] = [:]
-      for loc in i18n.locales {
-        let locFolder = outputFolder(for: loc, contentFolder: effectiveFolder)
-        allPrefixes[loc] = i18n.shouldPrefix(locale: loc) ? Path(loc) + locFolder : locFolder
+      let allPrefixes = i18n.locales.reduce(into: [SagaLocale: Path]()) { into, locale in
+        let localizedFolder = outputFolder(for: locale, contentFolder: effectiveFolder)
+        into[locale] = i18n.shouldPrefix(locale: locale) ? Path(locale) + localizedFolder : localizedFolder
       }
 
       for locale in i18n.locales {
@@ -171,6 +170,7 @@ public class StepBuilder: @unchecked Sendable {
         )
         steps.append(contentsOf: localeBuilder.steps)
       }
+
       return self
     }
 
@@ -253,7 +253,15 @@ public class StepBuilder: @unchecked Sendable {
         return items
       },
       write: { [locale, localeOutputPrefixes] saga in
-        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: subfolder, locale: locale, localeOutputPrefixes: localeOutputPrefixes)
+        try await executeWriters(
+          items: items,
+          writers: writers,
+          saga: saga,
+          outputPrefix: outputPrefix,
+          subfolder: subfolder,
+          locale: locale,
+          localeOutputPrefixes: localeOutputPrefixes
+        )
       }
     ))
 
@@ -305,7 +313,12 @@ public class StepBuilder: @unchecked Sendable {
         return items
       },
       write: { saga in
-        try await executeWriters(items: items, writers: writers, saga: saga, outputPrefix: Path(""), subfolder: nil, locale: nil)
+        try await executeWriters(
+          items: items,
+          writers: writers,
+          saga: saga,
+          outputPrefix: Path("")
+        )
       }
     ))
 
@@ -414,11 +427,10 @@ public class StepBuilder: @unchecked Sendable {
         }
 
         // Compute output paths for all locales, applying localizedOutputFolders
-        var localePaths: [String: Path] = [:]
-        for locale in i18n.locales {
+        let localePaths = i18n.locales.reduce(into: [SagaLocale: Path]()) { (into, locale) in
           let localizedOutput = saga.applyLocalizedOutputFolders(to: workingPath + output, locale: locale)
           let prefix = i18n.shouldPrefix(locale: locale) ? Path(locale) : Path("")
-          localePaths[locale] = prefix + localizedOutput
+          into[locale] = prefix + localizedOutput
         }
 
         for locale in i18n.locales {
@@ -513,7 +525,14 @@ public class StepBuilder: @unchecked Sendable {
         return parentItems
       },
       write: { [locale, localeOutputPrefixes] saga in
-        try await executeWriters(items: parentItems, writers: writers, saga: saga, outputPrefix: outputPrefix, subfolder: nil, locale: locale, localeOutputPrefixes: localeOutputPrefixes)
+        try await executeWriters(
+          items: parentItems,
+          writers: writers,
+          saga: saga,
+          outputPrefix: outputPrefix,
+          locale: locale,
+          localeOutputPrefixes: localeOutputPrefixes
+        )
       }
     )
   }

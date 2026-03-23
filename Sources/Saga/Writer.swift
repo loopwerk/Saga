@@ -9,17 +9,13 @@ struct WriterContext<M: Metadata> {
   let write: @Sendable (Path, String) throws -> Void
   let resourcesByFolder: [Path: [Path]]
   let subfolder: Path?
-  let locale: String?
-  let localeOutputPrefixes: [String: Path]
+  let locale: SagaLocale?
+  let localeOutputPrefixes: [SagaLocale: Path]
 
   /// Compute translated URLs for a list page output path.
-  func translatedURLs(for output: Path) -> [String: String] {
+  func translatedURLs(for output: Path) -> [SagaLocale: String] {
     guard locale != nil else { return [:] }
-    var result: [String: String] = [:]
-    for (locale, prefix) in localeOutputPrefixes {
-      result[locale] = (prefix + output).url
-    }
-    return result
+    return localeOutputPrefixes.mapValues { ($0 + output).url }
   }
 }
 

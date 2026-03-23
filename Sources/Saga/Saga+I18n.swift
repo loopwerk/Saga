@@ -1,5 +1,8 @@
 import SagaPathKit
 
+/// A locale identifier string (e.g. `"en"`, `"nl"`, `"de"`).
+public typealias SagaLocale = String
+
 extension Saga {
   /// Link items across locales by matching their source paths (after stripping the locale prefix).
   ///
@@ -7,12 +10,12 @@ extension Saga {
   /// `articles/hello.md`, so they become translations of each other.
   func linkTranslations() {
     // Group items by their translation key (source path without the locale prefix)
-    var groups: [String: [AnyItem]] = [:]
-    for item in allItems {
-      guard let locale = item.locale else { continue }
-      let key = translationKey(for: item.relativeSource, locale: locale)
-      groups[key, default: []].append(item)
-    }
+    let groups = allItems
+      .filter { $0.locale != nil }
+      .reduce(into: [String: [AnyItem]]()) { into, item in
+        let key = translationKey(for: item.relativeSource, locale: item.locale!)
+        into[key, default: []].append(item)
+      }
 
     // Wire up translations
     for (_, items) in groups where items.count > 1 {
@@ -27,7 +30,7 @@ extension Saga {
   }
 
   /// Strip the locale prefix from a source path to get the translation key.
-  private func translationKey(for path: Path, locale: String) -> String {
+  private func translationKey(for path: Path, locale: SagaLocale) -> String {
     let prefix = locale + "/"
     let str = path.string
     if str.hasPrefix(prefix) {
@@ -72,7 +75,7 @@ extension Saga {
   }
 
   /// Apply `localizedOutputFolders` mappings to an output path for a given locale.
-  func applyLocalizedOutputFolders(to path: Path, locale: String) -> Path {
+  func applyLocalizedOutputFolders(to path: Path, locale: SagaLocale) -> Path {
     guard let config = i18nConfig else { return path }
     var str = path.string
     for (contentFolder, localeMap) in config.localizedOutputFolders {

@@ -37,12 +37,11 @@ public extension Saga {
 
       // Build a lookup from destination path → item for alternate links
       let pathSet = Set(paths.map(\.string))
-      var itemByDest: [String: AnyItem] = [:]
-      for item in context.allItems where item.locale != nil {
-        if pathSet.contains(item.relativeDestination.string) {
-          itemByDest[item.relativeDestination.string] = item
+      let itemByDest = context.allItems
+        .filter { $0.locale != nil && pathSet.contains($0.relativeDestination.string) }
+        .reduce(into: [String: AnyItem]()) { into, item in
+          into[item.relativeDestination.string] = item
         }
-      }
 
       let hasAlternates = !itemByDest.isEmpty
       var xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"

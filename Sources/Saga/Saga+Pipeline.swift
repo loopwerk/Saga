@@ -35,11 +35,9 @@ extension Saga {
 
   /// Unhandled files grouped by their relative parent folder.
   func resourcesByFolder() -> [Path: [Path]] {
-    var result: [Path: [Path]] = [:]
-    for file in unhandledFiles {
-      result[file.relativePath.parent(), default: []].append(file.path)
+    unhandledFiles.reduce(into: [Path: [Path]]()) { into, file in
+      into[file.relativePath.parent(), default: []].append(file.path)
     }
-    return result
   }
 
   /// Signal the parent process (saga-cli).
