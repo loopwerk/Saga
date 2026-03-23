@@ -71,6 +71,47 @@ public class Saga: StepBuilder, @unchecked Sendable {
     super.init(files: computedFiles, workingPath: Path(""))
   }
 
+  /// Configure internationalization support.
+  ///
+  /// When enabled, Saga expects content to be organized in locale-prefixed folders
+  /// (e.g. `en/articles/`, `nl/articles/`). Each `register()` call automatically fans out
+  /// into per-locale processing steps.
+  ///
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .i18n(
+  ///     locales: ["en", "nl"],
+  ///     defaultLocale: "en",
+  ///     localizedOutputFolders: ["articles": ["nl": "artikelen"]]
+  ///   )
+  ///   .register(
+  ///     folder: "articles",
+  ///     metadata: ArticleMetadata.self,
+  ///     readers: [.parsleyMarkdownReader],
+  ///     writers: [.itemWriter(swim(renderArticle))]
+  ///   )
+  ///   .run()
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - locales: The supported locales (e.g. `["en", "nl"]`).
+  ///   - defaultLocale: The default locale. Its content is written to the root unless `prefixDefaultLocaleOutputFolder` is `true`.
+  ///   - prefixDefaultLocaleOutputFolder: Whether the default locale should also get a subdirectory prefix. Defaults to `false`.
+  ///   - localizedOutputFolders: A mapping of content folder → [locale → output folder]. Allows output folder names
+  ///     to differ from content folder names per locale. Locales not in the map use the original folder name.
+  @discardableResult
+  public func i18n(
+    locales: [SagaLocale],
+    defaultLocale: SagaLocale,
+    prefixDefaultLocaleOutputFolder: Bool = false,
+    localizedOutputFolders: [String: [SagaLocale: String]] = [:]
+  ) -> Self {
+    precondition(locales.contains(defaultLocale), "defaultLocale \"\(defaultLocale)\" must be included in locales \(locales)")
+    precondition(steps.isEmpty, "i18n() must be called before register()")
+    i18nConfig = I18NConfig(locales: locales, defaultLocale: defaultLocale, prefixDefaultLocaleOutputFolder: prefixDefaultLocaleOutputFolder, localizedOutputFolders: localizedOutputFolders)
+    return self
+  }
+
   /// Register a hook that runs before the read phase of each build cycle.
   ///
   /// Use this for pre-build steps like CSS compilation:

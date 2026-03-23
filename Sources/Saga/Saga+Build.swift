@@ -26,6 +26,11 @@ extension Saga {
 
     fileIO.log("Finished read phase in \(elapsed(from: readStart))")
 
+    // Link translations across locales
+    if i18nConfig != nil {
+      linkTranslations()
+    }
+
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
 
@@ -38,7 +43,7 @@ extension Saga {
     try await withThrowingTaskGroup(of: Void.self) { group in
       for file in unhandledFiles {
         group.addTask {
-          let output = self.outputPath + file.relativePath
+          let output = self.outputPath + self.i18nOutputPath(for: file.relativePath)
           try self.fileIO.mkpath(output.parent())
           try self.fileIO.copy(file.path, output)
         }
@@ -62,6 +67,9 @@ extension Saga {
 
     // Copy hashed versions of files that were referenced via Saga.hashed()
     try copyHashedFiles()
+
+    // Generate redirect pages for the default locale
+    try writeDefaultLocaleRedirects()
 
     if !afterWriteHooks.isEmpty {
       let start = DispatchTime.now()
@@ -94,7 +102,7 @@ extension Saga {
           try await self.build()
           self.signalParent(SIGUSR2)
         } catch {
-          print("Rebuild failed: \(error)")
+          self.fileIO.log("💥 Rebuild failed: \(error)")
         }
       }
     }
