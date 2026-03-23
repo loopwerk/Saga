@@ -36,6 +36,39 @@ Typed metadata, pluggable readers, multiple writer types, pagination, tags — a
 - You're not comfortable with Swift
 
 
+## Feature comparison
+
+| Feature | Saga | Hugo | Eleventy | Jekyll | Pelican | Astro | Publish |
+|---|---|---|---|---|---|---|---|
+| Language | Swift | Go | JS | Ruby | Python | TS | Swift |
+| In development since | 2021 | 2013 | 2017 | 2008 | 2010 | 2021 | 2019 |
+| CLI (init, dev, build) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| Live reload | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| Incremental builds | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
+| Code over configuration | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Multiple typed content types | ✓ | ✗ | ✗ | ✗ | ✗ | ✓¹ | ✗ |
+| Type-safe HTML templates | ✓ | ✗ | ✗ | ✗ | ✗ | ✓² | ✓ |
+| Pagination | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| Tags / taxonomies | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ |
+| i18n | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ |
+| Sitemap generation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| RSS / Atom feeds | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Syntax highlighting | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Markdown attributes | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
+| Programmatic content | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| Asset hashing | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ |
+| Pre/Post build hooks | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| Shortcodes | ✓³ | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ |
+| Image processing | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| Asset bundling | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| Themes ecosystem | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Good documentation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
+
+¹ With Zod
+² With JSX
+³ With item processors
+
+
 ## Installing the CLI
 
 **Via [Homebrew](https://brew.sh):**
