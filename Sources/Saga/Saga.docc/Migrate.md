@@ -1,6 +1,21 @@
 # Migrating to Saga 3
 
-How to update your project from Saga 2 to Saga 3.
+Saga 3 brings faster builds, a smarter dev server, and first-class internationalization support.
+
+## What's new
+
+* **Dramatically faster rebuilds**. Saga caches the read phase between builds, so only changed files are re-parsed.
+* **Build hooks**. Run code before or after each build with `beforeRead` and `afterWrite`.
+* **Dev server configuration**. Configure the dev server directly from your pipeline.
+* **Internationalization**. Fully localized URLs, automatic translation linking, and locale-aware sitemaps. See the [internationalization guide](doc:Internationalization).
+
+
+## Breaking changes
+
+> Important: These changes will require updates to your code.
+
+* **CLI flags removed**. The `--watch`, `--output`, and `--ignore` flags are gone from `saga dev`. Use ``Saga/ignore(_:)`` in code instead.
+* **Pre/post pipeline code must move to hooks**. Code that ran before or after your pipeline must be wrapped in ``Saga/beforeRead(_:)`` and ``Saga/afterWrite(_:)``, since the pipeline now runs multiple times during `saga dev`.
 
 
 ## Update your dependencies
@@ -20,7 +35,7 @@ Saga 3 requires Swift 6.0 and macOS 14 or Linux.
 
 ## Update saga-cli
 
-saga-cli 2.x unlocks incremental rebuilds and faster dev cycles. Update via Homebrew:
+saga-cli 2 unlocks incremental rebuilds and faster dev cycles, and requires Saga 3 to work. Update via Homebrew:
 
 ```shell-session
 $ brew upgrade loopwerk/tap/saga
@@ -42,7 +57,7 @@ $ swift package experimental-install
 
 ### Removed CLI flags
 
-The `--watch`, `--output`, and `--ignore` flags have been removed from `saga dev`. Saga now handles file watching and detects the folders from your Swift code. The only remaining option is `--port`.
+The `--watch`, `--output`, and `--ignore` flags have been removed from `saga dev`. Saga itself now handles file watching and uses the input and output folders automatically.
 
 If you were using `--ignore`, use ``Saga/ignore(_:)`` in your Swift code instead:
 
@@ -58,27 +73,56 @@ try await Saga(input: "content", output: "deploy")
 ```
 
 
-## New: build hooks
+## Migrate to use build hooks
 
-Saga 3 adds ``Saga/beforeRead(_:)`` and ``Saga/afterWrite(_:)`` hooks that run before and after each build cycle, including incremental builds during `saga dev`.
+Since the pipeline now runs multiple times during `saga dev`, the old way of running code before and after your pipeline no longer works, and has to be migrated to Saga 3's new ``Saga/beforeRead(_:)`` and ``Saga/afterWrite(_:)`` hooks.
 
-These are useful for pre-build steps like CSS compilation and post-build steps like search indexing:
+Before:
 
 ```swift
+// Run Tailwind CSS
+let tailwind = SwiftTailwind(version: "4.2.1")
+try await tailwind.run(
+  input: "content/static/input.css",
+  output: "content/static/output.css",
+  options: .minify
+)
+
+try await Saga(input: "content", output: "deploy")
+  .register(/* ... */)
+  .run()
+
+// Index the site
+let process = Process()
+process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+process.arguments = ["pnpm", "pagefind", "--site", "deploy"]
+try process.run()
+process.waitUntilExit()
+```
+
+After:
+
+```swift
+let tailwind = SwiftTailwind(version: "4.2.1")
+
 try await Saga(input: "content", output: "deploy")
   .beforeRead { _ in
-    // e.g. compile Tailwind CSS
+    // Run Tailwind CSS
+    try await tailwind.run(
+      input: "content/static/input.css",
+      output: "content/static/output.css",
+      options: .minify
+    )
   }
+  .ignore("output.css") // no more `$ saga dev --ignore output.css`
   .register(/* ... */)
   .afterWrite { _ in
-    // e.g. run Pagefind
+    // Index the site
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["pnpm", "pagefind", "--site", "deploy"]
+    try process.run()
+    process.waitUntilExit()
   }
   .run()
 ```
-
-See <doc:TailwindCSS> and <doc:AddingSearch> for examples.
-
-
-## New: incremental dev rebuilds
-
-When running under `saga dev`, Saga 3 stays alive between rebuilds and caches the read phase. Unchanged files are not re-parsed, making content rebuilds significantly faster. This happens automatically; no code changes needed.

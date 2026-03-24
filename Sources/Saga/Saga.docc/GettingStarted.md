@@ -148,7 +148,7 @@ You can also check the source code of [loopwerk.io](https://github.com/loopwerk/
 ## Writers
 In the custom metadata example above, you can see that the articles step uses four different kinds of writers: `itemWriter`, `listWriter`, `tagWriter`, and `yearWriter`. Each writer takes a renderer function, in this case `swim`, using a locally defined function with the HTML template. The `swim` function comes from the [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) library, whereas `renderArticle`, `renderArticles`, `renderTag` and the rest are locally defined in your project. They are the actual HTML templates, using a strongly typed DSL. 
 
-> tip: If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
+> Tip: If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 
 The four different writers are all used for different purposes:
 
