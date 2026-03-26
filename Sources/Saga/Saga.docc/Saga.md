@@ -31,6 +31,7 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 - <doc:AddingSearch>
 - <doc:PhotoGalleries>
 - <doc:TailwindCSS>
+- <doc:CustomFeedFormats>
 - <doc:FetchingFromAPIs>
 - <doc:GeneratingSitemaps>
 - <doc:HTMLMinification>
