@@ -2,6 +2,9 @@
   <img src="logo.png" width="200" alt="Saga" />
 </p>
 
+> [!TIP]
+> **Saga 3 is here!** i18n, incremental builds, and more. See the [migration guide](https://getsaga.dev/docs/migrate/) for what's new.
+
 A code-first static site generator in Swift. No config files, no implicit behavior, no magic conventions.
 
 Your entire site pipeline is plain Swift code:
@@ -38,35 +41,36 @@ Typed metadata, pluggable readers, multiple writer types, pagination, tags — a
 
 ## Feature comparison
 
-| Feature | Saga | Hugo | Eleventy | Jekyll | Pelican | Astro | Publish |
-|---|---|---|---|---|---|---|---|
-| Language | Swift | Go | JS | Ruby | Python | TS | Swift |
-| In development since | 2021 | 2013 | 2017 | 2008 | 2010 | 2021 | 2019 |
-| CLI (init, dev, build) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
-| Live reload | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
-| Incremental builds | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Code over configuration | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
-| Multiple typed content types | ✓ | ✗ | ✗ | ✗ | ✗ | ✓¹ | ✗ |
-| Type-safe HTML templates | ✓ | ✗ | ✗ | ✗ | ✗ | ✓² | ✓ |
-| Pagination | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
-| Tags / taxonomies | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ |
-| i18n | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ |
-| Sitemap generation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| RSS / Atom feeds | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Syntax highlighting | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Markdown attributes | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
-| Programmatic content | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
-| Asset hashing | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ |
-| Pre/Post build hooks | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ |
-| Shortcodes | ✓³ | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ |
-| Image processing | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
-| Asset bundling | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ |
-| Themes ecosystem | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Good documentation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
+| Feature | Saga | Hugo | Eleventy | Jekyll | Pelican | Astro | Publish | Ignite | Toucan |
+|---|---|---|---|---|---|---|---|---|---|
+| Language | Swift | Go | JS | Ruby | Python | TS | Swift | Swift | Swift |
+| In development since | 2021 | 2013 | 2017 | 2008 | 2010 | 2021 | 2019 | 2024 | 2023 |
+| CLI (init, dev, build) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ |
+| Live reload | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Incremental builds | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| Code over configuration | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ |
+| Multiple typed content types | ✓ | ✗ | ✗ | ✗ | ✗ | ✓¹ | ✗ | ✗ | ✗ |
+| Type-safe HTML templates | ✓ | ✗ | ✗ | ✗ | ✗ | ✓² | ✓ | ✓ | ✗ |
+| Pagination | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ |
+| Tags / taxonomies | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ |
+| i18n | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Sitemap generation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| RSS / Atom feeds | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Syntax highlighting | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
+| Markdown attributes | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| Programmatic content | ✓ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ | ✓⁴ | ✗ |
+| Asset hashing | ✓ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ |
+| Pre/Post build hooks | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Shortcodes | ✓³ | ✓ | ✓ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ |
+| Image processing | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ |
+| Asset bundling | ✗ | ✓ | ✓ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ |
+| Themes ecosystem | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
+| Good documentation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 
-¹ With Zod
-² With JSX
-³ With item processors
+¹ With Zod  
+² With JSX  
+³ With item processors  
+⁴ Via `prepare()` hook
 
 
 ## Installing the CLI
