@@ -77,6 +77,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// (e.g. `en/articles/`, `nl/articles/`). Each `register()` call automatically fans out
   /// into per-locale processing steps.
   ///
+  /// For a complete walkthrough, see <doc:Internationalization>.
+  ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
   ///   .i18n(
@@ -114,6 +116,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
 
   /// Register a hook that runs before the read phase of each build cycle.
   ///
+  /// For a CSS compilation example, see <doc:TailwindCSS>.
+  ///
   /// Use this for pre-build steps like CSS compilation:
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
@@ -131,6 +135,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
   }
 
   /// Register a hook that runs after the write phase of each build cycle.
+  ///
+  /// For a search indexing example, see <doc:AddingSearch>.
   ///
   /// Use this for post-build steps like search indexing:
   /// ```swift
@@ -153,6 +159,8 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// The transform receives the rendered content and relative output path.
   /// Multiple calls stack: each wraps the previous write.
   ///
+  /// For a minification example, see <doc:HTMLMinification>.
+  ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
   ///   .register(...)
@@ -171,6 +179,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// Add a glob pattern to ignore during file watching in dev mode.
   ///
   /// Use this to prevent unnecessary rebuilds when certain files change:
+  ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
   ///   .ignore("output.css")

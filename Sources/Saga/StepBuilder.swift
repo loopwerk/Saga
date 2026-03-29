@@ -274,6 +274,8 @@ public class StepBuilder: @unchecked Sendable {
   /// cached to disk so that subsequent rebuilds skip the fetch. Pass `nil` for `cacheKey` to
   /// disable caching (useful while developing the fetch function itself).
   ///
+  /// For a complete walkthrough, see <doc:FetchingFromAPIs>.
+  ///
   /// - Parameters:
   ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
   ///   - fetch: An async function that returns an array of items.
@@ -331,6 +333,8 @@ public class StepBuilder: @unchecked Sendable {
   /// generate images, build a search index, or run any custom logic as part of your build.
   /// The closure runs during the write phase, after all readers have finished and items are sorted.
   ///
+  /// For an example of building a search index, see <doc:AddingSearch>.
+  ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
   ///   .register(...)
@@ -358,8 +362,9 @@ public class StepBuilder: @unchecked Sendable {
   ///
   /// Pages created with `createPage` run after all registered writers have finished. This means
   /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
-  /// from earlier `createPage` calls. **Order matters**: place the sitemap last if it needs to
-  /// see all other pages.
+  /// from earlier `createPage` calls.
+  ///
+  /// **Order matters**: place the sitemap last if it needs to see all other pages.
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
@@ -396,6 +401,8 @@ public class StepBuilder: @unchecked Sendable {
   /// prefixed for non-default locales (e.g. `"index.html"` → `"nl/index.html"`).
   /// The rendering context's ``PageRenderingContext/allItems`` only contains items for the current locale,
   /// and ``PageRenderingContext/locale`` is set.
+  ///
+  /// For a complete walkthrough, see <doc:Internationalization>.
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")

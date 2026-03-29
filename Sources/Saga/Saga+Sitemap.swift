@@ -9,6 +9,8 @@ public extension Saga {
   /// [multilingual sitemap](https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap)
   /// specification.
   ///
+  /// For a complete walkthrough, see <doc:GeneratingSitemaps>.
+  ///
   /// - Parameters:
   ///   - baseURL: The base URL of your website, for example `https://www.example.com`.
   ///   - filter: An optional filter to exclude certain paths from the sitemap.

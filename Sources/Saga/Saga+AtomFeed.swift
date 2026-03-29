@@ -11,7 +11,9 @@ import Foundation
 #endif
 
 public extension Saga {
-  /// A renderer which creates an Atom feed for Items
+  /// A renderer which creates an Atom feed for Items.
+  ///
+  /// For JSON Feed and other formats, see <doc:CustomFeedFormats>.
   ///
   /// - Parameters:
   ///   - title: The title of the feed, usually your site title. Example: Loopwerk.io.

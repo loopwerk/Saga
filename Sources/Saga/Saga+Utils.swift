@@ -47,10 +47,9 @@ private let publicationDateFormatter: DateFormatter = {
 }
 
 public extension Saga {
-  /// Whether the site is being served by `saga dev`.
-  ///
   /// This is `true` when the `SAGA_DEV` environment variable is set (which `saga dev` does
   /// automatically). Use it to skip expensive work during development:
+  /// 
   /// ```swift
   /// .postProcess { html, _ in
   ///   Saga.isDev ? html : minifyHTML(html)
@@ -60,7 +59,8 @@ public extension Saga {
     ProcessInfo.processInfo.environment["SAGA_DEV"] != nil
   }
 
-  /// Whether the site was launched by saga-cli (the `SAGA_CLI` environment variable is set).
+  /// This is `true` when the `SAGA_CLI` environment variable is set (which `saga dev` does
+  /// automatically). Used internally.
   static var isCLI: Bool {
     ProcessInfo.processInfo.environment["SAGA_CLI"] != nil
   }
@@ -70,12 +70,12 @@ public extension Saga {
   /// Uses both a `<meta http-equiv="refresh">` tag and a canonical link for
   /// immediate client-side redirection with proper SEO signaling.
   ///
+  /// - Parameter url: The destination URL to redirect to.
+  /// - Returns: A renderer for use with ``StepBuilder/createPage(_:using:)``.
+  ///
   /// ```swift
   /// .createPage("old-path/index.html", using: Saga.redirectHTML(to: "/new-path/"))
   /// ```
-  ///
-  /// - Parameter url: The destination URL to redirect to.
-  /// - Returns: A renderer for use with ``StepBuilder/createPage(_:using:)``.
   @preconcurrency
   static func redirectHTML(to url: String) -> @Sendable (PageRenderingContext) -> String {
     let html = redirectHTML(to: url) as String
