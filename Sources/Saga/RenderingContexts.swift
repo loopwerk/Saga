@@ -142,6 +142,73 @@ public struct PageRenderingContext: Sendable {
   public let translations: [SagaLocale: String]
 }
 
+// MARK: - Dictionary conversion for template renderers such as Stencil
+
+public protocol DictRenderingContext {
+  func asDictionary() -> [String: Any]
+}
+
+extension ItemRenderingContext: DictRenderingContext {
+  public func asDictionary() -> [String: Any] {
+    var dict: [String: Any] = [
+      "item": item,
+      "items": items,
+      "allItems": allItems,
+      "resources": resources,
+      "translations": translations,
+    ]
+    if let previous { dict["previous"] = previous }
+    if let next { dict["next"] = next }
+    if let subfolder { dict["subfolder"] = subfolder }
+    if let locale { dict["locale"] = locale }
+    return dict
+  }
+}
+
+extension ItemsRenderingContext: DictRenderingContext {
+  public func asDictionary() -> [String: Any] {
+    var dict: [String: Any] = [
+      "items": items,
+      "allItems": allItems,
+      "outputPath": outputPath,
+      "translations": translations,
+    ]
+    if let paginator { dict["paginator"] = paginator }
+    if let subfolder { dict["subfolder"] = subfolder }
+    if let locale { dict["locale"] = locale }
+    return dict
+  }
+}
+
+extension PartitionedRenderingContext: DictRenderingContext {
+  public func asDictionary() -> [String: Any] {
+    var dict: [String: Any] = [
+      "key": key,
+      "items": items,
+      "allItems": allItems,
+      "outputPath": outputPath,
+      "translations": translations,
+    ]
+    if let paginator { dict["paginator"] = paginator }
+    if let subfolder { dict["subfolder"] = subfolder }
+    if let locale { dict["locale"] = locale }
+    return dict
+  }
+}
+
+extension PageRenderingContext: DictRenderingContext {
+  public func asDictionary() -> [String: Any] {
+    var dict: [String: Any] = [
+      "allItems": allItems,
+      "outputPath": outputPath,
+      "generatedPages": generatedPages,
+      "translations": translations,
+    ]
+    if let locale { dict["locale"] = locale }
+    return dict
+  }
+}
+
 /// A model representing a paginator.
 ///
 /// When you use the `listWriter` or one of the `partitionedWriter` versions, you can choose to paginate the items into multiple output files.
