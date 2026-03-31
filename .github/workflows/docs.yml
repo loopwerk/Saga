@@ -27,23 +27,14 @@ jobs:
 
       - name: Generate documentation
         run: |
-          # Enable the swift-docc-plugin dependency
-          sed -i '' 's|// \.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|.package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.1.0"),|' Package.swift
+          # Dump symbol graph
+          swift package dump-symbol-graph
 
-          # Pretty print DocC JSON output so that it can be consistently diffed between commits
-          export DOCC_JSON_PRETTYPRINT="YES"
-
-          # Create docs directory
-          mkdir -p ./docs
-
-          # Generate documentation
-          swift package \
-            --allow-writing-to-directory ./docs \
-            generate-documentation \
-            --target Saga \
-            --disable-indexing \
+          # Generate documentation using docc directly
+          DOCC_JSON_PRETTYPRINT=YES xcrun docc convert \
+            Sources/Saga/Saga.docc \
+            --additional-symbol-graph-dir .build \
             --output-path ./docs \
-            --transform-for-static-hosting \
             --hosting-base-path Saga
 
       - name: Setup Pages

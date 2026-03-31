@@ -10,27 +10,17 @@ test-swift60:
 format:
   swiftformat -swift-version 6 .
 
-[private]
-enable-docc-plugin:
-  sed -i '' 's|// *\.package(url: "https://github.com/swiftlang/swift-docc-plugin"|.package(url: "https://github.com/swiftlang/swift-docc-plugin"|' Package.swift
-
-[private]
-disable-docc-plugin:
-  sed -i '' 's|\.package(url: "https://github.com/swiftlang/swift-docc-plugin"|// .package(url: "https://github.com/swiftlang/swift-docc-plugin"|' Package.swift
-
 docs:
-  just enable-docc-plugin
-  DOCC_JSON_PRETTYPRINT=YES swift package \
-    --allow-writing-to-directory ./docs \
-    generate-documentation \
-    --target Saga \
-    --disable-indexing \
+  swift package dump-symbol-graph
+  DOCC_JSON_PRETTYPRINT=YES xcrun docc convert \
+    Sources/Saga/Saga.docc \
+    --additional-symbol-graph-dir .build \
     --output-path ./docs \
-    --transform-for-static-hosting \
-    --hosting-base-path Saga; \
-  just disable-docc-plugin
+    --hosting-base-path Saga
 
 docs-preview:
-  just enable-docc-plugin
-  swift package --disable-sandbox preview-documentation --target Saga; \
-  just disable-docc-plugin
+  swift package dump-symbol-graph
+  xcrun docc preview \
+    Sources/Saga/Saga.docc \
+    --additional-symbol-graph-dir .build \
+    --output-path .build/docc-preview
