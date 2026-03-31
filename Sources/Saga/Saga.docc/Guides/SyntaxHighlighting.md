@@ -4,7 +4,7 @@ Add server-side syntax highlighting to code blocks using Moon.
 
 ## Overview
 
-When your markdown content includes fenced code blocks, they're rendered as plain `<pre><code>` elements by default. [Moon](https://github.com/loopwerk/Moon) adds syntax highlighting using Prism, but at build time, so visitors see highlighted code without the need to load any client-side JavaScript.
+When your Markdown content includes fenced code blocks, they're rendered as plain `<pre><code>` elements by default. [Moon](https://github.com/loopwerk/Moon) adds syntax highlighting using Prism, but at build time, so visitors see highlighted code without the need to load any client-side JavaScript.
 
 ## Setup
 

@@ -4,7 +4,7 @@ An overview of how to configure Saga to render your pages and articles.
 
 
 ## Overview
-Let's start with the most basic example: rendering all markdown files to HTML.
+Let's start with the most basic example: rendering all Markdown files to HTML.
 
 ```swift
 import Saga
@@ -35,7 +35,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer). The <doc:Architecture> document has more information on how Saga works.
+> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. Please see [GetSaga.dev](https://getsaga.dev) for a complete overview of plugins. The <doc:Architecture> document has more information on how Saga works.
 
 
 ## Frontmatter
@@ -60,7 +60,7 @@ You can parse custom frontmatter properties using strongly typed metadata.
 ## Custom metadata
 Saga can deal with custom metadata contained within frontmatter blocks - even multiple types of metadata for different kinds of pages.
 
-Let's look at an example markdown article, `/content/articles/first-article.md`:
+Let's look at an example Markdown article, `/content/articles/first-article.md`:
 
 ```text
 ---
@@ -99,7 +99,7 @@ struct AppMetadata: Metadata {
 }
 
 try await Saga(input: "content", output: "deploy")
-  // All markdown files within the "articles" subfolder will be parsed to html,
+  // All Markdown files within the "articles" subfolder will be parsed to html,
   // using `ArticleMetadata` as the item's metadata type.
   .register(
     folder: "articles",
@@ -117,7 +117,7 @@ try await Saga(input: "content", output: "deploy")
     ]
   )
 
-  // All markdown files within the "apps" subfolder will be parsed to html,
+  // All Markdown files within the "apps" subfolder will be parsed to html,
   // using `AppMetadata` as the item's metadata type.
   .register(
     folder: "apps",
@@ -126,7 +126,7 @@ try await Saga(input: "content", output: "deploy")
     writers: [.listWriter(swim(renderApps))]
   )
 
-  // All the remaining markdown files will be parsed to html,
+  // All the remaining Markdown files will be parsed to html,
   // using the default `EmptyMetadata` as the item's metadata type.
   .register(
     readers: [.parsleyMarkdownReader],
@@ -147,8 +147,6 @@ You can also check the source code of [loopwerk.io](https://github.com/loopwerk/
 
 ## Writers
 In the custom metadata example above, you can see that the articles step uses four different kinds of writers: `itemWriter`, `listWriter`, `tagWriter`, and `yearWriter`. Each writer takes a renderer function, in this case `swim`, using a locally defined function with the HTML template. The `swim` function comes from the [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) library, whereas `renderArticle`, `renderArticles`, `renderTag` and the rest are locally defined in your project. They are the actual HTML templates, using a strongly typed DSL. 
-
-> Tip: If you prefer to work with Mustache-type HTML template files, check out [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
 
 The four different writers are all used for different purposes:
 

@@ -29,7 +29,7 @@ import SagaPathKit
 /// }
 /// ```
 ///
-/// > Note: Instead of constructing your own `Reader` from scratch for your website, you should probably install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader), [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader), or [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader).
+/// > Note: Instead of constructing your own `Reader` from scratch for your website, you should probably install one such as [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader). Please see [GetSaga.dev](https://getsaga.dev) for a complete list of plugins, or browse the [saga-plugin](https://github.com/topics/saga-plugin) tag on GitHub.
 public struct Reader: Sendable {
   /// Which file extensions can be handled by this reader? For example `md` or `rst`.
   var supportedExtensions: [String]

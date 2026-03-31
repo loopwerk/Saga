@@ -4,7 +4,7 @@ Replace template strings in your content with rendered HTML using item processor
 
 ## Overview
 
-Shortcodes let you embed dynamic content in your markdown files using a simple syntax like `{{youtube id="dQw4w9WgXcQ"}}`. Since Saga's item processors run after the reader parses markdown into HTML, you can search and replace these patterns in the item's `body`.
+Shortcodes let you embed dynamic content in your Markdown files using a simple syntax like `{{youtube id="dQw4w9WgXcQ"}}`. Since Saga's item processors run after the reader parses Markdown into HTML, you can search and replace these patterns in the item's `body`.
 
 ## Define a shortcode syntax
 

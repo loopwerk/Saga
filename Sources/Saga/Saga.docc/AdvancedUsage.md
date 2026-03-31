@@ -58,9 +58,9 @@ Chain multiple processors with ``Saga/sequence(_:)``:
 
 ## Template-driven pages
 
-Create pages that are purely template-driven — no markdown file or ``Item`` needed.
+Create pages that are purely template-driven — no Markdown file or ``Item`` needed.
 
-Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``StepBuilder/createPage(_:using:)`` method lets you render these pages without needing a markdown file.
+Not every page on a website corresponds to a content file. Homepages, search pages, and 404 pages are often driven entirely by a template, sometimes pulling in items from other sections of the site. The ``StepBuilder/createPage(_:using:)`` method lets you render these pages without needing a Markdown file.
 
 ```swift
 try await Saga(input: "content", output: "deploy")

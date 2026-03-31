@@ -171,21 +171,8 @@ Full documentation covering installation, getting started, metadata modeling, an
 
 Saga is modular. You compose it with readers and renderers that fit your needs.
 
-**Markdown readers**
+Please see [GetSaga.dev](https://getsaga.dev) for an overview, or browse the [saga-plugin](https://github.com/topics/saga-plugin) tag on GitHub.
 
-- [SagaParsleyMarkdownReader](https://github.com/loopwerk/SagaParsleyMarkdownReader) — uses [Parsley](https://github.com/loopwerk/Parsley)
-- [SagaInkMarkdownReader](https://github.com/loopwerk/SagaInkMarkdownReader) — uses [Ink](https://github.com/JohnSundell/Ink) and [Splash](https://github.com/JohnSundell/Splash)
-- [SagaPythonMarkdownReader](https://github.com/loopwerk/SagaPythonMarkdownReader) — uses [Python-Markdown](https://github.com/Python-Markdown/markdown) and [Pygments](https://pygments.org)
-
-**Renderers**
-
-- [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) — type-safe HTML using [Swim](https://github.com/robb/Swim)
-- [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer) — templates using [Stencil](https://github.com/stencilproject/Stencil)
-
-**Utilities**
-
-- [SagaUtils](https://github.com/loopwerk/SagaUtils) — composable HTML transformations (via [SwiftSoup](https://github.com/scinfu/SwiftSoup)) and useful String extensions
-- [SagaImageReader](https://github.com/loopwerk/SagaImageReader) — turn image files into items
 
 ## Requirements
 

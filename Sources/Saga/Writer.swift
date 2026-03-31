@@ -23,7 +23,7 @@ struct WriterContext<M: Metadata> {
 ///
 /// To turn an ``Item`` into a `String`, a `Writer` uses a "renderer"; a function that knows how to turn a rendering context such as ``ItemRenderingContext`` into a `String`.
 ///
-/// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) or [SagaStencilRenderer](https://github.com/loopwerk/SagaStencilRenderer).
+/// > Note: Saga does not come bundled with any renderers out of the box, instead you should install one such as [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer).  Please see [GetSaga.dev](https://getsaga.dev) for a complete list of plugins, or browse the [saga-plugin](https://github.com/topics/saga-plugin) tag on GitHub.
 public struct Writer<M: Metadata>: Sendable {
   let run: @Sendable (WriterContext<M>) async throws -> Void
 }
