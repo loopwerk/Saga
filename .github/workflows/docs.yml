@@ -25,9 +25,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - uses: swift-actions/setup-swift@v3
-        with:
-          swift-version: "6.2"
+      - name: Select Xcode 26.3
+        run: sudo xcode-select -s /Applications/Xcode_26.3.app
 
       - name: Generate documentation
         run: |
