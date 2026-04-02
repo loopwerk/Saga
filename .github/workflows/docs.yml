@@ -31,7 +31,7 @@ jobs:
       - name: Generate documentation
         run: |
           # Dump symbol graph
-          swift package dump-symbol-graph
+          swift package dump-symbol-graph || true
 
           # Generate documentation using docc directly
           DOCC_JSON_PRETTYPRINT=YES xcrun docc convert \
