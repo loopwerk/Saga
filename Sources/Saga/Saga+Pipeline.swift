@@ -54,9 +54,9 @@ extension Saga {
       output: (try? outputPath.relativePath(from: rootPath))?.string ?? "deploy"
     )
 
-    let configPath = rootPath + ".build/saga-config.json"
     if let data = try? JSONEncoder().encode(config) {
-      try? data.write(to: URL(fileURLWithPath: configPath.string))
+      let configPath = rootPath + ".build/saga-config.json"
+      try? configPath.write(data)
     }
   }
 

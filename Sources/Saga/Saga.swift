@@ -52,6 +52,9 @@ public class Saga: StepBuilder, @unchecked Sendable {
   /// Glob patterns to ignore during file watching in dev mode
   var ignoredPatterns: [String] = [".DS_Store"]
 
+  /// Why the current build was triggered.
+  public internal(set) var buildReason: BuildReason = .initial
+
   public init(input: Path, output: Path = "deploy", fileIO: FileIO = .diskAccess, originFilePath: StaticString = #filePath) throws {
     let originFile = Path("\(originFilePath)")
     let rootPath = try fileIO.resolveSwiftPackageFolder(originFile)
@@ -198,6 +201,9 @@ public class Saga: StepBuilder, @unchecked Sendable {
   public func run() async throws -> Self {
     // Write config file so saga-cli can detect output path for serving
     writeConfigFile()
+
+    // Check if this launch was triggered by a recompile
+    readRecompileReason()
 
     // Run the pipeline
     try await build()

@@ -82,6 +82,24 @@ extension Saga {
 
     fileIO.log("All done in \(elapsed(from: totalStart))")
   }
+  
+  var recompileReasonPath: Path {
+    rootPath + ".build/saga-recompile-reason"
+  }
+
+  /// Read `.build/saga-recompile-reason` to determine if this launch was triggered by a Swift file change.
+  /// If the file exists, sets ``buildReason`` to `.recompile` and deletes it.
+  func readRecompileReason() {
+    let path = recompileReasonPath
+    guard path.exists, let contents: String = try? path.read(), !contents.isEmpty else { return }
+    buildReason = .recompile(Path(contents))
+    try? path.delete()
+  }
+
+  /// Write `.build/saga-recompile-reason` so the next launch knows which Swift file triggered it.
+  func writeRecompileReason(_ changedPath: String) {
+    try? recompileReasonPath.write(changedPath)
+  }
 
   /// Watch for file changes and rebuild when content changes.
   /// Signals saga-cli via SIGUSR1 if Swift source files change (so it can recompile and relaunch).
@@ -90,8 +108,9 @@ extension Saga {
     let monitor = FolderMonitor(paths: watchPaths, ignoredPatterns: ignoredPatterns) { [weak self] changedPaths in
       guard let self else { return }
 
-      if changedPaths.contains(where: { $0.hasSuffix(".swift") }) {
-        // Swift source changed — signal saga-cli to recompile and relaunch
+      if let swiftFile = changedPaths.first(where: { $0.hasSuffix(".swift") }) {
+        // Swift source changed — write the reason file and signal saga-cli to recompile and relaunch
+        self.writeRecompileReason(swiftFile)
         self.signalParent(SIGUSR1)
         return
       }
@@ -99,6 +118,9 @@ extension Saga {
       Task {
         do {
           try self.reset()
+          if let changedPath = changedPaths.first {
+            self.buildReason = .fileChange(Path(changedPath))
+          }
           try await self.build()
           self.signalParent(SIGUSR2)
         } catch {
