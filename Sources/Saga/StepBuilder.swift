@@ -480,6 +480,7 @@ public class StepBuilder: @unchecked Sendable {
 
     return PipelineStep(
       read: { [locale] saga in
+        parentItems = []
         for subFolderPath in subFolders {
           let readPath = locale.map { Path($0) + subFolderPath } ?? subFolderPath
 

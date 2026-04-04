@@ -67,6 +67,14 @@ extension Saga {
     generatedPages = []
     contentHashes = [:]
 
+    // Clear parent/child references on cached items so they can be re-wired
+    for (_, cache) in readerCache {
+      for (_, item) in cache {
+        item.parent = nil
+        item.children = []
+      }
+    }
+
     // Re-scan input files (files may have been added/removed)
     let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
     files = allFound.map { path in
