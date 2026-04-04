@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/Parsley",
       "state" : {
-        "revision" : "e7c825b00846c3006a1ed2d75d9674ee69cadbf6",
-        "version" : "1.1.0"
+        "revision" : "1384f65054372000ded7dbf1f4b4e27c8fac2198",
+        "version" : "1.2.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/SagaImageReader",
       "state" : {
-        "revision" : "da940a4b9fdbd829da78798bac362d5d5c20baf1",
-        "version" : "1.0.0"
+        "revision" : "ae27ca74091d1d24c7a541f9fc33715d17d4d908",
+        "version" : "1.1.0"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/SagaParsleyMarkdownReader",
       "state" : {
-        "revision" : "3c4199255d0812363adfaee3990359aaa96de4ee",
-        "version" : "1.2.1"
+        "revision" : "b44f4d89688eb4c2266d149b897e547598df0f97",
+        "version" : "1.3.0"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/SagaSwimRenderer",
       "state" : {
-        "revision" : "a6eee7dec6cc360a5e363d731566a96bd6d42b49",
-        "version" : "1.3.0"
+        "revision" : "05e68daf645d68cbb00658890a31083e9b1edb90",
+        "version" : "1.4.1"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-asn1.git",
       "state" : {
-        "revision" : "810496cf121e525d660cd0ea89a758740476b85f",
-        "version" : "1.5.1"
+        "revision" : "9f542610331815e29cc3821d3b6f488db8715517",
+        "version" : "1.6.0"
       }
     },
     {
