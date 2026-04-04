@@ -1,18 +1,19 @@
 import Foundation
+import SagaPathKit
 
 class FolderMonitor {
-  private let callback: (Set<String>) -> Void
+  private let callback: (Set<Path>) -> Void
   private let ignoredPatterns: [String]
-  private let basePath: String
-  private let paths: [String]
-  private var knownFiles: [String: Date] = [:]
+  private let basePath: Path
+  private let paths: [Path]
+  private var knownFiles: [Path: Date] = [:]
   private var timer: DispatchSourceTimer?
 
-  init(paths: [String], ignoredPatterns: [String] = [], folderDidChange: @escaping (Set<String>) -> Void) {
+  init(paths: [Path], ignoredPatterns: [String] = [], folderDidChange: @escaping (Set<Path>) -> Void) {
     self.paths = paths
     callback = folderDidChange
     self.ignoredPatterns = ignoredPatterns
-    basePath = FileManager.default.currentDirectoryPath
+    basePath = Path.current
 
     // Take initial snapshot
     knownFiles = scanFiles()
@@ -30,7 +31,7 @@ class FolderMonitor {
   private func checkForChanges() {
     let currentFiles = scanFiles()
 
-    var changedPaths: Set<String> = []
+    var changedPaths: Set<Path> = []
 
     // Check for new or modified files
     for (path, modDate) in currentFiles {
@@ -57,28 +58,21 @@ class FolderMonitor {
     }
   }
 
-  private func scanFiles() -> [String: Date] {
-    let fileManager = FileManager.default
-    var result: [String: Date] = [:]
+  private func scanFiles() -> [Path: Date] {
+    var result: [Path: Date] = [:]
 
     for watchPath in paths {
-      guard let enumerator = fileManager.enumerator(atPath: watchPath) else { continue }
+      guard let children = try? watchPath.recursiveChildren() else { continue }
 
-      while let relativePath = enumerator.nextObject() as? String {
-        let fullPath = watchPath + "/" + relativePath
+      for fullPath in children {
+        guard fullPath.isFile else { continue }
 
-        var isDir: ObjCBool = false
-        guard fileManager.fileExists(atPath: fullPath, isDirectory: &isDir), !isDir.boolValue else {
+        let relativePath = (try? fullPath.relativePath(from: basePath)) ?? fullPath
+        if Self.matchesGlobPattern(relativePath, patterns: ignoredPatterns) {
           continue
         }
 
-        if shouldIgnore(path: fullPath) {
-          continue
-        }
-
-        if let attributes = try? fileManager.attributesOfItem(atPath: fullPath),
-           let modDate = attributes[.modificationDate] as? Date
-        {
+        if let modDate = fullPath.modificationDate {
           result[fullPath] = modDate
         }
       }
@@ -87,26 +81,16 @@ class FolderMonitor {
     return result
   }
 
-  private func shouldIgnore(path: String) -> Bool {
-    guard !ignoredPatterns.isEmpty else { return false }
-
-    let relativePath: String = if path.hasPrefix(basePath) {
-      String(path.dropFirst(basePath.count + 1))
-    } else {
-      path
-    }
-
-    for pattern in ignoredPatterns {
-      if fnmatch(pattern, relativePath, FNM_PATHNAME) == 0 {
+  static func matchesGlobPattern(_ relativePath: Path, patterns: [String]) -> Bool {
+    for pattern in patterns {
+      if fnmatch(pattern, relativePath.string, FNM_PATHNAME) == 0 {
         return true
       }
-      if let filename = relativePath.split(separator: "/").last {
-        if fnmatch(pattern, String(filename), 0) == 0 {
-          return true
-        }
+      let filename = relativePath.lastComponent
+      if fnmatch(pattern, filename, 0) == 0 {
+        return true
       }
     }
-
     return false
   }
 

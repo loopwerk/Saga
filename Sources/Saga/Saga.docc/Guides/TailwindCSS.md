@@ -79,7 +79,7 @@ Because `output.css` is written into the `content` folder, the file watcher will
 
 ```swift
 try await Saga(input: "content", output: "deploy")
-  .ignore("output.css")
+  .ignoreChanges("output.css")
   .beforeRead { _ in
     try await tailwind.run(/* ... */)
   }

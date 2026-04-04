@@ -14,10 +14,10 @@ public enum BuildReason: Sendable {
   /// Returns the path of the file that triggered this build, if any.
   public func changedFile() -> Path? {
     switch self {
-    case .initial:
-      return nil
-    case .fileChange(let path), .recompile(let path):
-      return path
+      case .initial:
+        return nil
+      case .fileChange(let path), .recompile(let path):
+        return path
     }
   }
 }

@@ -50,7 +50,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
   var readerCache: [String: [String: AnyItem]] = [:]
 
   /// Glob patterns to ignore during file watching in dev mode
-  var ignoredPatterns: [String] = [".DS_Store"]
+  var ignoreChangesPatterns: [String] = [".DS_Store"]
 
   /// Why the current build was triggered.
   public internal(set) var buildReason: BuildReason = .initial
@@ -185,15 +185,21 @@ public class Saga: StepBuilder, @unchecked Sendable {
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
-  ///   .ignore("output.css")
-  ///   .ignore("*.tmp")
+  ///   .ignoreChanges("output.css")
+  ///   .ignoreChanges("*.tmp")
   ///   .register(...)
   ///   .run()
   /// ```
   @discardableResult
-  public func ignore(_ pattern: String) -> Self {
-    ignoredPatterns.append(pattern)
+  public func ignoreChanges(_ pattern: String) -> Self {
+    ignoreChangesPatterns.append(pattern)
     return self
+  }
+
+  @available(*, deprecated, renamed: "ignoreChanges")
+  @discardableResult
+  public func ignore(_ pattern: String) -> Self {
+    ignoreChanges(pattern)
   }
 
   /// Execute all the registered steps.

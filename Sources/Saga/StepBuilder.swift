@@ -434,7 +434,7 @@ public class StepBuilder: @unchecked Sendable {
         }
 
         // Compute output paths for all locales, applying localizedOutputFolders
-        let localePaths = i18n.locales.reduce(into: [SagaLocale: Path]()) { (into, locale) in
+        let localePaths = i18n.locales.reduce(into: [SagaLocale: Path]()) { into, locale in
           let localizedOutput = saga.applyLocalizedOutputFolders(to: workingPath + output, locale: locale)
           let prefix = i18n.shouldPrefix(locale: locale) ? Path(locale) : Path("")
           into[locale] = prefix + localizedOutput

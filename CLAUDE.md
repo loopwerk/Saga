@@ -36,7 +36,7 @@ saga dev --port 8080
 
 The `saga` CLI lives in a [separate repository](https://github.com/loopwerk/saga-cli). Install via Homebrew (`brew install loopwerk/tap/saga`) or Mint (`mint install loopwerk/saga-cli`).
 
-File watching and ignore patterns are handled by Saga itself (not the CLI). Use `.ignore()` in your Swift code to exclude files from triggering rebuilds.
+File watching and ignore patterns are handled by Saga itself (not the CLI). Use `.ignoreChanges()` in your Swift code to exclude files from triggering rebuilds.
 
 ## Architecture Overview
 
@@ -78,7 +78,7 @@ Saga is designed for extensibility via external packages:
 - `Saga.atomFeed(title:author:baseURL:...)`: Built-in renderer that generates an Atom feed from items.
 - `Saga.isDev`: `true` when the `SAGA_DEV` environment variable is set. Use to skip expensive work during development.
 - `Saga.isCLI`: `true` when launched by saga-cli (checks `SAGA_CLI` env var). Used internally to activate file watching and rebuild loop.
-- `ignore(_:)`: Add glob patterns for files that should not trigger a dev rebuild (e.g. generated CSS).
+- `ignoreChanges(_:)`: Add glob patterns for files that should not trigger a dev rebuild (e.g. generated CSS).
 - `i18n(locales:defaultLocale:prefixDefaultLocaleOutputFolder:localizedOutputFolders:)`: Enable multilingual support. Content is organized in locale-prefixed folders (`en/articles/`, `nl/articles/`). Each `register()` call auto-fans into per-locale steps. Use `localizedOutputFolders` to map content folders to different output folder names per locale (e.g. `["articles": ["nl": "artikelen"]]`).
 - `createPage(_:forEachLocale:)`: Like `createPage(_:using:)` but runs the renderer once per locale. Output path is auto-prefixed, `allItems` is filtered to the current locale, and `locale`/`translations` are set on the context.
 - `Item.locale`: The locale of an item (`nil` without i18n).

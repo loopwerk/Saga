@@ -171,11 +171,11 @@ Saga automatically watches your content folder and `Sources/` for changes. Conte
 $ saga dev --port 8080
 ```
 
-To prevent certain files from triggering rebuilds (e.g. generated CSS), use ``Saga/ignore(_:)`` in your Swift code:
+To prevent certain files from triggering rebuilds (e.g. generated CSS), use ``Saga/ignoreChanges(_:)`` in your Swift code:
 
 ```swift
 try await Saga(input: "content", output: "deploy")
-  .ignore("output.css")
+  .ignoreChanges("output.css")
   .register(/* ... */)
   .run()
 ```

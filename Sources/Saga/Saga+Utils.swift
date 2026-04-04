@@ -49,7 +49,7 @@ private let publicationDateFormatter: DateFormatter = {
 public extension Saga {
   /// This is `true` when the `SAGA_DEV` environment variable is set (which `saga dev` does
   /// automatically). Use it to skip expensive work during development:
-  /// 
+  ///
   /// ```swift
   /// .postProcess { html, _ in
   ///   Saga.isDev ? html : minifyHTML(html)

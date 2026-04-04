@@ -67,7 +67,7 @@ If you were using `--ignore`, use ``Saga/ignore(_:)`` in your Swift code instead
 
 // After (Saga 3)
 try await Saga(input: "content", output: "deploy")
-  .ignore("output.css")
+  .ignoreChanges("output.css")
   .register(/* ... */)
   .run()
 ```
@@ -114,7 +114,7 @@ try await Saga(input: "content", output: "deploy")
       options: .minify
     )
   }
-  .ignore("output.css") // no more `$ saga dev --ignore output.css`
+  .ignoreChanges("output.css") // no more `$ saga dev --ignore output.css`
   .register(/* ... */)
   .afterWrite { _ in
     // Index the site
