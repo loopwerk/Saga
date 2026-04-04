@@ -30,7 +30,6 @@ struct MusicVideoMetadata: Metadata {
 }
 
 struct AlbumMetadata: Metadata {}
-struct PhotoMetadata: Metadata {}
 
 struct ArtistMetadata: Metadata {
   let genre: String
@@ -126,7 +125,7 @@ try await Saga(input: "content", output: "deploy")
     ],
     nested: { nested in
       nested.register(
-        metadata: PhotoMetadata.self,
+        metadata: ImageMetadata.self,
         readers: [.imageReader],
         writers: [
           .itemWriter(swim(renderPhoto)),

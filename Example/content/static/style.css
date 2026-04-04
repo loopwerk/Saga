@@ -361,6 +361,29 @@ main h2 {
   border-radius: 4px;
 }
 
+/* EXIF info */
+.exif-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1.25rem;
+  background: #252525;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+  font-size: 0.85rem;
+}
+
+.exif-info dt {
+  color: #888;
+  white-space: nowrap;
+}
+
+.exif-info dd {
+  color: #e0e0e0;
+}
+
 /* Videos */
 .video-grid {
   display: grid;

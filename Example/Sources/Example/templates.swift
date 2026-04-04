@@ -4,6 +4,7 @@ import Moon
 import Saga
 import SagaPathKit
 import SagaSwimRenderer
+import SagaImageReader
 
 // MARK: - Helpers
 
@@ -173,7 +174,7 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
 
       div(class: "collections-grid") {
         context.items.map { album in
-          let photos = album.children(as: PhotoMetadata.self)
+          let photos = album.children(as: ImageMetadata.self)
           let previewPhotos = Array(photos.prefix(4))
           let folder = album.relativeSource.parent()
 
@@ -185,7 +186,10 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
             }
             div(class: "card-info") {
               h2 { album.title }
-              p { "\(photos.count) photos" }
+              p {
+                Node.raw(album.body.withoutHtmlTags)
+                "\(photos.count) photos."
+              }
             }
           }
         }
@@ -195,7 +199,7 @@ func renderAlbums(context: ItemsRenderingContext<AlbumMetadata>) -> Node {
 }
 
 func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
-  let photos = context.item.children(as: PhotoMetadata.self)
+  let photos = context.item.children(as: ImageMetadata.self)
 
   return baseHtml(title: context.item.title) {
     div(class: "album") {
@@ -222,7 +226,7 @@ func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
   }
 }
 
-func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
+func renderPhoto(context: ItemRenderingContext<ImageMetadata>) -> Node {
   let album = context.item.parent(as: AlbumMetadata.self)
 
   let imageSrc = "../\(context.item.relativeSource.lastComponent)"
@@ -243,6 +247,53 @@ func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
 
       div(class: "photo-full") {
         img(alt: context.item.title, src: imageSrc)
+      }
+
+      renderExifInfo(context.item.metadata)
+    }
+  }
+}
+
+@NodeBuilder
+func renderExifInfo(_ m: ImageMetadata) -> Node {
+  let rows: [(String, String?)] = [
+    ("Camera", [m.make, m.model].compactMap { $0 }.joined(separator: " ")),
+    ("Lens", m.lensModel),
+    ("Focal Length", m.focalLength.map { "\($0)mm" }),
+    ("Focal Length (35mm)", m.focalLenIn35mmFilm.map { "\($0)mm" }),
+    ("Aperture", m.fNumber.map { "f/\($0)" }),
+    ("Exposure", m.exposureTime.map { "\($0)s" }),
+    ("ISO", m.iso.map { "\($0)" }),
+    ("Flash", m.flash.map { $0 == 0 ? "No" : "Yes" }),
+    ("Dimensions", {
+      if let w = m.pixelXDimension, let h = m.pixelYDimension { return "\(w) x \(h)" }
+      return nil
+    }()),
+    ("Software", m.software),
+    ("Date", m.dateTimeOriginal),
+    ("Altitude", m.gpsAltitude.map { "\($0)m" }),
+  ]
+
+  let available = rows.compactMap { label, value in
+    value.flatMap { $0.isEmpty ? nil : (label, $0) }
+  }
+
+  let hasGPS = m.gpsLatitude != nil && m.gpsLongitude != nil
+
+  if !available.isEmpty || hasGPS {
+    dl(class: "exif-info") {
+      available.map { (label, value) in
+        [dt { label }, dd { value }]
+      }
+
+      if let lat = m.gpsLatitude, let latRef = m.gpsLatitudeRef,
+         let lon = m.gpsLongitude, let lonRef = m.gpsLongitudeRef {
+        let signedLat = latRef == "S" ? "-\(lat)" : lat
+        let signedLon = lonRef == "W" ? "-\(lon)" : lon
+        let mapsURL = "https://maps.apple.com/?ll=\(signedLat),\(signedLon)&q=\(signedLat),\(signedLon)"
+
+        dt { "GPS" }
+        dd { a(href: mapsURL, target: "_blank") { "\(lat)\(latRef), \(lon)\(lonRef)" } }
       }
     }
   }
