@@ -1,10 +1,10 @@
 # Building Photo Galleries
 
-Use nested processing steps to create photo galleries with per-album navigation.
+Use nested processing steps to create photo galleries.
 
 ## Overview
 
-Photo galleries typically have a two-level structure: albums containing photos. Saga's `nested:` parameter creates a separate processing scope per subfolder, giving each album its own `items` array and `previous`/`next` navigation.
+Photo galleries typically have a two-level structure: albums containing photos. The `register` step's `nested:` parameter creates a separate processing scope per subfolder, giving each album its own `items` array and `previous`/`next` navigation.
 
 ## Simple gallery (images only)
 
@@ -24,8 +24,6 @@ content/
 Then set up your nested Saga pipeline like so:
 
 ```swift
-struct PhotoMetadata: Metadata {}
-
 try await Saga(input: "content", output: "deploy")
   .register(
     folder: "photos",
@@ -34,7 +32,7 @@ try await Saga(input: "content", output: "deploy")
     ],
     nested: { nested in
       nested.register(
-        metadata: PhotoMetadata.self,
+        metadata: ImageMetadata.self,
         readers: [.imageReader],
         writers: [
           .listWriter(swim(renderAlbum)),
@@ -46,12 +44,14 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
+> Note: `Reader.imageReader` and `ImageMetadata` are coming from [SagaImageReader](https://github.com/loopwerk/SagaImageReader).
+
 In the outer `renderAlbums` template, `context.items` is the list of albums. For each album you can use ``Item/children(as:)`` to access the nested items:
 
 ```swift
 func renderAlbums(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
   context.items.map { album in
-    let photos = album.children(as: PhotoMetadata.self)
+    let photos = album.children(as: ImageMetadata.self)
     return a(href: album.url) {
       h2 { album.title }
       p { "\(photos.count) photos" }
@@ -105,7 +105,7 @@ try await Saga(input: "content", output: "deploy")
     ],
     nested: { nested in
       nested.register(
-        metadata: PhotoMetadata.self,
+        metadata: ImageMetadata.self,
         readers: [.imageReader],
         writers: [
           .itemWriter(swim(renderPhoto)),
@@ -120,7 +120,7 @@ Parent/child relationships are wired automatically. Access them with typed acces
 
 ```swift
 func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
-  let photos = context.item.children(as: PhotoMetadata.self)
+  let photos = context.item.children(as: ImageMetadata.self)
 
   return baseLayout(title: context.item.title) {
     h1 { context.item.title }
@@ -140,7 +140,7 @@ func renderAlbum(context: ItemRenderingContext<AlbumMetadata>) -> Node {
 Each photo page gets `previous`/`next` links scoped within its album, and can navigate back to its parent:
 
 ```swift
-func renderPhoto(context: ItemRenderingContext<PhotoMetadata>) -> Node {
+func renderPhoto(context: ItemRenderingContext<ImageMetadata>) -> Node {
   let album = context.item.parent(as: AlbumMetadata.self)
 
   return baseLayout(title: context.item.title) {

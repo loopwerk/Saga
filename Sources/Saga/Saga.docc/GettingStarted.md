@@ -35,11 +35,11 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML. Please see [GetSaga.dev](https://getsaga.dev) for a complete overview of plugins. The <doc:Architecture> document has more information on how Saga works.
+> Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML, but more template languages are supported. Check [GetSaga.dev](https://getsaga.dev) for a complete list of available plugins, or browse the [saga-plugin](https://github.com/topics/saga-plugin) tag on GitHub. The <doc:Architecture> document has more information on how Saga works.
 
 
 ## Frontmatter
-Markdown files can include a frontmatter block at the top, delimited by `---`. Saga supports three built-in frontmatter properties:
+Markdown files can include a frontmatter block at the top, delimited by `---`. Saga has built-in support for the following frontmatter properties:
 
 - **title**: The title of the item. If not set, Saga uses the first heading in the document, or the filename as a last resort.
 - **date**: The publication date, in `yyyy-MM-dd` format. If not set, Saga uses the file's creation date.
@@ -54,7 +54,7 @@ slug: about
 Content goes here.
 ```
 
-You can parse custom frontmatter properties using strongly typed metadata.
+Any other frontmatter properties can be parsed using strongly typed metadata (see below).
 
 
 ## Custom metadata
@@ -88,6 +88,7 @@ As you can see, they both use different metadata: the article has `tags`, a `sum
 Let's configure Saga to render these files.
 
 ```swift
+// Define our custom Metadata
 struct ArticleMetadata: Metadata {
   let tags: [String]
   let summary: String?
@@ -98,6 +99,7 @@ struct AppMetadata: Metadata {
   let images: [String]?
 }
 
+// Which we then use in our Saga pipeline
 try await Saga(input: "content", output: "deploy")
   // All Markdown files within the "articles" subfolder will be parsed to html,
   // using `ArticleMetadata` as the item's metadata type.
@@ -134,7 +136,6 @@ try await Saga(input: "content", output: "deploy")
   )
 
   // Run the steps we registered above.
-  // Static files (images, css, etc.) are copied automatically.
   .run()
 ```
 
@@ -142,11 +143,11 @@ While that might look a bit overwhelming, it should be easy to follow what each 
 
 Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
 
-You can also check the source code of [loopwerk.io](https://github.com/loopwerk/loopwerk.io), or [getsaga.dev](https://github.com/loopwerk/getsaga.dev), both of which are completely built with Saga.
+You can also check the source code of [loopwerk.io](https://github.com/loopwerk/loopwerk.io) or [getsaga.dev](https://github.com/loopwerk/getsaga.dev), both of which are completely built with Saga.
 
 
 ## Writers
-In the custom metadata example above, you can see that the articles step uses four different kinds of writers: `itemWriter`, `listWriter`, `tagWriter`, and `yearWriter`. Each writer takes a renderer function, in this case `swim`, using a locally defined function with the HTML template. The `swim` function comes from the [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) library, whereas `renderArticle`, `renderArticles`, `renderTag` and the rest are locally defined in your project. They are the actual HTML templates, using a strongly typed DSL. 
+In the custom metadata example above, you can see that the articles step uses four different kinds of writers: `itemWriter`, `listWriter`, `tagWriter`, and `yearWriter`. Each writer takes a render function responsible for turning an item (or an array of items) into an HTML string.
 
 The four different writers are all used for different purposes:
 
@@ -185,7 +186,5 @@ To just build the site without starting a server:
 ```shell-session
 $ saga build
 ```
-
-When running under `saga dev`, ``Saga/isDev`` is `true`. Use this to skip expensive work during development, such as image generation or HTML minification.
 
 See <doc:Installation> for how to install the `saga` CLI.

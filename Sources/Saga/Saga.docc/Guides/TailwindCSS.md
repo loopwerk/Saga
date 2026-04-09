@@ -28,6 +28,7 @@ import SwiftTailwind
 let tailwind = SwiftTailwind(version: "4.2.1")
 
 try await Saga(input: "content", output: "deploy")
+  // Compile tailwind to output.css
   .beforeRead { _ in
     try await tailwind.run(
       input: "content/static/input.css",
@@ -35,6 +36,12 @@ try await Saga(input: "content", output: "deploy")
       options: .minify
     )
   }
+
+  // Don't trigger a rebuild when output.css changes, 
+  // otherwise we get into an endless loop
+  .ignoreChanges("output.css")
+  
+  // The rest of the pipeline as normal...
   .register(/* ... */)
   .run()
 ```
@@ -42,6 +49,32 @@ try await Saga(input: "content", output: "deploy")
 The `beforeRead` hook runs before every build cycle, including rebuilds triggered by `saga dev`. This keeps your CSS up to date as you edit templates.
 
 Since `output.css` is written into the `content` folder, Saga copies it to the `deploy` folder automatically.
+
+### Optional performance improvement
+
+Instead of always compiling the CSS on every single build, we can be a bit smarter and only do this when a CSS file or a template file was changed:
+
+```swift
+try await Saga(input: "content", output: "deploy")
+  // Compile tailwind to output.css
+  .beforeRead { saga in
+    // It needs to be a css file or a template file, otherwise skip it
+    if let path = saga.buildReason.changedFile(),
+       path.extension != "css", 
+       !path.components.contains("templates")
+    {
+      return
+    }
+
+    try await tailwind.run(
+      input: "content/static/input.css",
+      output: "content/static/output.css",
+      options: .minify
+    )
+  }
+  
+  // And the rest...
+```
 
 ## Option 2: Shell command
 
@@ -51,41 +84,13 @@ If you prefer to manage Tailwind via npm, install it in your project:
 $ npm install tailwindcss @tailwindcss/cli
 ```
 
-Then use ``Saga/beforeRead(_:)`` to run the CLI before each build:
+Then instead of running Tailwind as part of your Saga pipeline you can start its own watcher:
 
-```swift
-import Foundation
-
-try await Saga(input: "content", output: "deploy")
-  .beforeRead { _ in
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    process.arguments = [
-      "npx", "@tailwindcss/cli",
-      "-i", "content/static/input.css",
-      "-o", "content/static/output.css",
-      "--minify",
-    ]
-    try process.run()
-    process.waitUntilExit()
-  }
-  .register(/* ... */)
-  .run()
+```shell-session
+tailwindcss -i ./content/static/input.css -o ./content/static/output.css --minify --watch
 ```
 
-## With `saga dev`
-
-Because `output.css` is written into the `content` folder, the file watcher will detect the change and trigger a rebuild. Which then regenerates `output.css`, which triggers another rebuild, and so on. Break this loop by telling Saga to ignore the generated file:
-
-```swift
-try await Saga(input: "content", output: "deploy")
-  .ignoreChanges("output.css")
-  .beforeRead { _ in
-    try await tailwind.run(/* ... */)
-  }
-  .register(/* ... */)
-  .run()
-```
+This is faster than option 1 because Tailwind does its own incremental compilation (especially noticeable with Tailwind CSS v3). However, it requires Node and npm, a separate terminal process alongside `saga dev`, and extra CI/CD setup, whereas SwiftTailwind keeps everything in one Swift file with no external dependencies.
 
 ## Cache-busting
 

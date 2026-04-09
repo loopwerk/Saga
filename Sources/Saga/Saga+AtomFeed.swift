@@ -24,7 +24,7 @@ public extension Saga {
   ///   - dateKeyPath: A keypath to the date property to use for the <updated> field. Defaults to `\.lastModified`.
   /// - Returns: A function which takes a rendering context, and returns a string.
   @preconcurrency
-  static func atomFeed<Context: AtomContext, M>(title: String, author: String? = nil, baseURL: URL, summary: (@Sendable (Item<M>) -> String?)? = nil, image: (@Sendable (Item<M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) where Context.M == M {
+  static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<Context.M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) {
     nonisolated(unsafe) let RFC3339_DF = ISO8601DateFormatter()
     nonisolated(unsafe) let dateKeyPath = dateKeyPath
 

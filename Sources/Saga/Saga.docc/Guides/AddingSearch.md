@@ -4,14 +4,14 @@ Add client-side search to your Saga site.
 
 ## Overview
 
-Since Saga generates static HTML, search needs to happen client-side. There are two main approaches:
+Since Saga generates static HTML, search needs to happen client-side using a JavaScript library. There are two main approaches:
 
-**Binary index** — these tools have a CLI that indexes your built site and produces a compact binary index, keeping bandwidth low:
+**Binary index** — these tools have a CLI that indexes your built site and produces a compact binary index, keeping bandwidth low.
 
 - **[Pagefind](https://pagefind.app)** — indexes your built HTML and provides a fast search UI with no server required.
 - **[tinysearch](https://github.com/tinysearch/tinysearch)** — Rust-compiled-to-WebAssembly search with a very small footprint (~50kB for a typical blog), though it only matches complete words.
 
-**JSON index** — these are runtime JS libraries that search a JSON index you load in the browser. You need to build that JSON index yourself (for example by using a Saga writer), and it can grow large on content-heavy sites:
+**JSON index** — instead of a binary index, these libraries rely on a JSON index that you build yourself (for example by using a Saga writer). These indexes can grow quite large on content-heavy sites.
 
 - **[Lunr.js](https://lunrjs.com)** — a lightweight, fully client-side search library.
 - **[Fuse.js](https://www.fusejs.io)** — a fuzzy-search library that works well for smaller sites.
@@ -52,7 +52,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-The `afterWrite` hook runs after every build cycle, including rebuilds triggered by `saga dev`. Pagefind generates its index and UI files into `deploy/pagefind/`.
+Pagefind writes the binary index plus the client-side JS library to `deploy/pagefind`.
 
 ## Create a search page
 
@@ -61,6 +61,7 @@ Use ``StepBuilder/createPage(_:using:)`` to add a search page:
 ```swift
 try await Saga(input: "content", output: "deploy")
   .register(/* ... */)
+  .afterWrite { /* ... */ }
   .createPage("search/index.html", using: swim(renderSearch))
   .run()
 ```
@@ -98,6 +99,6 @@ func renderSearch(context: PageRenderingContext) -> Node {
 }
 ```
 
-> Tip: In a real project you'd use a shared base layout function. See <doc:ReusableHTMLLayouts> for how to set that up.
+> Tip: In a real project you'd want to share the base layout with the rest of your site. See <doc:ReusableHTMLLayouts> for how to set that up.
 
 Check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io) for a complete working search implementation, including controlling what Pagefind indexes.

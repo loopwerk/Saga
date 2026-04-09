@@ -145,4 +145,4 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
 }
 ```
 
-> Note: In dev mode (when using `saga dev`), ``Saga/hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload. See <doc:GettingStarted> for more on dev mode.
+> Note: In dev mode (when using `saga dev`), ``Saga/hashed(_:)`` returns the path unchanged to keep filenames stable for auto-reload.
