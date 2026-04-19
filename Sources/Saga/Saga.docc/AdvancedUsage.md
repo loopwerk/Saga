@@ -85,33 +85,6 @@ Use ``StepBuilder/createPage(_:using:)`` when the page has no corresponding cont
 > Tip: See <doc:GeneratingSitemaps> and <doc:AddingSearch> for practical examples of template-driven pages.
 
 
-## Custom processing steps
-
-Register custom processing steps for logic outside the standard pipeline: generate images, build a search index, or run any custom logic as part of your build. The closure runs during the [write phase](doc:Architecture), after all items have been read and sorted. Use `register` with a trailing closure:
-
-```swift
-try await Saga(input: "content", output: "deploy")
-  .register(
-    folder: "articles",
-    metadata: ArticleMetadata.self,
-    readers: [.parsleyMarkdownReader],
-    writers: [.itemWriter(swim(renderArticle))]
-  )
-  .register { saga in
-    let articles = saga.allItems.compactMap { $0 as? Item<ArticleMetadata> }
-    for article in articles {
-      let destination = (saga.outputPath + article.relativeDestination.parent()).string + ".png"
-      // generate an image and write it to `destination`
-    }
-  }
-  .run()
-```
-
-The closure receives the ``Saga`` instance with access to ``Saga/allItems``, ``Saga/outputPath``, and everything else you need.
-
-> Tip: You can check the [source of loopwerk.io](https://github.com/loopwerk/loopwerk.io) for more inspiration.
-
-
 ## Programmatic items
 
 Not all content lives on disk. The ``StepBuilder/register(metadata:fetch:cacheKey:itemProcessor:sorting:writers:)`` method takes an async closure that returns an array of items, feeding them into the same writer pipeline as file-based content. You can freely mix file-based and fetch-based steps.

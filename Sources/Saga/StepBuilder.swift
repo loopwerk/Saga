@@ -328,23 +328,9 @@ public class StepBuilder: @unchecked Sendable {
   }
 
   /// Register a custom write-only step.
-  ///
-  /// Use this for logic outside the standard pipeline:
-  /// generate images, build a search index, or run any custom logic as part of your build.
-  /// The closure runs during the write phase, after all readers have finished and items are sorted.
-  ///
-  /// For an example of building a search index, see <doc:AddingSearch>.
-  ///
-  /// ```swift
-  /// try await Saga(input: "content", output: "deploy")
-  ///   .register(...)
-  ///   .register { saga in
-  ///     // custom write logic with access to saga.allItems
-  ///   }
-  ///   .run()
-  /// ```
   @discardableResult
   @preconcurrency
+  @available(*, deprecated, message: "Use afterWrite(_:) instead.")
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     steps.append(PipelineStep(
       read: { _ in [] },
