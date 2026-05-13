@@ -330,7 +330,7 @@ public class StepBuilder: @unchecked Sendable {
   /// Register a custom write-only step.
   @discardableResult
   @preconcurrency
-  @available(*, deprecated, message: "Use afterWrite(_:) instead.")
+  @available(*, deprecated, message: "Use `afterWrite(_:)` instead.")
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     steps.append(PipelineStep(
       read: { _ in [] },

@@ -38,10 +38,19 @@ try await Saga(input: "content", output: "deploy")
 > Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML, but more template languages are supported. Check [GetSaga.dev](https://getsaga.dev) for a complete list of available plugins, or browse the [saga-plugin](https://github.com/topics/saga-plugin) tag on GitHub. The <doc:Architecture> document has more information on how Saga works.
 
 
-## Frontmatter
-Markdown files can include a frontmatter block at the top, delimited by `---`. Saga has built-in support for the following frontmatter properties:
+## Markdown files
+A typical Markdown file starts with a level 1 heading, which Saga uses as the item's title. The title is then split off from the rest of the body and exposed as `item.title`, so your template can render it separately.
 
-- **title**: The title of the item. If not set, Saga uses the first heading in the document, or the filename as a last resort.
+```text
+# About this site
+Content goes here.
+```
+
+
+## Frontmatter
+Markdown files can optionally include a frontmatter block at the top, delimited by `---`. Saga has built-in support for the following frontmatter properties:
+
+- **title**: Overrides the title that would otherwise be taken from the first level 1 heading. Pick one or the other; if both are present, the first level 1 heading is still stripped from the body. If neither is present, the filename is used as the title.
 - **date**: The publication date, in `yyyy-MM-dd` format. If not set, Saga uses the file's creation date.
 - **slug**: Overrides the output path. For example, setting `slug: my-page` writes the item to `my-page/index.html` instead of deriving the path from the filename.
 

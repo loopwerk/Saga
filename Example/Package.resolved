@@ -1,5 +1,5 @@
 {
-  "originHash" : "6942a1436699139759badddfd40fa215cc2f69217641d6df17f43bd495959322",
+  "originHash" : "8689fd3efc6766cb6eddec0f6f544945e686c5da7c65213a74afa9a040bbf4e9",
   "pins" : [
     {
       "identity" : "jxkit",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/loopwerk/Scry.git",
       "state" : {
-        "revision" : "7ee29b11119829b1171f81787f86b0a9b474c894",
-        "version" : "1.0.0"
+        "revision" : "ccfe51c4d05711cf6cd8bff892568d34133faa3b",
+        "version" : "1.1.0"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-asn1.git",
       "state" : {
-        "revision" : "9f542610331815e29cc3821d3b6f488db8715517",
-        "version" : "1.6.0"
+        "revision" : "eb50cbd14606a9161cbc5d452f18797c90ef0bab",
+        "version" : "1.7.0"
       }
     },
     {
