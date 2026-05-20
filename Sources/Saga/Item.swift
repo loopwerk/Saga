@@ -19,6 +19,7 @@ public protocol AnyItem: AnyObject, Sendable {
   var filenameWithoutExtension: String { get }
   var relativeDestination: Path { get set }
   var title: String { get set }
+  var seoTitle: String { get set }
   var body: String { get set }
   var date: Date { get set }
   var created: Date { get }
@@ -43,8 +44,23 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   /// The destination, where the ``Writer`` will write it to disk.
   public var relativeDestination: Path
 
-  /// The title of the item.
+  /// The display title of the item, intended for use as the visible `<h1>` on the page.
+  ///
+  /// Priority: `# ` heading in the markdown body → `title:` front matter → filename.
+  ///
+  /// If the markdown body begins with a `# ` heading, that heading is extracted by the
+  /// reader and given the highest priority here. This lets authors write a rich, human-
+  /// friendly headline in Markdown while using `title:` purely for SEO purposes.
   public var title: String
+
+  /// The SEO title of the item, intended for use in the HTML `<title>` tag and meta tags.
+  ///
+  /// Priority: `title:` front matter → `# ` heading in the markdown body → filename.
+  ///
+  /// This is the mirror of ``title``: it gives the explicit front-matter `title:` key the
+  /// highest priority so authors can craft a keyword-optimised page title that differs from
+  /// the human-readable `<h1>`. Both properties always resolve to a non-empty string.
+  public var seoTitle: String
 
   /// The body of the file, without the metadata header, and without the first title.
   public var body: String
@@ -91,11 +107,12 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
     translations[locale] as? Item<M>
   }
 
-  public init(absoluteSource: Path, relativeSource: Path, relativeDestination: Path, title: String, body: String, date: Date, created: Date, lastModified: Date, metadata: M) {
+  public init(absoluteSource: Path, relativeSource: Path, relativeDestination: Path, title: String, seoTitle: String, body: String, date: Date, created: Date, lastModified: Date, metadata: M) {
     self.absoluteSource = absoluteSource
     self.relativeSource = relativeSource
     self.relativeDestination = relativeDestination
     self.title = title
+    self.seoTitle = seoTitle
     self.body = body
     self.date = date
     self.created = created
@@ -106,17 +123,19 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   /// Create an Item programmatically (without reading from a file).
   ///
   /// - Parameters:
-  ///   - title: The title of the item.
+  ///   - title: The display title of the item (used for `<h1>`).
+  ///   - seoTitle: The SEO title for the HTML `<title>` tag. Defaults to `title` when not provided.
   ///   - body: The body content. Defaults to an empty string.
   ///   - date: The date of the item. Defaults to the current date.
   ///   - relativeDestination: The output path relative to the site's output folder. Defaults to `title-slug/index.html`.
   ///   - metadata: The parsed metadata.
-  public convenience init(title: String, body: String = "", date: Date = Date(), relativeDestination: Path? = nil, metadata: M) {
+  public convenience init(title: String, seoTitle: String? = nil, body: String = "", date: Date = Date(), relativeDestination: Path? = nil, metadata: M) {
     self.init(
       absoluteSource: Path(""),
       relativeSource: Path(""),
       relativeDestination: relativeDestination ?? Path("\(title.slugified)/index.html"),
       title: title,
+      seoTitle: seoTitle ?? title,
       body: body,
       date: date,
       created: date,
@@ -134,6 +153,6 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
   }
 
   enum CodingKeys: String, CodingKey {
-    case absoluteSource, relativeSource, relativeDestination, title, body, date, created, lastModified, metadata
+    case absoluteSource, relativeSource, relativeDestination, title, seoTitle, body, date, created, lastModified, metadata
   }
 }

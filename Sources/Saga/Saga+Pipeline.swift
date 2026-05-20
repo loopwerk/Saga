@@ -136,12 +136,27 @@ extension Saga {
             let date = try resolveDate(from: decoder)
             let metadata = try M(from: decoder)
 
+            // Resolve the two title variants with their respective priorities.
+            //
+            // item.title  — display heading (<h1>): # heading wins, then title:, then filename.
+            // item.seoTitle — HTML <title> / meta tags: title: wins, then # heading, then filename.
+            //
+            // When only one source is present both resolve to the same string, preserving
+            // existing behaviour. When both are present authors get independent control over
+            // the page heading and the SEO title.
+            let frontmatterTitle = partial.frontmatter?["title"]
+            let headingTitle = partial.title
+            let fallback = file.relativePath.lastComponentWithoutExtension
+            let resolvedTitle    = headingTitle    ?? frontmatterTitle ?? fallback
+            let resolvedSeoTitle = frontmatterTitle ?? headingTitle    ?? fallback
+
             // Create the Item instance
             let item = Item(
               absoluteSource: file.path,
               relativeSource: file.relativePath,
               relativeDestination: file.relativePath.makeOutputPath(itemWriteMode: itemWriteMode),
-              title: partial.frontmatter?["title"] ?? partial.title ?? file.relativePath.lastComponentWithoutExtension,
+              title: resolvedTitle,
+              seoTitle: resolvedSeoTitle,
               body: partial.body,
               date: date ?? self.fileIO.creationDate(file.path) ?? Date(),
               created: self.fileIO.creationDate(file.path) ?? Date(),

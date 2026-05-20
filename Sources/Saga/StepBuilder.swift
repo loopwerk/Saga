@@ -490,6 +490,7 @@ public class StepBuilder: @unchecked Sendable {
               relativeSource: readPath,
               relativeDestination: readPath + Path("index.html"),
               title: subFolderPath.lastComponent,
+              seoTitle: subFolderPath.lastComponent,
               body: "",
               date: Date(),
               created: Date(),
