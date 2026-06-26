@@ -105,6 +105,7 @@ extension Saga {
   /// Signals saga-cli via SIGUSR1 if Swift source files change (so it can recompile and relaunch).
   func watchAndRebuild() async throws {
     let watchPaths = [inputPath, rootPath + "Sources"]
+    let coordinator = DevRebuildCoordinator(saga: self)
     let monitor = FolderMonitor(paths: watchPaths, ignoredPatterns: ignoreChangesPatterns) { [weak self] changedPaths in
       guard let self else { return }
 
@@ -115,17 +116,8 @@ extension Saga {
         return
       }
 
-      Task {
-        do {
-          try self.reset()
-          if let changedPath = changedPaths.first {
-            self.buildReason = .fileChange(changedPath)
-          }
-          try await self.build()
-          self.signalParent(SIGUSR2)
-        } catch {
-          self.fileIO.log("💥 Rebuild failed: \(error)")
-        }
+      Task { [coordinator] in
+        await coordinator.enqueue(changedPaths)
       }
     }
 
@@ -133,6 +125,42 @@ extension Saga {
     withExtendedLifetime(monitor) {
       while true {
         Thread.sleep(forTimeInterval: .greatestFiniteMagnitude)
+      }
+    }
+  }
+}
+
+private actor DevRebuildCoordinator {
+  private let saga: Saga
+  private var isBuilding = false
+  private var pendingPaths = Set<Path>()
+
+  init(saga: Saga) {
+    self.saga = saga
+  }
+
+  func enqueue(_ changedPaths: Set<Path>) async {
+    pendingPaths.formUnion(changedPaths)
+    guard !isBuilding else { return }
+
+    // Saga's mutable pipeline state is process-wide. Rebuild callbacks must
+    // run one at a time, otherwise file-save bursts race in reset/build.
+    isBuilding = true
+    defer { isBuilding = false }
+
+    while !pendingPaths.isEmpty {
+      let paths = pendingPaths
+      pendingPaths.removeAll()
+
+      do {
+        try saga.reset()
+        if let changedPath = paths.first {
+          saga.buildReason = .fileChange(changedPath)
+        }
+        try await saga.build()
+        saga.signalParent(SIGUSR2)
+      } catch {
+        saga.fileIO.log("💥 Rebuild failed: \(error)")
       }
     }
   }
