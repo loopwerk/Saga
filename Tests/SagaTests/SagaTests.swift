@@ -48,6 +48,11 @@ struct TaggedMetadata: Metadata {
   let tags: [String]
 }
 
+struct FeedContext: AtomContext {
+  let items: [Item<EmptyMetadata>]
+  let outputPath: Path
+}
+
 struct WrittenPage: Equatable {
   let destination: Path
   let content: String
@@ -904,5 +909,30 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     let articlesList = finalWrittenPages.first { $0.destination == "root/output/articles/index.html" }
     XCTAssertEqual(artList?.content, "art:1")
     XCTAssertEqual(articlesList?.content, "articles:1")
+  }
+
+  func testAtomFeedEntryTitlesUseItemTitleOverride() throws {
+    let context = FeedContext(
+      items: [
+        Item(title: "A _great_ title", body: "<p>body</p>", date: Date(timeIntervalSince1970: 1_704_106_800), metadata: EmptyMetadata()),
+      ],
+      outputPath: "feed.xml"
+    )
+
+    // Default behavior is unchanged: the entry title is the item's title.
+    let defaultFeed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: URL(string: "https://example.com")!
+    )(context)
+    XCTAssertTrue(defaultFeed.contains("<title>A _great_ title</title>"))
+
+    // itemTitle lets a site apply its own title policy per entry.
+    let customFeed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: URL(string: "https://example.com")!,
+      itemTitle: { $0.title.replacingOccurrences(of: "_", with: "") }
+    )(context)
+    XCTAssertTrue(customFeed.contains("<title>A great title</title>"))
+    XCTAssertTrue(customFeed.contains("<title>Test Site</title>"), "The feed-level title is unaffected.")
   }
 }

@@ -4,7 +4,7 @@ Build your own feed renderer, using JSON Feed as an example.
 
 ## Overview
 
-Saga ships with a built-in ``Saga/atomFeed(title:author:baseURL:summary:image:dateKeyPath:)`` renderer, but you can create renderers for any feed format. This guide walks you through building a [JSON Feed](https://www.jsonfeed.org) renderer to show the pattern.
+Saga ships with a built-in ``Saga/atomFeed(title:author:baseURL:itemTitle:summary:image:dateKeyPath:)`` renderer, but you can create renderers for any feed format. This guide walks you through building a [JSON Feed](https://www.jsonfeed.org) renderer to show the pattern.
 
 A renderer is a function that returns a `@Sendable (Context) -> String` closure — the same signature used by the built-in Atom renderer. The closure receives a rendering context with the items and output path, and returns the feed content as a string.
 

@@ -19,12 +19,13 @@ public extension Saga {
   ///   - title: The title of the feed, usually your site title. Example: Loopwerk.io.
   ///   - author: The author of the articles.
   ///   - baseURL: The base URL of your website, for example https://www.loopwerk.io.
+  ///   - itemTitle: An optional function which takes an `Item` and returns the title to use for its entry. Defaults to the item's `title`. Useful when feed titles should differ from the parsed title, for example when applying an SEO title policy or stripping Markdown emphasis markers.
   ///   - summary: An optional function which takes an `Item` and returns its summary.
   ///   - image: An optional function which takes an `Item` and returns its image URL (absolute or relative to baseURL).
   ///   - dateKeyPath: A keypath to the date property to use for the <updated> field. Defaults to `\.lastModified`.
   /// - Returns: A function which takes a rendering context, and returns a string.
   @preconcurrency
-  static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<Context.M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) {
+  static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, itemTitle: (@Sendable (Item<Context.M>) -> String)? = nil, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<Context.M>, Date> = \.lastModified) -> (@Sendable (_ context: Context) -> String) {
     nonisolated(unsafe) let RFC3339_DF = ISO8601DateFormatter()
     nonisolated(unsafe) let dateKeyPath = dateKeyPath
 
@@ -69,7 +70,7 @@ public extension Saga {
         idElement.stringValue = baseURL.appendingPathComponent(item.url).absoluteString
 
         entryElement.addChild(idElement)
-        entryElement.addChild(XMLElement(name: "title", stringValue: item.title))
+        entryElement.addChild(XMLElement(name: "title", stringValue: itemTitle?(item) ?? item.title))
         entryElement.addChild(XMLElement(name: "updated", stringValue: RFC3339_DF.string(from: item[keyPath: dateKeyPath])))
 
         if let summary, let summaryString = summary(item) {
