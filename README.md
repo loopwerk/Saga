@@ -186,6 +186,8 @@ Saga requires Swift 6.0+ and runs on macOS 14+ and Linux.
 - [mhoush.com](https://mhoush.com) ([source](https://github.com/m-housh/mhoush.com))
 - [spamusement.cc](https://www.spamusement.cc) ([source](https://github.com/kevinrenskers/spamusement.cc))
 - [deverman.org](https://www.deverman.org)
+- [binaryadventures.eu](https://www.binaryadventures.eu) ([source](https://codeberg.org/SpacyRicochet/binaryadventures-eu))
+- [rychillie.net](https://rychillie.pages.dev) ([source](https://github.com/Rychillie/Rychillie.net))
 
 Is your website built with Saga? Send a pull request to add it to the list!
 
