@@ -38,6 +38,26 @@ try await Saga(input: "content", output: "deploy")
 > Note: This example uses the [Swim](https://github.com/robb/Swim) library via [SagaSwimRenderer](https://github.com/loopwerk/SagaSwimRenderer) to create type-safe HTML, but more template languages are supported. Check [GetSaga.dev](https://getsaga.dev) for a complete list of available plugins, or browse the [saga-plugin](https://github.com/topics/saga-plugin) tag on GitHub. The <doc:Architecture> document has more information on how Saga works.
 
 
+## Development server
+From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well. (See <doc:Installation> for how to install the `saga` CLI.)
+
+```shell-session
+$ saga dev
+```
+
+Saga automatically watches your content folder and `Sources/` for changes. Content changes trigger an in-process rebuild; Swift source changes trigger a recompilation. The dev server runs on port 3000 by default, but you can choose a different port:
+
+```shell-session
+$ saga dev --port 8080
+```
+
+To just build the site without starting a server:
+
+```shell-session
+$ saga build
+```
+
+
 ## Markdown files
 A typical Markdown file starts with a level 1 heading, which Saga uses as the item's title. The title is then split off from the rest of the body and exposed as `item.title`, so your template can render it separately.
 
@@ -166,34 +186,3 @@ The four different writers are all used for different purposes:
 - `yearWriter` is similar to `tagWriter` but uses the publication date of the item. You can use this to create year-based archives of your articles, for example `deploy/articles/2022/index.html`.
 
 For more information, please check out ``Writer``.
-
-
-## Development server
-From your website folder you can run the following command to start a development server, which rebuilds your website on changes, and reloads the browser as well.
-
-```shell-session
-$ saga dev
-```
-
-Saga automatically watches your content folder and `Sources/` for changes. Content changes trigger an in-process rebuild; Swift source changes trigger a recompilation. The dev server runs on port 3000 by default:
-
-```shell-session
-$ saga dev --port 8080
-```
-
-To prevent certain files from triggering rebuilds (e.g. generated CSS), use ``Saga/ignoreChanges(_:)`` in your Swift code:
-
-```swift
-try await Saga(input: "content", output: "deploy")
-  .ignoreChanges("output.css")
-  .register(/* ... */)
-  .run()
-```
-
-To just build the site without starting a server:
-
-```shell-session
-$ saga build
-```
-
-See <doc:Installation> for how to install the `saga` CLI.
