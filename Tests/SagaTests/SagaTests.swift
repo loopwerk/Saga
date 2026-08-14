@@ -503,6 +503,40 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/fetched/index.html", content: "<p>two</p><p>one</p>")))
   }
 
+  func testRegisterFetchWithoutSorting() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [] }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        fetch: {
+          [
+            Item(title: "Fetched One", body: "<p>one</p>", date: Date(timeIntervalSince1970: 1_704_106_800), metadata: EmptyMetadata()),
+            Item(title: "Fetched Two", body: "<p>two</p>", date: Date(timeIntervalSince1970: 1_735_729_200), metadata: EmptyMetadata()),
+          ]
+        },
+        sorting: nil,
+        writers: [
+          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "fetched/index.html"),
+        ]
+      )
+      .run()
+
+    // The order returned by fetch is preserved, even though it's not date descending
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 1)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/fetched/index.html", content: "<p>one</p><p>two</p>")))
+  }
+
   func testRegisterFetchWithFileBasedItems() async throws {
     let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
     nonisolated(unsafe) var writtenPages: [WrittenPage] = []

@@ -281,7 +281,7 @@ public class StepBuilder: @unchecked Sendable {
   ///   - fetch: An async function that returns an array of items.
   ///   - cacheKey: The cache key for storing fetched items. Defaults to the metadata type name. Pass `nil` to disable caching.
   ///   - itemProcessor: A function to modify each fetched ``Item`` as you see fit.
-  ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first).
+  ///   - sorting: A comparison function used to sort items. Defaults to date descending (newest first). Pass `nil` to keep the order returned by `fetch`.
   ///   - writers: The writers that will be used by this step.
   /// - Returns: The instance itself, so you can chain further calls onto it.
   @discardableResult
@@ -291,7 +291,7 @@ public class StepBuilder: @unchecked Sendable {
     fetch: @escaping @Sendable () async throws -> [Item<M>],
     cacheKey: String? = String(describing: M.self),
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
-    sorting: @escaping @Sendable (Item<M>, Item<M>) -> Bool = { $0.date > $1.date },
+    sorting: (@Sendable (Item<M>, Item<M>) -> Bool)? = { $0.date > $1.date },
     writers: [Writer<M>]
   ) -> Self {
     nonisolated(unsafe) var items: [Item<M>] = []
@@ -302,7 +302,10 @@ public class StepBuilder: @unchecked Sendable {
           saga.fileIO.log("💡 Using cached \(cacheKey) items")
           items = cachedItems
         } else {
-          items = try await fetch().sorted(by: sorting)
+          items = try await fetch()
+          if let sorting {
+            items.sort(by: sorting)
+          }
           if let cacheKey {
             saga.cacheItems(items, key: cacheKey)
           }
