@@ -69,5 +69,6 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 - <doc:HTMLMinification>
 - <doc:Shortcodes>
 - <doc:Internationalization>
+- <doc:ExternalLinks>
 - <doc:ReusableHTMLLayouts>
 - <doc:SyntaxHighlighting>
