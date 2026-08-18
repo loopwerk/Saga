@@ -21,7 +21,7 @@ func baseLayout(
   @NodeBuilder content: () -> NodeConvertible
 ) -> Node {
   return [
-    Node.documentType("html"),
+    .documentType("html"),
     html(lang: "en-US") {
       head {
         meta(charset: "utf-8")
