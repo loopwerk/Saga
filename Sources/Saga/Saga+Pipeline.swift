@@ -76,6 +76,15 @@ extension Saga {
     }
 
     // Re-scan input files (files may have been added/removed)
+    try refreshFiles()
+  }
+
+  /// Scan the input folder and store every file, paired with its path relative to that
+  /// folder, in ``files``.
+  ///
+  /// Called at init, and again at every point in the build where user code could have
+  /// created files in the input folder.
+  func refreshFiles() throws {
     let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
     files = allFound.map { path in
       let relativePath = (try? path.relativePath(from: inputPath)) ?? Path("")

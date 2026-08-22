@@ -969,4 +969,57 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(customFeed.contains("<title>A great title</title>"))
     XCTAssertTrue(customFeed.contains("<title>Test Site</title>"), "The feed-level title is unaffected.")
   }
+
+  func testFilesCreatedDuringTheBuildAreRead() async throws {
+    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
+    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    nonisolated(unsafe) var disk: [Path] = []
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in disk }
+    mock.write = { destination, content in
+      writtenPagesQueue.sync(flags: .barrier) {
+        writtenPages.append(.init(destination: destination, content: content))
+      }
+    }
+
+    // Each generated file is claimed by its own folder-scoped step, so that neither one
+    // can be picked up by the other step's re-scan.
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .beforeRead { _ in
+        disk.append("hook/generated.md")
+      }
+      .register(
+        folder: "hook",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .register(
+        metadata: EmptyMetadata.self,
+        fetch: {
+          disk.append("step/generated.md")
+          return []
+        },
+        writers: []
+      )
+      .register(
+        folder: "step",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    // Both files were created after the initial scan: one by the beforeRead hook, one by
+    // an earlier step. Both should be read and written in this same build.
+    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    XCTAssertEqual(finalWrittenPages.count, 2)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/hook/generated/index.html", content: "<p>hook/generated.md</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/step/generated/index.html", content: "<p>step/generated.md</p>")))
+  }
 }

@@ -64,14 +64,10 @@ public class Saga: StepBuilder, @unchecked Sendable {
     outputPath = self.rootPath + output
     self.fileIO = fileIO
 
-    // Find all files in the source folder (filter out .DS_Store)
-    let allFound = try fileIO.findFiles(inputPath).filter { $0.lastComponentWithoutExtension != ".DS_Store" }
-    let computedFiles = allFound.map { path in
-      let relativePath = (try? path.relativePath(from: rootPath + input)) ?? Path("")
-      return (path: path, relativePath: relativePath)
-    }
+    super.init(files: [], workingPath: Path(""))
 
-    super.init(files: computedFiles, workingPath: Path(""))
+    // Find all files in the source folder
+    try refreshFiles()
   }
 
   /// Configure internationalization support.

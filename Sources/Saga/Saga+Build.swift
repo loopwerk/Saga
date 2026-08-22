@@ -13,6 +13,10 @@ extension Saga {
         try await hook(self)
       }
 
+      // Hooks are free to create files in the input folder (compiled CSS, generated
+      // content), so refresh the list before the readers get to see it.
+      try refreshFiles()
+
       fileIO.log("Finished beforeRead hooks in \(elapsed(from: start))")
     }
 
@@ -22,6 +26,11 @@ extension Saga {
     for step in steps {
       let items = try await step.read(self)
       allItems.append(contentsOf: items)
+
+      // A step can create files in the input folder as well (downloaded images,
+      // generated markdown). Re-scan so later steps can read them, and so the copy
+      // phase below sees them. Without this they'd only show up on the *next* build.
+      try refreshFiles()
     }
 
     fileIO.log("Finished read phase in \(elapsed(from: readStart))")
