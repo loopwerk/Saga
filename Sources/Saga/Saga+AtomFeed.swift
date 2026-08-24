@@ -55,7 +55,7 @@ public extension Saga {
       }
 
       let linkElement = XMLElement(name: "link")
-      linkElement.setAttributesWith(["rel": "self", "href": baseURL.absoluteString])
+      linkElement.setAttributesWith(["rel": "self", "href": baseURL.appendingPathComponent(feedPath).absoluteString])
       rootElement.addChild(linkElement)
 
       let updatedElement = XMLElement(name: "updated", stringValue: RFC3339_DF.string(from: Date()))
