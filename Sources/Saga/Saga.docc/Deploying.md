@@ -126,8 +126,56 @@ jobs:
 > Note: The second `deploy` in the command is Saga's output folder. If you renamed your output folder, change the command as well.
 
 
+## Deploying with Docker
+
+Docker-based hosting deploys whatever a `Dockerfile` produces, which means the image has to contain not just your built site but also a web server to serve it. A multi-stage build keeps the final image small: a Swift stage builds the site, and only the output folder is copied into an nginx stage.
+
+The layering matters: Docker caches each step, and a step only re-runs when the files it copies change. By copying the package manifest, then the Swift sources, and only then the rest of the repository, editing a markdown file re-runs just the final site generation — not the dependency fetch and not the Swift compile. Create this `Dockerfile` in your website folder, replacing `MySite` with the executable name from your `Package.swift`:
+
+```dockerfile
+FROM swift:6.1 AS builder
+WORKDIR /app
+
+# Fetch dependencies (cached until the Package files change)
+COPY Package.swift Package.resolved ./
+RUN --mount=type=cache,target=/app/.build,sharing=locked \
+    swift package resolve
+
+# Compile the site generator (cached until the sources change). The .build
+# folder is a cache mount so incremental build state survives between deploys,
+# but that also means the binary has to be copied out of it to be usable later,
+# along with any resource bundles.
+COPY Sources ./Sources
+RUN --mount=type=cache,target=/app/.build,sharing=locked \
+    swift build --product MySite \
+    && cp .build/debug/MySite /usr/local/bin/MySite \
+    && (cp -r .build/debug/*.resources /usr/local/bin/ 2>/dev/null || true)
+
+# Copy everything else (content, static files) and generate the site
+COPY . .
+RUN MySite
+
+FROM nginx:alpine
+COPY --from=builder /app/deploy /usr/share/nginx/html
+```
+
+The `/app/deploy` path has to match the `output` folder you passed to `Saga(input:output:)`.
+
+> Note: The dependency step copies `Package.resolved`, so make sure that file is committed to your repository — it also guarantees the server builds the exact dependency versions you tested locally.
+
+Also add a `.dockerignore` file, so local build artifacts don't bloat the build context:
+
+```
+.build
+deploy
+.git
+```
+
+The resulting image serves the site over plain HTTP on port 80. Docker platforms typically put their own reverse proxy in front of the container to handle domains and HTTPS; on a plain server you'd run one yourself, such as Caddy or Traefik.
+
+
 ## Other hosts
 
 Since the output folder is nothing but static files, any host will do.
 
-Some hosts can skip building with GitHub Actions entirely since they build your site for you. For example Netlify's build image includes a Swift toolchain, so you can point it at your repository directly. Set the build command to `swift run` and the publish directory to `deploy`, and it'll build and deploy the site when you push your changes.
+Some hosts can skip building with GitHub Actions entirely since they build your site for you. For example Netlify's build image includes a Swift toolchain, so you can point it at your repository directly. Set the build command to `swift run` and the publish directory to `deploy`, and it'll build and deploy the site when you push your changes. Similarly, [statichost.eu](https://www.statichost.eu/docs/build-config/) builds your repository inside any Docker image you name; point it at a Swift image and it builds and serves the output folder.
