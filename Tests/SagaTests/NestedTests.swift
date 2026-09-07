@@ -5,16 +5,11 @@ import XCTest
 
 final class NestedTests: XCTestCase, @unchecked Sendable {
   func testNestedSimple() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub1/b.md", "folder/sub2/c.md", "style.css"] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -39,7 +34,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // itemWriter: a.md and b.md are scoped to sub1, c.md is alone in sub2
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/folder/sub1/a/index.html" }))
@@ -61,16 +56,11 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
   }
 
   func testNestedWithOuterWriters() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub1/b.md", "folder/sub2/c.md", "style.css"] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -94,7 +84,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // Outer listWriter should see fake parent items with children
     let listPage = finalWrittenPages.first(where: { $0.destination == "root/output/folder/index.html" })
@@ -107,18 +97,13 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
   }
 
   func testNestedDifferentReaders() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     struct AlbumMetadata: Metadata {}
 
     var mock = FileIO.mock
     mock.findFiles = { _ in ["photos/dogs/index.md", "photos/dogs/a.jpg", "photos/dogs/b.jpg", "photos/cats/index.md", "photos/cats/c.jpg"] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -145,7 +130,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // Parent listWriter should see albums with children
     let listPage = finalWrittenPages.first(where: { $0.destination == "root/output/photos/index.html" })
@@ -201,8 +186,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
   }
 
   func testNestedInNested() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in [
@@ -211,11 +195,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       "courses/math/calculus/lesson3.md",
       "courses/science/physics/lesson4.md",
     ] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -249,7 +229,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // Leaf lessons should be written
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/courses/math/algebra/lesson1/index.html" }))
@@ -282,8 +262,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     struct AlbumMetadata: Metadata {}
     struct TrackMetadata: Metadata {}
 
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in [
@@ -298,11 +277,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       "artists/radiohead/ok-computer/index.md",
       "artists/radiohead/ok-computer/tracks/paranoid-android.md",
     ] }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -343,7 +318,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // === Item counts by type ===
     let artistItems = saga.allItems.compactMap { $0 as? Item<ArtistMetadata> }
@@ -413,15 +388,10 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
   }
 
   func testSubfolderIsNilWithoutNesting() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -437,7 +407,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/index.html", content: "nil")))
   }
 }

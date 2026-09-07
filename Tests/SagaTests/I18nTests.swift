@@ -5,8 +5,7 @@ import XCTest
 
 final class I18nTests: XCTestCase, @unchecked Sendable {
   func testI18nBasic() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -17,11 +16,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/world.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en")
@@ -37,7 +32,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
 
     XCTAssertEqual(saga.allItems.count, 4)
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 6) // 4 items + 2 en redirects
 
     // Default locale (en) writes to root (no locale prefix)
@@ -50,8 +45,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nLocalizedOutputFolder() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -60,11 +54,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
@@ -78,7 +68,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 3) // 2 items + 1 en redirect
 
     // English: articles (unchanged)
@@ -89,8 +79,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nDefaultLocaleInSubdir() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -99,11 +88,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", prefixDefaultLocaleOutputFolder: true)
@@ -117,7 +102,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 3) // 2 items + 1 redirect from /articles/hello/ to /en/articles/hello/
 
     // Both locales get a prefix
@@ -194,8 +179,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nLocaleInRenderingContext() async throws {
-    nonisolated(unsafe) var capturedLocales: [String?] = []
-    let localesQueue = DispatchQueue(label: "locales", attributes: .concurrent)
+    let capturedLocales = Recorder<String?>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -213,22 +197,19 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         readers: [.mock(frontmatter: ["date": "2025-01-01"])],
         writers: [
           .itemWriter { context in
-            localesQueue.sync(flags: .barrier) {
-              capturedLocales.append(context.locale)
-            }
+            capturedLocales.append(context.locale)
             return context.item.body
           },
         ]
       )
       .run()
 
-    let finalLocales = localesQueue.sync { Set(capturedLocales.compactMap(\.self)) }
+    let finalLocales = Set(capturedLocales.values.compactMap(\.self))
     XCTAssertEqual(finalLocales, ["en", "nl"])
   }
 
   func testI18nListWriter() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -239,11 +220,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/world.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
@@ -257,7 +234,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 3) // 2 lists + 1 en redirect
 
     // English list at articles/index.html
@@ -268,8 +245,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nTagWriter() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -278,11 +254,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
@@ -296,7 +268,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // English tags at articles/tag/...
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/tag/swift/index.html" && $0.content == "tag:swift:en" }))
@@ -308,8 +280,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nSitemapWithAlternates() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -319,11 +290,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "en/articles/only-english.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en")
@@ -338,7 +305,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       .createPage("sitemap.xml", using: Saga.sitemap(baseURL: try XCTUnwrap(URL(string: "https://example.com"))))
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     let sitemapPage = finalWrittenPages.first { $0.destination == "root/output/sitemap.xml" }
     XCTAssertNotNil(sitemapPage)
 
@@ -362,8 +329,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nSlugWithLocalizedOutputFolder() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -372,11 +338,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     // The Dutch article has a slug override
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
@@ -399,7 +361,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 3) // 2 items + 1 en redirect
 
     // English: normal path
@@ -416,8 +378,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testI18nStaticFilesUseLocalizedOutputFolder() async throws {
-    nonisolated(unsafe) var copiedFiles: [(from: Path, to: Path)] = []
-    let copiedQueue = DispatchQueue(label: "copied", attributes: .concurrent)
+    let copiedFiles = Recorder<CopiedFile>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -430,11 +391,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       ]
     }
     mock.write = { _, _ in }
-    mock.copy = { from, to in
-      copiedQueue.sync(flags: .barrier) {
-        copiedFiles.append((from: from, to: to))
-      }
-    }
+    mock.copy = copiedFiles.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
@@ -446,21 +403,20 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalCopied = copiedQueue.sync { copiedFiles }
+    let finalCopied = copiedFiles.values
 
     // English static file: default locale, no prefix, folder stays "articles"
-    XCTAssertTrue(finalCopied.contains(where: { $0.to == "root/output/articles/chart.png" }))
+    XCTAssertTrue(finalCopied.contains(where: { $0.destination == "root/output/articles/chart.png" }))
 
     // Dutch static file: locale prefix + localized folder name
-    XCTAssertTrue(finalCopied.contains(where: { $0.to == "root/output/nl/artikelen/chart.png" }))
+    XCTAssertTrue(finalCopied.contains(where: { $0.destination == "root/output/nl/artikelen/chart.png" }))
 
     // Files outside locale folders are unaffected
-    XCTAssertTrue(finalCopied.contains(where: { $0.to == "root/output/static/style.css" }))
+    XCTAssertTrue(finalCopied.contains(where: { $0.destination == "root/output/static/style.css" }))
   }
 
   func testI18nWithNested() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -473,11 +429,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/docs/guide-b/intro.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en")
@@ -499,7 +451,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // Child items should be written per locale
     XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/docs/guide-a/intro/index.html" && $0.content == "child:en" }))
@@ -525,8 +477,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testCreatePageForEachLocale() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -536,11 +487,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en")
@@ -558,7 +505,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       })
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 3) // 2 pages + 1 en redirect
 
     // English homepage at root with only English items
@@ -579,15 +526,10 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testCreatePageForEachLocaleWithoutI18n() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
@@ -600,7 +542,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       })
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
     XCTAssertEqual(finalWrittenPages.count, 1)
 
     // Without i18n, behaves like regular createPage
@@ -608,8 +550,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testDefaultLocaleRedirects() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -618,11 +559,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en")
@@ -636,7 +573,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // Redirect from /en/articles/hello/ → /articles/hello/
     let redirect = finalWrittenPages.first { $0.destination == "root/output/en/articles/hello/index.html" }
@@ -645,8 +582,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testDefaultLocaleRedirectsWithPrefix() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -655,11 +591,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", prefixDefaultLocaleOutputFolder: true)
@@ -673,7 +605,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       )
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // Redirect from /articles/hello/ → /en/articles/hello/
     let redirect = finalWrittenPages.first { $0.destination == "root/output/articles/hello/index.html" }
@@ -682,8 +614,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
   }
 
   func testCreatePageForEachLocaleWithLocalizedOutputFolders() async throws {
-    let writtenPagesQueue = DispatchQueue(label: "writtenPages", attributes: .concurrent)
-    nonisolated(unsafe) var writtenPages: [WrittenPage] = []
+    let writtenPages = Recorder<WrittenPage>()
 
     var mock = FileIO.mock
     mock.findFiles = { _ in
@@ -692,11 +623,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
         "nl/articles/hello.md",
       ]
     }
-    mock.write = { destination, content in
-      writtenPagesQueue.sync(flags: .barrier) {
-        writtenPages.append(.init(destination: destination, content: content))
-      }
-    }
+    mock.write = writtenPages.record
 
     _ = try await Saga(input: "input", output: "output", fileIO: mock)
       .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
@@ -711,7 +638,7 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
       })
       .run()
 
-    let finalWrittenPages = writtenPagesQueue.sync { writtenPages }
+    let finalWrittenPages = writtenPages.values
 
     // English: articles/latest.html (unchanged)
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/articles/latest.html", content: "latest:en")))
