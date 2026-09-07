@@ -372,9 +372,9 @@ public class StepBuilder: @unchecked Sendable {
         let context = PageRenderingContext(
           allItems: saga.allItems,
           outputPath: fullOutput,
-          generatedPages: saga.generatedPages,
           locale: nil,
-          translations: [:]
+          translations: [:],
+          generatedPages: saga.generatedPages
         )
         let string = try await renderer(context)
         try saga.processedWrite(saga.outputPath + fullOutput, string)
@@ -413,9 +413,9 @@ public class StepBuilder: @unchecked Sendable {
           let context = PageRenderingContext(
             allItems: saga.allItems,
             outputPath: fullOutput,
-            generatedPages: saga.generatedPages,
             locale: nil,
-            translations: [:]
+            translations: [:],
+            generatedPages: saga.generatedPages
           )
           let string = try await renderer(context)
           try saga.processedWrite(saga.outputPath + fullOutput, string)
@@ -435,9 +435,9 @@ public class StepBuilder: @unchecked Sendable {
           let context = PageRenderingContext(
             allItems: saga.allItems.filter { $0.locale == locale },
             outputPath: fullOutput,
-            generatedPages: saga.generatedPages,
             locale: locale,
-            translations: translations
+            translations: translations,
+            generatedPages: saga.generatedPages,
           )
           let string = try await renderer(context)
           try saga.processedWrite(saga.outputPath + fullOutput, string)
