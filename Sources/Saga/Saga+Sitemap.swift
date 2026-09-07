@@ -3,30 +3,11 @@ import SagaPathKit
 
 public extension Saga {
   /// A renderer which creates an XML sitemap from all generated pages.
-  ///
-  /// When i18n is configured, the sitemap includes `xhtml:link` alternate entries
-  /// for pages that have translations in other locales, following Google's
-  /// [multilingual sitemap](https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap)
-  /// specification.
-  ///
-  /// For a complete walkthrough, see <doc:GeneratingSitemaps>.
-  ///
-  /// - Parameters:
-  ///   - baseURL: The base URL of your website, for example `https://www.example.com`.
-  /// - Returns: A renderer for use with ``StepBuilder/createPage(_:using:)``. Place the sitemap as the last `createPage` call so it can see all generated pages before it.
-  ///
-  /// ```swift
-  /// .createPage("sitemap.xml", using: sitemap(baseURL: URL(string: "https://www.example.com")!))
-  /// ```
-  static func sitemap(baseURL: URL) -> @Sendable (PageRenderingContext) -> String {
-    sitemap(baseURL: baseURL, filter: { _, _ in true })
-  }
-
-  /// A renderer which creates an XML sitemap from all generated pages.
   @available(*, deprecated, message: "Use sitemap(baseURL:filter:) with the item-aware (Path, AnyItem?) -> Bool filter instead")
+  @_documentation(visibility: private)
   @preconcurrency
-  static func sitemap(baseURL: URL, filter: (@Sendable (Path) -> Bool)?) -> @Sendable (PageRenderingContext) -> String {
-    sitemap(baseURL: baseURL, filter: { path, _ in filter?(path) ?? true })
+  static func sitemap(baseURL: URL, filter: @Sendable @escaping (Path) -> Bool) -> @Sendable (PageRenderingContext) -> String {
+    sitemap(baseURL: baseURL, filter: { path, _ in filter(path) })
   }
 
   /// A renderer which creates an XML sitemap from all generated pages.
@@ -40,10 +21,10 @@ public extension Saga {
   ///
   /// - Parameters:
   ///   - baseURL: The base URL of your website, for example `https://www.example.com`.
-  ///   - filter: A filter to exclude certain pages from the sitemap. It receives the relative
-  ///     output path (e.g. `"articles/hello-world/index.html"`) and the item that produced the
-  ///     page, or `nil` for pages without a backing item. Return `true` to include the page,
-  ///     `false` to exclude it.
+  ///   - filter: An optional filter to exclude certain pages from the sitemap. It receives the
+  ///     relative output path (e.g. `"articles/hello-world/index.html"`) and the item that
+  ///     produced the page, or `nil` for pages without a backing item. Return `true` to include
+  ///     the page, `false` to exclude it.
   /// - Returns: A renderer for use with ``StepBuilder/createPage(_:using:)``. Place the sitemap as the last `createPage` call so it can see all generated pages before it.
   ///
   /// ```swift
@@ -56,13 +37,13 @@ public extension Saga {
   /// ))
   /// ```
   @preconcurrency
-  static func sitemap(baseURL: URL, filter: @Sendable @escaping (Path, AnyItem?) -> Bool) -> @Sendable (PageRenderingContext) -> String {
+  static func sitemap(baseURL: URL, filter: (@Sendable (Path, AnyItem?) -> Bool)? = nil) -> @Sendable (PageRenderingContext) -> String {
     let absString = baseURL.absoluteString
     let base = absString.hasSuffix("/") ? String(absString.dropLast()) : absString
 
     return { context in
       let pages = context.generatedPages
-        .filter { $0.key != context.outputPath && filter($0.key, $0.value) }
+        .filter { $0.key != context.outputPath && (filter?($0.key, $0.value) ?? true) }
         .sorted { $0.key.string < $1.key.string }
 
       let pathSet = Set(pages.map(\.key.string))

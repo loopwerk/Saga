@@ -350,7 +350,7 @@ public class StepBuilder: @unchecked Sendable {
   /// across all pipeline steps.
   ///
   /// Pages created with `createPage` run after all registered writers have finished. This means
-  /// a renderer such as ``Saga/sitemap(baseURL:)`` sees every page written by writers, plus pages
+  /// a renderer such as ``Saga/sitemap(baseURL:filter:)`` sees every page written by writers, plus pages
   /// from earlier `createPage` calls.
   ///
   /// **Order matters**: place the sitemap last if it needs to see all other pages.
@@ -437,7 +437,7 @@ public class StepBuilder: @unchecked Sendable {
             outputPath: fullOutput,
             locale: locale,
             translations: translations,
-            generatedPages: saga.generatedPages,
+            generatedPages: saga.generatedPages
           )
           let string = try await renderer(context)
           try saga.processedWrite(saga.outputPath + fullOutput, string)
