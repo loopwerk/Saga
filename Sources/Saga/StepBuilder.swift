@@ -50,7 +50,7 @@ private func executeWriters<M: Metadata>(
     allItems: filteredAllItems,
     outputRoot: saga.outputPath,
     outputPrefix: outputPrefix,
-    write: { try saga.processedWrite($0, $1) },
+    write: { try saga.processedWrite($0, $1, item: $2) },
     resourcesByFolder: saga.resourcesByFolder(),
     subfolder: subfolder,
     locale: locale,
@@ -350,7 +350,7 @@ public class StepBuilder: @unchecked Sendable {
   /// across all pipeline steps.
   ///
   /// Pages created with `createPage` run after all registered writers have finished. This means
-  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
+  /// a renderer such as ``Saga/sitemap(baseURL:)`` sees every page written by writers, plus pages
   /// from earlier `createPage` calls.
   ///
   /// **Order matters**: place the sitemap last if it needs to see all other pages.

@@ -19,10 +19,11 @@ extension Saga {
   }
 
   /// Write content to a file, applying any registered post-processors.
-  /// Also tracks the relative path in ``generatedPages``.
-  func processedWrite(_ destination: Path, _ content: String) throws {
+  /// Also tracks the relative path in ``generatedPages``, together with the
+  /// item that produced the page (if any).
+  func processedWrite(_ destination: Path, _ content: String, item: AnyItem? = nil) throws {
     let relativePath = try destination.relativePath(from: outputPath)
-    generatedPagesLock.withLock { generatedPages.append(relativePath) }
+    generatedPagesLock.withLock { generatedPages[relativePath] = item }
 
     let result = try postProcessors.reduce(content) { content, transform in try transform(content, relativePath) }
     try fileIO.write(destination, result)
@@ -64,7 +65,7 @@ extension Saga {
   func reset() throws {
     allItems = []
     handledPaths = []
-    generatedPages = []
+    generatedPages = [:]
     contentHashes = [:]
 
     // Clear parent/child references on cached items so they can be re-wired

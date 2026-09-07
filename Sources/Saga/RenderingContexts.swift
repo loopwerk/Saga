@@ -132,8 +132,11 @@ public struct PageRenderingContext: Sendable {
   /// The output path of the page being rendered.
   public let outputPath: Path
 
-  /// Relative paths of all pages written by writers and earlier `createPage` calls.
-  public let generatedPages: [Path]
+  /// All pages written by writers and earlier `createPage` calls, keyed by relative
+  /// output path, with the item that produced each page (or `nil` for pages without
+  /// a single backing item). Internal: this exists to feed built-in renderers such
+  /// as ``Saga/sitemap(baseURL:)``.
+  let generatedPages: [Path: AnyItem?]
 
   /// The locale of this rendering context, or `nil` when i18n is not configured.
   public let locale: SagaLocale?
@@ -201,7 +204,6 @@ extension PageRenderingContext: DictRenderingContext {
     var dict: [String: Any] = [
       "allItems": allItems,
       "outputPath": outputPath,
-      "generatedPages": generatedPages,
       "translations": translations,
     ]
     if let locale { dict["locale"] = locale }
