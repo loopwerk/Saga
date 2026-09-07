@@ -30,7 +30,7 @@ The sitemap includes every page: individual articles, list pages, and the homepa
 
 ## Filtering pages
 
-Use the `filter` parameter to exclude pages that don't belong in a sitemap. The filter receives the relative output path of each page, plus the ``Item`` that produced it (more on that below):
+Use the `filter` parameter to exclude pages that don't belong in a sitemap.
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -38,24 +38,8 @@ try await Saga(input: "content", output: "deploy")
   .createPage("search/index.html", using: swim(renderSearch))
   .createPage("sitemap.xml", using: Saga.sitemap(
     baseURL: URL(string: "https://example.com")!,
-    filter: { path, _ in
-      path != "404.html" && path != "search/index.html"
-    }
-  ))
-  .run()
-```
-
-> Tip: Or, just place these `createPage` steps *after* the `sitemap` one. Since order matters, they won't be part of the sitemap if they come after that step.
-
-## Filtering based on item metadata
-
-Some pages can't be excluded by path alone. For example, articles marked as archived in their metadata have the same output path shape as regular articles. For these cases, use the filter's second argument: the ``Item`` that produced the page, letting you inspect its metadata:
-
-```swift
-try await Saga(input: "content", output: "deploy")
-  .createPage("sitemap.xml", using: Saga.sitemap(
-    baseURL: URL(string: "https://example.com")!,
     filter: { path, item in
+      if path == "404.html" || path == "search/index.html" { return false }
       guard let article = item as? Item<ArticleMetadata> else { return true }
       return article.metadata.archived != true
     }
@@ -63,4 +47,4 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-Pages that aren't backed by a single item (list pages, tag pages, and pages from `createPage`) receive `nil` as the item.
+> Tip: Or, just place these `createPage` steps *after* the `sitemap` one. Since order matters, they won't be part of the sitemap if they come after that step.
