@@ -160,10 +160,18 @@ extension ItemRenderingContext: DictRenderingContext {
       "resources": resources,
       "translations": translations,
     ]
-    if let previous { dict["previous"] = previous }
-    if let next { dict["next"] = next }
-    if let subfolder { dict["subfolder"] = subfolder }
-    if let locale { dict["locale"] = locale }
+    if let previous {
+      dict["previous"] = previous
+    }
+    if let next {
+      dict["next"] = next
+    }
+    if let subfolder {
+      dict["subfolder"] = subfolder
+    }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }
@@ -176,9 +184,15 @@ extension ItemsRenderingContext: DictRenderingContext {
       "outputPath": outputPath,
       "translations": translations,
     ]
-    if let paginator { dict["paginator"] = paginator }
-    if let subfolder { dict["subfolder"] = subfolder }
-    if let locale { dict["locale"] = locale }
+    if let paginator {
+      dict["paginator"] = paginator
+    }
+    if let subfolder {
+      dict["subfolder"] = subfolder
+    }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }
@@ -192,9 +206,15 @@ extension PartitionedRenderingContext: DictRenderingContext {
       "outputPath": outputPath,
       "translations": translations,
     ]
-    if let paginator { dict["paginator"] = paginator }
-    if let subfolder { dict["subfolder"] = subfolder }
-    if let locale { dict["locale"] = locale }
+    if let paginator {
+      dict["paginator"] = paginator
+    }
+    if let subfolder {
+      dict["subfolder"] = subfolder
+    }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }
@@ -206,7 +226,9 @@ extension PageRenderingContext: DictRenderingContext {
       "outputPath": outputPath,
       "translations": translations,
     ]
-    if let locale { dict["locale"] = locale }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }

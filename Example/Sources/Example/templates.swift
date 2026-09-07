@@ -2,9 +2,9 @@ import Foundation
 import HTML
 import Moon
 import Saga
+import SagaImageReader
 import SagaPathKit
 import SagaSwimRenderer
-import SagaImageReader
 
 // MARK: - Helpers
 
@@ -257,7 +257,7 @@ func renderPhoto(context: ItemRenderingContext<ImageMetadata>) -> Node {
 @NodeBuilder
 func renderExifInfo(_ m: ImageMetadata) -> Node {
   let rows: [(String, String?)] = [
-    ("Camera", [m.make, m.model].compactMap { $0 }.joined(separator: " ")),
+    ("Camera", [m.make, m.model].compactMap(\.self).joined(separator: " ")),
     ("Lens", m.lensModel),
     ("Focal Length", m.focalLength.map { "\($0)mm" }),
     ("Focal Length (35mm)", m.focalLenIn35mmFilm.map { "\($0)mm" }),
@@ -266,7 +266,9 @@ func renderExifInfo(_ m: ImageMetadata) -> Node {
     ("ISO", m.iso.map { "\($0)" }),
     ("Flash", m.flash.map { $0 == 0 ? "No" : "Yes" }),
     ("Dimensions", {
-      if let w = m.pixelXDimension, let h = m.pixelYDimension { return "\(w) x \(h)" }
+      if let w = m.pixelXDimension, let h = m.pixelYDimension {
+        return "\(w) x \(h)"
+      }
       return nil
     }()),
     ("Software", m.software),
@@ -282,12 +284,13 @@ func renderExifInfo(_ m: ImageMetadata) -> Node {
 
   if !available.isEmpty || hasGPS {
     dl(class: "exif-info") {
-      available.map { (label, value) in
+      available.map { label, value in
         [dt { label }, dd { value }]
       }
 
       if let lat = m.gpsLatitude, let latRef = m.gpsLatitudeRef,
-         let lon = m.gpsLongitude, let lonRef = m.gpsLongitudeRef {
+         let lon = m.gpsLongitude, let lonRef = m.gpsLongitudeRef
+      {
         let signedLat = latRef == "S" ? "-\(lat)" : lat
         let signedLon = lonRef == "W" ? "-\(lon)" : lon
         let mapsURL = "https://maps.apple.com/?ll=\(signedLat),\(signedLon)&q=\(signedLat),\(signedLon)"

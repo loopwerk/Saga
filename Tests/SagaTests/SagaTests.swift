@@ -857,14 +857,14 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Default behavior is unchanged: the entry title is the item's title.
     let defaultFeed = Saga.atomFeed(
       title: "Test Site",
-      baseURL: URL(string: "https://example.com")!
+      baseURL: try XCTUnwrap(URL(string: "https://example.com"))
     )(context)
     XCTAssertTrue(defaultFeed.contains("<title>A _great_ title</title>"))
 
     // itemTitle lets a site apply its own title policy per entry.
     let customFeed = Saga.atomFeed(
       title: "Test Site",
-      baseURL: URL(string: "https://example.com")!,
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
       itemTitle: { $0.title.replacingOccurrences(of: "_", with: "") }
     )(context)
     XCTAssertTrue(customFeed.contains("<title>A great title</title>"))
