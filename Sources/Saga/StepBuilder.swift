@@ -349,11 +349,7 @@ public class StepBuilder: @unchecked Sendable {
   /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
   /// across all pipeline steps.
   ///
-  /// Pages created with `createPage` run after all registered writers have finished. This means
-  /// a renderer such as ``Saga/sitemap(baseURL:filter:)`` sees every page written by writers, plus pages
-  /// from earlier `createPage` calls.
-  ///
-  /// **Order matters**: place the sitemap last if it needs to see all other pages.
+  /// **Order matters**: place the sitemap last if it needs to see all other pages:
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
