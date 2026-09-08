@@ -132,14 +132,17 @@ public struct PageRenderingContext: Sendable {
   /// The output path of the page being rendered.
   public let outputPath: Path
 
-  /// Relative paths of all pages written by writers and earlier `createPage` calls.
-  public let generatedPages: [Path]
-
   /// The locale of this rendering context, or `nil` when i18n is not configured.
   public let locale: SagaLocale?
 
   /// URLs for this page in all locales, keyed by locale. Empty when i18n is not configured.
   public let translations: [SagaLocale: String]
+
+  /// All pages written by writers and earlier `createPage` calls, keyed by relative
+  /// output path, with the item that produced each page (or `nil` for pages without
+  /// a single backing item). Internal: this exists to feed built-in renderers such
+  /// as ``Saga/sitemap(baseURL:filter:)``.
+  let generatedPages: [Path: AnyItem?]
 }
 
 // MARK: - Dictionary conversion for template renderers such as Stencil
@@ -157,10 +160,18 @@ extension ItemRenderingContext: DictRenderingContext {
       "resources": resources,
       "translations": translations,
     ]
-    if let previous { dict["previous"] = previous }
-    if let next { dict["next"] = next }
-    if let subfolder { dict["subfolder"] = subfolder }
-    if let locale { dict["locale"] = locale }
+    if let previous {
+      dict["previous"] = previous
+    }
+    if let next {
+      dict["next"] = next
+    }
+    if let subfolder {
+      dict["subfolder"] = subfolder
+    }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }
@@ -173,9 +184,15 @@ extension ItemsRenderingContext: DictRenderingContext {
       "outputPath": outputPath,
       "translations": translations,
     ]
-    if let paginator { dict["paginator"] = paginator }
-    if let subfolder { dict["subfolder"] = subfolder }
-    if let locale { dict["locale"] = locale }
+    if let paginator {
+      dict["paginator"] = paginator
+    }
+    if let subfolder {
+      dict["subfolder"] = subfolder
+    }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }
@@ -189,9 +206,15 @@ extension PartitionedRenderingContext: DictRenderingContext {
       "outputPath": outputPath,
       "translations": translations,
     ]
-    if let paginator { dict["paginator"] = paginator }
-    if let subfolder { dict["subfolder"] = subfolder }
-    if let locale { dict["locale"] = locale }
+    if let paginator {
+      dict["paginator"] = paginator
+    }
+    if let subfolder {
+      dict["subfolder"] = subfolder
+    }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }
@@ -201,10 +224,11 @@ extension PageRenderingContext: DictRenderingContext {
     var dict: [String: Any] = [
       "allItems": allItems,
       "outputPath": outputPath,
-      "generatedPages": generatedPages,
       "translations": translations,
     ]
-    if let locale { dict["locale"] = locale }
+    if let locale {
+      dict["locale"] = locale
+    }
     return dict
   }
 }

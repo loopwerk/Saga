@@ -6,7 +6,7 @@ struct WriterContext<M: Metadata> {
   let allItems: [AnyItem]
   let outputRoot: Path
   let outputPrefix: Path
-  let write: @Sendable (Path, String) throws -> Void
+  let write: @Sendable (Path, String, AnyItem?) throws -> Void
   let resourcesByFolder: [Path: [Path]]
   let subfolder: Path?
   let locale: SagaLocale?
@@ -67,7 +67,8 @@ public extension Writer {
 
             try writerContext.write(
               writerContext.outputRoot + item.relativeDestination,
-              stringToWrite
+              stringToWrite,
+              item
             )
           }
         }
@@ -242,7 +243,7 @@ private extension Writer {
 
         let renderContext = getRenderContext(firstItems, writerContext.allItems, paginator, writerContext.outputPrefix + output)
         let stringToWrite = try await renderer(renderContext)
-        try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
+        try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite, nil)
       }
 
       // Then we write all the pages to their paginated paths, for example /articles/page/[page]/index.html
@@ -264,7 +265,7 @@ private extension Writer {
             let finishedOutputPath = Path(paginatedOutput.string.replacingOccurrences(of: "[page]", with: "\(currentPage)"))
             let renderContext = getRenderContext(items, writerContext.allItems, paginator, writerContext.outputPrefix + finishedOutputPath)
             let stringToWrite = try await renderer(renderContext)
-            try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + finishedOutputPath, stringToWrite)
+            try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + finishedOutputPath, stringToWrite, nil)
           }
         }
         try await group.waitForAll()
@@ -273,7 +274,7 @@ private extension Writer {
       // No pagination
       let renderContext = getRenderContext(writerContext.items, writerContext.allItems, nil, writerContext.outputPrefix + output)
       let stringToWrite = try await renderer(renderContext)
-      try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite)
+      try writerContext.write(writerContext.outputRoot + writerContext.outputPrefix + output, stringToWrite, nil)
     }
   }
 }

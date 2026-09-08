@@ -36,7 +36,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
   var contentHashes: [String: String] = [:]
 
   // Generated page tracking, for the sitemap
-  var generatedPages: [Path] = []
+  var generatedPages: [Path: AnyItem?] = [:]
   let generatedPagesLock = NSLock()
 
   /// Post processors

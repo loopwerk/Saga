@@ -683,8 +683,15 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       .createPage("404.html") { _ in "<h1>Not Found</h1>" }
       .run()
 
-    let pages = saga.generatedPages.map(\.string).sorted()
+    let pages = saga.generatedPages.keys.map(\.string).sorted()
     XCTAssertEqual(pages, ["404.html", "articles/list.html", "articles/test/index.html", "articles/test2/index.html", "index.html"])
+
+    // Item pages map to the item that produced them, other pages map to nil
+    XCTAssertEqual((saga.generatedPages["articles/test/index.html"] ?? nil)?.relativeSource, "articles/test.md")
+    XCTAssertEqual((saga.generatedPages["articles/test2/index.html"] ?? nil)?.relativeSource, "articles/test2.md")
+    XCTAssertNil(saga.generatedPages["articles/list.html"] ?? nil)
+    XCTAssertNil(saga.generatedPages["index.html"] ?? nil)
+    XCTAssertNil(saga.generatedPages["404.html"] ?? nil)
   }
 
   func testSitemap() async throws {
@@ -707,7 +714,7 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       .createPage("404.html") { _ in "<h1>Not Found</h1>" }
       .createPage("sitemap.xml", using: Saga.sitemap(
         baseURL: try XCTUnwrap(URL(string: "https://example.com")),
-        filter: { $0 != "404.html" }
+        filter: { path, _ in path != "404.html" }
       ))
       .run()
 
@@ -720,6 +727,55 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(content.contains("<loc>https://example.com/articles/test2/</loc>"))
     XCTAssertFalse(content.contains("sitemap.xml"))
     XCTAssertFalse(content.contains("404.html"))
+  }
+
+  func testSitemapWithItemAwareFilter() async throws {
+    struct ArchivableMetadata: Metadata {
+      let archived: Bool?
+    }
+
+    let writtenPages = Recorder<WrittenPage>()
+
+    var mock = FileIO.mock
+    mock.write = writtenPages.record
+
+    mock.findFiles = { _ in ["articles/test.md", "articles/archived.md", "style.css"] }
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "articles",
+        metadata: ArchivableMetadata.self,
+        readers: [
+          Reader(supportedExtensions: ["md"]) { absoluteSource in
+            let frontmatter = absoluteSource.lastComponentWithoutExtension == "archived" ? ["archived": "true"] : [:]
+            return (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: frontmatter)
+          },
+        ],
+        writers: [
+          .itemWriter { context in context.item.body },
+          .listWriter({ _ in "" }, output: "list.html"),
+        ]
+      )
+      .createPage("sitemap.xml", using: Saga.sitemap(
+        baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+        filter: { _, item in
+          guard let item = item as? Item<ArchivableMetadata> else { return true }
+          return item.metadata.archived != true
+        }
+      ))
+      .run()
+
+    let finalWrittenPages = writtenPages.values
+    let sitemapPage = finalWrittenPages.first(where: { $0.destination == "root/output/sitemap.xml" })
+    let content = try XCTUnwrap(sitemapPage?.content)
+
+    // The archived article is excluded from the sitemap, but its page is still written
+    XCTAssertTrue(content.contains("<loc>https://example.com/articles/test/</loc>"))
+    XCTAssertFalse(content.contains("articles/archived"))
+    XCTAssertTrue(finalWrittenPages.contains(where: { $0.destination == "root/output/articles/archived/index.html" }))
+
+    // Pages without a backing item (like list pages) pass the filter's guard and are included
+    XCTAssertTrue(content.contains("<loc>https://example.com/articles/list.html</loc>"))
   }
 
   func testSlugFrontmatterSetsDestination() async throws {
@@ -801,14 +857,14 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     // Default behavior is unchanged: the entry title is the item's title.
     let defaultFeed = Saga.atomFeed(
       title: "Test Site",
-      baseURL: URL(string: "https://example.com")!
+      baseURL: try XCTUnwrap(URL(string: "https://example.com"))
     )(context)
     XCTAssertTrue(defaultFeed.contains("<title>A _great_ title</title>"))
 
     // itemTitle lets a site apply its own title policy per entry.
     let customFeed = Saga.atomFeed(
       title: "Test Site",
-      baseURL: URL(string: "https://example.com")!,
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
       itemTitle: { $0.title.replacingOccurrences(of: "_", with: "") }
     )(context)
     XCTAssertTrue(customFeed.contains("<title>A great title</title>"))

@@ -50,7 +50,7 @@ private func executeWriters<M: Metadata>(
     allItems: filteredAllItems,
     outputRoot: saga.outputPath,
     outputPrefix: outputPrefix,
-    write: { try saga.processedWrite($0, $1) },
+    write: { try saga.processedWrite($0, $1, item: $2) },
     resourcesByFolder: saga.resourcesByFolder(),
     subfolder: subfolder,
     locale: locale,
@@ -349,11 +349,7 @@ public class StepBuilder: @unchecked Sendable {
   /// a search page, or a 404 page. The renderer receives a ``PageRenderingContext`` with access to all items
   /// across all pipeline steps.
   ///
-  /// Pages created with `createPage` run after all registered writers have finished. This means
-  /// ``PageRenderingContext/generatedPages`` contains every page written by writers, plus pages
-  /// from earlier `createPage` calls.
-  ///
-  /// **Order matters**: place the sitemap last if it needs to see all other pages.
+  /// **Order matters**: place the sitemap last if it needs to see all other pages:
   ///
   /// ```swift
   /// try await Saga(input: "content", output: "deploy")
@@ -372,9 +368,9 @@ public class StepBuilder: @unchecked Sendable {
         let context = PageRenderingContext(
           allItems: saga.allItems,
           outputPath: fullOutput,
-          generatedPages: saga.generatedPages,
           locale: nil,
-          translations: [:]
+          translations: [:],
+          generatedPages: saga.generatedPages
         )
         let string = try await renderer(context)
         try saga.processedWrite(saga.outputPath + fullOutput, string)
@@ -413,9 +409,9 @@ public class StepBuilder: @unchecked Sendable {
           let context = PageRenderingContext(
             allItems: saga.allItems,
             outputPath: fullOutput,
-            generatedPages: saga.generatedPages,
             locale: nil,
-            translations: [:]
+            translations: [:],
+            generatedPages: saga.generatedPages
           )
           let string = try await renderer(context)
           try saga.processedWrite(saga.outputPath + fullOutput, string)
@@ -435,9 +431,9 @@ public class StepBuilder: @unchecked Sendable {
           let context = PageRenderingContext(
             allItems: saga.allItems.filter { $0.locale == locale },
             outputPath: fullOutput,
-            generatedPages: saga.generatedPages,
             locale: locale,
-            translations: translations
+            translations: translations,
+            generatedPages: saga.generatedPages
           )
           let string = try await renderer(context)
           try saga.processedWrite(saga.outputPath + fullOutput, string)

@@ -52,10 +52,12 @@ extension Saga {
     let locale = config.defaultLocale
     let nonDefaultPrefixes = config.locales.filter { $0 != locale }.map { $0 + "/" }
 
-    for page in generatedPages {
+    for page in generatedPages.keys {
       // Only process pages that belong to the default locale
       let isNonDefault = nonDefaultPrefixes.contains { page.string.hasPrefix($0) }
-      if isNonDefault { continue }
+      if isNonDefault {
+        continue
+      }
 
       if config.prefixDefaultLocaleOutputFolder {
         // Content is at /{locale}/..., redirect from /... → /{locale}/...

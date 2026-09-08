@@ -30,7 +30,7 @@ The sitemap includes every page: individual articles, list pages, and the homepa
 
 ## Filtering pages
 
-Use the `filter` parameter to exclude pages that don't belong in a sitemap:
+Use the `filter` parameter to exclude pages that don't belong in a sitemap.
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -38,8 +38,10 @@ try await Saga(input: "content", output: "deploy")
   .createPage("search/index.html", using: swim(renderSearch))
   .createPage("sitemap.xml", using: Saga.sitemap(
     baseURL: URL(string: "https://example.com")!,
-    filter: { path in
-      path != "404.html" && path != "search/index.html"
+    filter: { path, item in
+      if path == "404.html" || path == "search/index.html" { return false }
+      guard let article = item as? Item<ArticleMetadata> else { return true }
+      return article.metadata.archived != true
     }
   ))
   .run()
