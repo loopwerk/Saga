@@ -43,6 +43,15 @@ extension Saga {
     // Sort all items by date descending
     allItems.sort { $0.date > $1.date }
 
+    if !afterReadHooks.isEmpty {
+      let start = DispatchTime.now()
+      for hook in afterReadHooks {
+        try await hook(self)
+      }
+
+      fileIO.log("Finished afterRead hooks in \(elapsed(from: start))")
+    }
+
     // Clean the output folder
     try fileIO.deletePath(outputPath)
 

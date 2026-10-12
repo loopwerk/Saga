@@ -40,13 +40,14 @@ File watching and ignore patterns are handled by Saga itself (not the CLI). Use 
 
 ## Architecture Overview
 
-Saga is a static site generator written in Swift that follows a **beforeRead → Reader → Processor → Writer → afterWrite** pipeline pattern:
+Saga is a static site generator written in Swift that follows a **beforeRead → Reader → Processor → afterRead → Writer → afterWrite** pipeline pattern:
 
 1. **beforeRead hooks** run pre-build steps (e.g. CSS compilation)
 2. **Readers** parse content files (Markdown, etc.) into strongly typed `Item<M: Metadata>` objects
 3. **Processors** transform items with custom logic and filtering
-4. **Writers** generate output files using various rendering contexts
-5. **afterWrite hooks** run post-build steps (e.g. search indexing)
+4. **afterRead hooks** work on all items at once, before anything is written
+5. **Writers** generate output files using various rendering contexts
+6. **afterWrite hooks** run post-build steps (e.g. search indexing)
 
 ### Core Components
 
@@ -71,6 +72,7 @@ Saga is designed for extensibility via external packages:
 ### Build Helpers
 
 - `beforeRead(_:)`: Hook that runs before the read phase of each build cycle (e.g. CSS compilation). Runs on every rebuild under `saga dev`.
+- `afterRead(_:)`: Hook that runs after the read phase, once all items are read and sorted, and before any writer runs. Changes to items are visible to all writers. Runs on every rebuild under `saga dev`.
 - `afterWrite(_:)`: Hook that runs after the write phase of each build cycle (e.g. search indexing). Runs on every rebuild under `saga dev`.
 - `Saga.hashed(_:)`: Static method for cache-busting asset URLs (e.g. `Saga.hashed("/static/style.css")` → `/static/style-a1b2c3d4.css`). Skipped in dev mode.
 - `postProcess(_:)`: Apply transforms (e.g. HTML minification) to every written file.

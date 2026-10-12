@@ -125,6 +125,22 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
     )
   }
 
+  /// A copy of this item, without the per-build state (locale, translations, parent, children).
+  /// Copies the same fields as ``CodingKeys``.
+  func copy() -> Item<M> {
+    Item(
+      absoluteSource: absoluteSource,
+      relativeSource: relativeSource,
+      relativeDestination: relativeDestination,
+      title: title,
+      body: body,
+      date: date,
+      created: created,
+      lastModified: lastModified,
+      metadata: metadata
+    )
+  }
+
   public var filenameWithoutExtension: String {
     relativeSource.lastComponentWithoutExtension
   }

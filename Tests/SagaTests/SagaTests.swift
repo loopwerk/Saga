@@ -918,4 +918,80 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/hook/generated/index.html", content: "<p>hook/generated.md</p>")))
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/step/generated/index.html", content: "<p>step/generated.md</p>")))
   }
+
+  func testAfterReadHook() async throws {
+    let writtenPages = Recorder<WrittenPage>()
+    let seenBodies = Recorder<[String]>()
+
+    var mock = FileIO.mock
+    mock.write = writtenPages.record
+
+    // The hook is registered before the step, but still runs after all items are read
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .afterRead { saga in
+        seenBodies.append(saga.allItems.map(\.body))
+        for item in saga.allItems {
+          item.body += "<p>\(saga.allItems.count) items</p>"
+        }
+      }
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { context in context.item.body },
+          .listWriter({ context in context.items.map(\.body).joined(separator: "") }, output: "list.html"),
+        ]
+      )
+      .run()
+
+    // The hook ran once and saw all items, sorted by date descending
+    XCTAssertEqual(seenBodies.values, [["<p>test2.md</p>", "<p>test.md</p>"]])
+
+    // Changes made by the hook are visible to all writers
+    let finalWrittenPages = writtenPages.values
+    XCTAssertEqual(finalWrittenPages.count, 3)
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test/index.html", content: "<p>test.md</p><p>2 items</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/test2/index.html", content: "<p>test2.md</p><p>2 items</p>")))
+    XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/list.html", content: "<p>test2.md</p><p>2 items</p><p>test.md</p><p>2 items</p>")))
+  }
+
+  func testCachedItemsStartFreshOnRebuild() async throws {
+    let writtenPages = Recorder<WrittenPage>()
+    let conversions = Recorder<Path>()
+
+    var mock = FileIO.mock
+    mock.write = writtenPages.record
+
+    let reader = Reader(supportedExtensions: ["md"]) { absoluteSource in
+      conversions.append(absoluteSource)
+      return (title: "Test", body: "<p>\(absoluteSource)</p>", frontmatter: [:])
+    }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .afterRead { saga in
+        for item in saga.allItems {
+          item.body += "<p>changed</p>"
+        }
+      }
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [reader],
+        writers: [
+          .itemWriter { context in context.item.body },
+        ]
+      )
+      .run()
+
+    // Rebuild, like `saga dev` does when a file changes
+    try saga.reset()
+    try await saga.build()
+
+    // The second build reused the cached items instead of reading the files again
+    XCTAssertEqual(conversions.values.count, 2)
+
+    // But the hook got the items as they were before the first build changed them
+    let pages = writtenPages.values.filter { $0.destination == "root/output/test/index.html" }
+    XCTAssertEqual(pages.count, 2)
+    XCTAssertEqual(pages.map(\.content), ["<p>test.md</p><p>changed</p>", "<p>test.md</p><p>changed</p>"])
+  }
 }

@@ -68,14 +68,6 @@ extension Saga {
     generatedPages = [:]
     contentHashes = [:]
 
-    // Clear parent/child references on cached items so they can be re-wired
-    for (_, cache) in readerCache {
-      for (_, item) in cache {
-        item.parent = nil
-        item.children = []
-      }
-    }
-
     // Re-scan input files (files may have been added/removed)
     try refreshFiles()
   }
@@ -124,14 +116,16 @@ extension Saga {
             return FileReadResult(filePath: file.path, item: nil, claimFile: false)
           }
 
-          // Check in-memory cache: if the file hasn't changed, reuse the cached item
+          // Check in-memory cache: if the file hasn't changed, reuse the cached item.
+          // The build gets a copy, so that the cached item never sees changes made by
+          // hooks, writers or i18n, and every build starts from the freshly processed item.
           let currentModDate = self.fileIO.modificationDate(file.path)
           if let cached = cache[file.relativePath.string] as? Item<M>,
              let currentModDate,
              cached.lastModified == currentModDate
           {
             if filter(cached) {
-              return FileReadResult(filePath: file.path, item: cached, claimFile: !reader.copySourceFiles)
+              return FileReadResult(filePath: file.path, item: cached.copy(), claimFile: !reader.copySourceFiles)
             } else {
               return FileReadResult(filePath: file.path, item: nil, claimFile: claimExcludedItems)
             }
@@ -197,7 +191,8 @@ extension Saga {
 
         if let item = result.item {
           items.append(item)
-          updatedCache[item.relativeSource.string] = item
+          // Cache a copy, not the item the build is going to use
+          updatedCache[item.relativeSource.string] = item.copy()
         }
       }
 

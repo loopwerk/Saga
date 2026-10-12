@@ -44,6 +44,7 @@ public class Saga: StepBuilder, @unchecked Sendable {
 
   /// Hooks
   var beforeReadHooks: [@Sendable (Saga) async throws -> Void] = []
+  var afterReadHooks: [@Sendable (Saga) async throws -> Void] = []
   var afterWriteHooks: [@Sendable (Saga) async throws -> Void] = []
 
   /// In-memory reader cache that survives between dev rebuilds
@@ -130,6 +131,28 @@ public class Saga: StepBuilder, @unchecked Sendable {
   @preconcurrency
   public func beforeRead(_ hook: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     beforeReadHooks.append(hook)
+    return self
+  }
+
+  /// Register a hook that runs after the read phase of each build cycle, before anything is written.
+  ///
+  /// At this point every item has been read and processed, and ``allItems`` is complete and sorted.
+  /// Use this for work that needs to see all items at once, such as changing items based on
+  /// other items. Any changes are visible to all writers:
+  /// ```swift
+  /// try await Saga(input: "content", output: "deploy")
+  ///   .register(...)
+  ///   .afterRead { saga in
+  ///     for item in saga.allItems {
+  ///       item.body = item.body.replacingOccurrences(of: "%COUNT%", with: "\(saga.allItems.count)")
+  ///     }
+  ///   }
+  ///   .run()
+  /// ```
+  @discardableResult
+  @preconcurrency
+  public func afterRead(_ hook: @Sendable @escaping (Saga) async throws -> Void) -> Self {
+    afterReadHooks.append(hook)
     return self
   }
 

@@ -121,6 +121,9 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func register<M: Metadata>(
     folder: Path? = nil,
+    // TODO for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
+    // while it's also inferrable from other parameters will be an error in a future Swift language mode.
+    // Also update GettingStarted.md and the tests that leave out `metadata:`, and add a Migrate.md note.
     metadata: M.Type = EmptyMetadata.self,
     readers: [Reader] = [],
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
@@ -287,6 +290,9 @@ public class StepBuilder: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register<M: Metadata>(
+    // TODO for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
+    // while it's also inferrable from other parameters will be an error in a future Swift language mode.
+    // Also update GettingStarted.md and the tests that leave out `metadata:`, and add a Migrate.md note.
     metadata: M.Type = EmptyMetadata.self,
     fetch: @escaping @Sendable () async throws -> [Item<M>],
     cacheKey: String? = String(describing: M.self),
@@ -333,7 +339,7 @@ public class StepBuilder: @unchecked Sendable {
   /// Register a custom write-only step.
   @discardableResult
   @preconcurrency
-  @available(*, deprecated, message: "Use `afterWrite(_:)` instead.")
+  @available(*, deprecated, message: "Use `afterRead(_:)` or `afterWrite(_:)` instead.")
   public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
     steps.append(PipelineStep(
       read: { _ in [] },

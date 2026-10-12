@@ -5,7 +5,7 @@ Tips and techniques for more complex Saga setups.
 
 ## Build hooks
 
-Use ``Saga/beforeRead(_:)`` and ``Saga/afterWrite(_:)`` to run custom logic before or after each build cycle. These hooks run on every build, including rebuilds triggered by `saga dev`.
+Use ``Saga/beforeRead(_:)``, ``Saga/afterRead(_:)`` and ``Saga/afterWrite(_:)`` to run custom logic at different points of each build cycle. These hooks run on every build, including rebuilds triggered by `saga dev`.
 
 ```swift
 try await Saga(input: "content", output: "deploy")
@@ -13,6 +13,10 @@ try await Saga(input: "content", output: "deploy")
     // Runs before the read phase, e.g. compile CSS
   }
   .register(/* ... */)
+  .afterRead { saga in
+    // Runs after all items are read, before anything is written,
+    // e.g. change items based on other items
+  }
   .afterWrite { saga in
     // Runs after the write phase, e.g. index for search
   }
