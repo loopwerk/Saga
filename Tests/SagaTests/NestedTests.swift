@@ -96,6 +96,41 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(saga.allItems.count >= 3) // At least the 3 nested items + 2 fake parents
   }
 
+  func testNestedFakeParentsAreProcessedAndFiltered() async throws {
+    let writtenPages = Recorder<WrittenPage>()
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub2/b.md"] }
+    mock.write = writtenPages.record
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "folder",
+        itemProcessor: { item in
+          item.title = item.title.uppercased()
+        },
+        filter: { $0.title != "SUB2" },
+        writers: [
+          .listWriter { context in
+            context.items.map(\.title).joined(separator: ",")
+          },
+        ],
+        nested: { nested in
+          nested.register(
+            metadata: EmptyMetadata.self,
+            readers: [.mock(frontmatter: [:])],
+            writers: [
+              .itemWriter { context in context.item.body },
+            ]
+          )
+        }
+      )
+      .run()
+
+    let listPage = writtenPages.values.first(where: { $0.destination == "root/output/folder/index.html" })
+    XCTAssertEqual(listPage?.content, "SUB1")
+  }
+
   func testNestedDifferentReaders() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

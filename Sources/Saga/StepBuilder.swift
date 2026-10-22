@@ -501,6 +501,12 @@ public class StepBuilder: @unchecked Sendable {
               lastModified: Date(),
               metadata: try M(from: makeMetadataDecoder(for: [:]))
             )
+
+            if let itemProcessor {
+              await itemProcessor(parentItem)
+            }
+
+            guard filter(parentItem) else { continue }
           }
 
           if let locale, let i18n = saga.i18nConfig {
