@@ -71,7 +71,7 @@ Content goes here.
 Markdown files can optionally include a frontmatter block at the top, delimited by `---`. Saga has built-in support for the following frontmatter properties:
 
 - **title**: Overrides the title that would otherwise be taken from the first level 1 heading. Pick one or the other; if both are present, the first level 1 heading is still stripped from the body. If neither is present, the filename is used as the title.
-- **date**: The publication date, in `yyyy-MM-dd` format. If not set, Saga uses the file's creation date.
+- **date**: The publication date, such as `2026-10-22`, `2026-10-22 12:07` or `2026-10-22T12:07:31+02:00`. Without a time zone, the local time zone is used. If not set, Saga uses the file's creation date.
 - **slug**: Overrides the output path. For example, setting `slug: my-page` writes the item to `my-page/index.html` instead of deriving the path from the filename.
 
 ```text

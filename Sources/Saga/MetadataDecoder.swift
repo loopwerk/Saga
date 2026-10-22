@@ -14,16 +14,16 @@ final class MetadataDecoder: Decoder {
   let codingPath: [CodingKey]
 
   private let metadata: [String: String]
-  private let dateFormatter: DateFormatter
+  private let dateFormatters: [DateFormatter]
   private lazy var keyedContainers = [ObjectIdentifier: Any]()
 
   init(metadata: [String: String],
        codingPath: [CodingKey] = [],
-       dateFormatter: DateFormatter)
+       dateFormatters: [DateFormatter])
   {
     self.metadata = metadata
     self.codingPath = codingPath
-    self.dateFormatter = dateFormatter
+    self.dateFormatters = dateFormatters
   }
 
   func container<T: CodingKey>(
@@ -38,7 +38,7 @@ final class MetadataDecoder: Decoder {
     let container = KeyedContainer<T>(
       metadata: metadata,
       codingPath: codingPath,
-      dateFormatter: dateFormatter
+      dateFormatters: dateFormatters
     )
 
     keyedContainers[typeID] = container
@@ -79,17 +79,17 @@ private extension MetadataDecoder {
     let keys: KeyMap<Key>
     let codingPath: [CodingKey]
     let prefix: String
-    let dateFormatter: DateFormatter
+    let dateFormatters: [DateFormatter]
 
     init(metadata: [String: String],
          codingPath: [CodingKey],
-         dateFormatter: DateFormatter)
+         dateFormatters: [DateFormatter])
     {
       self.metadata = metadata
       keys = KeyMap(raw: metadata.keys, codingPath: codingPath)
       self.codingPath = codingPath
       prefix = codingPath.asPrefix()
-      self.dateFormatter = dateFormatter
+      self.dateFormatters = dateFormatters
     }
 
     func contains(_ key: Key) -> Bool {
@@ -166,7 +166,7 @@ private extension MetadataDecoder {
       return try T(from: MetadataDecoder(
         metadata: metadata,
         codingPath: codingPath.appending(key),
-        dateFormatter: dateFormatter
+        dateFormatters: dateFormatters
       ))
     }
 
@@ -177,7 +177,7 @@ private extension MetadataDecoder {
       KeyedDecodingContainer(KeyedContainer<T>(
         metadata: metadata,
         codingPath: codingPath.appending(key),
-        dateFormatter: dateFormatter
+        dateFormatters: dateFormatters
       ))
     }
 
@@ -194,7 +194,7 @@ private extension MetadataDecoder {
       MetadataDecoder(
         metadata: metadata,
         codingPath: codingPath,
-        dateFormatter: dateFormatter
+        dateFormatters: dateFormatters
       )
     }
 
@@ -202,7 +202,7 @@ private extension MetadataDecoder {
       MetadataDecoder(
         metadata: metadata,
         codingPath: codingPath.appending(key),
-        dateFormatter: dateFormatter
+        dateFormatters: dateFormatters
       )
     }
 
@@ -245,7 +245,7 @@ private extension MetadataDecoder {
         from: decode(key),
         forKey: key,
         at: codingPath,
-        formatter: dateFormatter
+        formatters: dateFormatters
       )
     }
   }
@@ -639,24 +639,24 @@ private extension Date {
   static func decode(from string: String,
                      forKey key: CodingKey?,
                      at codingPath: [CodingKey],
-                     formatter: DateFormatter) throws -> Self
+                     formatters: [DateFormatter]) throws -> Self
   {
-    guard let date = formatter.date(from: string) else {
-      let formatDescription = formatter.dateFormat.map {
-        " Expected format: \($0)."
-      }
+    let trimmed = string.trimmingCharacters(in: .whitespaces)
 
-      throw DecodingError.dataCorrupted(
-        DecodingError.Context(
-          codingPath: key.map(codingPath.appending) ?? codingPath,
-          debugDescription: """
-          Invalid date string.\(formatDescription ?? "")
-          """
-        )
-      )
+    for formatter in formatters {
+      if let date = formatter.date(from: trimmed) {
+        return date
+      }
     }
 
-    return date
+    throw DecodingError.dataCorrupted(
+      DecodingError.Context(
+        codingPath: key.map(codingPath.appending) ?? codingPath,
+        debugDescription: """
+        Invalid date string. Expected a date like 2026-10-22, 2026-10-22 12:07, 2026-10-22T12:07:31 or 2026-10-22T12:07:31+02:00.
+        """
+      )
+    )
   }
 }
 
@@ -709,14 +709,37 @@ private extension Array {
   }
 }
 
-func makeMetadataDecoder(for metadata: [String: String]) -> MetadataDecoder {
-  let dateFormatter = DateFormatter()
-  dateFormatter.dateFormat = "yyyy-MM-dd"
-  dateFormatter.timeZone = .current
+/// All supported date formats: a plain date, or a date and time separated by a space or "T",
+/// with optional seconds, fractional seconds and time zone. Without a time zone, the local time zone is used.
+/// A format only matches the entire string, so at most one format can match; the order (most common first) only affects speed.
+/// Created once and shared, since DateFormatter is expensive to create and thread-safe to use for parsing.
+nonisolated(unsafe) let supportedDateFormatters: [DateFormatter] = {
+  let separators = [" ", "'T'"]
+  let times = ["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS"]
+  let zones = ["", "XXXXX", "XX", " XXXXX", " XX"]
 
+  var formats = ["yyyy-MM-dd"]
+  for separator in separators {
+    for zone in zones {
+      for time in times {
+        formats.append("yyyy-MM-dd\(separator)\(time)\(zone)")
+      }
+    }
+  }
+
+  return formats.map { format in
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = .current
+    formatter.dateFormat = format
+    return formatter
+  }
+}()
+
+func makeMetadataDecoder(for metadata: [String: String]) -> MetadataDecoder {
   return MetadataDecoder(
     metadata: metadata,
-    dateFormatter: dateFormatter
+    dateFormatters: supportedDateFormatters
   )
 }
 

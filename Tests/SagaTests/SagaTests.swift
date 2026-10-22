@@ -360,6 +360,47 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(decoded.url, URL(string: "https://www.example.com"))
   }
 
+  func testMetadataDecoderDateFormats() throws {
+    func date(_ hour: Int = 0, _ minute: Int = 0, _ second: Int = 0, nanosecond: Int = 0, zone: TimeZone = .current) -> Date {
+      var calendar = Calendar(identifier: .gregorian)
+      calendar.timeZone = zone
+      return calendar.date(from: DateComponents(year: 2026, month: 10, day: 22, hour: hour, minute: minute, second: second, nanosecond: nanosecond))!
+    }
+
+    let plus2 = TimeZone(secondsFromGMT: 7200)!
+    let utc = TimeZone(secondsFromGMT: 0)!
+
+    let cases: [(String, Date)] = [
+      ("2026-10-22", date()),
+      ("2026-10-22 12:07", date(12, 7)),
+      ("2026-10-22 12:07:31", date(12, 7, 31)),
+      ("2026-10-22T12:07", date(12, 7)),
+      ("2026-10-22T12:07:31", date(12, 7, 31)),
+      ("2026-10-22T12:07:31.250", date(12, 7, 31, nanosecond: 250_000_000)),
+      ("2026-10-22T12:07:31Z", date(12, 7, 31, zone: utc)),
+      ("2026-10-22T12:07:31+02:00", date(12, 7, 31, zone: plus2)),
+      ("2026-10-22T12:07:31.250+02:00", date(12, 7, 31, nanosecond: 250_000_000, zone: plus2)),
+      ("2026-10-22 12:07:31+02:00", date(12, 7, 31, zone: plus2)),
+      ("2026-10-22 12:07+0200", date(12, 7, zone: plus2)),
+      ("2026-10-22 12:07 +02:00", date(12, 7, zone: plus2)),
+      (" 2026-10-22 12:07 ", date(12, 7)),
+    ]
+
+    for (string, expected) in cases {
+      let decoded = try XCTUnwrap(resolveDate(from: makeMetadataDecoder(for: ["date": string])), string)
+      XCTAssertEqual(decoded.timeIntervalSince1970, expected.timeIntervalSince1970, accuracy: 0.001, string)
+
+      // The order of the formats must not matter: every format that matches has to produce the same date
+      let trimmed = string.trimmingCharacters(in: .whitespaces)
+      let matches = Set(supportedDateFormatters.compactMap { $0.date(from: trimmed) })
+      XCTAssertEqual(matches, [decoded], string)
+    }
+
+    for string in ["22-10-2026", "2026-10-22 25:00", "yesterday", "2026-10-22 12"] {
+      XCTAssertThrowsError(try resolveDate(from: makeMetadataDecoder(for: ["date": string])), string)
+    }
+  }
+
   func testSlugified() {
     XCTAssertEqual("one two".slugified, "one-two")
     XCTAssertEqual("one - two".slugified, "one-two")
