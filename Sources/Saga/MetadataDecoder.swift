@@ -713,7 +713,7 @@ private extension Array {
 /// with optional seconds, fractional seconds and time zone. Without a time zone, the local time zone is used.
 /// A format only matches the entire string, so at most one format can match; the order (most common first) only affects speed.
 /// Created once and shared, since DateFormatter is expensive to create and thread-safe to use for parsing.
-nonisolated(unsafe) let supportedDateFormatters: [DateFormatter] = {
+let supportedDateFormatters: [DateFormatter] = {
   let separators = [" ", "'T'"]
   let times = ["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS"]
   let zones = ["", "XXXXX", "XX", " XXXXX", " XX"]
