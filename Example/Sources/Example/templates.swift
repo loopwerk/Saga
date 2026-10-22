@@ -265,12 +265,7 @@ func renderExifInfo(_ m: ImageMetadata) -> Node {
     ("Exposure", m.exposureTime.map { "\($0)s" }),
     ("ISO", m.iso.map { "\($0)" }),
     ("Flash", m.flash.map { $0 == 0 ? "No" : "Yes" }),
-    ("Dimensions", {
-      if let w = m.pixelXDimension, let h = m.pixelYDimension {
-        return "\(w) x \(h)"
-      }
-      return nil
-    }()),
+    ("Dimensions", "\(m.imageWidth) x \(m.imageHeight)"),
     ("Software", m.software),
     ("Date", m.dateTimeOriginal),
     ("Altitude", m.gpsAltitude.map { "\($0)m" }),
