@@ -189,7 +189,6 @@ Saga requires Swift 6.0+ and runs on macOS 14+ and Linux.
 - [binaryadventures.eu](https://www.binaryadventures.eu) ([source](https://codeberg.org/SpacyRicochet/binaryadventures-eu))
 - [rychillie.net](https://rychillie.pages.dev) ([source](https://github.com/Rychillie/Rychillie.net))
 - [ios-blueprint.vercel.app](https://ios-blueprint.vercel.app/) ([source](https://github.com/luizmellodev/Blueprint/tree/main/Website))
-- [bolhoed.net](https://www.bolhoed.net) ([source](https://github.com/kevinrenskers/bolhoed.net))
 
 Is your website built with Saga? Send a pull request to add it to the list!
 
