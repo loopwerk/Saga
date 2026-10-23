@@ -36,7 +36,7 @@ class FolderMonitor {
     // Check for new or modified files
     for (path, modDate) in currentFiles {
       if let previousDate = knownFiles[path] {
-        if modDate > previousDate {
+        if modDate != previousDate {
           changedPaths.insert(path)
         }
       } else {
