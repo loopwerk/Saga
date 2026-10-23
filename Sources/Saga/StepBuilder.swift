@@ -370,7 +370,7 @@ public class StepBuilder: @unchecked Sendable {
     steps.append(PipelineStep(
       read: { _ in [] },
       write: { [workingPath] saga in
-        let fullOutput = workingPath + output
+        let fullOutput = workingPath + output.relativeToOutput
         let context = PageRenderingContext(
           allItems: saga.allItems,
           outputPath: fullOutput,
@@ -411,7 +411,7 @@ public class StepBuilder: @unchecked Sendable {
       write: { [workingPath] saga in
         guard let i18n = saga.i18nConfig else {
           // No i18n configured — behave like regular createPage
-          let fullOutput = workingPath + output
+          let fullOutput = workingPath + output.relativeToOutput
           let context = PageRenderingContext(
             allItems: saga.allItems,
             outputPath: fullOutput,
@@ -426,7 +426,7 @@ public class StepBuilder: @unchecked Sendable {
 
         // Compute output paths for all locales, applying localizedOutputFolders
         let localePaths = i18n.locales.reduce(into: [SagaLocale: Path]()) { into, locale in
-          let localizedOutput = saga.applyLocalizedOutputFolders(to: workingPath + output, locale: locale)
+          let localizedOutput = saga.applyLocalizedOutputFolders(to: workingPath + output.relativeToOutput, locale: locale)
           let prefix = i18n.shouldPrefix(locale: locale) ? Path(locale) : Path("")
           into[locale] = prefix + localizedOutput
         }

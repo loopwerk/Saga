@@ -101,7 +101,7 @@ public extension Writer {
           outputPath: $3,
           subfolder: writerContext.subfolder,
           locale: writerContext.locale,
-          translations: writerContext.translatedURLs(for: output)
+          translations: writerContext.translatedURLs(for: output.relativeToOutput)
         )
       }
     }
@@ -225,6 +225,9 @@ private extension Writer {
     paginatedOutput: Path,
     getRenderContext: @escaping @Sendable ([Item<M>], [AnyItem], Paginator?, Path) -> RenderContext
   ) async throws {
+    let output = output.relativeToOutput
+    let paginatedOutput = paginatedOutput.relativeToOutput
+
     if let perPage = paginate {
       let ranges = writerContext.items.chunked(into: perPage)
       let numberOfPages = ranges.count

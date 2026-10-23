@@ -564,6 +564,41 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(writtenPages.values, [WrittenPage(destination: "root/output/search/index.html", content: "search/index.html")])
   }
 
+  func testCreatePageWithLeadingSlash() async throws {
+    let writtenPages = Recorder<WrittenPage>()
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in [] }
+    mock.write = writtenPages.record
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .createPage("/feeds/index.html") { context in
+        "\(context.outputPath)"
+      }
+      .run()
+
+    XCTAssertEqual(writtenPages.values, [WrittenPage(destination: "root/output/feeds/index.html", content: "feeds/index.html")])
+  }
+
+  func testListWriterWithLeadingSlash() async throws {
+    let writtenPages = Recorder<WrittenPage>()
+
+    var mock = FileIO.mock
+    mock.write = writtenPages.record
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .listWriter({ context in "\(context.outputPath)" }, output: "/list.html"),
+        ]
+      )
+      .run()
+
+    XCTAssertEqual(writtenPages.values, [WrittenPage(destination: "root/output/list.html", content: "list.html")])
+  }
+
   func testHash() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

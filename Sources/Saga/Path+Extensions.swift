@@ -39,6 +39,12 @@ public extension Path {
     return Path(String(string[index...]).removingPrefix("/"))
   }
 
+  /// The path with its leading slash removed, so that a user-supplied output path like
+  /// `/index.html` is treated as relative to the output folder instead of the filesystem root.
+  internal var relativeToOutput: Path {
+    Path(string.removingPrefix("/"))
+  }
+
   func resolveSwiftPackageFolder() throws -> Path {
     var nextFolder = parent()
 
