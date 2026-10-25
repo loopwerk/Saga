@@ -963,6 +963,37 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(feed.contains("<updated>2024-01-01T12:00:00Z</updated>"))
   }
 
+  func testAtomFeedLimit() throws {
+    let items = [
+      Item(title: "New", body: "<p>new</p>", date: Date(timeIntervalSince1970: 1_735_729_200), metadata: EmptyMetadata()),
+      Item(title: "Middle", body: "<p>middle</p>", date: Date(timeIntervalSince1970: 1_720_000_000), metadata: EmptyMetadata()),
+      Item(title: "Old", body: "<p>old</p>", date: Date(timeIntervalSince1970: 1_704_106_800), metadata: EmptyMetadata()),
+    ]
+
+    func entryCount(_ feed: String) -> Int {
+      feed.components(separatedBy: "<entry>").count - 1
+    }
+
+    let feed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+      limit: 2
+    )(FeedContext(items: items, outputPath: "feed.xml"))
+    XCTAssertEqual(entryCount(feed), 2)
+    XCTAssertFalse(feed.contains("<title>Old</title>"))
+
+    // The limit applies after sorting, so the oldest item is the one left out.
+    let mixedFeed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+      filter: { _ in true },
+      limit: 2,
+      date: \.date
+    )(PageRenderingContext(allItems: items.reversed(), outputPath: "feed.xml", locale: nil, translations: [:], generatedPages: [:]))
+    XCTAssertEqual(entryCount(mixedFeed), 2)
+    XCTAssertFalse(mixedFeed.contains("<title>Old</title>"))
+  }
+
   func testAtomFeedOfMixedItemTypes() throws {
     let context = PageRenderingContext(
       allItems: [

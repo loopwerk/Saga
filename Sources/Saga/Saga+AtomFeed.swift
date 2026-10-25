@@ -13,7 +13,7 @@ import SagaPathKit
 
 public extension Saga {
   /// A renderer which creates an Atom feed for Items.
-  @available(*, deprecated, message: "Use atomFeed(title:author:baseURL:itemTitle:summary:image:date:) instead, which takes a closure (or a keypath like \\.date)")
+  @available(*, deprecated, message: "Use atomFeed(title:author:baseURL:limit:itemTitle:summary:image:date:) instead, which takes a closure (or a keypath like \\.date)")
   @_documentation(visibility: private)
   @preconcurrency
   static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, itemTitle: (@Sendable (Item<Context.M>) -> String)? = nil, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<Context.M>, Date>) -> (@Sendable (_ context: Context) -> String) {
@@ -29,17 +29,18 @@ public extension Saga {
   ///   - title: The title of the feed, usually your site title. Example: Loopwerk.io.
   ///   - author: The author of the articles.
   ///   - baseURL: The base URL of your website, for example https://www.loopwerk.io.
+  ///   - limit: The maximum number of items in the feed, taken from the start of the context's items. Defaults to `nil`, which includes all items.
   ///   - itemTitle: An optional function which takes an `Item` and returns the title to use for its entry. Defaults to the item's `title`. Useful when feed titles should differ from the parsed title, for example when applying an SEO title policy or stripping Markdown emphasis markers.
   ///   - summary: An optional function which takes an `Item` and returns its summary.
   ///   - image: An optional function which takes an `Item` and returns its image URL (absolute or relative to baseURL).
   ///   - date: A function which takes an `Item` and returns the date to use for the <updated> field. Defaults to `lastModified`. A keypath like `\.date` works too.
   /// - Returns: A function which takes a rendering context, and returns a string.
   @preconcurrency
-  static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, itemTitle: (@Sendable (Item<Context.M>) -> String)? = nil, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, date: @escaping @Sendable (Item<Context.M>) -> Date = { $0.lastModified }) -> (@Sendable (_ context: Context) -> String) {
+  static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, limit: Int? = nil, itemTitle: (@Sendable (Item<Context.M>) -> String)? = nil, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, date: @escaping @Sendable (Item<Context.M>) -> Date = { $0.lastModified }) -> (@Sendable (_ context: Context) -> String) {
     // The feed only gets this context's items, which are all Item<Context.M>, so these casts can't fail
     return { context in
       atomFeedXML(
-        title: title, author: author, baseURL: baseURL, outputPath: context.outputPath, items: context.items,
+        title: title, author: author, baseURL: baseURL, outputPath: context.outputPath, items: context.items, limit: limit,
         itemTitle: { itemTitle?($0 as! Item<Context.M>) },
         summary: { summary?($0 as! Item<Context.M>) },
         image: { image?($0 as! Item<Context.M>) },
@@ -67,22 +68,23 @@ public extension Saga {
   ///   - baseURL: The base URL of your website, for example https://www.loopwerk.io.
   ///   - filter: A function which decides which of all items are included in the feed.
   ///   - sorting: An optional comparison function used to sort the included items. Defaults to newest first by `date`.
+  ///   - limit: The maximum number of items in the feed, applied after sorting. Defaults to `nil`, which includes all items.
   ///   - itemTitle: An optional function which takes an item and returns the title to use for its entry. Defaults to the item's `title`.
   ///   - summary: An optional function which takes an item and returns its summary.
   ///   - image: An optional function which takes an item and returns its image URL (absolute or relative to baseURL).
   ///   - date: A function which takes an item and returns the date to use for the <updated> field. Defaults to `lastModified`. A keypath like `\.date` works too.
   /// - Returns: A function which takes a page rendering context, and returns a string.
   @preconcurrency
-  static func atomFeed(title: String, author: String? = nil, baseURL: URL, filter: @escaping @Sendable (AnyItem) -> Bool, sorting: (@Sendable (AnyItem, AnyItem) -> Bool)? = nil, itemTitle: (@Sendable (AnyItem) -> String)? = nil, summary: (@Sendable (AnyItem) -> String?)? = nil, image: (@Sendable (AnyItem) -> String?)? = nil, date: @escaping @Sendable (AnyItem) -> Date = { $0.lastModified }) -> (@Sendable (_ context: PageRenderingContext) -> String) {
+  static func atomFeed(title: String, author: String? = nil, baseURL: URL, filter: @escaping @Sendable (AnyItem) -> Bool, sorting: (@Sendable (AnyItem, AnyItem) -> Bool)? = nil, limit: Int? = nil, itemTitle: (@Sendable (AnyItem) -> String)? = nil, summary: (@Sendable (AnyItem) -> String?)? = nil, image: (@Sendable (AnyItem) -> String?)? = nil, date: @escaping @Sendable (AnyItem) -> Date = { $0.lastModified }) -> (@Sendable (_ context: PageRenderingContext) -> String) {
     let sorting = sorting ?? { date($0) > date($1) }
 
     return { context in
-      atomFeedXML(title: title, author: author, baseURL: baseURL, outputPath: context.outputPath, items: context.allItems.filter(filter).sorted(by: sorting), itemTitle: { itemTitle?($0) }, summary: { summary?($0) }, image: { image?($0) }, date: date)
+      atomFeedXML(title: title, author: author, baseURL: baseURL, outputPath: context.outputPath, items: context.allItems.filter(filter).sorted(by: sorting), limit: limit, itemTitle: { itemTitle?($0) }, summary: { summary?($0) }, image: { image?($0) }, date: date)
     }
   }
 }
 
-private func atomFeedXML(title: String, author: String?, baseURL: URL, outputPath: Path, items: [AnyItem], itemTitle: (AnyItem) -> String?, summary: (AnyItem) -> String?, image: (AnyItem) -> String?, date: (AnyItem) -> Date) -> String {
+private func atomFeedXML(title: String, author: String?, baseURL: URL, outputPath: Path, items: [AnyItem], limit: Int?, itemTitle: (AnyItem) -> String?, summary: (AnyItem) -> String?, image: (AnyItem) -> String?, date: (AnyItem) -> Date) -> String {
   let RFC3339_DF = ISO8601DateFormatter()
   // Create the root element
   let rootElement = XMLElement(name: "feed")
@@ -114,7 +116,7 @@ private func atomFeedXML(title: String, author: String?, baseURL: URL, outputPat
   rootElement.addChild(updatedElement)
 
   // add entries to feed
-  for item in items {
+  for item in items.prefix(limit ?? .max) {
     // create entry element
     let entryElement = XMLElement(name: "entry")
 
