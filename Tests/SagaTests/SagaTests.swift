@@ -367,8 +367,8 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       return calendar.date(from: DateComponents(year: 2026, month: 10, day: 22, hour: hour, minute: minute, second: second, nanosecond: nanosecond))!
     }
 
-    let plus2 = TimeZone(secondsFromGMT: 7200)!
-    let utc = TimeZone(secondsFromGMT: 0)!
+    let plus2 = try XCTUnwrap(TimeZone(secondsFromGMT: 7200))
+    let utc = try XCTUnwrap(TimeZone(secondsFromGMT: 0))
 
     let cases: [(String, Date)] = [
       ("2026-10-22", date()),
@@ -945,6 +945,63 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     )(context)
     XCTAssertTrue(customFeed.contains("<title>A great title</title>"))
     XCTAssertTrue(customFeed.contains("<title>Test Site</title>"), "The feed-level title is unaffected.")
+  }
+
+  func testAtomFeedDate() throws {
+    let context = FeedContext(
+      items: [
+        Item(title: "Title", body: "<p>body</p>", date: Date(timeIntervalSince1970: 1_704_106_800), metadata: EmptyMetadata()),
+      ],
+      outputPath: "feed.xml"
+    )
+
+    let feed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+      date: { $0.date.addingTimeInterval(3600) }
+    )(context)
+    XCTAssertTrue(feed.contains("<updated>2024-01-01T12:00:00Z</updated>"))
+  }
+
+  func testAtomFeedOfMixedItemTypes() throws {
+    let context = PageRenderingContext(
+      allItems: [
+        Item(title: "Old article", body: "<p>old</p>", date: Date(timeIntervalSince1970: 1_704_106_800), metadata: TaggedMetadata(tags: ["swift"])),
+        Item(title: "New article", body: "<p>new</p>", date: Date(timeIntervalSince1970: 1_735_729_200), metadata: TaggedMetadata(tags: [])),
+        Item(title: "Middle photo", body: "<img>", date: Date(timeIntervalSince1970: 1_720_000_000), metadata: EmptyMetadata()),
+      ],
+      outputPath: "feed.xml",
+      locale: nil,
+      translations: [:],
+      generatedPages: [:]
+    )
+
+    func entryTitles(_ feed: String) -> [String] {
+      feed.components(separatedBy: "<entry>").dropFirst().compactMap {
+        $0.components(separatedBy: "<title>").dropFirst().first?.components(separatedBy: "</title>").first
+      }
+    }
+
+    // By default the filtered items are sorted newest first by `date`.
+    let defaultFeed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+      filter: { _ in true },
+      summary: { ($0 as? Item<TaggedMetadata>)?.metadata.tags.first },
+      date: \.date
+    )(context)
+    XCTAssertEqual(entryTitles(defaultFeed), ["New article", "Middle photo", "Old article"])
+    XCTAssertTrue(defaultFeed.contains("<summary>swift</summary>"))
+    XCTAssertTrue(defaultFeed.contains("<updated>2025-01-01T11:00:00Z</updated>"))
+
+    // filter picks the items, sorting overrides the order.
+    let customFeed = Saga.atomFeed(
+      title: "Test Site",
+      baseURL: try XCTUnwrap(URL(string: "https://example.com")),
+      filter: { $0 is Item<TaggedMetadata> },
+      sorting: { $0.date < $1.date }
+    )(context)
+    XCTAssertEqual(entryTitles(customFeed), ["Old article", "New article"])
   }
 
   func testFilesCreatedDuringTheBuildAreRead() async throws {
