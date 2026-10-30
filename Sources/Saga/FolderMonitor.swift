@@ -1,13 +1,20 @@
 import Foundation
 import SagaPathKit
+#if canImport(CoreServices)
+  import CoreServices
+#endif
 
 class FolderMonitor {
   private let callback: (Set<Path>) -> Void
   private let ignoredPatterns: [String]
   private let basePath: Path
   private let paths: [Path]
+  private let queue = DispatchQueue(label: "Saga.FolderMonitor")
   private var knownFiles: [Path: Date] = [:]
   private var timer: DispatchSourceTimer?
+  #if canImport(CoreServices)
+    private var stream: FSEventStreamRef?
+  #endif
 
   init(paths: [Path], ignoredPatterns: [String] = [], folderDidChange: @escaping (Set<Path>) -> Void) {
     self.paths = paths
@@ -18,15 +25,49 @@ class FolderMonitor {
     // Take initial snapshot
     knownFiles = scanFiles()
 
-    // Poll for changes every second
-    let timer = DispatchSource.makeTimerSource(queue: DispatchQueue(label: "Saga.FolderMonitor"))
-    timer.schedule(deadline: .now() + 1, repeating: 1.0)
+    // FSEvents only says that something changed; the snapshot diff decides what.
+    // The timer catches anything FSEvents drops.
+    #if canImport(CoreServices)
+      startEventStream()
+      let pollInterval = 10.0
+    #else
+      let pollInterval = 1.0
+    #endif
+
+    let timer = DispatchSource.makeTimerSource(queue: queue)
+    timer.schedule(deadline: .now() + pollInterval, repeating: pollInterval)
     timer.setEventHandler { [weak self] in
       self?.checkForChanges()
     }
     timer.resume()
     self.timer = timer
   }
+
+  #if canImport(CoreServices)
+    private func startEventStream() {
+      var context = FSEventStreamContext()
+      context.info = Unmanaged.passUnretained(self).toOpaque()
+
+      let flags = UInt32(kFSEventStreamCreateFlagFileEvents)
+
+      guard let stream = FSEventStreamCreate(
+        nil,
+        { _, info, _, _, _, _ in
+          guard let info else { return }
+          Unmanaged<FolderMonitor>.fromOpaque(info).takeUnretainedValue().checkForChanges()
+        },
+        &context,
+        paths.map { $0.absolute().string } as CFArray,
+        FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
+        0.2,
+        flags
+      ) else { return }
+
+      FSEventStreamSetDispatchQueue(stream, queue)
+      FSEventStreamStart(stream)
+      self.stream = stream
+    }
+  #endif
 
   private func checkForChanges() {
     let currentFiles = scanFiles()
@@ -60,21 +101,27 @@ class FolderMonitor {
 
   private func scanFiles() -> [Path: Date] {
     var result: [Path: Date] = [:]
+    let keys: Set<URLResourceKey> = [.isRegularFileKey, .contentModificationDateKey]
 
     for watchPath in paths {
-      guard let children = try? watchPath.recursiveChildren() else { continue }
+      guard let enumerator = FileManager.default.enumerator(
+        at: URL(fileURLWithPath: watchPath.string),
+        includingPropertiesForKeys: Array(keys)
+      ) else { continue }
 
-      for fullPath in children {
-        guard fullPath.isFile else { continue }
+      for case let url as URL in enumerator {
+        guard let values = try? url.resourceValues(forKeys: keys),
+              values.isRegularFile == true,
+              let modDate = values.contentModificationDate
+        else { continue }
 
+        let fullPath = Path(url.path)
         let relativePath = (try? fullPath.relativePath(from: basePath)) ?? fullPath
         if Self.matchesGlobPattern(relativePath, patterns: ignoredPatterns) {
           continue
         }
 
-        if let modDate = fullPath.modificationDate {
-          result[fullPath] = modDate
-        }
+        result[fullPath] = modDate
       }
     }
 
@@ -96,5 +143,12 @@ class FolderMonitor {
 
   deinit {
     timer?.cancel()
+    #if canImport(CoreServices)
+      if let stream {
+        FSEventStreamStop(stream)
+        FSEventStreamInvalidate(stream)
+        FSEventStreamRelease(stream)
+      }
+    #endif
   }
 }
