@@ -12,7 +12,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/loopwerk/SagaPathKit", from: "1.6.1"),
-    .package(url: "https://github.com/apple/swift-crypto", from: "3.0.0"),
+    .package(url: "https://github.com/apple/swift-crypto", "3.0.0" ..< "6.0.0"),
   ],
   targets: [
     .target(
