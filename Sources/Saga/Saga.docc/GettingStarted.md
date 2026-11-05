@@ -4,7 +4,7 @@ An overview of how to configure Saga to render your pages and articles.
 
 
 ## Overview
-Let's start with the most basic example: rendering all Markdown files to HTML.
+Let's start with the most basic example: rendering all Markdown files to HTML. This code goes in your project's `main.swift` file.
 
 ```swift
 import Saga
@@ -87,48 +87,34 @@ Any other frontmatter properties can be parsed using strongly typed metadata (se
 
 
 ## Custom metadata
-Saga can deal with custom metadata contained within frontmatter blocks - even multiple types of metadata for different kinds of pages.
+Articles usually need more than a title and a body, like tags and a summary. You add these to the frontmatter, and describe them in Swift with a type that conforms to ``Metadata``.
 
-Let's look at an example Markdown article, `/content/articles/first-article.md`:
-
-```text
----
-tags: article, news
-summary: This is the summary of the first article
-date: 2020-01-01
----
-# Hello world
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-```
-
-And an example app for a portfolio, `/content/apps/lastfm.md`:
+Here's an article, `content/articles/hello-world.md`:
 
 ```text
 ---
-url: https://itunes.apple.com/us/app/last-fm-scrobbler/id1188681944?ls=1&mt=8
-images: lastfm_1.jpg, lastfm_2.jpg
+tags: swift, saga
+summary: The very first article on my new website.
+date: 2026-01-12
 ---
-# Last.fm Scrobbler
-"Get the official Last.fm Scrobbler App to keep track of what you're listening to on Apple Music. Check out your top artist, album and song charts from all-time to last week, and watch videos of your favourite tracks."
+# Hello, world
+Welcome to my new website!
 ```
 
-As you can see, they both use different metadata: the article has `tags`, a `summary` and a `date`, while the app has a `url` and `images`.
-
-Let's configure Saga to render these files.
+Its metadata type has a property for each custom frontmatter field. Comma-separated values like the tags are decoded into an array. Saga handles `title`, `date` and `slug` itself, so those don't belong in your metadata type.
 
 ```swift
-// Define our custom Metadata
 struct ArticleMetadata: Metadata {
   let tags: [String]
   let summary: String?
 }
+```
 
-struct AppMetadata: Metadata {
-  let url: URL?
-  let images: [String]?
-}
+Articles can leave out optional properties like `summary`. When a file is missing a required property, Saga logs a warning and skips the file.
 
-// Which we then use in our Saga pipeline
+Now register a step for the `articles` folder that uses this metadata type:
+
+```swift
 try await Saga(input: "content", output: "deploy")
   // All Markdown files within the "articles" subfolder will be parsed to html,
   // using `ArticleMetadata` as the item's metadata type.
@@ -138,23 +124,8 @@ try await Saga(input: "content", output: "deploy")
     readers: [.parsleyMarkdownReader],
     writers: [
       .itemWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles), paginate: 20),
-      .tagWriter(swim(renderTag), tags: \.metadata.tags),
-      .yearWriter(swim(renderYear)),
-
-      // Atom feed for all articles, and a feed per tag
-      .listWriter(swim(renderFeed), output: "feed.xml"),
-      .tagWriter(swim(renderTagFeed), output: "tag/[key]/feed.xml", tags: \.metadata.tags),
+      .listWriter(swim(renderArticles)),
     ]
-  )
-
-  // All Markdown files within the "apps" subfolder will be parsed to html,
-  // using `AppMetadata` as the item's metadata type.
-  .register(
-    folder: "apps",
-    metadata: AppMetadata.self,
-    readers: [.parsleyMarkdownReader],
-    writers: [.listWriter(swim(renderApps))]
   )
 
   // All the remaining Markdown files will be parsed to html,
@@ -164,25 +135,98 @@ try await Saga(input: "content", output: "deploy")
     writers: [.itemWriter(swim(renderPage))]
   )
 
-  // Run the steps we registered above.
   .run()
 ```
 
-While that might look a bit overwhelming, it should be easy to follow what each `register` step does, each operating on a set of files in a subfolder and processing them in different ways.
+The item writer writes a page for every article, and the list writer writes a single page that lists all of them, at `articles/index.html`.
+
+> Important: Steps run in the order you register them, and each step claims the files it reads, so later steps don't see them. That's why the step without a folder comes last: it handles all the remaining Markdown files. If it came first, it would render your articles as plain pages.
+
+The templates have typed access to the metadata. `renderArticle` receives an ``ItemRenderingContext`` with a single article, and `renderArticles` an ``ItemsRenderingContext`` with all articles, newest first:
+
+```swift
+func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
+  html(lang: "en-US") {
+    body {
+      article {
+        h1 { context.item.title }
+        p { "Tagged: \(context.item.metadata.tags.joined(separator: ", "))" }
+        Node.raw(context.item.body)
+      }
+    }
+  }
+}
+
+func renderArticles(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
+  html(lang: "en-US") {
+    body {
+      h1 { "Articles" }
+      context.items.map { article in
+        div {
+          h2 {
+            a(href: article.url) { article.title }
+          }
+          if let summary = article.metadata.summary {
+            p { summary }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Swim's builders don't support `for` loops, so use `map` to turn each article into HTML.
+
+> Tip: These templates repeat the same HTML shell. See <doc:ReusableHTMLLayouts> to move it into a shared base layout.
+
+Every step can have its own metadata type. A portfolio in `content/apps`, for example, could use an `AppMetadata` type with a `url` and `images`, while your articles keep using `ArticleMetadata`.
+
+
+## Writers
+The articles step above uses two kinds of writers, but Saga has four. Each writer takes a render function responsible for turning an item (or an array of items) into a string.
+
+- `itemWriter` writes a single item to a single file. For example `content/articles/my-article.md` will be written to `deploy/articles/my-article/index.html`, or `content/index.md` to `deploy/index.html`.
+- `listWriter` writes an array of items to one or multiple files (depending on pagination). For example to create an `deploy/articles/index.html` page that lists all your articles.
+- `tagWriter` writes an array of items to multiple files, based on a tag. If you tag your articles you can use this to render tag pages like `deploy/articles/tag/swift/index.html`.
+- `yearWriter` is similar to `tagWriter` but uses the publication date of the item. You can use this to create year-based archives of your articles, for example `deploy/articles/2022/index.html`.
+
+For example, this adds tag pages, year archives, and an Atom feed to the articles step:
+
+```swift
+.register(
+  folder: "articles",
+  metadata: ArticleMetadata.self,
+  readers: [.parsleyMarkdownReader],
+  writers: [
+    .itemWriter(swim(renderArticle)),
+    .listWriter(swim(renderArticles)),
+    .tagWriter(swim(renderTag), tags: \.metadata.tags),
+    .yearWriter(swim(renderYear)),
+    .listWriter(
+      Saga.atomFeed(
+        title: "My Website - Articles",
+        author: "Your Name",
+        baseURL: URL(string: "https://www.example.com")!,
+        summary: \.metadata.summary
+      ),
+      output: "feed.xml"
+    ),
+  ]
+)
+```
+
+The tag and year templates receive a ``PartitionedRenderingContext``, whose `key` is the tag or the year. Output paths are relative to the step's folder, so the feed is written to `articles/feed.xml`. See <doc:CustomFeedFormats> for other feed formats.
+
+For more information, please check out ``Writer``.
+
+
+## Next steps
+- <doc:ReusableHTMLLayouts>: share one HTML shell between all your templates.
+- <doc:AdvancedUsage>: change items with item processors, create pages that don't come from a Markdown file (like a 404 page), and run code before or after each build.
+- <doc:GeneratingSitemaps>: tell search engines about your pages.
+- <doc:TailwindCSS>: compile Tailwind CSS as part of your build.
 
 Please check out the [Example project](https://github.com/loopwerk/Saga/blob/main/Example) for a more complete picture of Saga. The example project contains articles with tags and pagination, an app portfolio, static pages, RSS feeds for all articles and per tag, statically typed HTML templates, and more.
 
 You can also check the source code of [loopwerk.io](https://github.com/loopwerk/loopwerk.io) or [getsaga.dev](https://github.com/loopwerk/getsaga.dev), both of which are completely built with Saga.
-
-
-## Writers
-In the custom metadata example above, you can see that the articles step uses four different kinds of writers: `itemWriter`, `listWriter`, `tagWriter`, and `yearWriter`. Each writer takes a render function responsible for turning an item (or an array of items) into an HTML string.
-
-The four different writers are all used for different purposes:
-
-- `itemWriter` writes a single item to a single file. For example `content/articles/my-article.md` will be written to `deploy/articles/my-article/index.html`, or `content/index.md` to `deploy/index.html`.
-- `listWriter` writes an array of items to one or multiple files (depending on pagination). For example to create an `deploy/articles/index.html` page that lists all your articles.
-- `tagWriter` writes an array of items to multiple files, based on a tag. If you tag your articles you can use this to render tag pages like `deploy/articles/iOS/index.html`.
-- `yearWriter` is similar to `tagWriter` but uses the publication date of the item. You can use this to create year-based archives of your articles, for example `deploy/articles/2022/index.html`.
-
-For more information, please check out ``Writer``.

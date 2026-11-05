@@ -60,6 +60,23 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
+A processor can also fill in metadata that doesn't come from the frontmatter. Declare the property as an optional `var`, so the processor can set it and the frontmatter doesn't need it:
+
+```swift
+struct ArticleMetadata: Metadata {
+  let tags: [String]
+  var readingTime: Int?
+}
+
+func addReadingTime(item: Item<ArticleMetadata>) {
+  guard let markdown: String = try? item.absoluteSource.read() else { return }
+  let words = markdown.split { $0.isWhitespace }.count
+  item.metadata.readingTime = max(1, words / 200)
+}
+```
+
+Templates can then use `item.metadata.readingTime` like any other metadata.
+
 Chain multiple processors with ``Saga/sequence(_:)``:
 
 ```swift

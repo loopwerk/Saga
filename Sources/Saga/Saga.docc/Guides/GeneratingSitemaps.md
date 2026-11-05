@@ -30,7 +30,16 @@ The sitemap includes every page: individual articles, list pages, and the homepa
 
 ## Filtering pages
 
-Use the `filter` parameter to exclude pages that don't belong in a sitemap.
+Use the `filter` parameter to exclude pages that don't belong in a sitemap. The sitemap includes every file written by the steps before it, including feeds like `feed.xml`, so this keeps only the HTML pages:
+
+```swift
+.createPage("sitemap.xml", using: Saga.sitemap(
+  baseURL: URL(string: "https://example.com")!,
+  filter: { path, _ in path.extension == "html" }
+))
+```
+
+The filter also receives the item that produced the page, if there is one, so you can exclude pages based on their metadata:
 
 ```swift
 try await Saga(input: "content", output: "deploy")

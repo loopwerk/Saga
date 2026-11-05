@@ -43,7 +43,7 @@ This scaffolds a complete project with articles, tags, Swim templates, and a sty
 
 ## Manual setup
 
-If you prefer to set things up yourself, create a new folder and inside of it run `swift package init --type executable`, and then `open Package.swift`. Edit Package.swift to add the Saga dependency, plus a reader and optionally a renderer (see <doc:Architecture>), so that it looks something like this:
+If you prefer to set things up yourself, create a new folder with a `Package.swift` file that adds the Saga dependency, plus a reader and optionally a renderer (see <doc:Architecture>):
 
 ```swift
 // swift-tools-version:6.0
@@ -73,7 +73,7 @@ let package = Package(
 )
 ```
 
-Now you can `import Saga` and use it. You can continue with the <doc:GettingStarted> document on how to get started.
+Then create an empty `Sources/MyWebsite/main.swift` file. This is where your Saga code goes. You can continue with the <doc:GettingStarted> document on how to get started.
 
 
 ## System requirements
