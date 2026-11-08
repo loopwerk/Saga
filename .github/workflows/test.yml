@@ -9,11 +9,11 @@ on:
       - "*"
 
 jobs:
-  test-xcode:
+  test-macos:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
@@ -24,6 +24,18 @@ jobs:
 
   test-linux:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build
+        run: swift build -v
+      - name: Run tests
+        run: swift test -v
+
+  # Swift 6.0 is the minimum set by `swift-tools-version` in Package.swift.
+  test-linux-swift-6-0:
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - name: Build
