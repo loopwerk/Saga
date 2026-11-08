@@ -31,7 +31,7 @@ jobs:
       - name: Run tests
         run: swift test -v
 
-  # Swift 6.0 is the minimum set by `swift-tools-version` in Package.swift.
+  # Swift 6.0 is the minimum, so specifically test that as well
   test-linux-swift-6-0:
     runs-on: ubuntu-latest
     container: swift:6.0
