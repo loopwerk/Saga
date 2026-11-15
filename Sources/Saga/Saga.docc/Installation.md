@@ -56,7 +56,7 @@ let package = Package(
     .macOS(.v14)
   ],
   dependencies: [
-    .package(url: "https://github.com/loopwerk/Saga", from: "3.0.0"),
+    .package(url: "https://github.com/loopwerk/Saga", from: "4.0.0"),
     .package(url: "https://github.com/loopwerk/SagaParsleyMarkdownReader", from: "1.0.0"),
     .package(url: "https://github.com/loopwerk/SagaSwimRenderer", from: "1.0.0"),
   ],

@@ -1,3 +1,38 @@
+# Migrating to Saga 4
+
+Saga 4 adds item resources, and removes the APIs that were deprecated in Saga 3.
+
+## What's new
+
+* Item resources. Files next to an item, such as images, are available as ``Item/resources``. See <doc:AdvancedUsage#Item-resources>.
+
+
+## Breaking changes
+
+> Important: These changes will require updates to your code.
+
+* `metadata:` is required. Saga's default for this parameter relies on behavior that a future Swift language mode will turn into an error, so every `register` call now needs an explicit `metadata:` argument. Pass `EmptyMetadata.self` where you relied on the default.
+* `ItemRenderingContext.resources` is removed. Use `context.item.resources` instead. Each resource is a ``Resource`` rather than a path, so link to it with its ``Resource/url``.
+* Deprecated APIs are removed:
+  * `ignore(_:)`: use ``Saga/ignoreChanges(_:)``.
+  * `register(write:)`: use ``Saga/afterRead(_:)`` or ``Saga/afterWrite(_:)``.
+  * `sitemap(baseURL:filter:)` with a `(Path) -> Bool` filter: use ``Saga/sitemap(baseURL:filter:)``, whose filter also receives the item, `(Path, AnyItem?) -> Bool`.
+  * `atomFeed(…, dateKeyPath:)`: use ``Saga/atomFeed(title:author:baseURL:limit:itemTitle:summary:image:date:)``, which takes a closure or a key path like `\.date`.
+
+
+## Update your dependencies
+
+In your `Package.swift`, bump the Saga dependency:
+
+```swift
+// Before
+.package(url: "https://github.com/loopwerk/Saga", from: "3.0.0"),
+
+// After
+.package(url: "https://github.com/loopwerk/Saga", from: "4.0.0"),
+```
+
+
 # Migrating to Saga 3
 
 Saga 3 brings faster builds, a smarter dev server, and first-class internationalization support.
@@ -14,7 +49,7 @@ Saga 3 brings faster builds, a smarter dev server, and first-class international
 
 > Important: These changes will require updates to your code.
 
-* **CLI flags removed**. The `--watch`, `--output`, and `--ignore` flags are gone from `saga dev`. Use ``Saga/ignore(_:)`` in code instead.
+* **CLI flags removed**. The `--watch`, `--output`, and `--ignore` flags are gone from `saga dev`. Use ``Saga/ignoreChanges(_:)`` in code instead.
 * **Pre/post pipeline code must move to hooks**. Code that ran before or after your pipeline must be wrapped in ``Saga/beforeRead(_:)`` and ``Saga/afterWrite(_:)``, since the pipeline now runs multiple times during `saga dev`.
 
 
@@ -59,7 +94,7 @@ $ swift package experimental-install
 
 The `--watch`, `--output`, and `--ignore` flags have been removed from `saga dev`. Saga itself now handles file watching and uses the input and output folders automatically.
 
-If you were using `--ignore`, use ``Saga/ignore(_:)`` in your Swift code instead:
+If you were using `--ignore`, use ``Saga/ignoreChanges(_:)`` in your Swift code instead:
 
 ```swift
 // Before (saga-cli 1.x)
