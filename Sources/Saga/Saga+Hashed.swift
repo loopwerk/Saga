@@ -15,8 +15,17 @@ private func setHashFunction(_ fn: ((String) -> String)?) {
   }
 }
 
+/// Insert the hash into the filename: `static/style.css` becomes `static/style-a1b2c3d4.css`.
+private func hashedPath(_ path: Path, hash: String) -> Path {
+  let ext = path.extension ?? ""
+  return path.parent() + Path(path.lastComponentWithoutExtension + "-" + hash + (ext.isEmpty ? "" : ".\(ext)"))
+}
+
 public extension Saga {
   /// Returns a cache-busted file path by inserting a content hash into the filename.
+  ///
+  /// The path is the file's location in the output folder. With i18n that can differ from its
+  /// location in the input folder, for example a resource's `url`.
   ///
   /// ```swift
   /// link(rel: "stylesheet", href: Saga.hashed("/static/output.css"))
@@ -38,15 +47,12 @@ extension Saga {
     setHashFunction { [weak self] path in
       guard let self else { return path }
       let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
-      guard let file = files.first(where: { $0.relativePath.string == stripped }) else {
+      guard let file = files.first(where: { i18nOutputPath(for: $0.relativePath).string == stripped }) else {
         return path
       }
 
       if let cached = contentHashes[stripped] {
-        let p = Path(stripped)
-        let ext = p.extension ?? ""
-        let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + cached + (ext.isEmpty ? "" : ".\(ext)"))
-        return (path.hasPrefix("/") ? "/" : "") + name.string
+        return (path.hasPrefix("/") ? "/" : "") + hashedPath(Path(stripped), hash: cached).string
       }
 
       do {
@@ -54,25 +60,19 @@ extension Saga {
         let digest = Insecure.MD5.hash(data: data)
         let hashString = String(digest.map { String(format: "%02x", $0) }.joined().prefix(8))
         contentHashes[stripped] = hashString
-
-        let p = Path(stripped)
-        let ext = p.extension ?? ""
-        let name = p.parent() + Path(p.lastComponentWithoutExtension + "-" + hashString + (ext.isEmpty ? "" : ".\(ext)"))
-        return (path.hasPrefix("/") ? "/" : "") + name.string
+        return (path.hasPrefix("/") ? "/" : "") + hashedPath(Path(stripped), hash: hashString).string
       } catch {
         return path
       }
     }
   }
 
-  /// Copy hashed versions of files that were referenced via `Saga.hashed()`.
+  /// Copy hashed versions of files that were referenced via `Saga.hashed()`, next to the regular copy.
   func copyHashedFiles() throws {
-    for file in unhandledFiles where contentHashes[file.relativePath.string] != nil {
-      let relativePath = file.relativePath
-      let ext = relativePath.extension ?? ""
-      let hashedName = relativePath.lastComponentWithoutExtension + "-" + contentHashes[relativePath.string]! + (ext.isEmpty ? "" : ".\(ext)")
-      let hashedRelativePath = relativePath.parent() + Path(hashedName)
-      let destination = outputPath + hashedRelativePath
+    for file in unhandledFiles {
+      let outputRelativePath = i18nOutputPath(for: file.relativePath)
+      guard let hash = contentHashes[outputRelativePath.string] else { continue }
+      let destination = outputPath + hashedPath(outputRelativePath, hash: hash)
       try fileIO.mkpath(destination.parent())
       try fileIO.copy(file.path, destination)
     }

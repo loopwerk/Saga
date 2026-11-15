@@ -415,6 +415,48 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalCopied.contains(where: { $0.destination == "root/output/static/style.css" }))
   }
 
+  func testI18nHashedUsesOutputPaths() async throws {
+    let writtenPages = Recorder<WrittenPage>()
+    let copiedFiles = Recorder<CopiedFile>()
+
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "en/articles/chart.png",
+        "nl/articles/hello.md",
+        "nl/articles/chart.png",
+      ]
+    }
+    mock.write = writtenPages.record
+    mock.copy = copiedFiles.record
+    // read returns fixed content so the hash is deterministic
+    mock.read = { _ in Data("hello".utf8) }
+
+    _ = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])],
+        writers: [
+          .itemWriter { context in
+            context.item.resources.map { Saga.hashed($0.url) }.joined()
+          },
+        ]
+      )
+      .run()
+
+    // The hash of "hello" via MD5 starts with 5d41402a
+    let contents = writtenPages.values.map(\.content)
+    XCTAssertTrue(contents.contains("/articles/chart-5d41402a.png"))
+    XCTAssertTrue(contents.contains("/nl/artikelen/chart-5d41402a.png"))
+
+    let destinations = copiedFiles.values.map(\.destination)
+    XCTAssertTrue(destinations.contains("root/output/articles/chart-5d41402a.png"))
+    XCTAssertTrue(destinations.contains("root/output/nl/artikelen/chart-5d41402a.png"))
+  }
+
   func testI18nResourcesUseLocalizedOutputFolder() async throws {
     var mock = FileIO.mock
     mock.findFiles = { _ in

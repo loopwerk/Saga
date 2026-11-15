@@ -56,7 +56,8 @@ You can read [this series of articles](https://www.loopwerk.io/articles/tag/saga
 - <doc:Deploying>
 - <doc:Architecture>
 - <doc:AdvancedUsage>
-- <doc:Migrate>
+- <doc:Migrate-4>
+- <doc:Migrate-3>
 
 ### Guides
 
