@@ -14,6 +14,9 @@ just test
 # Format the code
 just format
 
+# Check formatting without changing files
+just check
+
 # Generate documentation
 just docs
 

@@ -7,6 +7,9 @@ test:
 format:
   swiftformat -swift-version 6 .
 
+check:
+  swiftformat --lint -swift-version 6 .
+
 # The symbol graph folder depends on the build system, so use the one that dump-symbol-graph reports.
 # All of .build would also pick up stale graphs and other modules' graphs, and DocC needs a single module.
 docs:
