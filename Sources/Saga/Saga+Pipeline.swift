@@ -173,7 +173,13 @@ extension Saga {
             // Override the output path if a slug is specified in frontmatter
             if let slug = partial.frontmatter?["slug"] {
               let parent = file.relativePath.parent()
-              let slugPath = parent + Path(slug.slugified + "." + (file.relativePath.extension ?? "md"))
+              // An index file in its own subfolder gets its URL from that folder, so the slug replaces the folder name.
+              // Index files directly in the step's folder (or the input root) have no such folder.
+              let isSubfolderIndex = file.relativePath.lastComponentWithoutExtension == "index"
+                && ![folder?.string ?? "", "."].contains(parent.string)
+              let slugPath = isSubfolderIndex
+                ? parent.parent() + Path(slug.slugified) + Path(file.relativePath.lastComponent)
+                : parent + Path(slug.slugified + "." + (file.relativePath.extension ?? "md"))
               item.relativeDestination = slugPath.makeOutputPath(itemWriteMode: itemWriteMode)
             }
 

@@ -899,6 +899,31 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(content.contains("<loc>https://example.com/articles/list.html</loc>"))
   }
 
+  func testSlugOnIndexFileReplacesFolderName() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["articles/hello-world/index.md"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(folder: "articles", metadata: EmptyMetadata.self, readers: [.mock(frontmatter: ["slug": "hallo-wereld"])])
+      .run()
+
+    XCTAssertEqual(saga.allItems.first?.relativeDestination, "articles/hallo-wereld/index.html")
+  }
+
+  func testSlugOnRootIndexFile() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["index.md"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(metadata: EmptyMetadata.self, readers: [.mock(frontmatter: ["slug": "home"])])
+      .run()
+
+    // The input root isn't part of the item's own URL, so there's no folder name to replace
+    XCTAssertEqual(saga.allItems.first?.relativeDestination, "home/index.html")
+  }
+
   func testSlugFrontmatterSetsDestination() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

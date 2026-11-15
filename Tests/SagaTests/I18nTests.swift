@@ -328,6 +328,33 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
     XCTAssertFalse(between.contains("xhtml:link"))
   }
 
+  func testI18nSlugOnIndexFileWithLocalizedOutputFolder() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["nl/articles/hello-world/index.md"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
+      .register(folder: "articles", metadata: EmptyMetadata.self, readers: [.mock(frontmatter: ["date": "2025-01-01", "slug": "hallo-wereld"])])
+      .run()
+
+    XCTAssertEqual(saga.allItems.first?.relativeDestination, "nl/artikelen/hallo-wereld/index.html")
+  }
+
+  func testI18nSlugOnLocaleRootIndexFile() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["nl/index.md"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en")
+      .register(metadata: EmptyMetadata.self, readers: [.mock(frontmatter: ["date": "2025-01-01", "slug": "home"])])
+      .run()
+
+    // The locale folder isn't part of the item's own URL, so the slug must not replace it
+    XCTAssertEqual(saga.allItems.first?.relativeDestination, "nl/home/index.html")
+  }
+
   func testI18nSlugWithLocalizedOutputFolder() async throws {
     let writtenPages = Recorder<WrittenPage>()
 
