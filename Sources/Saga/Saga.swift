@@ -215,12 +215,6 @@ public class Saga: StepBuilder, @unchecked Sendable {
     return self
   }
 
-  @available(*, deprecated, renamed: "ignoreChanges")
-  @discardableResult
-  public func ignore(_ pattern: String) -> Self {
-    ignoreChanges(pattern)
-  }
-
   /// Execute all the registered steps.
   @discardableResult
   public func run() async throws -> Self {

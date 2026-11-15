@@ -13,15 +13,6 @@ import SagaPathKit
 
 public extension Saga {
   /// A renderer which creates an Atom feed for Items.
-  @available(*, deprecated, message: "Use atomFeed(title:author:baseURL:limit:itemTitle:summary:image:date:) instead, which takes a closure (or a keypath like \\.date)")
-  @_documentation(visibility: private)
-  @preconcurrency
-  static func atomFeed<Context: AtomContext>(title: String, author: String? = nil, baseURL: URL, itemTitle: (@Sendable (Item<Context.M>) -> String)? = nil, summary: (@Sendable (Item<Context.M>) -> String?)? = nil, image: (@Sendable (Item<Context.M>) -> String?)? = nil, dateKeyPath: KeyPath<Item<Context.M>, Date>) -> (@Sendable (_ context: Context) -> String) {
-    nonisolated(unsafe) let dateKeyPath = dateKeyPath
-    return atomFeed(title: title, author: author, baseURL: baseURL, itemTitle: itemTitle, summary: summary, image: image, date: { $0[keyPath: dateKeyPath] })
-  }
-
-  /// A renderer which creates an Atom feed for Items.
   ///
   /// For JSON Feed and other formats, see <doc:CustomFeedFormats>.
   ///

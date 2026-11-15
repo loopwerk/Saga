@@ -328,19 +328,6 @@ public class StepBuilder: @unchecked Sendable {
     return self
   }
 
-  /// Register a custom write-only step.
-  @discardableResult
-  @preconcurrency
-  @available(*, deprecated, message: "Use `afterRead(_:)` or `afterWrite(_:)` instead.")
-  public func register(write: @Sendable @escaping (Saga) async throws -> Void) -> Self {
-    steps.append(PipelineStep(
-      read: { _ in [] },
-      write: { saga in try await write(saga) }
-    ))
-
-    return self
-  }
-
   /// Create a page that is driven purely by a template.
   ///
   /// Use this for pages such as a homepage showing the latest articles,

@@ -3,14 +3,6 @@ import SagaPathKit
 
 public extension Saga {
   /// A renderer which creates an XML sitemap from all generated pages.
-  @available(*, deprecated, message: "Use sitemap(baseURL:filter:) with the item-aware (Path, AnyItem?) -> Bool filter instead")
-  @_documentation(visibility: private)
-  @preconcurrency
-  static func sitemap(baseURL: URL, filter: @Sendable @escaping (Path) -> Bool) -> @Sendable (PageRenderingContext) -> String {
-    sitemap(baseURL: baseURL, filter: { path, _ in filter(path) })
-  }
-
-  /// A renderer which creates an XML sitemap from all generated pages.
   ///
   /// When i18n is configured, the sitemap includes `xhtml:link` alternate entries
   /// for pages that have translations in other locales, following Google's
