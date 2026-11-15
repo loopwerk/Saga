@@ -11,11 +11,13 @@ public struct Resource: Sendable {
   /// The path the file is copied to, relative to the site's `output`.
   public let relativeDestination: Path
 
-  public var filenameWithoutExtension: String {
-    relativeSource.lastComponentWithoutExtension
-  }
+  /// The URL of the file on the site.
+  public let url: String
 
-  public var url: String {
-    relativeDestination.url
+  init(absoluteSource: Path, relativeSource: Path, relativeDestination: Path) {
+    self.absoluteSource = absoluteSource
+    self.relativeSource = relativeSource
+    self.relativeDestination = relativeDestination
+    url = relativeDestination.url
   }
 }

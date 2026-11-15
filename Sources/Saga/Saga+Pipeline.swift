@@ -176,7 +176,7 @@ extension Saga {
               let parent = file.relativePath.parent()
               // An index file in its own subfolder gets its URL from that folder, so the slug replaces the folder name.
               // Index files directly in the step's folder (or the input root) have no such folder.
-              let isSubfolderIndex = file.relativePath.lastComponentWithoutExtension == "index"
+              let isSubfolderIndex = file.relativePath.lastComponentWithoutExtension.slugified == "index"
                 && ![folder?.string ?? "", "."].contains(parent.string)
               let slugPath = isSubfolderIndex
                 ? parent.parent() + Path(slug.slugified) + Path(file.relativePath.lastComponent)

@@ -476,6 +476,14 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     ])
   }
 
+  func testResourceURLIsVisibleToReflection() {
+    let resource = Resource(absoluteSource: "root/input/apps/lastfm/1.jpg", relativeSource: "apps/lastfm/1.jpg", relativeDestination: "apps/lastfm/1.jpg")
+
+    // Stencil reads properties through reflection, which only sees stored properties
+    let url = Mirror(reflecting: resource).children.first { $0.label == "url" }?.value as? String
+    XCTAssertEqual(url, "/apps/lastfm/1.jpg")
+  }
+
   func testItemResourcesAreSortedByPath() async throws {
     var mock = FileIO.mock
     mock.findFiles = { _ in ["apps/lastfm/index.md", "apps/lastfm/lastfm_2.jpg", "apps/lastfm/lastfm_1.jpg"] }
@@ -922,6 +930,18 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
   func testSlugOnIndexFileReplacesFolderName() async throws {
     var mock = FileIO.mock
     mock.findFiles = { _ in ["articles/hello-world/index.md"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(folder: "articles", metadata: EmptyMetadata.self, readers: [.mock(frontmatter: ["slug": "hallo-wereld"])])
+      .run()
+
+    XCTAssertEqual(saga.allItems.first?.relativeDestination, "articles/hallo-wereld/index.html")
+  }
+
+  func testSlugOnCapitalizedIndexFileReplacesFolderName() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["articles/hello-world/Index.md"] }
     mock.write = { _, _ in }
 
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
