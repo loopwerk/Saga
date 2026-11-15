@@ -27,6 +27,7 @@ Then set up your nested Saga pipeline like so:
 try await Saga(input: "content", output: "deploy")
   .register(
     folder: "photos",
+    metadata: EmptyMetadata.self,
     writers: [
       .listWriter(swim(renderAlbums)),
     ],

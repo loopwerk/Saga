@@ -4,7 +4,7 @@ Create items programmatically from external data sources like REST APIs.
 
 ## Overview
 
-Saga's pipeline is traditionally file-driven, but sometimes your content lives in an API or database. The `register(fetch:writers:)` method lets you supply items from any async data source and feed them into the same writer pipeline as file-based content.
+Saga's pipeline is traditionally file-driven, but sometimes your content lives in an API or database. The `register(metadata:fetch:writers:)` method lets you supply items from any async data source and feed them into the same writer pipeline as file-based content.
 
 This guide shows how to fetch GitHub repositories and render them as a portfolio page.
 

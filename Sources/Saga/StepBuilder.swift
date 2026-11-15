@@ -105,7 +105,7 @@ public class StepBuilder: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - folder: The folder (relative to `input`) to operate on. If `nil`, it operates on the `input` folder itself.
-  ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - metadata: The metadata type used for the pipeline step. Use ``EmptyMetadata`` if you don't need any custom metadata.
   ///   - readers: The readers that will be used by this step.
   ///   - itemProcessor: A function to modify the generated ``Item`` as you see fit.
   ///   - filter: A filter to only include certain items from the input folder.
@@ -119,10 +119,7 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func register<M: Metadata>(
     folder: Path? = nil,
-    // TODO: for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
-    // while it's also inferrable from other parameters will be an error in a future Swift language mode.
-    // Also update GettingStarted.md and the tests that leave out `metadata:`, and add a Migrate.md note.
-    metadata: M.Type = EmptyMetadata.self,
+    metadata: M.Type,
     readers: [Reader] = [],
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,
     filter: @escaping @Sendable (Item<M>) -> Bool = { _ in true },
@@ -278,7 +275,7 @@ public class StepBuilder: @unchecked Sendable {
   /// For a complete walkthrough, see <doc:FetchingFromAPIs>.
   ///
   /// - Parameters:
-  ///   - metadata: The metadata type used for the pipeline step. You can use ``EmptyMetadata`` if you don't need any custom metadata (which is the default value).
+  ///   - metadata: The metadata type used for the pipeline step. Use ``EmptyMetadata`` if you don't need any custom metadata.
   ///   - fetch: An async function that returns an array of items.
   ///   - cacheKey: The cache key for storing fetched items. Defaults to the metadata type name. Pass `nil` to disable caching.
   ///   - itemProcessor: A function to modify each fetched ``Item`` as you see fit.
@@ -288,10 +285,7 @@ public class StepBuilder: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register<M: Metadata>(
-    // TODO: for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
-    // while it's also inferrable from other parameters will be an error in a future Swift language mode.
-    // Also update GettingStarted.md and the tests that leave out `metadata:`, and add a Migrate.md note.
-    metadata: M.Type = EmptyMetadata.self,
+    metadata: M.Type,
     fetch: @escaping @Sendable () async throws -> [Item<M>],
     cacheKey: String? = String(describing: M.self),
     itemProcessor: (@Sendable (Item<M>) async -> Void)? = nil,

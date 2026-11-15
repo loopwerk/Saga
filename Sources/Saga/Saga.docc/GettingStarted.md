@@ -26,6 +26,7 @@ func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
 try await Saga(input: "content", output: "deploy")
   // All Markdown files within the `input` folder will be parsed to html.
   .register(
+    metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [.itemWriter(swim(renderPage))]
   )
@@ -129,8 +130,9 @@ try await Saga(input: "content", output: "deploy")
   )
 
   // All the remaining Markdown files will be parsed to html,
-  // using the default `EmptyMetadata` as the item's metadata type.
+  // using `EmptyMetadata` as the item's metadata type.
   .register(
+    metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader],
     writers: [.itemWriter(swim(renderPage))]
   )

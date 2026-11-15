@@ -14,6 +14,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "folder",
+        metadata: EmptyMetadata.self,
         nested: { nested in
           nested.register(
             metadata: EmptyMetadata.self,
@@ -65,6 +66,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "folder",
+        metadata: EmptyMetadata.self,
         writers: [
           .listWriter { context in
             context.items.map { item in
@@ -106,6 +108,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "folder",
+        metadata: EmptyMetadata.self,
         itemProcessor: { item in
           item.title = item.title.uppercased()
         },
@@ -139,6 +142,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "folder",
+        metadata: EmptyMetadata.self,
         nested: { nested in
           nested.register(metadata: EmptyMetadata.self, readers: [.mock(frontmatter: [:])])
         }
@@ -216,6 +220,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "folder",
+        metadata: EmptyMetadata.self,
         writers: [],
         nested: { nested in
           nested.register(
@@ -257,6 +262,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     let saga = try await Saga(input: "input", output: "output", fileIO: mock)
       .register(
         folder: "courses",
+        metadata: EmptyMetadata.self,
         writers: [
           .listWriter { context in
             // Outer: list of courses (math, science)
@@ -266,6 +272,7 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
         nested: { nested in
           nested.register(
             // Middle level: topics (algebra, calculus, physics)
+            metadata: EmptyMetadata.self,
             writers: [
               .listWriter { context in
                 context.items.map { "\($0.title):\($0.children.count)" }.joined(separator: ",")

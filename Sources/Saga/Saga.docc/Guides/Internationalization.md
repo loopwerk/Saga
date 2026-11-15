@@ -31,7 +31,7 @@ try await Saga(input: "content", output: "deploy")
   .run()
 ```
 
-With this configuration, `.register(folder: "articles")` automatically processes both `en/articles/` and `nl/articles/`. Each item gets a `locale` property, and translations are linked by matching source filenames across locale directories.
+With this configuration, `.register(folder: "articles", …)` automatically processes both `en/articles/` and `nl/articles/`. Each item gets a `locale` property, and translations are linked by matching source filenames across locale directories.
 
 ## Content organization
 

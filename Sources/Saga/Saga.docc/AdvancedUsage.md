@@ -53,6 +53,7 @@ func addExclamationToTitle(item: Item<EmptyMetadata>) async {
 
 try await Saga(input: "content", output: "deploy")
   .register(
+    metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader],
     itemProcessor: addExclamationToTitle,
     writers: [.itemWriter(swim(renderItem))]
@@ -81,6 +82,7 @@ Chain multiple processors with ``Saga/sequence(_:)``:
 
 ```swift
 .register(
+  metadata: ArticleMetadata.self,
   readers: [.parsleyMarkdownReader],
   itemProcessor: sequence(processShortcodes, fixDates, addReadingTime),
   writers: [.itemWriter(swim(renderItem))]

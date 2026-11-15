@@ -176,7 +176,7 @@ try await Saga(input: "content", output: "deploy")
   )
 
   // All the remaining markdown files will be parsed to html,
-  // using the default EmptyMetadata as the Item's metadata type.
+  // using EmptyMetadata as the Item's metadata type.
   .register(
     metadata: EmptyMetadata.self,
     readers: [.parsleyMarkdownReader],
