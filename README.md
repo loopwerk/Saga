@@ -3,7 +3,7 @@
 </p>
 
 > [!TIP]
-> **Saga 4 is here!** See the [migration guide](https://getsaga.dev/docs/migrate/) for what's new.
+> **Saga 4 is here!** See the [migration guide](https://getsaga.dev/docs/migrate-4/) for what's new.
 
 A code-first static site generator in Swift. No config files, no implicit behavior, no magic conventions.
 

@@ -35,6 +35,9 @@ public class Saga: StepBuilder, @unchecked Sendable {
   var handledPaths: Set<Path> = []
   var contentHashes: [String: String] = [:]
 
+  /// The unhandled files, with their output paths. Set after the read phase.
+  var resources: [Resource] = []
+
   // Generated page tracking, for the sitemap
   var generatedPages: [Path: AnyItem?] = [:]
   let generatedPagesLock = NSLock()

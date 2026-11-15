@@ -35,6 +35,7 @@ extension Saga {
 
     fileIO.log("Finished read phase in \(elapsed(from: readStart))")
 
+    resources = makeResources()
     attachResources()
 
     // Link translations across locales
@@ -61,11 +62,11 @@ extension Saga {
     // so that the directory structure exists for the write phase.
     let copyStart = DispatchTime.now()
     try await withThrowingTaskGroup(of: Void.self) { group in
-      for file in unhandledFiles {
+      for resource in resources {
         group.addTask {
-          let output = self.outputPath + self.i18nOutputPath(for: file.relativePath)
+          let output = self.outputPath + resource.relativeDestination
           try self.fileIO.mkpath(output.parent())
-          try self.fileIO.copy(file.path, output)
+          try self.fileIO.copy(resource.absoluteSource, output)
         }
       }
       try await group.waitForAll()

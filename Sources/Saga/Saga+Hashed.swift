@@ -44,23 +44,32 @@ extension Saga {
   func setupHashFunction() {
     guard !Saga.isDev else { return }
 
+    let resourcesByPath = Dictionary(resources.map { ($0.relativeDestination.string, $0) }, uniquingKeysWith: { first, _ in first })
+    var warnedPaths: Set<String> = []
+
     setHashFunction { [weak self] path in
       guard let self else { return path }
       let stripped = path.hasPrefix("/") ? String(path.dropFirst()) : path
-      guard let file = files.first(where: { i18nOutputPath(for: $0.relativePath).string == stripped }) else {
+      let prefix = path.hasPrefix("/") ? "/" : ""
+
+      if let cached = contentHashes[stripped] {
+        return prefix + hashedPath(Path(stripped), hash: cached).string
+      }
+
+      guard let resource = resourcesByPath[stripped] else {
+        // Every page that links the file calls this, so only warn the first time
+        if warnedPaths.insert(stripped).inserted {
+          fileIO.log("⚠️ Saga.hashed: no file found at \(path) in the output folder, so it's not hashed")
+        }
         return path
       }
 
-      if let cached = contentHashes[stripped] {
-        return (path.hasPrefix("/") ? "/" : "") + hashedPath(Path(stripped), hash: cached).string
-      }
-
       do {
-        let data = try fileIO.read(file.path)
+        let data = try fileIO.read(resource.absoluteSource)
         let digest = Insecure.MD5.hash(data: data)
         let hashString = String(digest.map { String(format: "%02x", $0) }.joined().prefix(8))
         contentHashes[stripped] = hashString
-        return (path.hasPrefix("/") ? "/" : "") + hashedPath(Path(stripped), hash: hashString).string
+        return prefix + hashedPath(Path(stripped), hash: hashString).string
       } catch {
         return path
       }
@@ -69,12 +78,11 @@ extension Saga {
 
   /// Copy hashed versions of files that were referenced via `Saga.hashed()`, next to the regular copy.
   func copyHashedFiles() throws {
-    for file in unhandledFiles {
-      let outputRelativePath = i18nOutputPath(for: file.relativePath)
-      guard let hash = contentHashes[outputRelativePath.string] else { continue }
-      let destination = outputPath + hashedPath(outputRelativePath, hash: hash)
+    for resource in resources {
+      guard let hash = contentHashes[resource.relativeDestination.string] else { continue }
+      let destination = outputPath + hashedPath(resource.relativeDestination, hash: hash)
       try fileIO.mkpath(destination.parent())
-      try fileIO.copy(file.path, destination)
+      try fileIO.copy(resource.absoluteSource, destination)
     }
   }
 }

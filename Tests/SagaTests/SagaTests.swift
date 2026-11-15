@@ -718,6 +718,26 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
       .run()
   }
 
+  func testHashUnknownFileLogsOneWarning() async throws {
+    let logs = Recorder<String>()
+
+    var mock = FileIO.mock
+    mock.log = logs.append
+
+    try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: [:])],
+        writers: [
+          .itemWriter { _ in Saga.hashed("/nonexistent.css") },
+        ]
+      )
+      .run()
+
+    // Both test.md and test2.md hash the same unknown path, but the warning is logged once
+    XCTAssertEqual(logs.values.filter { $0.contains("/nonexistent.css") }.count, 1)
+  }
+
   func testPostProcess() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

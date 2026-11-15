@@ -34,23 +34,24 @@ extension Saga {
     files.filter { !handledPaths.contains($0.path) }
   }
 
-  /// Unhandled files grouped by their relative parent folder, sorted by path within each folder.
-  func resourcesByFolder() -> [Path: [Resource]] {
-    unhandledFiles.sorted { $0.relativePath.string < $1.relativePath.string }.reduce(into: [Path: [Resource]]()) { into, file in
-      let resource = Resource(
-        absoluteSource: file.path,
-        relativeSource: file.relativePath,
-        relativeDestination: i18nOutputPath(for: file.relativePath)
-      )
-      into[file.relativePath.parent(), default: []].append(resource)
-    }
+  /// Every unhandled file as a ``Resource``, sorted by path.
+  func makeResources() -> [Resource] {
+    unhandledFiles
+      .sorted { $0.relativePath.string < $1.relativePath.string }
+      .map { file in
+        Resource(
+          absoluteSource: file.path,
+          relativeSource: file.relativePath,
+          relativeDestination: i18nOutputPath(for: file.relativePath)
+        )
+      }
   }
 
   /// Set ``Item/resources`` on every item that comes from the input folder.
   /// An item read from a file gets the files next to it. A nested parent without an index file
   /// stands for its folder, so it gets the files inside that folder.
   func attachResources() {
-    let resourcesByFolder = resourcesByFolder()
+    let resourcesByFolder = Dictionary(grouping: resources) { $0.relativeSource.parent() }
     let inputFiles = Set(files.map(\.relativePath))
     for item in allItems where !item.relativeSource.string.isEmpty {
       let folder = inputFiles.contains(item.relativeSource) ? item.relativeSource.parent() : item.relativeSource
