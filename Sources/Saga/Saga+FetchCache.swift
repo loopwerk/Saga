@@ -28,8 +28,7 @@ extension Saga {
 
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .iso8601
-    guard let data = try? encoder.encode(items) else { return }
-    guard let string = String(data: data, encoding: .utf8) else { return }
+    guard let data = try? encoder.encode(items), let string = String(data: data, encoding: .utf8) else { return }
     let cacheFile = cachePath + Path("\(key).json")
     try? fileIO.mkpath(cachePath)
     try? fileIO.write(cacheFile, string)

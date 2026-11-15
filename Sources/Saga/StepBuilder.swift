@@ -7,8 +7,7 @@ private func discoverSubfolders(under folder: Path, from files: [(path: Path, re
   return Set(
     files.compactMap { file -> Path? in
       let components = file.relativePath.components
-      guard components.count > depth + 1 else { return nil }
-      guard Array(components.prefix(depth)) == folder.components else { return nil }
+      guard components.count > depth + 1, Array(components.prefix(depth)) == folder.components else { return nil }
       return folder + Path(components[depth])
     }
   )
@@ -121,7 +120,7 @@ public class StepBuilder: @unchecked Sendable {
   @preconcurrency
   public func register<M: Metadata>(
     folder: Path? = nil,
-    // TODO for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
+    // TODO: for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
     // while it's also inferrable from other parameters will be an error in a future Swift language mode.
     // Also update GettingStarted.md and the tests that leave out `metadata:`, and add a Migrate.md note.
     metadata: M.Type = EmptyMetadata.self,
@@ -290,7 +289,7 @@ public class StepBuilder: @unchecked Sendable {
   @discardableResult
   @preconcurrency
   public func register<M: Metadata>(
-    // TODO for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
+    // TODO: for Saga 4: make `metadata:` required by removing the default. Using a default to infer `M`
     // while it's also inferrable from other parameters will be an error in a future Swift language mode.
     // Also update GettingStarted.md and the tests that leave out `metadata:`, and add a Migrate.md note.
     metadata: M.Type = EmptyMetadata.self,
