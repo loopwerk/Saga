@@ -50,7 +50,6 @@ private func executeWriters<M: Metadata>(
     outputRoot: saga.outputPath,
     outputPrefix: outputPrefix,
     write: { try saga.processedWrite($0, $1, item: $2) },
-    resourcesByFolder: saga.resourcesByFolder(),
     subfolder: subfolder,
     locale: locale,
     localeOutputPrefixes: localeOutputPrefixes

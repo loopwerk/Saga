@@ -7,7 +7,6 @@ struct WriterContext<M: Metadata> {
   let outputRoot: Path
   let outputPrefix: Path
   let write: @Sendable (Path, String, AnyItem?) throws -> Void
-  let resourcesByFolder: [Path: [Path]]
   let subfolder: Path?
   let locale: SagaLocale?
   let localeOutputPrefixes: [SagaLocale: Path]
@@ -44,8 +43,6 @@ public extension Writer {
       try await withThrowingTaskGroup(of: Void.self) { group in
         for (index, item) in writerContext.items.enumerated() {
           group.addTask {
-            // Resources are unhandled files in the same folder. These could be images for example, or other static files.
-            let resources = writerContext.resourcesByFolder[item.relativeSource.parent()] ?? []
             let previous = index > 0 ? writerContext.items[index - 1] : nil
             let next = index < writerContext.items.count - 1 ? writerContext.items[index + 1] : nil
             var translations = item.translations.compactMapValues { $0.url as String? }
@@ -56,7 +53,6 @@ public extension Writer {
               item: item,
               items: writerContext.items,
               allItems: writerContext.allItems,
-              resources: resources,
               previous: previous,
               next: next,
               subfolder: writerContext.subfolder,
@@ -135,7 +131,6 @@ public extension Writer {
               outputRoot: writerContext.outputRoot,
               outputPrefix: writerContext.outputPrefix,
               write: writerContext.write,
-              resourcesByFolder: writerContext.resourcesByFolder,
               subfolder: writerContext.subfolder,
               locale: writerContext.locale,
               localeOutputPrefixes: writerContext.localeOutputPrefixes

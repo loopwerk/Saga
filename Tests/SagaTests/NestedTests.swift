@@ -131,6 +131,28 @@ final class NestedTests: XCTestCase, @unchecked Sendable {
     XCTAssertEqual(listPage?.content, "SUB1")
   }
 
+  func testNestedFakeParentResources() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["folder/sub1/a.md", "folder/sub1/photo.jpg", "folder/cover.jpg"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        folder: "folder",
+        nested: { nested in
+          nested.register(metadata: EmptyMetadata.self, readers: [.mock(frontmatter: [:])])
+        }
+      )
+      .run()
+
+    // The parent stands for the folder itself, so it gets that folder's files, like its children do
+    let urls = Dictionary(uniqueKeysWithValues: saga.allItems.map { ($0.relativeSource.string, $0.resources.map(\.url)) })
+    XCTAssertEqual(urls, [
+      "folder/sub1": ["/folder/sub1/photo.jpg"],
+      "folder/sub1/a.md": ["/folder/sub1/photo.jpg"],
+    ])
+  }
+
   func testNestedDifferentReaders() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

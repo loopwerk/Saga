@@ -26,8 +26,7 @@ import SagaPathKit
 /// The rendering context passed to an ``Writer/itemWriter(_:)`` renderer.
 ///
 /// Contains the single item being rendered, along with all items from the same processing step,
-/// all items across all steps, neighboring items for navigation, and any unhandled files (resources)
-/// in the same folder as the item.
+/// all items across all steps, and neighboring items for navigation.
 public struct ItemRenderingContext<M: Metadata>: Sendable {
   /// The item being rendered.
   public let item: Item<M>
@@ -38,9 +37,6 @@ public struct ItemRenderingContext<M: Metadata>: Sendable {
   /// All items across all registered processing steps.
   /// When i18n is configured, this only contains items for the current locale.
   public let allItems: [AnyItem]
-
-  /// Unhandled files in the same folder as the item, such as images or other static files.
-  public let resources: [Path]
 
   /// The previous item in sorted order, or `nil` if this is the first item.
   public let previous: Item<M>?
@@ -157,7 +153,6 @@ extension ItemRenderingContext: DictRenderingContext {
       "item": item,
       "items": items,
       "allItems": allItems,
-      "resources": resources,
       "translations": translations,
     ]
     if let previous {

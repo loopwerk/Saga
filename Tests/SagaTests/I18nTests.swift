@@ -415,6 +415,32 @@ final class I18nTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalCopied.contains(where: { $0.destination == "root/output/static/style.css" }))
   }
 
+  func testI18nResourcesUseLocalizedOutputFolder() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in
+      [
+        "en/articles/hello.md",
+        "en/articles/chart.png",
+        "nl/articles/hello.md",
+        "nl/articles/chart.png",
+        "static/style.css",
+      ]
+    }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .i18n(locales: ["en", "nl"], defaultLocale: "en", localizedOutputFolders: ["articles": ["nl": "artikelen"]])
+      .register(
+        folder: "articles",
+        metadata: EmptyMetadata.self,
+        readers: [.mock(frontmatter: ["date": "2025-01-01"])]
+      )
+      .run()
+
+    let urls = saga.allItems.flatMap(\.resources).map(\.url).sorted()
+    XCTAssertEqual(urls, ["/articles/chart.png", "/nl/artikelen/chart.png"])
+  }
+
   func testI18nWithNested() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

@@ -10,6 +10,7 @@ func t(_ key: String, locale: SagaLocale) -> String {
   let strings: [SagaLocale: [String: String]] = [
     "en": [
       "articles": "Articles",
+      "projects": "Projects",
       "about": "About",
       "home": "Home",
       "tagged": "Tagged",
@@ -20,6 +21,7 @@ func t(_ key: String, locale: SagaLocale) -> String {
     ],
     "nl": [
       "articles": "Artikelen",
+      "projects": "Projecten",
       "about": "Over ons",
       "home": "Home",
       "tagged": "Getagd",
@@ -35,7 +37,7 @@ func t(_ key: String, locale: SagaLocale) -> String {
 // MARK: - Language switcher
 
 func languageSwitcher(currentLocale: SagaLocale, translations: [SagaLocale: String]) -> Node {
-  nav(class: "lang-switcher") {
+  div(class: "lang-switcher") {
     translations.sorted(by: { $0.key < $1.key }).map { locale, url in
       if locale == currentLocale {
         span(class: "active") { locale.uppercased() }
@@ -48,11 +50,18 @@ func languageSwitcher(currentLocale: SagaLocale, translations: [SagaLocale: Stri
 
 // MARK: - Base layout
 
-func baseHtml(title pageTitle: String, locale: String, @NodeBuilder children: () -> NodeConvertible) -> Node {
+func baseHtml(title pageTitle: String, locale: String, currentUrl: String, translations: [SagaLocale: String], @NodeBuilder children: () -> NodeConvertible) -> Node {
   // URLs are fully localized: Dutch uses /nl/artikelen/ instead of /nl/articles/
   let articlesPath = locale == "en" ? "/articles/" : "/nl/artikelen/"
+  let projectsPath = locale == "en" ? "/projects/" : "/nl/projecten/"
   let aboutPath = locale == "en" ? "/about/" : "/nl/over-ons/"
   let homePath = locale == "en" ? "/" : "/nl/"
+
+  // Every URL starts with the home path, so Home is only active on the homepage itself.
+  func navLink(_ path: String, _ key: String) -> Node {
+    let isActive = path == homePath ? currentUrl == homePath : currentUrl.hasPrefix(path)
+    return a(class: isActive ? "active" : nil, href: path) { t(key, locale: locale) }
+  }
 
   return html(lang: locale) {
     head {
@@ -66,9 +75,14 @@ func baseHtml(title pageTitle: String, locale: String, @NodeBuilder children: ()
         nav {
           a(class: "site-title", href: homePath) { SiteMetadata.name }
           div(class: "nav-links") {
-            a(href: homePath) { t("home", locale: locale) }
-            a(href: articlesPath) { t("articles", locale: locale) }
-            a(href: aboutPath) { t("about", locale: locale) }
+            navLink(homePath, "home")
+            navLink(articlesPath, "articles")
+            navLink(projectsPath, "projects")
+            navLink(aboutPath, "about")
+
+            if !translations.isEmpty {
+              languageSwitcher(currentLocale: locale, translations: translations)
+            }
           }
         }
       }
@@ -92,9 +106,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
   let locale = context.locale ?? "en"
   let tagBase = locale == "en" ? "/articles/tag" : "/nl/artikelen/tag"
 
-  return baseHtml(title: context.item.title, locale: locale) {
-    languageSwitcher(currentLocale: locale, translations: context.translations)
-
+  return baseHtml(title: context.item.title, locale: locale, currentUrl: context.item.url, translations: context.translations) {
     h1 { context.item.title }
     ul(class: "tags") {
       context.item.metadata.tags.map { tag in
@@ -112,9 +124,7 @@ func renderArticle(context: ItemRenderingContext<ArticleMetadata>) -> Node {
 func renderArticles(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
   let locale = context.locale ?? "en"
 
-  return baseHtml(title: t("articles", locale: locale), locale: locale) {
-    languageSwitcher(currentLocale: locale, translations: context.translations)
-
+  return baseHtml(title: t("articles", locale: locale), locale: locale, currentUrl: context.outputPath.url, translations: context.translations) {
     h1 { t("articles", locale: locale) }
     context.items.map { article in
       div(class: "article-card") {
@@ -127,11 +137,32 @@ func renderArticles(context: ItemsRenderingContext<ArticleMetadata>) -> Node {
 func renderTag(context: PartitionedRenderingContext<String, ArticleMetadata>) -> Node {
   let locale = context.locale ?? "en"
 
-  return baseHtml(title: "\(t("tagged", locale: locale)): \(context.key)", locale: locale) {
+  return baseHtml(title: "\(t("tagged", locale: locale)): \(context.key)", locale: locale, currentUrl: context.outputPath.url, translations: context.translations) {
     h1 { "\(t("tagged", locale: locale)): \(context.key)" }
     context.items.map { article in
       div(class: "article-card") {
         a(href: article.url) { article.title }
+      }
+    }
+  }
+}
+
+// MARK: - Projects
+
+func renderProjects(context: ItemsRenderingContext<EmptyMetadata>) -> Node {
+  let locale = context.locale ?? "en"
+
+  return baseHtml(title: t("projects", locale: locale), locale: locale, currentUrl: context.outputPath.url, translations: context.translations) {
+    h1 { t("projects", locale: locale) }
+    context.items.map { project in
+      div(class: "article-card") {
+        h2 { project.title }
+        project.resources.map { resource in
+          img(alt: project.title, src: resource.url)
+        }
+        div(class: "article-body") {
+          Node.raw(project.body)
+        }
       }
     }
   }
@@ -142,9 +173,7 @@ func renderTag(context: PartitionedRenderingContext<String, ArticleMetadata>) ->
 func renderHome(context: PageRenderingContext) -> Node {
   let locale = context.locale ?? "en"
 
-  return baseHtml(title: t("home", locale: locale), locale: locale) {
-    languageSwitcher(currentLocale: locale, translations: context.translations)
-
+  return baseHtml(title: t("home", locale: locale), locale: locale, currentUrl: context.outputPath.url, translations: context.translations) {
     h1 { t("welcome", locale: locale) }
 
     if let latest = context.allItems.compactMap({ $0 as? Item<ArticleMetadata> }).first {
@@ -161,9 +190,7 @@ func renderHome(context: PageRenderingContext) -> Node {
 func renderPage(context: ItemRenderingContext<EmptyMetadata>) -> Node {
   let locale = context.locale ?? "en"
 
-  return baseHtml(title: context.item.title, locale: locale) {
-    languageSwitcher(currentLocale: locale, translations: context.translations)
-
+  return baseHtml(title: context.item.title, locale: locale, currentUrl: context.item.url, translations: context.translations) {
     div(class: "page") {
       h1 { context.item.title }
       div(class: "article-body") {

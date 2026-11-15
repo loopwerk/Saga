@@ -143,10 +143,11 @@ func renderApps(context: ItemsRenderingContext<AppMetadata>) -> Node {
       div(class: "app-card") {
         h2 { app.title }
 
-        if let images = app.metadata.images {
+        // The screenshots are the image files next to each app's index.md
+        if !app.resources.isEmpty {
           div(class: "app-images") {
-            images.map { image in
-              img(src: image)
+            app.resources.map { resource in
+              img(src: resource.url)
             }
           }
         }

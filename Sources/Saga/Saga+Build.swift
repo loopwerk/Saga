@@ -35,6 +35,8 @@ extension Saga {
 
     fileIO.log("Finished read phase in \(elapsed(from: readStart))")
 
+    attachResources()
+
     // Link translations across locales
     if i18nConfig != nil {
       linkTranslations()

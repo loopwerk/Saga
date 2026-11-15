@@ -6,86 +6,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Build the project
-swift build
+just build
 
 # Run tests
-swift test
+just test
 
-# Run the example project
-swift run
+# Format the code
+just format
 
 # Generate documentation
-./generate_docs.sh
+just docs
+
+# Preview documentation
+just docs-preview
 ```
 
-## CLI Commands (`saga`)
+The example sites (`Example/`, `ExampleI18n/`) have their own `justfile`: `just run` starts `saga dev`, `just build` runs `saga build`.
 
-```bash
-# Create a new Saga project
-saga init mysite
+The `saga` CLI (`init`, `dev`, `build`) lives in a [separate repository](https://github.com/loopwerk/saga-cli). File watching is handled by Saga itself, not the CLI.
 
-# Build a site (runs `swift run` in current directory)
-saga build
+## Documentation
 
-# Start dev server with file watching and auto-reload
-saga dev
+Saga's features are documented in DocC, in `Sources/Saga/Saga.docc/`. Start with `Architecture.md` for the pipeline, `AdvancedUsage.md` for hooks, processors and other features, and `Guides/` for specific use cases. The API reference comes from the doc comments in `Sources/Saga/`. Plugins are listed on [getsaga.dev](https://getsaga.dev).
 
-# Dev server with custom port
-saga dev --port 8080
-```
+## Internals
 
-The `saga` CLI lives in a [separate repository](https://github.com/loopwerk/saga-cli). Install via Homebrew (`brew install loopwerk/tap/saga`) or Mint (`mint install loopwerk/saga-cli`).
-
-File watching and ignore patterns are handled by Saga itself (not the CLI). Use `.ignoreChanges()` in your Swift code to exclude files from triggering rebuilds.
-
-## Architecture Overview
-
-Saga is a static site generator written in Swift that follows a **beforeRead → Reader → Processor → afterRead → Writer → afterWrite** pipeline pattern:
-
-1. **beforeRead hooks** run pre-build steps (e.g. CSS compilation)
-2. **Readers** parse content files (Markdown, etc.) into strongly typed `Item<M: Metadata>` objects
-3. **Processors** transform items with custom logic and filtering
-4. **afterRead hooks** work on all items at once, before anything is written
-5. **Writers** generate output files using various rendering contexts
-6. **afterWrite hooks** run post-build steps (e.g. search indexing)
-
-### Core Components
-
+- **Processing Pipeline**: `Saga` (a `StepBuilder` subclass) turns each `register`/`createPage` call into a `PipelineStep`, and `build()` runs the read and write phases over all steps
+- **I/O Abstraction**: `FileIO` is a struct of closures, so tests swap in `FileIO.mock`, with `Path+Extensions` providing file system utilities
 - **Item System**: `Item<M: Metadata>` provides compile-time type safety for content metadata, with `AnyItem` for heterogeneous collections
-- **Processing Pipeline**: `Saga` class orchestrates the read → write pipeline with `processSteps` stages
-- **I/O Abstraction**: `FileIO` protocol enables mocking for tests, with `Path+Extensions` providing file system utilities
-- **Rendering Contexts**: Different contexts for single items, paginated lists, partitioned content (tags/years), and Atom feeds
-
-### Plugin Architecture
-
-Saga is designed for extensibility via external packages:
-- **Readers**: SagaParsleyMarkdownReader, SagaInkMarkdownReader, SagaPythonMarkdownReader
-- **Renderers**: SagaSwimRenderer (type-safe HTML), SagaStencilRenderer (templates)
-
-### Writer Types
-
-- `itemWriter`: Single item → single file
-- `listWriter`: Multiple items → paginated files
-- `tagWriter`: Items grouped by tags
-- `yearWriter`: Items grouped by publication year
-
-### Build Helpers
-
-- `beforeRead(_:)`: Hook that runs before the read phase of each build cycle (e.g. CSS compilation). Runs on every rebuild under `saga dev`.
-- `afterRead(_:)`: Hook that runs after the read phase, once all items are read and sorted, and before any writer runs. Changes to items are visible to all writers. Runs on every rebuild under `saga dev`.
-- `afterWrite(_:)`: Hook that runs after the write phase of each build cycle (e.g. search indexing). Runs on every rebuild under `saga dev`.
-- `Saga.hashed(_:)`: Static method for cache-busting asset URLs (e.g. `Saga.hashed("/static/style.css")` → `/static/style-a1b2c3d4.css`). Skipped in dev mode.
-- `postProcess(_:)`: Apply transforms (e.g. HTML minification) to every written file.
-- `Saga.sitemap(baseURL:filter:)`: Built-in renderer that generates an XML sitemap from `generatedPages`. Use with `createPage`.
-- `Saga.atomFeed(title:author:baseURL:...)`: Built-in renderer that generates an Atom feed from items.
-- `Saga.isDev`: `true` when the `SAGA_DEV` environment variable is set. Use to skip expensive work during development.
-- `Saga.isCLI`: `true` when launched by saga-cli (checks `SAGA_CLI` env var). Used internally to activate file watching and rebuild loop.
-- `ignoreChanges(_:)`: Add glob patterns for files that should not trigger a dev rebuild (e.g. generated CSS).
-- `i18n(locales:defaultLocale:prefixDefaultLocaleOutputFolder:localizedOutputFolders:)`: Enable multilingual support. Content is organized in locale-prefixed folders (`en/articles/`, `nl/articles/`). Each `register()` call auto-fans into per-locale steps. Use `localizedOutputFolders` to map content folders to different output folder names per locale (e.g. `["articles": ["nl": "artikelen"]]`).
-- `createPage(_:forEachLocale:)`: Like `createPage(_:using:)` but runs the renderer once per locale. Output path is auto-prefixed, `allItems` is filtered to the current locale, and `locale`/`translations` are set on the context.
-- `Item.locale`: The locale of an item (`nil` without i18n).
-- `Item.translations`: Dictionary of locale → `AnyItem` linking translations by matching filenames across locale folders.
-- `Item.translation(for:)`: Typed accessor for a specific locale's translation.
 
 ## Key Directories
 
@@ -101,22 +49,3 @@ Saga is designed for extensibility via external packages:
 - **Strong Typing**: Compile-time safety for metadata and content processing
 - **Testable Architecture**: Dependency injection with mock file I/O support
 - **Extensibility**: Plugin-based readers and renderers
-
-## Example Usage Pattern
-
-```swift
-try await Saga(input: "content", output: "deploy")
-  .register(
-    folder: "articles",
-    metadata: ArticleMetadata.self,
-    readers: [.parsleyMarkdownReader],
-    itemProcessor: customProcessor,
-    filter: \.public,
-    writers: [
-      .itemWriter(swim(renderArticle)),
-      .listWriter(swim(renderArticles), paginate: 20),
-      .tagWriter(swim(renderTag), tags: \.metadata.tags)
-    ]
-  )
-  .run()
-```

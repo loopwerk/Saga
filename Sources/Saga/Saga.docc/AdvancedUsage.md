@@ -133,6 +133,41 @@ When you have content organized into subfolders and want each subfolder processe
 > Tip: See <doc:PhotoGalleries> for a complete example building photo galleries with nested processing, album pages, and per-album navigation.
 
 
+## Item resources
+
+Unhandled files in the same folder as an item, such as images, are available as ``Item/resources``. Give each item its own folder to keep its files together, for example an app with its screenshots:
+
+```
+content/apps/
+├── lastfm/
+│   ├── index.md
+│   ├── screenshot-1.jpg
+│   └── screenshot-2.jpg
+└── tessa/
+    ├── index.md
+    └── screenshot.png
+```
+
+Any renderer that has the item can use its resources, including list pages:
+
+```swift
+func renderApps(context: ItemsRenderingContext<AppMetadata>) -> Node {
+  baseHtml(title: "Apps") {
+    context.items.map { app in
+      div {
+        h2 { app.title }
+        app.resources.map { resource in
+          img(src: resource.url)
+        }
+      }
+    }
+  }
+}
+```
+
+> Tip: Link with ``Resource/url`` rather than the file name: the page may not be in the same folder as the file, and with <doc:Internationalization> the output folder may be renamed.
+
+
 ## Cache-busting with Saga.hashed()
 
 The ``Saga/hashed(_:)`` function takes a path like `/static/output.css` and returns `/static/output-a1b2c3d4.css`, where the hash is derived from the file's contents. Saga automatically copies the hashed file to the output folder.

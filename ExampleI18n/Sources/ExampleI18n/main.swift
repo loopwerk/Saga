@@ -18,7 +18,10 @@ try await Saga(input: "content", output: "deploy")
   .i18n(
     locales: ["en", "nl"],
     defaultLocale: "en",
-    localizedOutputFolders: ["articles": ["nl": "artikelen"]]
+    localizedOutputFolders: [
+      "articles": ["nl": "artikelen"],
+      "projects": ["nl": "projecten"],
+    ]
   )
 
   // Articles with list and tag pages
@@ -31,6 +34,15 @@ try await Saga(input: "content", output: "deploy")
       .listWriter(swim(renderArticles)),
       .tagWriter(swim(renderTag), tags: \.metadata.tags),
     ]
+  )
+
+  // Projects, each in its own folder. The screenshots next to each index.md
+  // become that project's resources, which the list page shows.
+  .register(
+    folder: "projects",
+    metadata: EmptyMetadata.self,
+    readers: [.parsleyMarkdownReader],
+    writers: [.listWriter(swim(renderProjects))]
   )
 
   // All remaining markdown files (about, etc.)

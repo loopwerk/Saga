@@ -443,6 +443,51 @@ final class SagaTests: XCTestCase, @unchecked Sendable {
     XCTAssertTrue(finalWrittenPages.contains(WrittenPage(destination: "root/output/fetched/index.html", content: "<p>two</p><p>one</p>")))
   }
 
+  func testFetchedItemsHaveNoResources() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["style.css"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(
+        metadata: EmptyMetadata.self,
+        fetch: { [Item(title: "Fetched", metadata: EmptyMetadata())] },
+        writers: []
+      )
+      .run()
+
+    XCTAssertEqual(saga.allItems.count, 1)
+    XCTAssertTrue(saga.allItems[0].resources.isEmpty)
+  }
+
+  func testItemResources() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["articles/foo/index.md", "articles/foo/cover.jpg", "articles/bar.md", "articles/chart.png", "style.css"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(folder: "articles", metadata: EmptyMetadata.self, readers: [.mock(frontmatter: [:])])
+      .run()
+
+    let urls = Dictionary(uniqueKeysWithValues: saga.allItems.map { ($0.relativeSource.string, $0.resources.map(\.url)) })
+    XCTAssertEqual(urls, [
+      "articles/foo/index.md": ["/articles/foo/cover.jpg"],
+      "articles/bar.md": ["/articles/chart.png"],
+    ])
+  }
+
+  func testItemResourcesAreSortedByPath() async throws {
+    var mock = FileIO.mock
+    mock.findFiles = { _ in ["apps/lastfm/index.md", "apps/lastfm/lastfm_2.jpg", "apps/lastfm/lastfm_1.jpg"] }
+    mock.write = { _, _ in }
+
+    let saga = try await Saga(input: "input", output: "output", fileIO: mock)
+      .register(folder: "apps", metadata: EmptyMetadata.self, readers: [.mock(frontmatter: [:])])
+      .run()
+
+    XCTAssertEqual(saga.allItems.first?.resources.map(\.url), ["/apps/lastfm/lastfm_1.jpg", "/apps/lastfm/lastfm_2.jpg"])
+  }
+
   func testRegisterFetchWithoutSorting() async throws {
     let writtenPages = Recorder<WrittenPage>()
 

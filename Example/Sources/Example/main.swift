@@ -19,7 +19,6 @@ struct ArticleMetadata: Metadata {
 
 struct AppMetadata: Metadata {
   let url: URL?
-  let images: [String]?
 }
 
 struct MusicVideoMetadata: Metadata {

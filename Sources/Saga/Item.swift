@@ -28,6 +28,7 @@ public protocol AnyItem: AnyObject, Sendable {
   var parent: AnyItem? { get set }
   var locale: SagaLocale? { get set }
   var translations: [SagaLocale: AnyItem] { get set }
+  var resources: [Resource] { get set }
 }
 
 /// A model representing an item.
@@ -69,6 +70,10 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
 
   /// Other language versions of this item, keyed by locale.
   public var translations: [SagaLocale: AnyItem] = [:]
+
+  /// Unhandled files in the item's folder, such as images or other static files. Populated automatically after the read phase.
+  /// Link to one with its `url`, since the item's page may be written to a subfolder.
+  public var resources: [Resource] = []
 
   /// Type-erased children. Populated automatically by nested registrations.
   public var children: [AnyItem] = []
@@ -125,7 +130,7 @@ public class Item<M: Metadata>: AnyItem, Codable, @unchecked Sendable {
     )
   }
 
-  /// A copy of this item, without the per-build state (locale, translations, parent, children).
+  /// A copy of this item, without the per-build state (locale, translations, resources, parent, children).
   /// Copies the same fields as ``CodingKeys``.
   func copy() -> Item<M> {
     Item(
